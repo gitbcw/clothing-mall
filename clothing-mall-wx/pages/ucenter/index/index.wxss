@@ -1,0 +1,169 @@
+page {
+  height: 100%;
+  width: 100%;
+  background: var(--primary-color);
+}
+
+.container {
+  background: var(--primary-color);
+  height: auto;
+  overflow: hidden;
+  width: 100%;
+}
+
+.profile-info {
+  background: transparent;
+  display: flex;
+  align-items: center;
+  padding-left: 50rpx;
+  padding-top: 120rpx;
+  font-size: 28rpx;
+  position: relative;
+  height: 440rpx;
+}
+.profile-info .desc{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -70rpx;
+  margin: 0 auto;
+  width: 92%;
+  height: 80px;
+  background: white;
+  z-index: 1;
+  border-radius: 15px;
+  font-weight: bold;
+  box-sizing: border-box;
+  padding: 20rpx 40rpx;
+  font-size: 38rpx;
+}
+
+.profile-info .bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.profile-info .avatar {
+  height: 120rpx;
+  width: 120rpx;
+  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+}
+
+.profile-info .info {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  padding-left: 31.25rpx;
+}
+
+.profile-info .name {
+  display: block;
+  height: 45rpx;
+  line-height: 45rpx;
+  color: #fff;
+  font-size: 37.5rpx;
+  margin-bottom: 10rpx;
+}
+
+.profile-info .level {
+  display: block;
+  height: 30rpx;
+  line-height: 30rpx;
+  margin-bottom: 10rpx;
+  color: #7f7f7f;
+  font-size: 30rpx;
+}
+
+.down_arr{
+  text-align: center;
+}
+
+.down_arr .icon{
+  width: 40rpx;
+  height: 40rpx;
+}
+.margin-t-50{
+  margin-top: 80rpx;
+}
+
+.user_column {
+  /* border: 1px solid black; */
+  height: 140rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.user_column_item {
+  width: 30%;
+  height: 140rpx;
+  text-align: center;
+  position: relative;
+}
+
+.user_column_item_badge {
+  height: 32rpx;
+  width: 32rpx;
+  position: absolute;
+  background: #FF6666;
+  color: #fff;
+  border-radius: 50%;
+  margin-top: 20rpx;
+  margin-left: 40rpx;
+  font-size: 25rpx;
+  text-align: center;
+  line-height: 32rpx;
+}
+
+.user_column_item_image {
+  width: 50rpx;
+  height: 50rpx;
+  margin-top: 30rpx;
+}
+
+.user_column_item_text {
+  /* border: 1px solid black; */
+  margin-top: 5rpx;
+  font-size: 24rpx;
+  color: #555;
+}
+
+.separate {
+  background: #e0e3da;
+  width: 100%;
+  height: 6rpx;
+}
+
+.user_column_item_phone {
+  width: 30%;
+  height: 140rpx;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  float: left;
+  background: #fff;
+  border-radius: 0;
+}
+
+.user_column_item_phone::after {
+  border: none;
+  border-radius: 0;
+}
+
+.logout {
+  margin-top: 30rpx;
+  height: 100rpx;
+  width: 100%;
+  line-height: 100rpx;
+  text-align: center;
+  color: #FF6666;
+  font-size: 36rpx;
+}

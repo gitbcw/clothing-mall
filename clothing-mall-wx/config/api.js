@@ -100,4 +100,13 @@ module.exports = {
 
   UserIndex: WxApiRoot + 'user/index', //个人页面用户相关信息
   IssueList: WxApiRoot + 'issue/list', //帮助信息
+
+  // 服装店 SKU 相关接口
+  ClothingSkuList: WxApiRoot + 'clothing/sku/list', // 商品 SKU 列表
+  ClothingSkuDetail: WxApiRoot + 'clothing/sku/detail', // SKU 详情
+  ClothingSkuCheckStock: WxApiRoot + 'clothing/sku/checkStock', // 检查库存
+  ClothingStoreList: WxApiRoot + 'clothing/store/list', // 门店列表
+  ClothingStoreDetail: WxApiRoot + 'clothing/store/detail', // 门店详情
+  ClothingUserInfo: WxApiRoot + 'clothing/user/info', // 会员信息
+  ClothingUserBindGuide: WxApiRoot + 'clothing/user/bindGuide', // 绑定导购
 };

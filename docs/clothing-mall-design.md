@@ -195,14 +195,16 @@ ALTER TABLE litemall_cart ADD COLUMN size VARCHAR(20) COMMENT '尺码';
 | Wx API | ✅ | `WxClothingSkuController.java` 等 |
 | LitemallUser 扩展 | ✅ | 添加会员字段 |
 
-### 阶段3：前端改造 ⏳ 待开始
+### 阶段3：前端改造 ✅ 部分完成
 
-| 任务 | 状态 |
-|------|------|
-| 小程序 SKU 选择器 | ⏳ |
-| 购物车适配 | ⏳ |
-| 订单流程适配 | ⏳ |
-| 管理后台 SKU 管理 | ⏳ |
+| 任务 | 状态 | 文件 |
+|------|------|------|
+| SKU 选择器组件 | ✅ | `components/sku-picker/*` |
+| 商品详情页集成 | ✅ | `pages/goods/goods.*` |
+| API 接口配置 | ✅ | `config/api.js` |
+| 购物车适配 | ⏳ | 待开发 |
+| 订单流程适配 | ⏳ | 待开发 |
+| 管理后台 SKU 管理 | ⏳ | 待开发 |
 
 ### 其他已完成
 

@@ -32,6 +32,13 @@ Page({
     isGroupon: false, //标识是否是一个参团购买
     soldout: false,
     canWrite: false, //用户是否获取了保存相册的权限
+
+    // 服装店 SKU 相关
+    showSkuPicker: false,
+    skuList: [],
+    skuColors: [],
+    skuSizes: [],
+    selectedSkuId: null,
   },
 
   // 页面分享
@@ -205,6 +212,97 @@ Page({
         WxParse.wxParse('goodsDetail', 'html', res.data.info.detail, that);
         //获取推荐商品
         that.getGoodsRelated();
+        //获取 SKU 列表
+        that.getSkuList();
+      }
+    });
+  },
+
+  // 获取商品 SKU 列表（服装店）
+  getSkuList: function() {
+    let that = this;
+    util.request(api.ClothingSkuList, {
+      goodsId: that.data.id
+    }).then(function(res) {
+      if (res.errno === 0 && res.data) {
+        that.setData({
+          skuList: res.data.skuList || [],
+          skuColors: res.data.colors || [],
+          skuSizes: res.data.sizes || []
+        });
+      }
+    });
+  },
+
+  // 打开 SKU 选择器
+  openSkuPicker: function() {
+    this.setData({
+      showSkuPicker: true
+    });
+  },
+
+  // 关闭 SKU 选择器
+  closeSkuPicker: function() {
+    this.setData({
+      showSkuPicker: false
+    });
+  },
+
+  // SKU 图片切换
+  onSkuImageChange: function(e) {
+    if (e.detail.image) {
+      this.setData({
+        tmpPicUrl: e.detail.image
+      });
+    }
+  },
+
+  // SKU 加入购物车
+  skuAddToCart: function(e) {
+    let that = this;
+    let { skuId, color, size, quantity } = e.detail;
+
+    util.request(api.CartAdd, {
+      goodsId: this.data.goods.id,
+      number: quantity,
+      productId: 0, // 兼容旧接口
+      skuId: skuId,
+      color: color,
+      size: size
+    }, "POST").then(function(res) {
+      if (res.errno == 0) {
+        wx.showToast({ title: '添加成功' });
+        that.setData({
+          showSkuPicker: false,
+          cartGoodsCount: res.data
+        });
+      } else {
+        wx.showToast({ title: res.errmsg, icon: 'none' });
+      }
+    });
+  },
+
+  // SKU 立即购买
+  skuBuyNow: function(e) {
+    let that = this;
+    let { skuId, color, size, quantity } = e.detail;
+
+    util.request(api.CartFastAdd, {
+      goodsId: this.data.goods.id,
+      number: quantity,
+      productId: 0,
+      skuId: skuId,
+      color: color,
+      size: size
+    }, "POST").then(function(res) {
+      if (res.errno == 0) {
+        wx.setStorageSync('cartId', res.data);
+        that.setData({ showSkuPicker: false });
+        wx.navigateTo({
+          url: '/pages/checkout/checkout'
+        });
+      } else {
+        wx.showToast({ title: res.errmsg, icon: 'none' });
       }
     });
   },

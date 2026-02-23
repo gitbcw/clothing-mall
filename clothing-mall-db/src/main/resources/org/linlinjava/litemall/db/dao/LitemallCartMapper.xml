@@ -12,6 +12,9 @@
     <result column="goods_sn" jdbcType="VARCHAR" property="goodsSn" />
     <result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
     <result column="product_id" jdbcType="INTEGER" property="productId" />
+    <result column="sku_id" jdbcType="INTEGER" property="skuId" />
+    <result column="color" jdbcType="VARCHAR" property="color" />
+    <result column="size" jdbcType="VARCHAR" property="size" />
     <result column="price" jdbcType="DECIMAL" property="price" />
     <result column="number" jdbcType="SMALLINT" property="number" />
     <result column="specifications" jdbcType="VARCHAR" property="specifications" typeHandler="org.linlinjava.litemall.db.mybatis.JsonStringArrayTypeHandler" />

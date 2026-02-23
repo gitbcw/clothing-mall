@@ -45,6 +45,8 @@ public class WxCartController {
     private LitemallCouponUserService couponUserService;
     @Autowired
     private CouponVerifyService couponVerifyService;
+    @Autowired
+    private ClothingGoodsSkuService skuService;
 
     /**
      * 用户购物车信息
@@ -106,7 +108,7 @@ public class WxCartController {
      * 否则添加新的购物车货品项。
      *
      * @param userId 用户ID
-     * @param cart   购物车商品信息， { goodsId: xxx, productId: xxx, number: xxx }
+     * @param cart   购物车商品信息， { goodsId: xxx, productId: xxx, number: xxx, skuId: xxx, color: xxx, size: xxx }
      * @return 加入购物车操作结果
      */
     @PostMapping("add")
@@ -121,10 +123,9 @@ public class WxCartController {
         Integer productId = cart.getProductId();
         Integer number = cart.getNumber().intValue();
         Integer goodsId = cart.getGoodsId();
-        if (!ObjectUtils.allNotNull(productId, number, goodsId)) {
-            return ResponseUtil.badArgument();
-        }
-        if(number <= 0){
+        Integer skuId = cart.getSkuId();
+
+        if (goodsId == null || number == null || number <= 0) {
             return ResponseUtil.badArgument();
         }
 
@@ -134,11 +135,52 @@ public class WxCartController {
             return ResponseUtil.fail(GOODS_UNSHELVE, "商品已下架");
         }
 
+        // 服装店 SKU 模式
+        if (skuId != null) {
+            ClothingGoodsSku sku = skuService.findById(skuId);
+            if (sku == null) {
+                return ResponseUtil.fail(GOODS_NO_STOCK, "SKU不存在");
+            }
+
+            LitemallCart existCart = cartService.queryExistBySku(goodsId, skuId, userId);
+            if (existCart == null) {
+                if (number > sku.getStock()) {
+                    return ResponseUtil.fail(GOODS_NO_STOCK, "库存不足");
+                }
+
+                cart.setId(null);
+                cart.setGoodsSn(goods.getGoodsSn());
+                cart.setGoodsName(goods.getName());
+                cart.setPicUrl(StringUtils.isEmpty(sku.getImageUrl()) ? goods.getPicUrl() : sku.getImageUrl());
+                cart.setPrice(sku.getPrice());
+                cart.setUserId(userId);
+                cart.setChecked(true);
+                // SKU 信息
+                cart.setSkuId(skuId);
+                cart.setColor(cart.getColor());
+                cart.setSize(cart.getSize());
+                cartService.add(cart);
+            } else {
+                int num = existCart.getNumber() + number;
+                if (num > sku.getStock()) {
+                    return ResponseUtil.fail(GOODS_NO_STOCK, "库存不足");
+                }
+                existCart.setNumber((short) num);
+                if (cartService.updateById(existCart) == 0) {
+                    return ResponseUtil.updatedDataFailed();
+                }
+            }
+            return goodscount(userId);
+        }
+
+        // 原有商品规格模式
+        if (productId == null) {
+            return ResponseUtil.badArgument();
+        }
+
         LitemallGoodsProduct product = productService.findById(productId);
-        //判断购物车中是否存在此规格商品
         LitemallCart existCart = cartService.queryExist(goodsId, productId, userId);
         if (existCart == null) {
-            //取得规格的信息,判断规格库存
             if (product == null || number > product.getNumber()) {
                 return ResponseUtil.fail(GOODS_NO_STOCK, "库存不足");
             }
@@ -158,9 +200,8 @@ public class WxCartController {
             cart.setChecked(true);
             cartService.add(cart);
         } else {
-            //取得规格的信息,判断规格库存
             int num = existCart.getNumber() + number;
-            if (num > product.getNumber()) {
+            if (product == null || num > product.getNumber()) {
                 return ResponseUtil.fail(GOODS_NO_STOCK, "库存不足");
             }
             existCart.setNumber((short) num);
@@ -180,7 +221,7 @@ public class WxCartController {
      * 2. 添加成功以后，前者的逻辑是返回当前购物车商品数量，这里的逻辑是返回对应购物车项的ID
      *
      * @param userId 用户ID
-     * @param cart   购物车商品信息， { goodsId: xxx, productId: xxx, number: xxx }
+     * @param cart   购物车商品信息， { goodsId: xxx, productId: xxx, number: xxx, skuId: xxx, color: xxx, size: xxx }
      * @return 立即购买操作结果
      */
     @PostMapping("fastadd")
@@ -195,10 +236,9 @@ public class WxCartController {
         Integer productId = cart.getProductId();
         Integer number = cart.getNumber().intValue();
         Integer goodsId = cart.getGoodsId();
-        if (!ObjectUtils.allNotNull(productId, number, goodsId)) {
-            return ResponseUtil.badArgument();
-        }
-        if(number <= 0){
+        Integer skuId = cart.getSkuId();
+
+        if (goodsId == null || number == null || number <= 0) {
             return ResponseUtil.badArgument();
         }
 
@@ -208,11 +248,51 @@ public class WxCartController {
             return ResponseUtil.fail(GOODS_UNSHELVE, "商品已下架");
         }
 
+        // 服装店 SKU 模式
+        if (skuId != null) {
+            ClothingGoodsSku sku = skuService.findById(skuId);
+            if (sku == null) {
+                return ResponseUtil.fail(GOODS_NO_STOCK, "SKU不存在");
+            }
+
+            LitemallCart existCart = cartService.queryExistBySku(goodsId, skuId, userId);
+            if (existCart == null) {
+                if (number > sku.getStock()) {
+                    return ResponseUtil.fail(GOODS_NO_STOCK, "库存不足");
+                }
+
+                cart.setId(null);
+                cart.setGoodsSn(goods.getGoodsSn());
+                cart.setGoodsName(goods.getName());
+                cart.setPicUrl(StringUtils.isEmpty(sku.getImageUrl()) ? goods.getPicUrl() : sku.getImageUrl());
+                cart.setPrice(sku.getPrice());
+                cart.setUserId(userId);
+                cart.setChecked(true);
+                cart.setSkuId(skuId);
+                cart.setColor(cart.getColor());
+                cart.setSize(cart.getSize());
+                cartService.add(cart);
+                return ResponseUtil.ok(cart.getId());
+            } else {
+                if (number > sku.getStock()) {
+                    return ResponseUtil.fail(GOODS_NO_STOCK, "库存不足");
+                }
+                existCart.setNumber((short) number);
+                if (cartService.updateById(existCart) == 0) {
+                    return ResponseUtil.updatedDataFailed();
+                }
+                return ResponseUtil.ok(existCart.getId());
+            }
+        }
+
+        // 原有商品规格模式
+        if (productId == null) {
+            return ResponseUtil.badArgument();
+        }
+
         LitemallGoodsProduct product = productService.findById(productId);
-        //判断购物车中是否存在此规格商品
         LitemallCart existCart = cartService.queryExist(goodsId, productId, userId);
         if (existCart == null) {
-            //取得规格的信息,判断规格库存
             if (product == null || number > product.getNumber()) {
                 return ResponseUtil.fail(GOODS_NO_STOCK, "库存不足");
             }
@@ -232,9 +312,8 @@ public class WxCartController {
             cart.setChecked(true);
             cartService.add(cart);
         } else {
-            //取得规格的信息,判断规格库存
             int num = number;
-            if (num > product.getNumber()) {
+            if (product == null || num > product.getNumber()) {
                 return ResponseUtil.fail(GOODS_NO_STOCK, "库存不足");
             }
             existCart.setNumber((short) num);

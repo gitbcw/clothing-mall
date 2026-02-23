@@ -23,6 +23,19 @@ public class LitemallCartService {
         return cartMapper.selectOneByExample(example);
     }
 
+    /**
+     * 查询是否存在相同 SKU 的购物车商品
+     */
+    public LitemallCart queryExistBySku(Integer goodsId, Integer skuId, Integer userId) {
+        LitemallCartExample example = new LitemallCartExample();
+        if (skuId != null) {
+            example.or().andGoodsIdEqualTo(goodsId).andSkuIdEqualTo(skuId).andUserIdEqualTo(userId).andDeletedEqualTo(false);
+        } else {
+            example.or().andGoodsIdEqualTo(goodsId).andUserIdEqualTo(userId).andDeletedEqualTo(false);
+        }
+        return cartMapper.selectOneByExample(example);
+    }
+
     public void add(LitemallCart cart) {
         cart.setAddTime(LocalDateTime.now());
         cart.setUpdateTime(LocalDateTime.now());

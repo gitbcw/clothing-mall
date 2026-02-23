@@ -330,6 +330,36 @@ export const asyncRoutes = [
           title: 'SKU管理',
           noCache: true
         }
+      },
+      {
+        path: 'store',
+        component: () => import('@/views/mall/store'),
+        name: 'store',
+        meta: {
+          perms: ['GET /admin/clothing/store/list', 'POST /admin/clothing/store/create', 'POST /admin/clothing/store/update', 'POST /admin/clothing/store/delete'],
+          title: '门店管理',
+          noCache: true
+        }
+      },
+      {
+        path: 'guide',
+        component: () => import('@/views/mall/guide'),
+        name: 'guide',
+        meta: {
+          perms: ['GET /admin/clothing/guide/list', 'POST /admin/clothing/guide/create', 'POST /admin/clothing/guide/update', 'POST /admin/clothing/guide/delete'],
+          title: '导购管理',
+          noCache: true
+        }
+      },
+      {
+        path: 'memberLevel',
+        component: () => import('@/views/mall/memberLevel'),
+        name: 'memberLevel',
+        meta: {
+          perms: ['GET /admin/clothing/memberLevel/list', 'POST /admin/clothing/memberLevel/create', 'POST /admin/clothing/memberLevel/update', 'POST /admin/clothing/memberLevel/delete'],
+          title: '会员等级',
+          noCache: true
+        }
       }
     ]
   },

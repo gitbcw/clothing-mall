@@ -183,7 +183,7 @@ ALTER TABLE litemall_cart ADD COLUMN size VARCHAR(20) COMMENT '尺码';
 - `litemall_order_goods` - 增加 sku_id, color, size 字段
 - `litemall_cart` - 增加 sku_id, color, size 字段
 
-### 阶段2：后端代码 ✅ 部分完成
+### 阶段2：后端代码 ✅ 已完成
 
 | 任务 | 状态 | 文件 |
 |------|------|------|
@@ -191,8 +191,9 @@ ALTER TABLE litemall_cart ADD COLUMN size VARCHAR(20) COMMENT '尺码';
 | Mapper 接口 | ✅ | `dao/ClothingGoodsSkuMapper.java` 等 |
 | Mapper XML | ✅ | `dao/ClothingGoodsSkuMapper.xml` 等 |
 | Service 类 | ✅ | `service/ClothingGoodsSkuService.java` 等 |
-| Admin API | ⏳ | 待开发 |
-| Wx API | ⏳ | 待开发 |
+| Admin API | ✅ | `AdminClothingSkuController.java` 等 |
+| Wx API | ✅ | `WxClothingSkuController.java` 等 |
+| LitemallUser 扩展 | ✅ | 添加会员字段 |
 
 ### 阶段3：前端改造 ⏳ 待开始
 

@@ -16,6 +16,11 @@
     <result column="user_level" jdbcType="TINYINT" property="userLevel" />
     <result column="nickname" jdbcType="VARCHAR" property="nickname" />
     <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+    <result column="level_id" jdbcType="INTEGER" property="levelId" />
+    <result column="total_points" jdbcType="INTEGER" property="totalPoints" />
+    <result column="available_points" jdbcType="INTEGER" property="availablePoints" />
+    <result column="guide_id" jdbcType="INTEGER" property="guideId" />
+    <result column="store_id" jdbcType="INTEGER" property="storeId" />
     <result column="avatar" jdbcType="VARCHAR" property="avatar" />
     <result column="weixin_openid" jdbcType="VARCHAR" property="weixinOpenid" />
     <result column="session_key" jdbcType="VARCHAR" property="sessionKey" />

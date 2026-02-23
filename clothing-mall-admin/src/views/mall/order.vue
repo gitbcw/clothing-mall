@@ -32,7 +32,8 @@
                     {{ $t('mall_order.text.expand_goods_name', { goods_name: item.goodsName }) }}
                   </div>
                   <div class="spec">
-                    {{ $t('mall_order.text.expand_specifications', { specifications: item.specifications.join('-') }) }}
+                    <span v-if="item.color || item.size">{{ item.color || '' }}{{ item.size ? ' / ' + item.size : '' }}</span>
+                    <span v-else>{{ $t('mall_order.text.expand_specifications', { specifications: item.specifications ? item.specifications.join('-') : '' }) }}</span>
                   </div>
                   <div class="price">
                     {{ $t('mall_order.text.expand_unit_price', { price: item.price }) }}
@@ -127,15 +128,34 @@
             <span>{{ orderDetail.order.message }}</span>
           </el-form-item>
           <el-form-item :label="$t('mall_order.form.detail_receiving_info')">
-            <span>{{ $t('mall_order.text.detail_consigne', { consignee: orderDetail.order.consignee }) }}</span>
-            <span>{{ $t('mall_order.text.detail_mobile', { mobile: orderDetail.order.mobile }) }}</span>
-            <span>{{ $t('mall_order.text.detail_address', { address: orderDetail.order.address }) }}</span>
+            <!-- 快递配送 -->
+            <template v-if="orderDetail.order.deliveryType !== 'pickup'">
+              <span>{{ $t('mall_order.text.detail_consigne', { consignee: orderDetail.order.consignee }) }}</span>
+              <span>{{ $t('mall_order.text.detail_mobile', { mobile: orderDetail.order.mobile }) }}</span>
+              <span>{{ $t('mall_order.text.detail_address', { address: orderDetail.order.address }) }}</span>
+            </template>
+            <!-- 到店自提 -->
+            <template v-else>
+              <el-tag type="warning" style="margin-bottom: 10px;">到店自提</el-tag>
+              <div v-if="orderDetail.order.pickupCode" style="margin: 10px 0;">
+                <span style="color: #b4282d; font-weight: bold; font-size: 18px;">取货码：{{ orderDetail.order.pickupCode }}</span>
+              </div>
+              <div v-if="orderDetail.order.pickupContact">
+                <span>联系人：{{ orderDetail.order.pickupContact }}</span>
+                <span style="margin-left: 20px;">电话：{{ orderDetail.order.pickupPhone }}</span>
+              </div>
+            </template>
           </el-form-item>
           <el-form-item :label="$t('mall_order.form.detail_goods')">
             <el-table :data="orderDetail.orderGoods" border fit highlight-current-row>
               <el-table-column align="center" :label="$t('mall_order.table.detail_goods_name')" prop="goodsName" />
               <el-table-column align="center" :label="$t('mall_order.table.detail_goods_sn')" prop="goodsSn" />
-              <el-table-column align="center" :label="$t('mall_order.table.detail_goods_specifications')" prop="specifications" />
+              <el-table-column align="center" :label="$t('mall_order.table.detail_goods_specifications')" prop="specifications">
+                <template slot-scope="scope">
+                  <span v-if="scope.row.color || scope.row.size">{{ scope.row.color || '' }}{{ scope.row.size ? ' / ' + scope.row.size : '' }}</span>
+                  <span v-else>{{ scope.row.specifications ? scope.row.specifications.join('-') : '' }}</span>
+                </template>
+              </el-table-column>
               <el-table-column align="center" :label="$t('mall_order.table.detail_goods_price')" prop="price" />
               <el-table-column align="center" :label="$t('mall_order.table.detail_goods_number')" prop="number" />
               <el-table-column align="center" :label="$t('mall_order.table.detail_goods_pic_url')" prop="picUrl">

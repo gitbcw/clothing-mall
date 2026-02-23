@@ -320,6 +320,16 @@ export const asyncRoutes = [
           title: 'app.menu.goods_comment',
           noCache: true
         }
+      },
+      {
+        path: 'sku',
+        component: () => import('@/views/mall/sku'),
+        name: 'goodsSku',
+        meta: {
+          perms: ['GET /admin/clothing/sku/list', 'POST /admin/clothing/sku/create', 'POST /admin/clothing/sku/update', 'POST /admin/clothing/sku/delete'],
+          title: 'SKU管理',
+          noCache: true
+        }
       }
     ]
   },

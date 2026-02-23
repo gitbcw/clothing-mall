@@ -39,7 +39,10 @@
             <text class="name">{{item.goodsName}}</text>
             <text class="number">x{{item.number}}</text>
           </view>
-          <view class="attr">{{item.specifications}}</view>
+          <view class="attr">
+            <text wx:if="{{item.color || item.size}}">{{item.color || ''}}{{item.size ? ' / ' + item.size : ''}}</text>
+            <text wx:else>{{item.specifications}}</text>
+          </view>
           <view class="price">￥{{item.price}}</view>
           <view class="btn active" wx:if="{{handleOption.comment && (item.comment == 0)}}">
             <navigator url="../../commentPost/commentPost?ogid={{item.id}}">去评价</navigator>
@@ -52,12 +55,32 @@
     </view>
 
     <view class="order-bottom">
-      <view class="address">
+      <!-- 快递配送 - 收货地址 -->
+      <view class="address" wx:if="{{orderInfo.deliveryType !== 'pickup'}}">
         <view class="t">
           <text class="name">{{orderInfo.consignee}}</text>
           <text class="mobile">{{orderInfo.mobile}}</text>
         </view>
         <view class="b">{{orderInfo.address}}</view>
+      </view>
+      <!-- 到店自提 - 自提信息 -->
+      <view class="pickup-info" wx:if="{{orderInfo.deliveryType === 'pickup'}}">
+        <view class="pickup-title">到店自提</view>
+        <view class="pickup-code-box" wx:if="{{orderInfo.pickupCode}}">
+          <view class="pickup-code-label">取货码</view>
+          <view class="pickup-code-value">{{orderInfo.pickupCode}}</view>
+        </view>
+        <view class="pickup-contact">
+          <text class="label">联系人：</text>
+          <text>{{orderInfo.pickupContact}}</text>
+          <text class="mobile">{{orderInfo.pickupPhone}}</text>
+        </view>
+        <view class="pickup-store" wx:if="{{pickupStore}}">
+          <view class="store-name">{{pickupStore.name}}</view>
+          <view class="store-address">{{pickupStore.address}}</view>
+          <view class="store-phone">电话：{{pickupStore.phone}}</view>
+          <view class="store-hours">营业时间：{{pickupStore.businessHours}}</view>
+        </view>
       </view>
       <view class="total">
         <view class="t">
@@ -80,7 +103,7 @@
     </view>
   </view>
 
-  <view class="order-express" bindtap="expandDetail" wx:if="{{ orderInfo.expNo }}">
+  <view class="order-express" bindtap="expandDetail" wx:if="{{ orderInfo.expNo && orderInfo.deliveryType !== 'pickup' }}">
     <view class="order-express">
       <view class="title">
         <view class="t">快递公司：{{orderInfo.expName}}</view>
@@ -90,7 +113,7 @@
         <text>演示模式</text>
         <switch checked="{{isDemo}}" bindchange="onDemoChange" />
       </view>
-      <van-icon class="ti" name="arrow" />      
+      <van-icon class="ti" name="arrow" />
     </view>
     <view class="traces" wx:for="{{expressInfo.Traces}}" wx:key="item" wx:for-item="iitem" wx:if="{{ flag }}">
       <view class="trace">

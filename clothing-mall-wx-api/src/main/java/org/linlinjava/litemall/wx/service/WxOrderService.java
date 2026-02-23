@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import static org.linlinjava.litemall.wx.util.WxResponseCode.*;
 
@@ -293,6 +294,30 @@ public class WxOrderService {
         Integer grouponRulesId = JacksonUtil.parseInteger(body, "grouponRulesId");
         Integer grouponLinkId = JacksonUtil.parseInteger(body, "grouponLinkId");
 
+        // 配送方式相关参数
+        String deliveryType = JacksonUtil.parseString(body, "deliveryType");
+        Integer pickupStoreId = JacksonUtil.parseInteger(body, "pickupStoreId");
+        String pickupContact = JacksonUtil.parseString(body, "pickupContact");
+        String pickupPhone = JacksonUtil.parseString(body, "pickupPhone");
+
+        // 默认快递配送
+        if (deliveryType == null) {
+            deliveryType = "express";
+        }
+
+        // 自提模式验证
+        if ("pickup".equals(deliveryType)) {
+            if (pickupStoreId == null || pickupStoreId <= 0) {
+                return ResponseUtil.fail(400, "请选择自提门店");
+            }
+            if (pickupContact == null || pickupContact.isEmpty()) {
+                return ResponseUtil.fail(400, "请输入联系人姓名");
+            }
+            if (pickupPhone == null || !pickupPhone.matches("^1[3-9]\\d{9}$")) {
+                return ResponseUtil.fail(400, "请输入正确的手机号");
+            }
+        }
+
         // 如果是团购项目,验证活动是否有效
         if (grouponRulesId != null && grouponRulesId > 0) {
             LitemallGrouponRules rules = grouponRulesService.findById(grouponRulesId);
@@ -334,14 +359,20 @@ public class WxOrderService {
             }
         }
 
-        if (cartId == null || addressId == null || couponId == null) {
+        if (cartId == null || couponId == null) {
             return ResponseUtil.badArgument();
         }
 
-        // 收货地址
-        LitemallAddress checkedAddress = addressService.query(userId, addressId);
-        if (checkedAddress == null) {
-            return ResponseUtil.badArgument();
+        // 快递配送需要验证地址
+        LitemallAddress checkedAddress = null;
+        if ("express".equals(deliveryType)) {
+            if (addressId == null || addressId <= 0) {
+                return ResponseUtil.fail(400, "请选择收货地址");
+            }
+            checkedAddress = addressService.query(userId, addressId);
+            if (checkedAddress == null) {
+                return ResponseUtil.fail(400, "收货地址不存在");
+            }
         }
 
         // 团购优惠
@@ -389,9 +420,12 @@ public class WxOrderService {
         }
 
         // 根据订单商品总价计算运费，满足条件（例如88元）则免运费，否则需要支付运费（例如8元）；
+        // 自提模式运费为0
         BigDecimal freightPrice = new BigDecimal(0);
-        if (checkedGoodsPrice.compareTo(SystemConfig.getFreightLimit()) < 0) {
-            freightPrice = SystemConfig.getFreight();
+        if ("express".equals(deliveryType)) {
+            if (checkedGoodsPrice.compareTo(SystemConfig.getFreightLimit()) < 0) {
+                freightPrice = SystemConfig.getFreight();
+            }
         }
 
         // 可以使用的其他钱，例如用户积分
@@ -409,18 +443,29 @@ public class WxOrderService {
         order.setUserId(userId);
         order.setOrderSn(orderService.generateOrderSn(userId));
         order.setOrderStatus(OrderUtil.STATUS_CREATE);
-        order.setConsignee(checkedAddress.getName());
-        order.setMobile(checkedAddress.getTel());
         order.setMessage(message);
-        String detailedAddress = checkedAddress.getProvince() + checkedAddress.getCity() + checkedAddress.getCounty()
-                + " " + checkedAddress.getAddressDetail();
-        order.setAddress(detailedAddress);
         order.setGoodsPrice(checkedGoodsPrice);
         order.setFreightPrice(freightPrice);
         order.setCouponPrice(couponPrice);
         order.setIntegralPrice(integralPrice);
         order.setOrderPrice(orderTotalPrice);
         order.setActualPrice(actualPrice);
+
+        // 配送方式
+        order.setDeliveryType(deliveryType);
+        if ("express".equals(deliveryType) && checkedAddress != null) {
+            order.setConsignee(checkedAddress.getName());
+            order.setMobile(checkedAddress.getTel());
+            String detailedAddress = checkedAddress.getProvince() + checkedAddress.getCity() + checkedAddress.getCounty()
+                    + " " + checkedAddress.getAddressDetail();
+            order.setAddress(detailedAddress);
+        } else if ("pickup".equals(deliveryType)) {
+            order.setPickupStoreId(pickupStoreId);
+            order.setPickupContact(pickupContact);
+            order.setPickupPhone(pickupPhone);
+            // 生成取货码
+            order.setPickupCode(generatePickupCode());
+        }
 
         // 有团购
         if (grouponRules != null) {
@@ -446,6 +491,10 @@ public class WxOrderService {
             orderGoods.setPrice(cartGoods.getPrice());
             orderGoods.setNumber(cartGoods.getNumber());
             orderGoods.setSpecifications(cartGoods.getSpecifications());
+            // SKU 信息
+            orderGoods.setSkuId(cartGoods.getSkuId());
+            orderGoods.setColor(cartGoods.getColor());
+            orderGoods.setSize(cartGoods.getSize());
             orderGoods.setAddTime(LocalDateTime.now());
 
             orderGoodsService.add(orderGoods);
@@ -1104,7 +1153,7 @@ public class WxOrderService {
     /**
      * 取消订单/退款返还优惠券
      * <br/>
-     * 
+     *
      * @param orderId
      * @return void
      * @author Tyson
@@ -1118,5 +1167,17 @@ public class WxOrderService {
             couponUser.setUpdateTime(LocalDateTime.now());
             couponUserService.update(couponUser);
         }
+    }
+
+    /**
+     * 生成取货码
+     * 生成6位数字取货码
+     *
+     * @return 取货码
+     */
+    private String generatePickupCode() {
+        Random random = new Random();
+        int code = 100000 + random.nextInt(900000);
+        return String.valueOf(code);
     }
 }

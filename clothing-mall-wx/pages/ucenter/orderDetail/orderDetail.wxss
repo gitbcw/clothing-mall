@@ -278,3 +278,80 @@ page {
 .order-express .acceptStation {
   font-size: 26rpx;
 }
+
+/* 自提信息样式 */
+.pickup-info {
+  padding: 20rpx 31.25rpx;
+  background: #fff5f5;
+  border-radius: 8rpx;
+  margin-bottom: 10rpx;
+}
+
+.pickup-title {
+  font-size: 32rpx;
+  color: #b4282d;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+}
+
+.pickup-code-box {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background: #fff;
+  border-radius: 8rpx;
+  margin-bottom: 20rpx;
+}
+
+.pickup-code-label {
+  font-size: 28rpx;
+  color: #666;
+  margin-right: 20rpx;
+}
+
+.pickup-code-value {
+  font-size: 48rpx;
+  color: #b4282d;
+  font-weight: bold;
+  letter-spacing: 8rpx;
+}
+
+.pickup-contact {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 15rpx;
+}
+
+.pickup-contact .label {
+  color: #666;
+}
+
+.pickup-contact .mobile {
+  margin-left: 20rpx;
+  color: #006699;
+}
+
+.pickup-store {
+  padding: 15rpx;
+  background: #fff;
+  border-radius: 8rpx;
+}
+
+.pickup-store .store-name {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+.pickup-store .store-address {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+}
+
+.pickup-store .store-phone,
+.pickup-store .store-hours {
+  font-size: 24rpx;
+  color: #999;
+}

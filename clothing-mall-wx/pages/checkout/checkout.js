@@ -20,7 +20,14 @@ Page({
     userCouponId: 0,
     message: '',
     grouponLinkId: 0, //参与的团购
-    grouponRulesId: 0 //团购规则ID
+    grouponRulesId: 0, //团购规则ID
+
+    // 配送方式相关
+    deliveryType: 'express', // express 快递 / pickup 自提
+    storeList: [],
+    selectedStore: null,
+    pickupContact: '',
+    pickupPhone: ''
   },
   onLoad: function(options) {
     // 页面初始化 options为页面跳转所带来的参数
@@ -71,6 +78,57 @@ Page({
       message: e.detail.value
     });
   },
+
+  // 选择配送方式
+  selectDeliveryType: function(e) {
+    const type = e.currentTarget.dataset.type;
+    this.setData({
+      deliveryType: type,
+      // 切换到自提时运费为0
+      freightPrice: type === 'pickup' ? 0 : this.data.freightPrice
+    });
+    this.recalculatePrice();
+  },
+
+  // 选择门店
+  selectStore: function() {
+    let that = this;
+    // 获取门店列表
+    util.request(api.ClothingStoreList).then(function(res) {
+      if (res.errno === 0 && res.data) {
+        that.setData({ storeList: res.data });
+        // 显示门店选择弹窗
+        wx.showActionSheet({
+          itemList: res.data.map(s => s.name + ' - ' + s.address),
+          success: function(res) {
+            const store = that.data.storeList[res.tapIndex];
+            that.setData({ selectedStore: store });
+          }
+        });
+      }
+    });
+  },
+
+  // 输入自提联系人
+  inputPickupContact: function(e) {
+    this.setData({ pickupContact: e.detail.value });
+  },
+
+  // 输入自提手机号
+  inputPickupPhone: function(e) {
+    this.setData({ pickupPhone: e.detail.value });
+  },
+
+  // 重新计算价格
+  recalculatePrice: function() {
+    let freightPrice = this.data.deliveryType === 'pickup' ? 0 : this.data.freightPrice;
+    let actualPrice = this.data.goodsTotalPrice + freightPrice - this.data.couponPrice - this.data.grouponPrice;
+    this.setData({
+      freightPrice: freightPrice,
+      actualPrice: actualPrice > 0 ? actualPrice : 0
+    });
+  },
+
   onReady: function() {
     // 页面渲染完成
 
@@ -131,19 +189,47 @@ Page({
 
   },
   submitOrder: function() {
-    if (this.data.addressId <= 0) {
-      util.showErrorToast('请选择收货地址');
-      return false;
+    // 验证
+    if (this.data.deliveryType === 'express') {
+      if (this.data.addressId <= 0) {
+        util.showErrorToast('请选择收货地址');
+        return false;
+      }
+    } else if (this.data.deliveryType === 'pickup') {
+      if (!this.data.selectedStore) {
+        util.showErrorToast('请选择自提门店');
+        return false;
+      }
+      if (!this.data.pickupContact) {
+        util.showErrorToast('请输入联系人姓名');
+        return false;
+      }
+      if (!this.data.pickupPhone || !/^1[3-9]\d{9}$/.test(this.data.pickupPhone)) {
+        util.showErrorToast('请输入正确的手机号');
+        return false;
+      }
     }
-    util.request(api.OrderSubmit, {
+
+    let params = {
       cartId: this.data.cartId,
       addressId: this.data.addressId,
       couponId: this.data.couponId,
       userCouponId: this.data.userCouponId,
       message: this.data.message,
       grouponRulesId: this.data.grouponRulesId,
-      grouponLinkId: this.data.grouponLinkId
-    }, 'POST').then(res => {
+      grouponLinkId: this.data.grouponLinkId,
+      // 配送方式
+      deliveryType: this.data.deliveryType
+    };
+
+    // 自提信息
+    if (this.data.deliveryType === 'pickup') {
+      params.pickupStoreId = this.data.selectedStore.id;
+      params.pickupContact = this.data.pickupContact;
+      params.pickupPhone = this.data.pickupPhone;
+    }
+
+    util.request(api.OrderSubmit, params, 'POST').then(res => {
       if (res.errno === 0) {
 
         // 下单成功，重置couponId

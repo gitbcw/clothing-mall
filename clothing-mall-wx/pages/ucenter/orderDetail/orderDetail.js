@@ -10,7 +10,8 @@ Page({
     flag: false,
     handleOption: {},
     isDemo: true,
-    expressInfoReal: {}
+    expressInfoReal: {},
+    pickupStore: null
   },
   onLoad: function(options) {
     // 页面初始化 options为页面跳转所带来的参数
@@ -46,8 +47,14 @@ Page({
     }).then(function(res) {
       if (res.errno === 0) {
         console.log(res.data);
+        const orderInfo = res.data.orderInfo;
         const realExpress = res.data.expressInfo || {};
         let demoExpress = realExpress;
+
+        // 如果是自提订单，获取门店信息
+        if (orderInfo.deliveryType === 'pickup' && orderInfo.pickupStoreId) {
+          that.getPickupStore(orderInfo.pickupStoreId);
+        }
         if (that.data.isDemo) {
           // DEMO: 快递轨迹演示数据（ZTO 78963716282576 尾号7221）
           demoExpress = {
@@ -310,7 +317,7 @@ Page({
       }
     });
   },
-  // “申请售后”点击效果
+  // "申请售后"点击效果
   aftersaleOrder: function () {
     if(this.data.orderInfo.aftersaleStatus === 0){
       util.redirect('/pages/ucenter/aftersale/aftersale?id=' + this.data.orderId );
@@ -318,6 +325,19 @@ Page({
     else{
       util.redirect('/pages/ucenter/aftersaleDetail/aftersaleDetail?id=' + this.data.orderId);
     }
+  },
+  // 获取自提门店信息
+  getPickupStore: function(storeId) {
+    let that = this;
+    util.request(api.ClothingStoreList, {
+      id: storeId
+    }).then(function(res) {
+      if (res.errno === 0 && res.data && res.data.length > 0) {
+        that.setData({
+          pickupStore: res.data[0]
+        });
+      }
+    });
   },
   onReady: function() {
     // 页面渲染完成

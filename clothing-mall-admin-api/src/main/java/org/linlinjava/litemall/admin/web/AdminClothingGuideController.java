@@ -36,7 +36,7 @@ public class AdminClothingGuideController {
     public Object list(String name, String phone, Integer storeId, Boolean status,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
-                       @Sort @RequestParam(defaultId = "add_time") String sort,
+                       @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
         List<ClothingGuide> guideList = guideService.querySelective(name, phone, storeId, status, page, limit);
         return ResponseUtil.okList(guideList);

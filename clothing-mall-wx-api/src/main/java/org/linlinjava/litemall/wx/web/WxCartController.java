@@ -277,7 +277,7 @@ public class WxCartController {
                 if (number > sku.getStock()) {
                     return ResponseUtil.fail(GOODS_NO_STOCK, "库存不足");
                 }
-                existCart.setNumber((short) number);
+                existCart.setNumber(number.shortValue());
                 if (cartService.updateById(existCart) == 0) {
                     return ResponseUtil.updatedDataFailed();
                 }

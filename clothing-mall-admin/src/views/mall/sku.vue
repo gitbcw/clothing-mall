@@ -152,7 +152,7 @@
 
 <script>
 import { listSku, createSku, updateSku, deleteSku, updateStock } from '@/api/sku'
-import { uploadPath } from '@/utils/storage'
+import { uploadPath } from '@/api/storage'
 import { getToken } from '@/utils/auth'
 import Pagination from '@/components/Pagination'
 

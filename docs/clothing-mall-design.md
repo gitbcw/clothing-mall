@@ -195,7 +195,7 @@ ALTER TABLE litemall_cart ADD COLUMN size VARCHAR(20) COMMENT '尺码';
 | Wx API | ✅ | `WxClothingSkuController.java` 等 |
 | LitemallUser 扩展 | ✅ | 添加会员字段 |
 
-### 阶段3：前端改造 ✅ 部分完成
+### 阶段3：前端改造 ✅ 已完成
 
 | 任务 | 状态 | 文件 |
 |------|------|------|
@@ -204,8 +204,11 @@ ALTER TABLE litemall_cart ADD COLUMN size VARCHAR(20) COMMENT '尺码';
 | API 接口配置 | ✅ | `config/api.js` |
 | 购物车前端适配 | ✅ | `pages/cart/cart.*` |
 | 购物车后端适配 | ✅ | `WxCartController.java`, `LitemallCart.java` |
-| 订单流程适配 | ⏳ | 待开发 |
-| 管理后台 SKU 管理 | ⏳ | 待开发 |
+| 订单流程适配 | ✅ | `pages/checkout/*`, `pages/ucenter/orderDetail/*` |
+| 管理后台 SKU 管理 | ✅ | `views/mall/sku.vue` |
+| 管理后台门店管理 | ✅ | `views/mall/store.vue` |
+| 管理后台导购管理 | ✅ | `views/mall/guide.vue` |
+| 管理后台会员等级管理 | ✅ | `views/mall/memberLevel.vue` |
 
 ### 其他已完成
 
@@ -217,6 +220,6 @@ ALTER TABLE litemall_cart ADD COLUMN size VARCHAR(20) COMMENT '尺码';
 
 ---
 
-*文档版本：v1.1*
+*文档版本：v1.2*
 *创建时间：2025-02-23*
-*更新时间：2025-02-23*
+*更新时间：2025-02-24*

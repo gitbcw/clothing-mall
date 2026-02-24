@@ -948,6 +948,26 @@ public class LitemallCartExample {
             return (Criteria) this;
         }
 
+        public Criteria andSkuIdIsNull() {
+            addCriterion("sku_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSkuIdIsNotNull() {
+            addCriterion("sku_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSkuIdEqualTo(Integer value) {
+            addCriterion("sku_id =", value, "skuId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSkuIdNotEqualTo(Integer value) {
+            addCriterion("sku_id <>", value, "skuId");
+            return (Criteria) this;
+        }
+
         public Criteria andProductIdIsNull() {
             addCriterion("product_id is null");
             return (Criteria) this;

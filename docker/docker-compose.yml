@@ -1,39 +1,69 @@
 version: '3'
 services:
-  mysql57:
-    image: mysql:5.7
-    container_name: mysql
+  mysql:
+    image: mysql:8.0
+    container_name: clothing-mall-mysql
     ports:
       - "3306:3306"
     command:
-      --character-set-server=utf8
-      --collation-server=utf8_general_ci
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
       --default-authentication-plugin=mysql_native_password
+      --innodb-buffer-pool-size=128M
+      --max-connections=50
     volumes:
-      - ./db/conf.d:/etc/mysql/conf.d
       - ./db/data:/var/lib/mysql
       - ./db/init-sql:/docker-entrypoint-initdb.d
+      - ./db/conf.d:/etc/mysql/conf.d
     environment:
-      MYSQL_ROOT_PASSWORD: litemall123456
-      MYSQL_DATABASE: litemall
-      MYSQL_USER: litemall
-      MYSQL_PASSWORD: litemall123456
+      MYSQL_ROOT_PASSWORD: root123456
+      MYSQL_DATABASE: clothing_mall
+      MYSQL_USER: clothing_mall
+      MYSQL_PASSWORD: clothing123456
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512M
     restart: always
-  litemall:
+
+  app:
     build:
       context: litemall
       dockerfile: Dockerfile
-    container_name: litemall
+    container_name: clothing-mall-app
     ports:
-      - "8080:8080"
+      - "8088:8080"
     volumes:
       - ./litemall/storage:/storage
       - ./litemall/logs:/logs
       - ./litemall/backup:/backup
-      - /etc/localtime:/etc/localtime
     environment:
       - TZ=Asia/Shanghai
+      - JAVA_OPTS=-Xmx512m -Xms256m
     depends_on:
-      - mysql57
-    entrypoint: ["bash","-lc","until (echo > /dev/tcp/mysql/3306) 2>/dev/null; do sleep 2; done; exec /usr/local/openjdk-8/bin/java -Djava.security.egd=file:/dev/./urandom -jar litemall.jar"]
+      mysql:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 768M
     restart: always
+
+  # Nginx 反向代理（可选，用于域名和 HTTPS）
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: clothing-mall-nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx/conf.d:/etc/nginx/conf.d
+  #     - ./nginx/ssl:/etc/nginx/ssl
+  #   depends_on:
+  #     - app
+  #   restart: always

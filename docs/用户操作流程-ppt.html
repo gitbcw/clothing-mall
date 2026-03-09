@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>川着 transmute · 用户操作流程</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --bg-light: #f8fafc;
+            --border: #e2e8f0;
+        }
+
+        .reveal {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 26px;
+            color: #1e293b;
+        }
+
+        .reveal h1, .reveal h2, .reveal h3 {
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: none;
+        }
+
+        .reveal h1 { font-size: 2em; }
+        .reveal h2 { font-size: 1.5em; border-bottom: 3px solid var(--primary); padding-bottom: 0.3em; }
+        .reveal h3 { font-size: 1.1em; color: var(--secondary); }
+
+        .reveal .slides section {
+            text-align: left;
+            padding: 20px 40px;
+            height: 100%;
+        }
+
+        .reveal .slides section.center { text-align: center; }
+
+        /* Flow */
+        .flow { margin: 10px 0; font-size: 0.75em; line-height: 1.6; }
+        .flow-step { margin: 5px 0; display: flex; align-items: flex-start; gap: 8px; }
+        .flow-step .num {
+            background: var(--primary); color: white;
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; flex-shrink: 0;
+        }
+        .flow-step .txt { flex: 1; }
+        .flow-step .txt strong { color: var(--primary); }
+        .flow-sub { margin-left: 30px; border-left: 2px solid var(--border); padding-left: 12px; }
+        .flow-sub .flow-step { margin: 3px 0; }
+        .flow-sub .num { background: var(--success); }
+        .flow-branch .num { background: var(--warning); }
+
+        /* Table */
+        .reveal table { width: 100%; border-collapse: collapse; font-size: 0.7em; margin: 10px 0; }
+        .reveal th { background: var(--primary); color: white; padding: 8px 12px; text-align: left; }
+        .reveal td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+        .reveal tr:nth-child(even) td { background: var(--bg-light); }
+
+        /* Tag */
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; }
+        .tag-customer { background: #dbeafe; color: #1d4ed8; }
+        .tag-admin { background: #fef3c7; color: #b45309; }
+
+        /* Card */
+        .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 15px 0; }
+        .card { background: var(--bg-light); border: 1px solid var(--border); border-radius: 6px; padding: 12px; }
+        .card h4 { color: var(--primary); margin: 0 0 8px 0; font-size: 0.95em; }
+        .card ul { margin: 0; padding-left: 18px; font-size: 0.85em; }
+        .card li { margin: 4px 0; }
+
+        .cards-3 { grid-template-columns: repeat(3, 1fr); }
+        .cards-4 { grid-template-columns: repeat(4, 1fr); }
+
+        /* Cover */
+        .cover { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; }
+        .cover h1 { font-size: 2.5em; margin-bottom: 0.2em; }
+        .cover .sub { font-size: 1.1em; color: var(--secondary); }
+        .cover .meta { font-size: 0.8em; color: var(--secondary); margin-top: 0.8em; }
+
+        /* TOC */
+        .toc { columns: 2; column-gap: 30px; }
+        .toc-item { display: flex; align-items: center; gap: 10px; margin: 8px 0; break-inside: avoid; }
+        .toc-num { width: 26px; height: 26px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; }
+
+        /* Scene title */
+        .scene-title { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+        .scene-num { font-size: 2.5em; font-weight: 700; color: var(--primary); opacity: 0.3; }
+
+        /* Simple flow */
+        .sflow { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin: 12px 0; font-size: 0.8em; }
+        .sflow .step { background: var(--primary); color: white; padding: 6px 12px; border-radius: 15px; }
+        .sflow .arr { color: var(--primary); font-weight: bold; }
+
+        /* Page number */
+        .reveal .slide-number { background: var(--primary); color: white; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+<!-- ========== 封面 ========== -->
+<section class="center">
+    <div class="cover">
+        <h1>川着 transmute</h1>
+        <div class="sub">线上渠道系统 · 用户操作流程</div>
+        <div class="meta">v1.0 | 2026-03-04</div>
+    </div>
+</section>
+
+<!-- ========== 目录 ========== -->
+<section>
+    <h2>核心场景概览</h2>
+    <div class="toc">
+        <div class="toc-item"><span class="toc-num">1</span><span>浏览商品并下单</span></div>
+        <div class="toc-item"><span class="toc-num">2</span><span>参与限时折扣活动</span></div>
+        <div class="toc-item"><span class="toc-num">3</span><span>查看订单与确认收货</span></div>
+        <div class="toc-item"><span class="toc-num">4</span><span>申请换货（只换不退）</span></div>
+        <div class="toc-item"><span class="toc-num">5</span><span>收藏商品与分享</span></div>
+        <div class="toc-item"><span class="toc-num">6</span><span>使用优惠券</span></div>
+        <div class="toc-item"><span class="toc-num">7</span><span>企业管理员操作</span></div>
+    </div>
+    <p style="margin-top:25px; font-size:0.8em;">
+        <span class="tag tag-customer">顾客端</span> 场景 1-6 &nbsp;&nbsp;
+        <span class="tag tag-admin">管理端</span> 场景 7
+    </p>
+</section>
+
+<!-- ========== 场景一 ========== -->
+<section>
+    <section>
+        <div class="scene-title">
+            <span class="scene-num">01</span>
+            <div>
+                <h2 style="margin:0">浏览商品并下单</h2>
+                <p style="color:var(--secondary); margin:5px 0 0 0">顾客端核心流程</p>
+            </div>
+        </div>
+        <div class="sflow">
+            <span class="step">发现商品</span>
+            <span class="arr">→</span>
+            <span class="step">查看详情</span>
+            <span class="arr">→</span>
+            <span class="step">选择规格</span>
+            <span class="arr">→</span>
+            <span class="step">确认订单</span>
+            <span class="arr">→</span>
+            <span class="step">支付</span>
+        </div>
+        <div class="cards cards-3">
+            <div class="card">
+                <h4>首页轮播图</h4>
+                <p>点击进入活动页或商品详情</p>
+            </div>
+            <div class="card">
+                <h4>分类导航</h4>
+                <p>按分类筛选，排序浏览</p>
+            </div>
+            <div class="card">
+                <h4>搜索入口</h4>
+                <p>关键词、历史、热门搜索</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h3>从首页进入商品详情</h3>
+        <div class="flow">
+            <div class="flow-step"><span class="num">1</span><span class="txt"><strong>首页轮播图</strong> → 点击</span></div>
+            <div class="flow-step"><span class="num">2</span><span class="txt"><strong>商品详情页</strong></span></div>
+            <div class="flow-sub">
+                <div class="flow-step"><span class="num">✓</span><span>查看商品图片、价格、销量、描述</span></div>
+                <div class="flow-step"><span class="num">✓</span><span>选择颜色、尺码 → 显示库存</span></div>
+            </div>
+            <div class="flow-step"><span class="num">3</span><span class="txt"><strong>点击「立即购买」</strong></span></div>
+            <div class="flow-step"><span class="num">4</span><span class="txt"><strong>订单确认页</strong></span></div>
+            <div class="flow-sub">
+                <div class="flow-step"><span class="num">✓</span><span>选择/新增收货地址</span></div>
+                <div class="flow-step"><span class="num">✓</span><span>选择配送方式（快递/自提/同城）</span></div>
+                <div class="flow-step"><span class="num">✓</span><span>选择优惠券、填写备注</span></div>
+            </div>
+            <div class="flow-step"><span class="num">5</span><span class="txt"><strong>提交订单 → 微信支付 → 完成</strong></span></div>
+        </div>
+    </section>
+
+    <section>
+        <h3>三种配送方式</h3>
+        <table>
+            <tr><th>方式</th><th>流程</th><th>顾客看到</th></tr>
+            <tr><td><strong>快递发货</strong></td><td>下单→备货→发货→物流追踪→签收</td><td>运费、物流单号</td></tr>
+            <tr><td><strong>到店自提</strong></td><td>下单→备货→通知→到店→核销</td><td>自提点、自提码</td></tr>
+            <tr><td><strong>同城配送</strong></td><td>下单→备货→第三方配送→送达</td><td>配送费、骑手信息</td></tr>
+        </table>
+        <p style="font-size:0.7em; color:var(--secondary); margin-top:10px;">
+            * 同城配送支持：美团跑腿、顺丰同城、蜂鸟即配、达达快送
+        </p>
+    </section>
+</section>
+
+<!-- ========== 场景二 ========== -->
+<section>
+    <section>
+        <div class="scene-title">
+            <span class="scene-num">02</span>
+            <div>
+                <h2 style="margin:0">参与限时折扣活动</h2>
+                <p style="color:var(--secondary); margin:5px 0 0 0">三种折扣形式</p>
+            </div>
+        </div>
+        <table>
+            <tr><th>形式</th><th>说明</th><th>用户感知</th></tr>
+            <tr><td><strong>直接打折</strong></td><td>商品显示原价+折扣价</td><td>结算时自动按折扣价</td></tr>
+            <tr><td><strong>满减活动</strong></td><td>满 X 元减 Y 元</td><td>结算时自动抵扣</td></tr>
+            <tr><td><strong>领券折扣</strong></td><td>先领券再使用</td><td>结算时选择使用该券</td></tr>
+        </table>
+    </section>
+
+    <section>
+        <h3>直接打折流程</h3>
+        <div class="flow">
+            <div class="flow-step"><span class="num">1</span><span class="txt"><strong>首页「限时折扣」</strong> → 点击</span></div>
+            <div class="flow-step"><span class="num">2</span><span class="txt"><strong>折扣专区</strong>：折扣商品列表 + 原价（划线）+ 折扣价 + 倒计时</span></div>
+            <div class="flow-step"><span class="num">3</span><span class="txt"><strong>点击商品</strong> → 商品详情页（价格显示折扣价）</span></div>
+            <div class="flow-step"><span class="num">4</span><span class="txt"><strong>立即购买</strong> → 订单确认页（商品金额显示折扣价，无需额外操作）</span></div>
+            <div class="flow-step"><span class="num">5</span><span class="txt"><strong>提交订单并支付</strong></span></div>
+        </div>
+    </section>
+
+    <section>
+        <h3>满减活动流程</h3>
+        <div class="flow">
+            <div class="flow-step"><span class="num">1</span><span class="txt"><strong>折扣专区</strong> → 查看活动规则（满 200 减 20）</span></div>
+            <div class="flow-step"><span class="num">2</span><span class="txt"><strong>选择商品，加入购物车</strong></span></div>
+            <div class="flow-step"><span class="num">3</span><span class="txt"><strong>购物车 → 结算</strong></span></div>
+            <div class="flow-step"><span class="num">4</span><span class="txt"><strong>订单确认页</strong></span></div>
+            <div class="flow-sub">
+                <div class="flow-step flow-branch"><span class="num">◆</span><span>系统自动判断是否满足满减条件</span></div>
+                <div class="flow-step"><span class="num">→</span><span>满足：显示「满减优惠 -20 元」</span></div>
+                <div class="flow-step"><span class="num">→</span><span>不满足：提示「再买 X 元可减 Y 元」</span></div>
+            </div>
+            <div class="flow-step"><span class="num">5</span><span class="txt"><strong>提交订单并支付</strong></span></div>
+        </div>
+    </section>
+
+    <section>
+        <h3>领券后折扣流程</h3>
+        <div class="flow">
+            <div class="flow-step"><span class="num">1</span><span class="txt"><strong>活动页面</strong> → 点击「领券」</span></div>
+            <div class="flow-step"><span class="num">2</span><span class="txt"><strong>领券成功</strong> → 优惠券存入「我的优惠券」</span></div>
+            <div class="flow-step"><span class="num">3</span><span class="txt"><strong>选购商品 → 订单确认页</strong></span></div>
+            <div class="flow-sub">
+                <div class="flow-step"><span class="num">✓</span><span>在「优惠券」位置看到可用优惠券</span></div>
+                <div class="flow-step"><span class="num">✓</span><span>点击选择 → 显示优惠金额 → 更新实付金额</span></div>
+            </div>
+            <div class="flow-step"><span class="num">4</span><span class="txt"><strong>提交订单并支付</strong> → 优惠券自动核销</span></div>
+        </div>
+    </section>
+</section>
+
+<!-- ========== 场景三 ========== -->
+<section>
+    <section>
+        <div class="scene-title">
+            <span class="scene-num">03</span>
+            <div>
+                <h2 style="margin:0">查看订单与确认收货</h2>
+                <p style="color:var(--secondary); margin:5px 0 0 0">订单管理 & 三种配送方式收货</p>
+            </div>
+        </div>
+        <h3>查看订单列表</h3>
+        <div class="flow">
+            <div class="flow-step"><span class="num">1</span><span class="txt"><strong>个人中心</strong> → 点击「全部订单」</span></div>
+            <div class="flow-step"><span class="num">2</span><span class="txt"><strong>订单列表</strong></span></div>
+            <div class="flow-sub">
+                <div class="flow-step"><span class="num">✓</span><span>Tab 筛选：全部/待支付/待发货/待自提/待配送/配送中/待收货/已完成</span></div>
+                <div class="flow-step"><span class="num">✓</span><span>订单卡片：商品图片、名称、规格、状态、金额、操作按钮</span></div>
+            </div>
+            <div class="flow-step"><span class="num">3</span><span class="txt"><strong>点击订单</strong> → 订单详情</span></div>
+        </div>
+    </section>
+
+    <section>
+        <h3>三种配送方式的收货流程</h3>
+        <div class="cards">
+            <div class="card">
+                <h4>快递发货 - 确认收货</h4>
+                <ul>
+                    <li>显示物流公司 + 单号 + 运输节点</li>
+                    <li>收到货后，点击「确认收货」</li>
+                    <li>订单状态变为「已完成」</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>到店自提 - 核销取货</h4>
+                <ul>
+                    <li>显示自提码（二维码/数字码）</li>
+                    <li>显示自提点地址、营业时间</li>
+                    <li>顾客到店出示 → 店员扫码核销</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>同城配送 - 签收</h4>
+                <ul>
+                    <li>显示骑手信息（姓名、电话）</li>
+                    <li>实时位置/预计送达时间</li>
+                    <li>骑手送达后自动完成</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</section>
+
+<!-- ========== 场景四 ========== -->
+<section>
+    <section>
+        <div class="scene-title">
+            <span class="scene-num">04</span>
+            <div>
+                <h2 style="margin:0">申请换货</h2>
+                <p style="color:var(--secondary); margin:5px 0 0 0">只换不退模式</p>
+            </div>
+        </div>
+        <div class="sflow">
+            <span class="step">申请售后</span>
+            <span class="arr">→</span>
+            <span class="step">选择商品</span>
+            <span class="arr">→</span>
+            <span class="step">选择新规格</span>
+            <span class="arr">→</span>
+            <span class="step">差价处理</span>
+            <span class="arr">→</span>
+            <span class="step">等待审核</span>
+        </div>
+    </section>
+
+    <section>
+        <h3>发起换货申请</h3>
+        <div class="flow">
+            <div class="flow-step"><span class="num">1</span><span class="txt"><strong>订单详情（已完成订单）</strong> → 点击「申请售后」</span></div>
+            <div class="flow-step"><span class="num">2</span><span class="txt"><strong>选择售后商品</strong> → 勾选要换的商品</span></div>
+            <div class="flow-step"><span class="num">3</span><span class="txt"><strong>选择售后类型</strong> → 换货（当前店铺仅支持换货）</span></div>
+            <div class="flow-step"><span class="num">4</span><span class="txt"><strong>选择换货规格</strong></span></div>
+            <div class="flow-sub">
+                <div class="flow-step"><span class="num">✓</span><span>选择新颜色、新尺码</span></div>
+                <div class="flow-step flow-branch"><span class="num">◆</span><span>系统自动计算差价：无差价 / 需补差价 / 可退差价</span></div>
+            </div>
+            <div class="flow-step"><span class="num">5</span><span class="txt"><strong>填写申请信息</strong> → 换货原因 + 描述 + 图片</span></div>
+            <div class="flow-step"><span class="num">6</span><span class="txt"><strong>提交申请</strong> → 等待商家审核</span></div>
+        </div>
+    </section>
+
+    <section>
+        <h3>商家审核通过后</h3>
+        <div class="cards">
+            <div class="card">
+                <h4>方式一：到店换货</h4>
+                <ul>
+                    <li>显示核销码</li>
+                    <li>携带原商品到店</li>
+                    <li>店员核销后换取新商品</li>
+                    <li>如需补差价，现场支付</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>方式二：寄回换货</h4>
+                <ul>
+                    <li>填写物流单号，寄回原商品</li>
+                    <li>商家验货</li>
+                    <li>如需补差价，在线支付</li>
+                    <li>商家发出新商品</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</section>
+
+<!-- ========== 场景五 ========== -->
+<section>
+    <section>
+        <div class="scene-title">
+            <span class="scene-num">05</span>
+            <div>
+                <h2 style="margin:0">收藏商品与分享</h2>
+                <p style="color:var(--secondary); margin:5px 0 0 0">社交裂变 & 复购入口</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h3>收藏商品</h3>
+        <div class="flow">
+            <div class="flow-step"><span class="num">1</span><span class="txt"><strong>商品详情页</strong> → 点击收藏图标 → 图标变为已收藏</span></div>
+            <div class="flow-step"><span class="num">2</span><span class="txt"><strong>个人中心</strong> → 点击「收藏夹」</span></div>
+            <div class="flow-sub">
+                <div class="flow-step"><span class="num">✓</span><span>查看已收藏商品</span></div>
+                <div class="flow-step"><span class="num">✓</span><span>商品价格/库存状态更新</span></div>
+                <div class="flow-step"><span class="num">✓</span><span>可加入购物车 / 可取消收藏</span></div>
+            </div>
+        </div>
+        <h3 style="margin-top:25px">分享商品</h3>
+        <div class="flow">
+            <div class="flow-step"><span class="num">1</span><span class="txt"><strong>商品详情页</strong> → 点击分享按钮</span></div>
+            <div class="flow-step"><span class="num">2</span><span class="txt"><strong>选择分享方式</strong></span></div>
+            <div class="flow-sub">
+                <div class="flow-step flow-branch"><span class="num">◆</span><span>分享给微信好友 → 生成小程序卡片</span></div>
+                <div class="flow-step flow-branch"><span class="num">◆</span><span>生成海报 → 商品图+价格+小程序码 → 保存发朋友圈</span></div>
+            </div>
+        </div>
+    </section>
+</section>
+
+<!-- ========== 场景六 ========== -->
+<section>
+    <section>
+        <div class="scene-title">
+            <span class="scene-num">06</span>
+            <div>
+                <h2 style="margin:0">使用优惠券</h2>
+                <p style="color:var(--secondary); margin:5px 0 0 0">领取 → 使用 → 查看</p>
+            </div>
+        </div>
+        <div class="sflow">
+            <span class="step">领取优惠券</span>
+            <span class="arr">→</span>
+            <span class="step">选购商品</span>
+            <span class="arr">→</span>
+            <span class="step">结算时选择</span>
+            <span class="arr">→</span>
+            <span class="step">自动核销</span>
+        </div>
+    </section>
+
+    <section>
+        <h3>领取 & 使用优惠券</h3>
+        <div class="flow">
+            <div class="flow-step"><span class="num">1</span><span class="txt"><strong>首页「新人专享」或「会员专区」</strong> → 点击「领取」</span></div>
+            <div class="flow-step"><span class="num">2</span><span class="txt"><strong>领券成功</strong> → 优惠券存入「我的优惠券」</span></div>
+            <div class="flow-step"><span class="num">3</span><span class="txt"><strong>选购商品 → 订单确认页</strong> → 点击「优惠券」</span></div>
+            <div class="flow-sub">
+                <div class="flow-step"><span class="num">✓</span><span>显示可用优惠券（高亮）</span></div>
+                <div class="flow-step"><span class="num">✓</span><span>显示不可用优惠券（灰显，注明原因）</span></div>
+            </div>
+            <div class="flow-step"><span class="num">4</span><span class="txt"><strong>选择优惠券</strong> → 显示优惠金额 → 更新实付金额</span></div>
+            <div class="flow-step"><span class="num">5</span><span class="txt"><strong>提交订单</strong> → 优惠券自动核销</span></div>
+        </div>
+    </section>
+</section>
+
+<!-- ========== 场景七 ========== -->
+<section>
+    <section>
+        <div class="scene-title">
+            <span class="scene-num">07</span>
+            <div>
+                <h2 style="margin:0">企业管理员操作</h2>
+                <p style="color:var(--secondary); margin:5px 0 0 0">运营后台功能</p>
+            </div>
+        </div>
+        <div class="cards cards-4">
+            <div class="card">
+                <h4>日常操作</h4>
+                <ul>
+                    <li>新增商品</li>
+                    <li>订单发货</li>
+                    <li>审核售后</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>活动配置</h4>
+                <ul>
+                    <li>创建优惠券</li>
+                    <li>限时折扣</li>
+                    <li>满减活动</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>会员运营</h4>
+                <ul>
+                    <li>会员管理</li>
+                    <li>标签管理</li>
+                    <li>消息推送</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>数据分析</h4>
+                <ul>
+                    <li>销售概览</li>
+                    <li>商品分析</li>
+                    <li>用户分析</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h3>7.1 新增商品</h3>
+        <div class="flow">
+            <div class="flow-step"><span class="num">1</span><span class="txt"><strong>商品管理 → 商品列表</strong> → 点击「新增商品」</span></div>
+            <div class="flow-step"><span class="num">2</span><span class="txt"><strong>填写基础信息</strong>：商品名称、分类、描述、主图、详情图</span></div>
+            <div class="flow-step"><span class="num">3</span><span class="txt"><strong>设置价格库存</strong>：销售价、原价、总库存</span></div>
+            <div class="flow-step"><span class="num">4</span><span class="txt"><strong>设置 SKU 规格</strong></span></div>
+            <div class="flow-sub">
+                <div class="flow-step"><span class="num">✓</span><span>添加颜色规格（黑色、白色、蓝色...）</span></div>
+                <div class="flow-step"><span class="num">✓</span><span>添加尺码规格（S、M、L、XL...）</span></div>
+                <div class="flow-step"><span class="num">✓</span><span>为每个 SKU 设置价格和库存</span></div>
+            </div>
+            <div class="flow-step"><span class="num">5</span><span class="txt"><strong>保存并上架</strong> → 小程序端可看到该商品</span></div>
+        </div>
+    </section>
+
+    <section>
+        <h3>7.2 订单发货</h3>
+        <div class="flow">
+            <div class="flow-step"><span class="num">1</span><span class="txt"><strong>订单管理 → 订单列表</strong> → 筛选「待发货」</span></div>
+            <div class="flow-step"><span class="num">2</span><span class="txt"><strong>点击「发货」</strong> → 选择发货方式</span></div>
+            <div class="flow-sub">
+                <div class="flow-step flow-branch"><span class="num">◆</span><span><strong>快递发货</strong>：选择物流公司 + 输入单号</span></div>
+                <div class="flow-step flow-branch"><span class="num">◆</span><span><strong>到店自提</strong>：确认备货 → 通知顾客到店</span></div>
+                <div class="flow-step flow-branch"><span class="num">◆</span><span><strong>同城配送</strong>：选择平台 + 确认配送费 + 发起配送</span></div>
+            </div>
+            <div class="flow-step"><span class="num">3</span><span class="txt"><strong>发货成功</strong> → 订单状态更新 → 顾客收到通知</span></div>
+        </div>
+    </section>
+
+    <section>
+        <h3>7.3 审核换货申请</h3>
+        <div class="flow">
+            <div class="flow-step"><span class="num">1</span><span class="txt"><strong>售后管理 → 售后列表</strong> → 筛选「待审核」</span></div>
+            <div class="flow-step"><span class="num">2</span><span class="txt"><strong>点击订单</strong> → 查看申请信息：换货商品、规格、差价、原因</span></div>
+            <div class="flow-step"><span class="num">3</span><span class="txt"><strong>点击「通过」</strong> → 确认换货商品和规格</span></div>
+            <div class="flow-step"><span class="num">4</span><span class="txt"><strong>差价处理</strong></span></div>
+            <div class="flow-sub">
+                <div class="flow-step flow-branch"><span class="num">◆</span><span>无差价：直接确认</span></div>
+                <div class="flow-step flow-branch"><span class="num">◆</span><span>需补差价：发送支付链接给顾客</span></div>
+                <div class="flow-step flow-branch"><span class="num">◆</span><span>需退差价：确认后系统退款</span></div>
+            </div>
+            <div class="flow-step"><span class="num">5</span><span class="txt"><strong>审核通过</strong> → 顾客收到通知，进行换货</span></div>
+        </div>
+    </section>
+
+    <section>
+        <h3>7.4 创建优惠券</h3>
+        <div class="flow">
+            <div class="flow-step"><span class="num">1</span><span class="txt"><strong>活动管理 → 优惠券管理</strong> → 点击「新增优惠券」</span></div>
+            <div class="flow-step"><span class="num">2</span><span class="txt"><strong>填写基本信息</strong>：名称、类型（满减/折扣/无门槛）、金额、门槛</span></div>
+            <div class="flow-step"><span class="num">3</span><span class="txt"><strong>设置发放规则</strong>：总量、每人限领、适用商品</span></div>
+            <div class="flow-step"><span class="num">4</span><span class="txt"><strong>设置有效期</strong>：固定时间段 / 领取后 X 天内</span></div>
+            <div class="flow-step"><span class="num">5</span><span class="txt"><strong>选择发放方式</strong></span></div>
+            <div class="flow-sub">
+                <div class="flow-step flow-branch"><span class="num">◆</span><span>手动发放：后台选择会员发放</span></div>
+                <div class="flow-step flow-branch"><span class="num">◆</span><span>自动发放：新用户注册 / 首次下单</span></div>
+            </div>
+            <div class="flow-step"><span class="num">6</span><span class="txt"><strong>保存</strong> → 可查看、编辑、发放</span></div>
+        </div>
+    </section>
+
+    <section>
+        <h3>7.5 创建限时折扣活动</h3>
+        <div class="flow">
+            <div class="flow-step"><span class="num">1</span><span class="txt"><strong>活动管理 → 活动配置</strong> → 新增「限时折扣」</span></div>
+            <div class="flow-step"><span class="num">2</span><span class="txt"><strong>填写活动信息</strong>：名称、时间、标签（显示在商品上）</span></div>
+            <div class="flow-step"><span class="num">3</span><span class="txt"><strong>设置折扣规则</strong>：打折（8 折）或 直降（立减 20 元）+ 限购数量</span></div>
+            <div class="flow-step"><span class="num">4</span><span class="txt"><strong>选择参与商品</strong> → 从商品列表勾选</span></div>
+            <div class="flow-step"><span class="num">5</span><span class="txt"><strong>保存并启用</strong></span></div>
+            <div class="flow-sub">
+                <div class="flow-step"><span class="num">→</span><span>活动期间商品显示折扣价，首页可配置活动入口</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h3>7.6 创建满减活动</h3>
+        <div class="flow">
+            <div class="flow-step"><span class="num">1</span><span class="txt"><strong>活动管理 → 活动配置</strong> → 新增「满减活动」</span></div>
+            <div class="flow-step"><span class="num">2</span><span class="txt"><strong>填写活动信息</strong>：名称（如：满 200 减 20）、时间</span></div>
+            <div class="flow-step"><span class="num">3</span><span class="txt"><strong>设置满减规则</strong>：可设置多档（满 200 减 20，满 500 减 60）</span></div>
+            <div class="flow-step"><span class="num">4</span><span class="txt"><strong>选择参与商品</strong>：全场参与 / 或指定商品</span></div>
+            <div class="flow-step"><span class="num">5</span><span class="txt"><strong>保存并启用</strong> → 顾客下单满足条件自动抵扣</span></div>
+        </div>
+    </section>
+
+    <section>
+        <h3>7.7 发送消息推送</h3>
+        <div class="flow">
+            <div class="flow-step"><span class="num">1</span><span class="txt"><strong>消息推送</strong> → 选择推送类型</span></div>
+            <div class="flow-sub">
+                <div class="flow-step flow-branch"><span class="num">◆</span><span>活动推送 / 订单通知 / 售后通知 / 会员关怀</span></div>
+            </div>
+            <div class="flow-step"><span class="num">2</span><span class="txt"><strong>选择目标人群</strong></span></div>
+            <div class="flow-sub">
+                <div class="flow-step"><span class="num">✓</span><span>全部会员 / 按标签 / 按等级</span></div>
+                <div class="flow-step"><span class="num">✓</span><span>按条件：注册时间、消费金额、活跃度</span></div>
+            </div>
+            <div class="flow-step"><span class="num">3</span><span class="txt"><strong>编辑推送内容</strong>：标题 + 内容 + 跳转链接</span></div>
+            <div class="flow-step"><span class="num">4</span><span class="txt"><strong>选择发送方式</strong>：立即发送 / 定时发送</span></div>
+            <div class="flow-step"><span class="num">5</span><span class="txt"><strong>发送</strong> → 顾客在企业微信收到消息</span></div>
+        </div>
+    </section>
+
+    <section>
+        <h3>7.8 查看数据统计</h3>
+        <div class="cards">
+            <div class="card">
+                <h4>销售概览</h4>
+                <ul>
+                    <li>今日销售额/订单数/客单价</li>
+                    <li>环比/同比数据</li>
+                    <li>销售趋势图</li>
+                    <li>销售排行</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>商品分析</h4>
+                <ul>
+                    <li>销量 Top 商品</li>
+                    <li>滞销商品</li>
+                    <li>分类销售占比</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>用户分析</h4>
+                <ul>
+                    <li>总会员数/新增会员</li>
+                    <li>活跃会员数</li>
+                    <li>转化率/复购率</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>订单分析</h4>
+                <ul>
+                    <li>订单量/金额趋势</li>
+                    <li>配送方式分布</li>
+                    <li>下单时段分布</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h3>7.9-7.11 会员管理 & 系统设置</h3>
+        <div class="cards cards-3">
+            <div class="card">
+                <h4>会员管理</h4>
+                <ul>
+                    <li>筛选：等级/标签/时间/活跃度</li>
+                    <li>查看详情：基本信息、消费统计</li>
+                    <li>操作：手动打标签、调整等级</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>标签管理</h4>
+                <ul>
+                    <li>新增/编辑/删除标签</li>
+                    <li>查看标签人数</li>
+                    <li>给会员批量打标签</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>系统设置</h4>
+                <ul>
+                    <li>店铺信息：名称/Logo/联系方式</li>
+                    <li>配送设置：运费/自提点/同城配送</li>
+                    <li>支付设置：微信支付配置</li>
+                    <li>售后设置：政策配置</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</section>
+
+<!-- ========== 总结 ========== -->
+<section>
+    <h2>总结：核心流程一览</h2>
+    <table style="font-size:0.65em;">
+        <tr><th>角色</th><th>场景</th><th>入口</th></tr>
+        <tr><td rowspan="8"><span class="tag tag-customer">顾客</span></td><td>浏览商品</td><td>首页轮播图 / 分类 / 搜索 / 推荐</td></tr>
+        <tr><td></td><td>下单购买</td><td>商品详情页 → 订单确认 → 支付</td></tr>
+        <tr><td></td><td>参与活动</td><td>活动入口 → 领券/选商品 → 下单</td></tr>
+        <tr><td></td><td>查看订单</td><td>个人中心 → 订单列表</td></tr>
+        <tr><td></td><td>确认收货</td><td>订单详情 → 确认收货/核销</td></tr>
+        <tr><td></td><td>申请换货</td><td>订单详情 → 申请售后</td></tr>
+        <tr><td></td><td>收藏/分享</td><td>商品详情页</td></tr>
+        <tr><td></td><td>使用优惠券</td><td>订单确认页 → 选择优惠券</td></tr>
+        <tr><td rowspan="8"><span class="tag tag-admin">管理员</span></td><td>新增商品</td><td>商品管理 → 新增商品</td></tr>
+        <tr><td></td><td>订单发货</td><td>订单管理 → 发货</td></tr>
+        <tr><td></td><td>审核售后</td><td>售后管理 → 审核</td></tr>
+        <tr><td></td><td>创建优惠券</td><td>活动管理 → 优惠券管理</td></tr>
+        <tr><td></td><td>创建折扣/满减</td><td>活动管理 → 活动配置</td></tr>
+        <tr><td></td><td>发送推送</td><td>消息推送</td></tr>
+        <tr><td></td><td>会员管理</td><td>会员管理 → 会员列表</td></tr>
+        <tr><td></td><td>系统设置</td><td>系统设置</td></tr>
+    </table>
+</section>
+
+<!-- ========== 结束页 ========== -->
+<section class="center">
+    <div class="cover">
+        <h1>谢谢</h1>
+        <div class="sub">川着 transmute 线上渠道系统</div>
+    </div>
+</section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            transition: 'slide',
+            controls: true,
+            progress: true,
+            center: false,
+            width: 1100,
+            height: 650,
+            margin: 0.1
+        });
+    </script>
+</body>
+</html>

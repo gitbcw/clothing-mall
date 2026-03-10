@@ -59,3 +59,18 @@ export function updateWx(data) {
     data
   })
 }
+
+export function listPromotion() {
+  return request({
+    url: '/config/promotion',
+    method: 'get'
+  })
+}
+
+export function updatePromotion(data) {
+  return request({
+    url: '/config/promotion',
+    method: 'post',
+    data
+  })
+}

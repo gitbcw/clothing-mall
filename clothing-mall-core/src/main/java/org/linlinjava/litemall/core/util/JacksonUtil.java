@@ -171,4 +171,17 @@ public class JacksonUtil {
         }
         return null;
     }
+
+    /**
+     * 将 JSON 字符串转换为指定类型的对象
+     */
+    public static <T> T fromJson(String json, Class<T> clazz) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.readValue(json, clazz);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
+        return null;
+    }
 }

@@ -9,7 +9,6 @@ Page({
     cartId: 0,
     couponId: 0,
     userCouponId: 0,
-    grouponLinkId: 0,
     scrollTop: 0
   },
 
@@ -52,16 +51,10 @@ Page({
         userCouponId = 0;
       }
 
-      var grouponRulesId = wx.getStorageSync('grouponRulesId');
-      if (!grouponRulesId) {
-        grouponRulesId = 0;
-      }
-
       this.setData({
         cartId: cartId,
         couponId: couponId,
-        userCouponId: userCouponId,
-        grouponRulesId: grouponRulesId
+        userCouponId: userCouponId
       });
 
     } catch (e) {
@@ -119,8 +112,7 @@ Page({
     });
 
     util.request(api.CouponSelectList, {
-      cartId: that.data.cartId,
-      grouponRulesId: that.data.grouponRulesId,
+      cartId: that.data.cartId
     }).then(function (res) {
       if (res.errno === 0) {
         let list = [];

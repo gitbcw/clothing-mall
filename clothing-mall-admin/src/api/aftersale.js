@@ -54,3 +54,19 @@ export function refundAftersale(data) {
     data
   })
 }
+
+export function shipAftersale(data) {
+  return request({
+    url: '/aftersale/ship',
+    method: 'post',
+    data
+  })
+}
+
+export function completeAftersale(data) {
+  return request({
+    url: '/aftersale/complete',
+    method: 'post',
+    data
+  })
+}

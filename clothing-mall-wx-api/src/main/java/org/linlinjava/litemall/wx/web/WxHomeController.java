@@ -9,7 +9,6 @@ import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.service.HomeCacheManager;
-import org.linlinjava.litemall.wx.service.WxGrouponRuleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,9 +45,6 @@ public class WxHomeController {
 
     @Autowired
     private LitemallCategoryService categoryService;
-
-    @Autowired
-    private WxGrouponRuleService grouponService;
 
     @Autowired
     private LitemallCouponService couponService;
@@ -104,9 +100,6 @@ public class WxHomeController {
 
         Callable<List> topicListCallable = () -> topicService.queryList(0, SystemConfig.getTopicLimit());
 
-        //团购专区
-        Callable<List> grouponListCallable = () -> grouponService.queryList(0, 5);
-
         Callable<List> floorGoodsListCallable = this::getCategoryList;
 
         FutureTask<List> bannerTask = new FutureTask<>(bannerListCallable);
@@ -116,7 +109,6 @@ public class WxHomeController {
         FutureTask<List> hotGoodsListTask = new FutureTask<>(hotGoodsListCallable);
         FutureTask<List> brandListTask = new FutureTask<>(brandListCallable);
         FutureTask<List> topicListTask = new FutureTask<>(topicListCallable);
-        FutureTask<List> grouponListTask = new FutureTask<>(grouponListCallable);
         FutureTask<List> floorGoodsListTask = new FutureTask<>(floorGoodsListCallable);
 
         executorService.submit(bannerTask);
@@ -126,7 +118,6 @@ public class WxHomeController {
         executorService.submit(hotGoodsListTask);
         executorService.submit(brandListTask);
         executorService.submit(topicListTask);
-        executorService.submit(grouponListTask);
         executorService.submit(floorGoodsListTask);
 
         Map<String, Object> entity = new HashMap<>();
@@ -138,7 +129,7 @@ public class WxHomeController {
             entity.put("hotGoodsList", hotGoodsListTask.get());
             entity.put("brandList", brandListTask.get());
             entity.put("topicList", topicListTask.get());
-            entity.put("grouponList", grouponListTask.get());
+            entity.put("grouponList", new ArrayList<>());
             entity.put("floorGoodsList", floorGoodsListTask.get());
             //缓存数据
             HomeCacheManager.loadData(HomeCacheManager.INDEX, entity);

@@ -227,6 +227,14 @@
             <version>1.10.19</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- 现代断言库 -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.24.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 

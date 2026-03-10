@@ -44,10 +44,6 @@ module.exports = {
   CollectList: WxApiRoot + 'collect/list', //收藏列表
   CollectAddOrDelete: WxApiRoot + 'collect/addordelete', //添加或取消收藏
 
-  CommentList: WxApiRoot + 'comment/list', //评论列表
-  CommentCount: WxApiRoot + 'comment/count', //评论总数
-  CommentPost: WxApiRoot + 'comment/post', //发表评论
-
   TopicList: WxApiRoot + 'topic/list', //专题列表
   TopicDetail: WxApiRoot + 'topic/detail', //专题详情
   TopicRelated: WxApiRoot + 'topic/related', //相关专题
@@ -85,11 +81,6 @@ module.exports = {
   FootprintList: WxApiRoot + 'footprint/list', //足迹列表
   FootprintDelete: WxApiRoot + 'footprint/delete', //删除足迹
 
-  GroupOnList: WxApiRoot + 'groupon/list', //团购列表
-  GroupOnMy: WxApiRoot + 'groupon/my', //团购API-我的团购
-  GroupOnDetail: WxApiRoot + 'groupon/detail', //团购API-详情
-  GroupOnJoin: WxApiRoot + 'groupon/join', //团购API-详情
-
   CouponList: WxApiRoot + 'coupon/list', //优惠券列表
   CouponMyList: WxApiRoot + 'coupon/mylist', //我的优惠券列表
   CouponSelectList: WxApiRoot + 'coupon/selectlist', //当前订单可用优惠券列表
@@ -109,4 +100,9 @@ module.exports = {
   ClothingStoreDetail: WxApiRoot + 'clothing/store/detail', // 门店详情
   ClothingUserInfo: WxApiRoot + 'clothing/user/info', // 会员信息
   ClothingUserBindGuide: WxApiRoot + 'clothing/user/bindGuide', // 绑定导购
+
+  // 限时特卖相关接口
+  FlashSaleList: WxApiRoot + 'flashSale/list', // 特卖列表
+  FlashSaleDetail: WxApiRoot + 'flashSale/detail', // 特卖详情
+  FlashSaleGoods: WxApiRoot + 'flashSale/goods', // 商品特卖信息
 };

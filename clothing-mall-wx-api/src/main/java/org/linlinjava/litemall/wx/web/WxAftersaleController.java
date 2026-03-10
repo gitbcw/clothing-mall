@@ -137,12 +137,9 @@ public class WxAftersaleController {
         if(!OrderUtil.isConfirmStatus(order) && !OrderUtil.isAutoConfirmStatus(order)){
             return ResponseUtil.fail(WxResponseCode.AFTERSALE_UNALLOWED, "不能申请售后");
         }
-        BigDecimal amount = order.getActualPrice().subtract(order.getFreightPrice());
-        if(aftersale.getAmount().compareTo(amount) > 0){
-            return ResponseUtil.fail(WxResponseCode.AFTERSALE_INVALID_AMOUNT, "退款金额不正确");
-        }
+        // 换货不需要金额验证，amount 字段保留用于记录换货差价（线下处理）
         Short afterStatus = order.getAftersaleStatus();
-        if(afterStatus.equals(AftersaleConstant.STATUS_RECEPT) || afterStatus.equals(AftersaleConstant.STATUS_REFUND)){
+        if(afterStatus.equals(AftersaleConstant.STATUS_RECEPT) || afterStatus.equals(AftersaleConstant.STATUS_SHIPPED)){
             return ResponseUtil.fail(WxResponseCode.AFTERSALE_INVALID_AMOUNT, "已申请售后");
         }
 

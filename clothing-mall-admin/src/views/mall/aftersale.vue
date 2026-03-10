@@ -7,7 +7,7 @@
           {{ item.label }}
           <el-badge :value="statusCounts[item.code]" :hidden="!statusCounts[item.code]" class="item" :type="getBadgeType(item.code)" style="margin-left: 5px; vertical-align: top;" />
         </span>
-        
+
         <div v-if="tab === item.name">
           <!-- 查询和其他操作 -->
           <div class="filter-container" style="margin-top: 15px;">
@@ -42,7 +42,8 @@
                 <el-button v-permission="['POST /admin/aftersale/detail']" type="primary" size="mini" @click="handleRead(scope.row)">{{ $t('app.button.detail') }}</el-button>
                 <el-button v-if="scope.row.status === 1" v-permission="['POST /admin/aftersale/recept']" type="success" size="mini" @click="handleRecept(scope.row)">{{ $t('mall_aftersale.button.recept') }}</el-button>
                 <el-button v-if="scope.row.status === 1" v-permission="['POST /admin/aftersale/reject']" type="danger" size="mini" @click="handleReject(scope.row)">{{ $t('mall_aftersale.button.reject') }}</el-button>
-                <el-button v-if="scope.row.status === 2" v-permission="['POST /admin/aftersale/refund']" type="warning" size="mini" @click="handleRefund(scope.row)">{{ $t('mall_aftersale.button.refund') }}</el-button>
+                <el-button v-if="scope.row.status === 2" v-permission="['POST /admin/aftersale/ship']" type="warning" size="mini" @click="handleShip(scope.row)">换货发货</el-button>
+                <el-button v-if="scope.row.status === 3" v-permission="['POST /admin/aftersale/complete']" type="success" size="mini" @click="handleComplete(scope.row)">换货完成</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -81,9 +82,8 @@
             <el-tag>{{ aftersaleDetail.userId }}</el-tag>
           </el-form-item>
           <el-form-item :label="$t('mall_aftersale.form.type')">
-            <el-tag v-if="aftersaleDetail.type === 0">{{ $t('mall_aftersale.value.type_0') }}</el-tag>
-            <el-tag v-if="aftersaleDetail.type === 1">{{ $t('mall_aftersale.value.type_1') }}</el-tag>
-            <el-tag v-if="aftersaleDetail.type === 2">{{ $t('mall_aftersale.value.type_2') }}</el-tag>
+            <el-tag v-if="aftersaleDetail.type === 0">同款换货</el-tag>
+            <el-tag v-if="aftersaleDetail.type === 1">换其他商品</el-tag>
           </el-form-item>
           <el-form-item :label="$t('mall_aftersale.form.reason')">
             <span>{{ aftersaleDetail.reason }}</span>
@@ -118,7 +118,7 @@
 </template>
 
 <script>
-import { listAftersale, listAftersaleCount, receptAftersale, batchReceptAftersale, rejectAftersale, batchRejectAftersale, refundAftersale } from '@/api/aftersale'
+import { listAftersale, listAftersaleCount, receptAftersale, batchReceptAftersale, rejectAftersale, batchRejectAftersale, shipAftersale, completeAftersale } from '@/api/aftersale'
 import BackToTop from '@/components/BackToTop'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import _ from 'lodash'
@@ -143,21 +143,19 @@ export default {
         order: 'desc'
       },
       typeTag: [
-        '',
-        'success',
-        'warning'
+        'primary',
+        'success'
       ],
       typeDesc: [
-        '未收货退款',
-        '不退货退款',
-        '退货退款'
+        '同款换货',
+        '换其他商品'
       ],
       multipleSelection: [],
       contentDetail: '',
       contentDialogVisible: false,
       downloadLoading: false,
-      aftersaleDialogVisible:false,
-      aftersaleDetail:{}
+      aftersaleDialogVisible: false,
+      aftersaleDetail: {}
     }
   },
   computed: {
@@ -165,7 +163,7 @@ export default {
       return [
         { name: 'all', label: this.$t('mall_aftersale.section.all'), code: 'all' },
         { name: 'uncheck', label: this.$t('mall_aftersale.section.uncheck'), code: '1' },
-        { name: 'unrefund', label: this.$t('mall_aftersale.section.unrefund'), code: '2' }
+        { name: 'unship', label: '待发货', code: '2' }
       ]
     }
   },
@@ -214,7 +212,7 @@ export default {
         this.listQuery.status = ''
       } else if (this.tab === 'uncheck') {
         this.listQuery.status = '1'
-      } else if (this.tab === 'unrefund') {
+      } else if (this.tab === 'unship') {
         this.listQuery.status = '2'
       }
       this.getList()
@@ -299,14 +297,32 @@ export default {
           })
         })
     },
-    handleRefund(row) {
-      refundAftersale(row)
+    handleShip(row) {
+      shipAftersale(row)
         .then(response => {
           this.$notify.success({
             title: '成功',
-            message: '退款操作成功'
+            message: '换货发货操作成功'
           })
           this.getList()
+          this.getAftersaleCounts()
+        })
+        .catch(response => {
+          this.$notify.error({
+            title: '失败',
+            message: response.data.errmsg
+          })
+        })
+    },
+    handleComplete(row) {
+      completeAftersale(row)
+        .then(response => {
+          this.$notify.success({
+            title: '成功',
+            message: '换货完成操作成功'
+          })
+          this.getList()
+          this.getAftersaleCounts()
         })
         .catch(response => {
           this.$notify.error({
@@ -341,10 +357,10 @@ export default {
       })
     },
     handleRead(row) {
-      this.aftersaleDetail = row;
-      console.log(this.aftersaleDetail);
+      this.aftersaleDetail = row
+      console.log(this.aftersaleDetail)
       this.aftersaleDialogVisible = true
-    },
+    }
   }
 }
 </script>

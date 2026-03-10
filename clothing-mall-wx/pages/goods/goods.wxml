@@ -15,15 +15,15 @@
         <van-icon class="icon" name="cross" />      
       </view>
       <view class='share-info'>
-        <button class="sharebtn" open-type="share" wx:if="{{!isGroupon}}">
+        <button class="sharebtn" open-type="share">
           <image class='sharebtn_image' src='/static/images/wechat.png'></image>
           <view class='sharebtn_text'>分享给好友</view>
         </button>
-        <button  class="savesharebtn" open-type="openSetting" bindopensetting="handleSetting" wx:if="{{(!isGroupon) && (!canWrite)}}" >
+        <button  class="savesharebtn" open-type="openSetting" bindopensetting="handleSetting" wx:if="{{!canWrite}}" >
           <image class='sharebtn_image' src='/static/images/friend.png'></image>
           <view class='sharebtn_text'>生成海报</view>
         </button>
-        <button class="savesharebtn" bindtap="saveShare" wx:if="{{!isGroupon && canWrite}}">
+        <button class="savesharebtn" bindtap="saveShare" wx:if="{{canWrite}}">
           <image class='sharebtn_image' src='/static/images/friend.png'></image>
           <view class='sharebtn_text'>生成海报</view>
         </button>
@@ -34,7 +34,19 @@
   <view class="goods-info">
     <view class="c">
       <text class="desc">{{goods.brief}}</text>
-      <view class="price">
+      <!-- 限时特卖价格显示 -->
+      <view class="price" wx:if="{{flashSale}}">
+        <view class="flash-tag">限时特卖</view>
+        <view class="flash-price-box">
+          <text class="flash-price">￥{{flashSale.flashPrice}}</text>
+          <text class="original-price">￥{{goods.counterPrice}}</text>
+        </view>
+        <view class="flash-info">
+          <text>库存: {{flashSale.flashStock}} | 已售: {{flashSale.flashSales || 0}}</text>
+        </view>
+      </view>
+      <!-- 普通价格显示 -->
+      <view class="price" wx:else>
         <view class="counterPrice">原价：￥{{goods.counterPrice}}</view>
         <view class="retailPrice">现价：￥{{checkedSpecPrice}}</view>
       </view>
@@ -49,38 +61,6 @@
   <view class="section-nav section-attr" bindtap="switchAttrPop">
     <view class="t">{{checkedSpecText}}</view>
     <van-icon class="i" name="arrow" />
-  </view>
-  <view class="comments" wx:if="{{comment.count > 0}}">
-    <view class="h">
-      <navigator url="/pages/comment/comment?valueId={{goods.id}}&type=0">
-        <text class="t">评价({{comment.count > 999 ? '999+' : comment.count}})</text>
-        <view class="i">
-          查看全部
-          <van-icon name="arrow" />
-        </view>
-      </navigator>
-    </view>
-    <view class="b">
-      <view class="item" wx:for="{{comment.data}}" wx:key="id">
-        <view class="info">
-          <view class="user">
-            <image src="{{item.avatar}}"></image>
-            <text>{{item.nickname}}</text>
-          </view>
-          <view class="time">{{item.addTime}}</view>
-        </view>
-        <view class="content">
-          {{item.content}}
-        </view>
-        <view class="imgs" wx:if="{{item.picList.length > 0}}">
-          <image class="img" wx:for="{{item.picList}}" wx:key="*this" wx:for-item="iitem" src="{{iitem}} "></image>
-        </view>
-        <view class="customer-service" wx:if="{{item.adminContent}}">
-          <text class="u">商家回复：</text>
-          <text class="c">{{item.adminContent}}</text>
-        </view>
-      </view>
-    </view>
   </view>
   <view class="goods-attr">
     <view class="t">商品参数</view>
@@ -157,13 +137,6 @@
         </view>
       </view>
 
-      <view class="spec-item" wx:if="{{groupon.length > 0}}">
-        <view class="name">团购立减</view>
-        <view class="values">
-          <view class="value {{vitem.checked ? 'selected' : ''}}" bindtap="clickGroupon" wx:for="{{groupon}}" wx:for-item="vitem" wx:key="{{vitem.id}}" data-value-id="{{vitem.id}}" data-name="{{vitem.specification}}">￥{{vitem.discount}} ({{vitem.discountMember}}人)</view>
-        </view>
-      </view>
-
       <!-- 数量 -->
       <view class="number-item">
         <view class="name">数量</view>
@@ -186,18 +159,18 @@
 				<van-icon class="icon" name="/static/images/customer.png" />
 			</button>
 </view>
-  <view class="l l-collect" bindtap="addCollectOrNot" wx:if="{{!isGroupon}}">
+  <view class="l l-collect" bindtap="addCollectOrNot">
     <van-icon class="icon" name="star" color="#ab956d" wx:if="{{collect}}"/>
     <van-icon class="icon" name="star-o" wx:else/>
   </view>
-  <view class="l l-cart" wx:if="{{!isGroupon}}">
+  <view class="l l-cart">
     <view class="box">
       <text class="cart-count">{{cartGoodsCount}}</text>
       <van-icon bindtap="openCartPage" class="icon" name="cart-o" />
     </view>
   </view>
-  <view class="r" bindtap="openSkuPicker" wx:if="{{!soldout}}" wx:if="{{!isGroupon}}">加入购物车</view>
-  <view class="c" bindtap="openSkuPicker" wx:if="{{!soldout}}">{{isGroupon?'参加团购':'立即购买'}}</view>
+  <view class="r" bindtap="openSkuPicker" wx:if="{{!soldout}}">加入购物车</view>
+  <view class="c" bindtap="openSkuPicker" wx:if="{{!soldout}}">立即购买</view>
   <view class="n" wx:if="{{soldout}}">商品已售空</view>
 </view>
 

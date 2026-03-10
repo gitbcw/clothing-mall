@@ -93,4 +93,22 @@ public class AdminConfigController {
         SystemConfig.updateConfigs(data);
         return ResponseUtil.ok();
     }
+
+    @RequiresPermissions("admin:config:promotion:list")
+    @RequiresPermissionsDesc(menu = {"配置管理", "促销配置"}, button = "详情")
+    @GetMapping("/promotion")
+    public Object listPromotion() {
+        Map<String, String> data = systemConfigService.listPromotion();
+        return ResponseUtil.ok(data);
+    }
+
+    @RequiresPermissions("admin:config:promotion:updateConfigs")
+    @RequiresPermissionsDesc(menu = {"配置管理", "促销配置"}, button = "编辑")
+    @PostMapping("/promotion")
+    public Object updatePromotion(@RequestBody String body) {
+        Map<String, String> data = JacksonUtil.toMap(body);
+        systemConfigService.updateConfig(data);
+        SystemConfig.updateConfigs(data);
+        return ResponseUtil.ok();
+    }
 }

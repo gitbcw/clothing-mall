@@ -12,13 +12,97 @@ import java.net.URL;
 import java.util.Map;
 
 /**
- * 向指定 URL 发送POST方法的请求
- *
- * @return 远程资源的响应结果
+ * HTTP 工具类
  */
 public class HttpUtil {
 
     private static final Log logger = LogFactory.getLog(HttpUtil.class);
+
+    /**
+     * 发送 GET 请求
+     *
+     * @param url 请求 URL
+     * @return 响应结果
+     */
+    public static String get(String url) {
+        BufferedReader in = null;
+        StringBuilder result = new StringBuilder();
+        try {
+            URL realUrl = new URL(url);
+            HttpURLConnection conn = (HttpURLConnection) realUrl.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("accept", "*/*");
+            conn.setRequestProperty("connection", "Keep-Alive");
+            conn.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+            conn.connect();
+
+            in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            String line;
+            while ((line = in.readLine()) != null) {
+                result.append(line);
+            }
+        } catch (Exception e) {
+            logger.error("HTTP GET 请求失败: " + url, e);
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException ex) {
+                logger.error(ex.getMessage(), ex);
+            }
+        }
+        return result.toString();
+    }
+
+    /**
+     * 发送 POST 请求（JSON Body）
+     *
+     * @param url  请求 URL
+     * @param body JSON 请求体
+     * @return 响应结果
+     */
+    public static String post(String url, String body) {
+        OutputStreamWriter out = null;
+        BufferedReader in = null;
+        StringBuilder result = new StringBuilder();
+        try {
+            URL realUrl = new URL(url);
+            HttpURLConnection conn = (HttpURLConnection) realUrl.openConnection();
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("accept", "*/*");
+            conn.setRequestProperty("connection", "Keep-Alive");
+            conn.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.connect();
+
+            out = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
+            out.write(body);
+            out.flush();
+
+            in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            String line;
+            while ((line = in.readLine()) != null) {
+                result.append(line);
+            }
+        } catch (Exception e) {
+            logger.error("HTTP POST 请求失败: " + url, e);
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException ex) {
+                logger.error(ex.getMessage(), ex);
+            }
+        }
+        return result.toString();
+    }
 
     /**
      * 向指定 URL 发送POST方法的请求

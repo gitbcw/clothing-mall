@@ -73,18 +73,40 @@ public class LitemallSystemConfigService {
         return data;
     }
 
+    public Map<String, String> listPromotion() {
+        LitemallSystemExample example = new LitemallSystemExample();
+        // 查询新人优惠、生日券、满减、企业微信相关配置（多条件 OR 查询）
+        example.or().andKeyNameLike("litemall_newuser_%").andDeletedEqualTo(false);
+        example.or().andKeyNameLike("litemall_birthday_%").andDeletedEqualTo(false);
+        example.or().andKeyNameLike("litemall_full_reduction_%").andDeletedEqualTo(false);
+        example.or().andKeyNameLike("litemall_wework_%").andDeletedEqualTo(false);
+        List<LitemallSystem> systemList = systemMapper.selectByExample(example);
+        Map<String, String> data = new HashMap<>();
+        for(LitemallSystem system : systemList){
+            data.put(system.getKeyName(), system.getKeyValue());
+        }
+        return data;
+    }
+
     public void updateConfig(Map<String, String> data) {
         for (Map.Entry<String, String> entry : data.entrySet()) {
             LitemallSystemExample example = new LitemallSystemExample();
             example.or().andKeyNameEqualTo(entry.getKey()).andDeletedEqualTo(false);
 
-            LitemallSystem system = new LitemallSystem();
-            system.setKeyName(entry.getKey());
-            system.setKeyValue(entry.getValue());
-            system.setUpdateTime(LocalDateTime.now());
-            systemMapper.updateByExampleSelective(system, example);
+            // 检查是否存在该配置项
+            List<LitemallSystem> existingList = systemMapper.selectByExample(example);
+            if (existingList.isEmpty()) {
+                // 不存在则新增
+                addConfig(entry.getKey(), entry.getValue());
+            } else {
+                // 存在则更新
+                LitemallSystem system = new LitemallSystem();
+                system.setKeyName(entry.getKey());
+                system.setKeyValue(entry.getValue());
+                system.setUpdateTime(LocalDateTime.now());
+                systemMapper.updateByExampleSelective(system, example);
+            }
         }
-
     }
 
     public void addConfig(String key, String value) {

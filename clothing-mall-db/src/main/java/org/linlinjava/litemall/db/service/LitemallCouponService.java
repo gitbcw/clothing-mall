@@ -104,6 +104,28 @@ public class LitemallCouponService {
         return couponMapper.selectByExample(example);
     }
 
+    /**
+     * 查询新人专享优惠券
+     *
+     * @return
+     */
+    public List<LitemallCoupon> queryNewUser() {
+        LitemallCouponExample example = new LitemallCouponExample();
+        example.or().andTypeEqualTo(CouponConstant.TYPE_NEWUSER).andStatusEqualTo(CouponConstant.STATUS_NORMAL).andDeletedEqualTo(false);
+        return couponMapper.selectByExample(example);
+    }
+
+    /**
+     * 查询生日专属优惠券
+     *
+     * @return
+     */
+    public List<LitemallCoupon> queryBirthday() {
+        LitemallCouponExample example = new LitemallCouponExample();
+        example.or().andTypeEqualTo(CouponConstant.TYPE_BIRTHDAY).andStatusEqualTo(CouponConstant.STATUS_NORMAL).andDeletedEqualTo(false);
+        return couponMapper.selectByExample(example);
+    }
+
     public List<LitemallCoupon> querySelective(String name, Short type, Short status, Integer page, Integer limit, String sort, String order) {
         LitemallCouponExample example = new LitemallCouponExample();
         LitemallCouponExample.Criteria criteria = example.createCriteria();

@@ -34,6 +34,9 @@ public class SystemConfig {
     //所有的配置均保存在该 HashMap 中
     private static Map<String, String> SYSTEM_CONFIGS = new HashMap<>();
 
+    /**
+     * 获取指定配置项的值（内部使用）
+     */
     private static String getConfig(String keyName) {
         return SYSTEM_CONFIGS.get(keyName);
     }
@@ -48,6 +51,13 @@ public class SystemConfig {
 
     private static BigDecimal getConfigBigDec(String keyName) {
         return new BigDecimal(SYSTEM_CONFIGS.get(keyName));
+    }
+
+    /**
+     * 获取指定配置项的值（公共方法，供其他类调用）
+     */
+    public static String getConfigValue(String keyName) {
+        return SYSTEM_CONFIGS.get(keyName);
     }
 
     public static Integer getNewLimit() {
@@ -121,6 +131,126 @@ public class SystemConfig {
     public static String getMallLatitude() {
         return getConfig(LITEMALL_MALL_Latitude);
     }
+
+    // ================== 新人优惠配置 ==================
+
+    /**
+     * 获取首单立减金额
+     */
+    public static BigDecimal getNewUserFirstOrderDiscount() {
+        String value = getConfig(LITEMALL_NEWUSER_FIRST_ORDER_DISCOUNT);
+        if (value == null || value.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        return new BigDecimal(value);
+    }
+
+    // ================== 生日券配置 ==================
+
+    /**
+     * 是否启用生日券
+     */
+    public static boolean isBirthdayCouponEnabled() {
+        String value = getConfig(LITEMALL_BIRTHDAY_COUPON_STATUS);
+        return "1".equals(value);
+    }
+
+    /**
+     * 获取生日券模板ID
+     */
+    public static Integer getBirthdayCouponId() {
+        String value = getConfig(LITEMALL_BIRTHDAY_COUPON_ID);
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+        return Integer.parseInt(value);
+    }
+
+    /**
+     * 获取生日券有效期（天）
+     */
+    public static Integer getBirthdayCouponDays() {
+        String value = getConfig(LITEMALL_BIRTHDAY_COUPON_DAYS);
+        if (value == null || value.isEmpty()) {
+            return 30;
+        }
+        return Integer.parseInt(value);
+    }
+
+    // ================== 满减配置 ==================
+
+    /**
+     * 满减是否与优惠券叠加
+     */
+    public static boolean isFullReductionStackWithCoupon() {
+        String value = getConfig(LITEMALL_FULL_REDUCTION_STACK_WITH_COUPON);
+        return "1".equals(value);
+    }
+
+    // ================== 企业微信配置 ==================
+
+    /**
+     * 获取企业微信企业ID
+     */
+    public static String getWeWorkCorpId() {
+        return getConfig(LITEMALL_WEWORK_CORP_ID);
+    }
+
+    /**
+     * 获取企业微信客户联系Secret
+     */
+    public static String getWeWorkContactSecret() {
+        return getConfig(LITEMALL_WEWORK_CONTACT_SECRET);
+    }
+
+    /**
+     * 获取企微推送目标类型（0全部客户，1按标签）
+     */
+    public static Integer getWeWorkPushTargetType() {
+        String value = getConfig(LITEMALL_WEWORK_PUSH_TARGET_TYPE);
+        if (value == null || value.isEmpty()) {
+            return 0;
+        }
+        return Integer.parseInt(value);
+    }
+
+    /**
+     * 获取企微推送目标标签ID
+     */
+    public static String getWeWorkPushTagId() {
+        return getConfig(LITEMALL_WEWORK_PUSH_TAG_ID);
+    }
+
+    /**
+     * 获取企微发送者账号ID
+     */
+    public static String getWeWorkSenderId() {
+        return getConfig(LITEMALL_WEWORK_SENDER_ID);
+    }
+
+    // 运费相关扩展配置
+    public final static String LITEMALL_EXPRESS_FREIGHT_TYPE = "litemall_express_freight_type";
+    public final static String LITEMALL_EXPRESS_FREIGHT_ADDITIONAL = "litemall_express_freight_additional";
+    public final static String LITEMALL_EXPRESS_FREIGHT_FIRST_UNIT = "litemall_express_freight_first_unit";
+    public final static String LITEMALL_EXPRESS_FREIGHT_ADDITIONAL_UNIT = "litemall_express_freight_additional_unit";
+
+    // 新人优惠配置
+    public final static String LITEMALL_NEWUSER_FIRST_ORDER_DISCOUNT = "litemall_newuser_first_order_discount";
+
+    // 生日券配置
+    public final static String LITEMALL_BIRTHDAY_COUPON_STATUS = "litemall_birthday_coupon_status";
+    public final static String LITEMALL_BIRTHDAY_COUPON_ID = "litemall_birthday_coupon_id";
+    public final static String LITEMALL_BIRTHDAY_COUPON_DAYS = "litemall_birthday_coupon_days";
+
+    // 满减活动配置
+    public final static String LITEMALL_FULL_REDUCTION_STACK_WITH_COUPON = "litemall_full_reduction_stack_with_coupon";
+
+    // 企业微信配置
+    public final static String LITEMALL_WEWORK_CORP_ID = "litemall_wework_corp_id";
+    public final static String LITEMALL_WEWORK_CONTACT_SECRET = "litemall_wework_contact_secret";
+    public final static String LITEMALL_WEWORK_PUSH_TARGET_TYPE = "litemall_wework_push_target_type";
+    public final static String LITEMALL_WEWORK_PUSH_TAG_ID = "litemall_wework_push_tag_id";
+    public final static String LITEMALL_WEWORK_SENDER_ID = "litemall_wework_sender_id";
 
     public static void setConfigs(Map<String, String> configs) {
         SYSTEM_CONFIGS = configs;

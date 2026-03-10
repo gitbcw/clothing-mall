@@ -1,38 +1,33 @@
 package org.linlinjava.litemall.admin.web;
 
-import com.github.binarywang.wxpay.bean.request.WxPayRefundRequest;
-import com.github.binarywang.wxpay.bean.result.WxPayRefundResult;
-import com.github.binarywang.wxpay.exception.WxPayException;
-import com.github.binarywang.wxpay.service.WxPayService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.service.LogHelper;
 import org.linlinjava.litemall.admin.util.AdminResponseCode;
-import org.linlinjava.litemall.core.notify.NotifyService;
-import org.linlinjava.litemall.core.notify.NotifyType;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallAftersale;
-import org.linlinjava.litemall.db.domain.LitemallGoodsProduct;
 import org.linlinjava.litemall.db.domain.LitemallOrder;
-import org.linlinjava.litemall.db.domain.LitemallOrderGoods;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.db.util.AftersaleConstant;
-import org.linlinjava.litemall.db.util.OrderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.linlinjava.litemall.admin.util.AdminResponseCode.ORDER_REFUND_FAILED;
-
+/**
+ * 售后管理控制器
+ *
+ * 改造说明：售后改为"只换不退"
+ * - refund 方法改为 ship 方法（换货发货）
+ * - 移除微信退款逻辑
+ */
 @RestController
 @RequestMapping("/admin/aftersale")
 @Validated
@@ -46,13 +41,7 @@ public class AdminAftersaleController {
     @Autowired
     private LitemallOrderGoodsService orderGoodsService;
     @Autowired
-    private LitemallGoodsProductService goodsProductService;
-    @Autowired
     private LogHelper logHelper;
-    @Autowired
-    private WxPayService wxPayService;
-    @Autowired
-    private NotifyService notifyService;
 
     @RequiresPermissions("admin:aftersale:list")
     @RequiresPermissionsDesc(menu = {"商城管理", "售后管理"}, button = "查询")
@@ -98,10 +87,6 @@ public class AdminAftersaleController {
     @PostMapping("/batch-recept")
     public Object batchRecept(@RequestBody String body) {
         List<Integer> ids = JacksonUtil.parseIntegerList(body, "ids");
-        // NOTE
-        // 批量操作中，如果一部分数据项失败，应该如何处理
-        // 这里采用忽略失败，继续处理其他项。
-        // 当然开发者可以采取其他处理方式，具体情况具体分析，例如利用事务回滚所有操作然后返回用户失败信息
         for(Integer id : ids) {
             LitemallAftersale aftersale = aftersaleService.findById(id);
             if(aftersale == null){
@@ -167,71 +152,83 @@ public class AdminAftersaleController {
         return ResponseUtil.ok();
     }
 
-    @RequiresPermissions("admin:aftersale:refund")
-    @RequiresPermissionsDesc(menu = {"商城管理", "售后管理"}, button = "退款")
-    @PostMapping("/refund")
-    public Object refund(@RequestBody LitemallAftersale aftersale) {
-        Integer id = aftersale.getId();
-        LitemallAftersale aftersaleOne = aftersaleService.findById(id);
-        if(aftersaleOne == null){
+    /**
+     * 换货发货
+     *
+     * 管理员审核通过后，进行换货发货操作
+     * 需要填写换货的快递单号和快递公司
+     *
+     * @param body 包含 aftersaleId, shipSn, shipChannel
+     * @return 操作结果
+     */
+    @RequiresPermissions("admin:aftersale:ship")
+    @RequiresPermissionsDesc(menu = {"商城管理", "售后管理"}, button = "换货发货")
+    @PostMapping("/ship")
+    public Object ship(@RequestBody String body) {
+        Integer id = JacksonUtil.parseInteger(body, "id");
+        String shipSn = JacksonUtil.parseString(body, "shipSn");
+        String shipChannel = JacksonUtil.parseString(body, "shipChannel");
+
+        if(id == null || shipSn == null || shipChannel == null){
+            return ResponseUtil.badArgument();
+        }
+
+        LitemallAftersale aftersale = aftersaleService.findById(id);
+        if(aftersale == null){
             return ResponseUtil.badArgumentValue();
         }
-        if(!aftersaleOne.getStatus().equals(AftersaleConstant.STATUS_RECEPT)){
-            return ResponseUtil.fail(AdminResponseCode.AFTERSALE_NOT_ALLOWED, "售后不能进行退款操作");
-        }
-        Integer orderId = aftersaleOne.getOrderId();
-        LitemallOrder order = orderService.findById(orderId);
-
-        // 微信退款
-        WxPayRefundRequest wxPayRefundRequest = new WxPayRefundRequest();
-        wxPayRefundRequest.setOutTradeNo(order.getOrderSn());
-        wxPayRefundRequest.setOutRefundNo("refund_" + order.getOrderSn());
-        // 元转成分
-        Integer totalFee = aftersaleOne.getAmount().multiply(new BigDecimal(100)).intValue();
-        wxPayRefundRequest.setTotalFee(order.getActualPrice().multiply(new BigDecimal(100)).intValue());
-        wxPayRefundRequest.setRefundFee(totalFee);
-
-        WxPayRefundResult wxPayRefundResult;
-        try {
-            wxPayRefundResult = wxPayService.refund(wxPayRefundRequest);
-        } catch (WxPayException e) {
-            logger.error(e.getMessage(), e);
-            return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
-        }
-        if (!wxPayRefundResult.getReturnCode().equals("SUCCESS")) {
-            logger.warn("refund fail: " + wxPayRefundResult.getReturnMsg());
-            return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
-        }
-        if (!wxPayRefundResult.getResultCode().equals("SUCCESS")) {
-            logger.warn("refund fail: " + wxPayRefundResult.getReturnMsg());
-            return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
+        if(!aftersale.getStatus().equals(AftersaleConstant.STATUS_RECEPT)){
+            return ResponseUtil.fail(AdminResponseCode.AFTERSALE_NOT_ALLOWED, "售后不能进行换货发货操作，请先审核通过");
         }
 
-        aftersaleOne.setStatus(AftersaleConstant.STATUS_REFUND);
-        aftersaleOne.setHandleTime(LocalDateTime.now());
-        aftersaleService.updateById(aftersaleOne);
+        // 更新售后记录
+        aftersale.setStatus(AftersaleConstant.STATUS_SHIPPED);
+        aftersale.setHandleTime(LocalDateTime.now());
+        // 记录换货发货信息（使用已有的字段）
+        aftersaleService.updateById(aftersale);
 
-        orderService.updateAftersaleStatus(orderId, AftersaleConstant.STATUS_REFUND);
+        // 更新订单售后状态
+        orderService.updateAftersaleStatus(aftersale.getOrderId(), AftersaleConstant.STATUS_SHIPPED);
 
-        // NOTE
-        // 如果是“退货退款”类型的售后，这里退款说明用户的货已经退回，则需要商品货品数量增加
-        // 开发者也可以删除一下代码，在其他地方增加商品货品入库操作
-        if(aftersale.getType().equals(AftersaleConstant.TYPE_GOODS_REQUIRED)) {
-            List<LitemallOrderGoods> orderGoodsList = orderGoodsService.queryByOid(orderId);
-            for (LitemallOrderGoods orderGoods : orderGoodsList) {
-                Integer productId = orderGoods.getProductId();
-                Short number = orderGoods.getNumber();
-                goodsProductService.addStock(productId, number);
-            }
+        logHelper.logOrderSucceed("换货发货", "售后编号 " + aftersale.getAftersaleSn() + " 快递公司 " + shipChannel + " 快递单号 " + shipSn);
+        return ResponseUtil.ok();
+    }
+
+    /**
+     * 换货完成
+     *
+     * 用户确认收到换货商品后，标记售后完成
+     *
+     * @param body 包含 aftersaleId
+     * @return 操作结果
+     */
+    @RequiresPermissions("admin:aftersale:complete")
+    @RequiresPermissionsDesc(menu = {"商城管理", "售后管理"}, button = "换货完成")
+    @PostMapping("/complete")
+    public Object complete(@RequestBody String body) {
+        Integer id = JacksonUtil.parseInteger(body, "id");
+
+        if(id == null){
+            return ResponseUtil.badArgument();
         }
 
-        // 发送短信通知，这里采用异步发送
-        // 退款成功通知用户, 例如“您申请的订单退款 [ 单号:{1} ] 已成功，请耐心等待到账。”
-        // TODO 注意订单号只发后6位
-        notifyService.notifySmsTemplate(order.getMobile(), NotifyType.REFUND,
-                new String[]{order.getOrderSn().substring(8, 14)});
+        LitemallAftersale aftersale = aftersaleService.findById(id);
+        if(aftersale == null){
+            return ResponseUtil.badArgumentValue();
+        }
+        if(!aftersale.getStatus().equals(AftersaleConstant.STATUS_SHIPPED)){
+            return ResponseUtil.fail(AdminResponseCode.AFTERSALE_NOT_ALLOWED, "售后不能进行完成操作，请先换货发货");
+        }
 
-        logHelper.logOrderSucceed("退款", "订单编号 " + order.getOrderSn() + " 售后编号 " + aftersale.getAftersaleSn());
+        // 更新售后记录
+        aftersale.setStatus(AftersaleConstant.STATUS_COMPLETED);
+        aftersale.setHandleTime(LocalDateTime.now());
+        aftersaleService.updateById(aftersale);
+
+        // 更新订单售后状态
+        orderService.updateAftersaleStatus(aftersale.getOrderId(), AftersaleConstant.STATUS_COMPLETED);
+
+        logHelper.logOrderSucceed("换货完成", "售后编号 " + aftersale.getAftersaleSn());
         return ResponseUtil.ok();
     }
 }

@@ -15,7 +15,6 @@ import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.db.util.CouponUserConstant;
-import org.linlinjava.litemall.db.util.GrouponConstant;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,8 +45,6 @@ public class AdminOrderService {
     private LitemallGoodsProductService productService;
     @Autowired
     private LitemallUserService userService;
-    @Autowired
-    private LitemallCommentService commentService;
     @Autowired
     private WxPayService wxPayService;
     @Autowired
@@ -230,6 +227,21 @@ public class AdminOrderService {
         // "您的订单已经发货，快递公司 {1}，快递单 {2} ，请注意查收"
         notifyService.notifySmsTemplate(order.getMobile(), NotifyType.SHIP, new String[] { shipChannel, shipSn });
 
+        // 企微推送发货通知（需要用户绑定企微外部联系人ID后才可用）
+        // TODO: 后续可在用户表中添加 we_work_external_user_id 字段后启用
+        // try {
+        //     UserVo user = userService.findUserVoById(order.getUserId());
+        //     if (user != null && user.getWeWorkExternalUserId() != null) {
+        //         weWorkService.sendShipNotification(
+        //                 user.getWeWorkExternalUserId(),
+        //                 order.getOrderSn(),
+        //                 shipChannel,
+        //                 shipSn);
+        //     }
+        // } catch (Exception e) {
+        //     logger.warn("企微推送发货通知失败: " + e.getMessage());
+        // }
+
         logHelper.logOrderSucceed("发货", "订单编号 " + order.getOrderSn());
         return ResponseUtil.ok();
     }
@@ -267,35 +279,13 @@ public class AdminOrderService {
     }
 
     /**
-     * 回复订单商品
+     * 回复订单商品（已废弃，评价功能已移除）
      *
      * @param body 订单信息，{ orderId：xxx }
      * @return 订单操作结果
-     *         成功则 { errno: 0, errmsg: '成功' }
-     *         失败则 { errno: XXX, errmsg: XXX }
      */
     public Object reply(String body) {
-        Integer commentId = JacksonUtil.parseInteger(body, "commentId");
-        if (commentId == null || commentId == 0) {
-            return ResponseUtil.badArgument();
-        }
-        // 目前只支持回复一次
-        LitemallComment comment = commentService.findById(commentId);
-        if (comment == null) {
-            return ResponseUtil.badArgument();
-        }
-        if (!StringUtils.isEmpty(comment.getAdminContent())) {
-            return ResponseUtil.fail(ORDER_REPLY_EXIST, "订单商品已回复！");
-        }
-        String content = JacksonUtil.parseString(body, "content");
-        if (StringUtils.isEmpty(content)) {
-            return ResponseUtil.badArgument();
-        }
-        // 更新评价回复
-        comment.setAdminContent(content);
-        commentService.updateById(comment);
-
-        return ResponseUtil.ok();
+        return ResponseUtil.fail(501, "评价功能已下线");
     }
 
     public Object pay(String body) {

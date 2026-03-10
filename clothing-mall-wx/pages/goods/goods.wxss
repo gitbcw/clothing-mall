@@ -206,143 +206,6 @@
   font-size: 29rpx;
 }
 
-.comments {
-  width: 100%;
-  height: auto;
-  padding-left: 30rpx;
-  background: #fff;
-  margin: 20rpx 0;
-}
-
-.comments .h {
-  height: 102.5rpx;
-  line-height: 100.5rpx;
-  width: 718.75rpx;
-  padding-right: 16rpx;
-}
-
-.comments .h .t {
-  display: block;
-  float: left;
-  width: 50%;
-  font-size: 30rpx;
-  color: #333;
-}
-
-.comments .h .i {
-  display: block;
-  float: right;
-  width: 164rpx;
-  height: 100.5rpx;
-  line-height: 100.5rpx;
-  background-size: 52rpx;
-}
-
-.comments .b {
-  height: auto;
-  width: 720rpx;
-}
-
-.comments .item {
-  height: auto;
-  width: 720rpx;
-  overflow: hidden;
-  border-top: 1px solid #d9d9d9;
-}
-
-.comments .info {
-  height: 127rpx;
-  width: 100%;
-  padding: 33rpx 0 27rpx 0;
-}
-
-.comments .user {
-  float: left;
-  width: auto;
-  height: 67rpx;
-  line-height: 67rpx;
-  font-size: 0;
-}
-
-.comments .user image {
-  float: left;
-  width: 67rpx;
-  height: 67rpx;
-  margin-right: 17rpx;
-  border-radius: 50%;
-}
-
-.comments .user text {
-  display: inline-block;
-  width: auto;
-  height: 66rpx;
-  overflow: hidden;
-  font-size: 29rpx;
-  line-height: 66rpx;
-}
-
-.comments .time {
-  display: block;
-  float: right;
-  width: auto;
-  height: 67rpx;
-  line-height: 67rpx;
-  color: #7f7f7f;
-  font-size: 25rpx;
-  margin-right: 30rpx;
-}
-
-.comments .content {
-  width: 720rpx;
-  padding-right: 30rpx;
-  line-height: 45.8rpx;
-  font-size: 29rpx;
-  margin-bottom: 24rpx;
-}
-
-.comments .imgs {
-  width: 720rpx;
-  height: auto;
-  margin-bottom: 25rpx;
-}
-
-.comments .imgs .img {
-  height: 150rpx;
-  width: 150rpx;
-  margin-right: 28rpx;
-}
-
-.comments .spec {
-  width: 720rpx;
-  padding-right: 30rpx;
-  line-height: 30rpx;
-  font-size: 24rpx;
-  color: #999;
-  margin-bottom: 30rpx;
-}
-
-.comments .customer-service {
-  width: 690rpx;
-  height: auto;
-  overflow: hidden;
-  margin-top: 23rpx;
-  margin-bottom: 23rpx;
-  background: rgba(0, 0, 0, 0.03);
-  padding: 21rpx;
-}
-
-.comments .customer-service .u {
-  font-size: 24rpx;
-  color: #333;
-  line-height: 37.5rpx;
-}
-
-.comments .customer-service .c {
-  font-size: 24rpx;
-  color: #999;
-  line-height: 37.5rpx;
-}
-
 .goods-attr {
   width: 750rpx;
   height: auto;
@@ -931,4 +794,39 @@
   background: #e0e3da;
   width: 100%;
   height: 6rpx;
+}
+
+/* 限时特卖价格样式 */
+.flash-tag {
+  display: inline-block;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+  color: #fff;
+  font-size: 22rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 4rpx;
+  margin-bottom: 10rpx;
+}
+
+.flash-price-box {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 10rpx;
+}
+
+.flash-price {
+  font-size: 48rpx;
+  color: #ff4757;
+  font-weight: bold;
+}
+
+.original-price {
+  font-size: 28rpx;
+  color: #999;
+  text-decoration: line-through;
+  margin-left: 20rpx;
+}
+
+.flash-info {
+  font-size: 24rpx;
+  color: #666;
 }

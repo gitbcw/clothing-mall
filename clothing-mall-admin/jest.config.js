@@ -11,14 +11,22 @@ module.exports = {
   },
   snapshotSerializers: ['jest-serializer-vue'],
   testMatch: [
-    '**/tests/unit/**/*.spec.(js|jsx|ts|tsx)|**/__tests__/*.(js|jsx|ts|tsx)'
+    '**/tests/**/*.spec.(js|jsx|ts|tsx)',
+    '**/__tests__/*.(js|jsx|ts|tsx)'
   ],
-  collectCoverageFrom: ['src/utils/**/*.{js,vue}', '!src/utils/auth.js', '!src/utils/request.js', 'src/components/**/*.{js,vue}'],
-  coverageDirectory: '<rootDir>/tests/unit/coverage',
-  // 'collectCoverage': true,
-  'coverageReporters': [
+  collectCoverageFrom: [
+    'src/utils/**/*.{js,vue}',
+    '!src/utils/auth.js',
+    '!src/utils/request.js',
+    'src/components/**/*.{js,vue}'
+  ],
+  coverageDirectory: '<rootDir>/tests/coverage',
+  coverageReporters: [
     'lcov',
-    'text-summary'
+    'text-summary',
+    'html'
   ],
-  testURL: 'http://localhost/'
+  testURL: 'http://localhost/',
+  setupFiles: ['<rootDir>/tests/setup.js'],
+  verbose: true
 }

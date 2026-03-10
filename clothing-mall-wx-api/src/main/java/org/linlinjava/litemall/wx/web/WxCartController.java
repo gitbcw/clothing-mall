@@ -4,6 +4,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.core.system.FreightService;
 import org.linlinjava.litemall.core.system.SystemConfig;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
@@ -38,8 +39,6 @@ public class WxCartController {
     @Autowired
     private LitemallAddressService addressService;
     @Autowired
-    private LitemallGrouponRulesService grouponRulesService;
-    @Autowired
     private LitemallCouponService couponService;
     @Autowired
     private LitemallCouponUserService couponUserService;
@@ -47,6 +46,8 @@ public class WxCartController {
     private CouponVerifyService couponVerifyService;
     @Autowired
     private ClothingGoodsSkuService skuService;
+    @Autowired
+    private FreightService freightService;
 
     /**
      * 用户购物车信息
@@ -485,7 +486,7 @@ public class WxCartController {
      * @return 购物车操作结果
      */
     @GetMapping("checkout")
-    public Object checkout(@LoginUser Integer userId, Integer cartId, Integer addressId, Integer couponId, Integer userCouponId, Integer grouponRulesId) {
+    public Object checkout(@LoginUser Integer userId, Integer cartId, Integer addressId, Integer couponId, Integer userCouponId) {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
@@ -508,13 +509,6 @@ public class WxCartController {
             }
         }
 
-        // 团购优惠
-        BigDecimal grouponPrice = new BigDecimal(0.00);
-        LitemallGrouponRules grouponRules = grouponRulesService.findById(grouponRulesId);
-        if (grouponRules != null) {
-            grouponPrice = grouponRules.getDiscount();
-        }
-
         // 商品价格
         List<LitemallCart> checkedGoodsList = null;
         if (cartId == null || cartId.equals(0)) {
@@ -529,12 +523,7 @@ public class WxCartController {
         }
         BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
         for (LitemallCart cart : checkedGoodsList) {
-            //  只有当团购规格商品ID符合才进行团购优惠
-            if (grouponRules != null && grouponRules.getGoodsId().equals(cart.getGoodsId())) {
-                checkedGoodsPrice = checkedGoodsPrice.add(cart.getPrice().subtract(grouponPrice).multiply(new BigDecimal(cart.getNumber())));
-            } else {
-                checkedGoodsPrice = checkedGoodsPrice.add(cart.getPrice().multiply(new BigDecimal(cart.getNumber())));
-            }
+            checkedGoodsPrice = checkedGoodsPrice.add(cart.getPrice().multiply(new BigDecimal(cart.getNumber())));
         }
 
         // 计算优惠券可用情况
@@ -585,11 +574,12 @@ public class WxCartController {
             }
         }
 
-        // 根据订单商品总价计算运费，满88则免运费，否则8元；
-        BigDecimal freightPrice = new BigDecimal(0.00);
-        if (checkedGoodsPrice.compareTo(SystemConfig.getFreightLimit()) < 0) {
-            freightPrice = SystemConfig.getFreight();
+        // 根据订单商品总价和件数计算运费
+        int totalPieceCount = 0;
+        for (LitemallCart cart : checkedGoodsList) {
+            totalPieceCount += cart.getNumber();
         }
+        BigDecimal freightPrice = freightService.calculateFreight(checkedGoodsPrice, totalPieceCount);
 
         // 可以使用的其他钱，例如用户积分
         BigDecimal integralPrice = new BigDecimal(0.00);
@@ -604,8 +594,7 @@ public class WxCartController {
         data.put("couponId", couponId);
         data.put("userCouponId", userCouponId);
         data.put("cartId", cartId);
-        data.put("grouponRulesId", grouponRulesId);
-        data.put("grouponPrice", grouponPrice);
+        data.put("grouponPrice", new BigDecimal(0));
         data.put("checkedAddress", checkedAddress);
         data.put("availableCouponLength", availableCouponLength);
         data.put("goodsTotalPrice", checkedGoodsPrice);

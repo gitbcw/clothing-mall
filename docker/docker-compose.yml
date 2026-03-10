@@ -48,6 +48,17 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    container_name: clothing-mall-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./admin-dist:/usr/share/nginx/html
+    depends_on:
+      - app
     deploy:
       resources:
         limits:

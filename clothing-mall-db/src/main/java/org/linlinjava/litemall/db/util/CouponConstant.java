@@ -4,6 +4,8 @@ public class CouponConstant {
     public static final Short TYPE_COMMON = 0;
     public static final Short TYPE_REGISTER = 1;
     public static final Short TYPE_CODE = 2;
+    public static final Short TYPE_NEWUSER = 3;      // 新人专享券
+    public static final Short TYPE_BIRTHDAY = 4;     // 生日专属券
 
     public static final Short GOODS_TYPE_ALL = 0;
     public static final Short GOODS_TYPE_CATEGORY = 1;

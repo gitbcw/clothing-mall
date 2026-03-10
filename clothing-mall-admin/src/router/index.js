@@ -214,7 +214,8 @@ export const asyncRoutes = [
           perms: ['GET /admin/brand/list', 'POST /admin/brand/create', 'GET /admin/brand/read', 'POST /admin/brand/update', 'POST /admin/brand/delete'],
           title: 'app.menu.mall_brand',
           noCache: true
-        }
+        },
+        hidden: true
       },
       {
         path: 'category',
@@ -310,16 +311,6 @@ export const asyncRoutes = [
           noCache: true
         },
         hidden: true
-      },
-      {
-        path: 'comment',
-        component: () => import('@/views/goods/comment'),
-        name: 'goodsComment',
-        meta: {
-          perms: ['GET /admin/comment/list', 'POST /admin/comment/delete'],
-          title: 'app.menu.goods_comment',
-          noCache: true
-        }
       },
       {
         path: 'sku',
@@ -438,22 +429,22 @@ export const asyncRoutes = [
         hidden: true
       },
       {
-        path: 'groupon-rule',
-        component: () => import('@/views/promotion/grouponRule'),
-        name: 'grouponRule',
+        path: 'flashSale',
+        component: () => import('@/views/promotion/flashSale'),
+        name: 'flashSale',
         meta: {
-          perms: ['GET /admin/groupon/list', 'POST /admin/groupon/create', 'POST /admin/groupon/update', 'POST /admin/groupon/delete'],
-          title: 'app.menu.promotion_groupon_rule',
+          perms: ['GET /admin/flashSale/list', 'POST /admin/flashSale/create', 'POST /admin/flashSale/update', 'POST /admin/flashSale/delete'],
+          title: '限时特卖',
           noCache: true
         }
       },
       {
-        path: 'groupon-activity',
-        component: () => import('@/views/promotion/grouponActivity'),
-        name: 'grouponActivity',
+        path: 'fullReduction',
+        component: () => import('@/views/promotion/fullReduction'),
+        name: 'fullReduction',
         meta: {
-          perms: ['GET /admin/groupon/listRecord'],
-          title: 'app.menu.promotion_groupon_activity',
+          perms: ['GET /admin/fullReduction/list', 'POST /admin/fullReduction/create', 'POST /admin/fullReduction/update', 'POST /admin/fullReduction/delete'],
+          title: '满减活动',
           noCache: true
         }
       }
@@ -572,6 +563,16 @@ export const asyncRoutes = [
         meta: {
           perms: ['GET /admin/config/wx', 'POST /admin/config/wx'],
           title: 'app.menu.config_wx',
+          noCache: true
+        }
+      },
+      {
+        path: 'promotion',
+        component: () => import('@/views/config/promotion'),
+        name: 'configPromotion',
+        meta: {
+          perms: ['GET /admin/config/promotion', 'POST /admin/config/promotion'],
+          title: '促销配置',
           noCache: true
         }
       }

@@ -6,7 +6,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.storage.StorageService;
 import org.linlinjava.litemall.core.system.SystemConfig;
-import org.linlinjava.litemall.db.domain.LitemallGroupon;
 import org.linlinjava.litemall.db.domain.LitemallStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -26,31 +25,6 @@ public class QCodeService {
 
     @Autowired
     private StorageService storageService;
-
-    public String createGrouponShareImage(String goodName, String goodPicUrl, LitemallGroupon groupon) {
-        try {
-            // 创建该商品的二维码
-            File file = wxMaService.getQrcodeService().createWxaCodeUnlimit("groupon," + groupon.getId(), "pages" +
-                    "/index/index");
-            FileInputStream inputStream = new FileInputStream(file);
-            // 将商品图片，商品名字,商城名字画到模版图中
-            byte[] imageData = drawPicture(inputStream, goodPicUrl, goodName);
-            ByteArrayInputStream inputStream2 = new ByteArrayInputStream(imageData);
-            // 存储分享图
-            LitemallStorage storageInfo = storageService.store(inputStream2, imageData.length, "image/jpeg",
-                    getKeyName(groupon.getId().toString()));
-
-            return storageInfo.getUrl();
-        } catch (WxErrorException e) {
-            logger.error(e.getMessage(), e);
-        } catch (FileNotFoundException e) {
-            logger.error(e.getMessage(), e);
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-        }
-
-        return "";
-    }
 
     /**
      * 创建商品分享图

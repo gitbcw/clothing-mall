@@ -31,7 +31,12 @@ module.exports = {
   devServer: {
     proxy: {
       '/admin': {
-        target: 'http://localhost:8080'
+        target: 'http://47.107.151.70:8088',
+        changeOrigin: true
+      },
+      '/wx': {
+        target: 'http://47.107.151.70:8088',
+        changeOrigin: true
       },
     },
     port: port,
@@ -90,14 +95,6 @@ module.exports = {
     config
       .when(process.env.NODE_ENV !== 'development',
         config => {
-          config
-            .plugin('ScriptExtHtmlWebpackPlugin')
-            .after('html')
-            .use('script-ext-html-webpack-plugin', [{
-            // `runtime` must same as runtimeChunk name. default is `runtime`
-              inline: /runtime\..*\.js$/
-            }])
-            .end()
           config
             .optimization.splitChunks({
               chunks: 'all',

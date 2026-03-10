@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -99,5 +100,28 @@ public class LitemallUserService {
 
     public void deleteById(Integer id) {
         userMapper.logicalDeleteByPrimaryKey(id);
+    }
+
+    /**
+     * 查询当天生日的用户
+     *
+     * @param month 月份
+     * @param day 日期
+     * @return 生日用户列表
+     */
+    public List<LitemallUser> queryByBirthday(int month, int day) {
+        LitemallUserExample example = new LitemallUserExample();
+        example.or().andDeletedEqualTo(false);
+        List<LitemallUser> allUsers = userMapper.selectByExample(example);
+
+        // 过滤出生日匹配的用户
+        return allUsers.stream()
+                .filter(user -> {
+                    LocalDate birthday = user.getBirthday();
+                    return birthday != null
+                            && birthday.getMonthValue() == month
+                            && birthday.getDayOfMonth() == day;
+                })
+                .collect(java.util.stream.Collectors.toList());
     }
 }

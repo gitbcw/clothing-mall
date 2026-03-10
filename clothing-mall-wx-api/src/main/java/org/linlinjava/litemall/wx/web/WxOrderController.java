@@ -163,29 +163,4 @@ public class WxOrderController {
         return wxOrderService.delete(userId, body);
     }
 
-    /**
-     * 待评价订单商品信息
-     *
-     * @param userId 用户ID
-     * @param ogid   订单商品ID
-     * @return 待评价订单商品信息
-     */
-    @GetMapping("goods")
-    public Object goods(@LoginUser Integer userId,
-            @NotNull Integer ogid) {
-        return wxOrderService.goods(userId, ogid);
-    }
-
-    /**
-     * 评价订单商品
-     *
-     * @param userId 用户ID
-     * @param body   订单信息，{ orderId：xxx }
-     * @return 订单操作结果
-     */
-    @PostMapping("comment")
-    public Object comment(@LoginUser Integer userId, @RequestBody String body) {
-        return wxOrderService.comment(userId, body);
-    }
-
 }

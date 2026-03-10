@@ -97,4 +97,19 @@ public class LitemallCouponUserService {
         example.or().andOrderIdEqualTo(orderId).andDeletedEqualTo(false);
         return couponUserMapper.selectByExample(example);
     }
+
+    /**
+     * 查询用户在指定时间范围内领取的指定优惠券
+     */
+    public List<LitemallCouponUser> queryByUserAndCouponAndTimeRange(Integer userId, Integer couponId,
+                                                                     LocalDateTime startTime, LocalDateTime endTime) {
+        LitemallCouponUserExample example = new LitemallCouponUserExample();
+        example.or()
+                .andUserIdEqualTo(userId)
+                .andCouponIdEqualTo(couponId)
+                .andAddTimeGreaterThanOrEqualTo(startTime)
+                .andAddTimeLessThan(endTime)
+                .andDeletedEqualTo(false);
+        return couponUserMapper.selectByExample(example);
+    }
 }

@@ -11,16 +11,13 @@ Page({
     goodsTotalPrice: 0.00, //商品总价
     freightPrice: 0.00, //快递费
     couponPrice: 0.00, //优惠券的价格
-    grouponPrice: 0.00, //团购优惠价格
     orderTotalPrice: 0.00, //订单总价
     actualPrice: 0.00, //实际需要支付的总价
     cartId: 0,
     addressId: 0,
     couponId: 0,
     userCouponId: 0,
-    message: '',
-    grouponLinkId: 0, //参与的团购
-    grouponRulesId: 0, //团购规则ID
+    message: ''
 
     // 配送方式相关
     deliveryType: 'express', // express 快递 / pickup 自提
@@ -40,8 +37,7 @@ Page({
       cartId: that.data.cartId,
       addressId: that.data.addressId,
       couponId: that.data.couponId,
-      userCouponId: that.data.userCouponId,
-      grouponRulesId: that.data.grouponRulesId
+      userCouponId: that.data.userCouponId
     }).then(function(res) {
       if (res.errno === 0) {
         that.setData({
@@ -50,14 +46,12 @@ Page({
           availableCouponLength: res.data.availableCouponLength,
           actualPrice: res.data.actualPrice,
           couponPrice: res.data.couponPrice,
-          grouponPrice: res.data.grouponPrice,
           freightPrice: res.data.freightPrice,
           goodsTotalPrice: res.data.goodsTotalPrice,
           orderTotalPrice: res.data.orderTotalPrice,
           addressId: res.data.addressId,
           couponId: res.data.couponId,
           userCouponId: res.data.userCouponId,
-          grouponRulesId: res.data.grouponRulesId,
         });
       }
       wx.hideLoading();
@@ -122,7 +116,7 @@ Page({
   // 重新计算价格
   recalculatePrice: function() {
     let freightPrice = this.data.deliveryType === 'pickup' ? 0 : this.data.freightPrice;
-    let actualPrice = this.data.goodsTotalPrice + freightPrice - this.data.couponPrice - this.data.grouponPrice;
+    let actualPrice = this.data.goodsTotalPrice + freightPrice - this.data.couponPrice;
     this.setData({
       freightPrice: freightPrice,
       actualPrice: actualPrice > 0 ? actualPrice : 0
@@ -155,22 +149,12 @@ Page({
       if (userCouponId === "") {
         userCouponId = 0;
       }
-      var grouponRulesId = wx.getStorageSync('grouponRulesId');
-      if (grouponRulesId === "") {
-        grouponRulesId = 0;
-      }
-      var grouponLinkId = wx.getStorageSync('grouponLinkId');
-      if (grouponLinkId === "") {
-        grouponLinkId = 0;
-      }
 
       this.setData({
         cartId: cartId,
         addressId: addressId,
         couponId: couponId,
-        userCouponId: userCouponId,
-        grouponRulesId: grouponRulesId,
-        grouponLinkId: grouponLinkId
+        userCouponId: userCouponId
       });
 
     } catch (e) {
@@ -216,8 +200,6 @@ Page({
       couponId: this.data.couponId,
       userCouponId: this.data.userCouponId,
       message: this.data.message,
-      grouponRulesId: this.data.grouponRulesId,
-      grouponLinkId: this.data.grouponLinkId,
       // 配送方式
       deliveryType: this.data.deliveryType
     };
@@ -240,7 +222,6 @@ Page({
         }
 
         const orderId = res.data.orderId;
-        const grouponLinkId = res.data.grouponLinkId;
         const payed = res.data.payed
         if (payed) {
           wx.redirectTo({
@@ -262,17 +243,9 @@ Page({
               'paySign': payParam.paySign,
               'success': function(res) {
                 console.log("支付过程成功");
-                if (grouponLinkId) {
-                  setTimeout(() => {
-                    wx.redirectTo({
-                      url: '/pages/groupon/grouponDetail/grouponDetail?id=' + grouponLinkId
-                    })
-                  }, 1000);
-                } else {
-                  wx.redirectTo({
-                    url: '/pages/payResult/payResult?status=1&orderId=' + orderId
-                  });
-                }
+                wx.redirectTo({
+                  url: '/pages/payResult/payResult?status=1&orderId=' + orderId
+                });
               },
               'fail': function(res) {
                 console.log("支付过程失败");

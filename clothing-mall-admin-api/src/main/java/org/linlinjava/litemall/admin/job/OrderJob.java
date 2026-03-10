@@ -27,10 +27,6 @@ public class OrderJob {
     private LitemallOrderService orderService;
     @Autowired
     private LitemallGoodsProductService productService;
-    @Autowired
-    private LitemallGrouponService grouponService;
-    @Autowired
-    private LitemallGrouponRulesService rulesService;
 
     /**
      * 自动确认订单

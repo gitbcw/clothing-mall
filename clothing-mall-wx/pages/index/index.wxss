@@ -176,83 +176,6 @@
   overflow: hidden;
 }
 
-.a-groupon {
-  width: 750rpx;
-  height: auto;
-  overflow: hidden;
-}
-
-.a-groupon .b .item {
-  border-top: 1px solid #d9d9d9;
-  margin: 0 20rpx;
-  height: 244rpx;
-  width: 710rpx;
-}
-
-.a-groupon .b .img {
-  margin-top: 12rpx;
-  margin-right: 12rpx;
-  float: left;
-  width: 220rpx;
-  height: 220rpx;
-}
-
-.a-groupon .b .right {
-  float: left;
-  height: 244rpx;
-  width: 476rpx;
-  display: flex;
-  flex-flow: row nowrap;
-}
-
-.a-groupon .b .text {
-  display: flex;
-  flex-wrap: nowrap;
-  flex-direction: column;
-  justify-content: center;
-  overflow: hidden;
-  height: 244rpx;
-  width: 476rpx;
-}
-
-.a-groupon .b .name {
-    float: left;
-    display: block;
-    color: #333;
-    line-height: 50rpx;
-    font-size: 30rpx;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.a-groupon .b .desc {
-  width: 476rpx;
-  display: block;
-  color: #999;
-  line-height: 50rpx;
-  font-size: 25rpx;
-}
-
-.a-groupon .b .price {
-  width: 476rpx;
-  display: flex;
-  color: #ab956d;
-  line-height: 50rpx;
-  font-size: 33rpx;
-}
-
-.a-groupon .b .counterPrice {
-  text-decoration: line-through;
-  font-size: 28rpx;
-  color: #999;
-}
-
-.a-groupon .b .retailPrice {
-  margin-left: 30rpx;
-  font-size: 28rpx;
-  color: #a78845;
-}
-
 .a-new .b {
   width: 750rpx;
   height: auto;
@@ -633,4 +556,78 @@
     padding: .5rem 0;
     padding-right: .5rem;
     width: 100%;
+}
+
+/* 限时特卖模块样式 */
+.a-flash .b {
+  width: 750rpx;
+  height: auto;
+  overflow: hidden;
+  padding: 0 31rpx 45rpx 31rpx;
+}
+
+.a-flash .b .item {
+  float: left;
+  width: 326rpx;
+  margin-bottom: 20rpx;
+  margin-left: 10rpx;
+  margin-right: 10rpx;
+  box-sizing: border-box;
+  background-color: white;
+  border-radius: 15rpx;
+  overflow: hidden;
+  box-shadow: 0 0 8rpx #eee;
+  position: relative;
+}
+
+.a-flash .b .item .img {
+  width: 326rpx;
+  height: 326rpx;
+  background: #f9f9f9;
+}
+
+.a-flash .b .item .name {
+  display: block;
+  width: 320rpx;
+  height: 50rpx;
+  padding: 0 10rpx;
+  line-height: 50rpx;
+  font-size: 26rpx;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.a-flash .b .item .price-box {
+  display: flex;
+  align-items: center;
+  padding: 0 10rpx 10rpx;
+}
+
+.a-flash .b .item .flash-price {
+  color: #ff4d4f;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.a-flash .b .item .original-price {
+  color: #999;
+  font-size: 24rpx;
+  text-decoration: line-through;
+  margin-left: 10rpx;
+}
+
+.a-flash .b .item .stock-info {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10rpx 10rpx;
+  font-size: 22rpx;
+  color: #999;
+}
+
+.a-flash .h .sub {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 20rpx;
 }

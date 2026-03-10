@@ -52,3 +52,26 @@ Servers
 .metadata
 upload
 gen_code
+
+### test ignore ###
+# 测试环境配置（包含敏感信息）
+.env.test
+
+# 测试报告
+test_report/
+*.html
+!src/**/*.html
+
+# Playwright
+playwright-report/
+playwright/.cache/
+
+# pytest
+.pytest_cache/
+__pycache__/
+
+# Python
+*.pyc
+*.pyo
+venv/
+.venv/

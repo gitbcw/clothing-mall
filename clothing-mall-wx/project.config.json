@@ -270,12 +270,6 @@
         },
         {
           "id": -1,
-          "name": "团购专区",
-          "pathName": "pages/groupon/grouponList/grouponList",
-          "query": ""
-        },
-        {
-          "id": -1,
           "name": "选择优惠券",
           "pathName": "pages/ucenter/couponSelect/couponSelect",
           "query": ""
@@ -296,13 +290,6 @@
           "id": -1,
           "name": "帮助中心",
           "pathName": "pages/help/help",
-          "query": "",
-          "scene": null
-        },
-        {
-          "id": -1,
-          "name": "我的团购",
-          "pathName": "pages/groupon/myGroupon/myGroupon",
           "query": "",
           "scene": null
         },

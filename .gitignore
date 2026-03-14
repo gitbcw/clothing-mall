@@ -75,3 +75,12 @@ __pycache__/
 *.pyo
 venv/
 .venv/
+
+### temp data files ###
+# 根目录临时数据文件
+/init_goods.sql
+/init_specs.sql
+/local_data_dump.sql
+/ocr_raw_response.json
+/test_ocr.py
+/update_goods_images.sql

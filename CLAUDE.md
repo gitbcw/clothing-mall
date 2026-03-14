@@ -6,6 +6,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 服装店线上渠道扩展系统，基于 Spring Boot 后端 + Vue 管理前端 + 微信小程序用户前端的多模块电商项目。
 
+## 重要文档
+
+| 文档 | 用途 |
+|------|------|
+| [docs/开发环境指南.md](docs/开发环境指南.md) | 本地开发环境配置、启动流程 |
+| [docs/阿里云部署指南.md](docs/阿里云部署指南.md) | 服务器部署流程、常见问题解决 |
+
+**快速导航**：
+- 本地开发 → [开发环境指南](docs/开发环境指南.md)
+- 服务器部署 → [阿里云部署指南](docs/阿里云部署指南.md)
+
 ## 常用命令
 
 ### 后端 (Maven)
@@ -91,11 +102,16 @@ clothing-mall (Maven 根)
 ```yaml
 # 默认连接
 jdbc:mysql://localhost:3306/clothing_mall
-用户名: root
-密码: litemall123456
+用户名: clothing_mall
+密码: clothing123456
 ```
 
-初始化 SQL 位于 `clothing-mall-db/sql/` 目录。
+**推荐使用 Docker 启动 MySQL**：
+```bash
+cd docker && docker compose up mysql -d
+```
+
+初始化 SQL 位于 `docker/db/init-sql/` 目录。
 
 ## 认证机制
 

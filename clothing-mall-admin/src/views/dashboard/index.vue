@@ -70,7 +70,7 @@
                 {{ index + 1 }}
               </div>
               <div class="rank-info">
-                <img :src="item.picUrl" class="rank-img" />
+                <img :src="item.picUrl" class="rank-img">
                 <div class="rank-text">
                   <div class="rank-name">{{ item.name }}</div>
                   <el-progress
@@ -78,7 +78,7 @@
                     :show-text="false"
                     :stroke-width="6"
                     color="#409EFF"
-                  ></el-progress>
+                  />
                 </div>
               </div>
               <div class="rank-value">{{ item.value }}</div>
@@ -102,7 +102,7 @@
                 {{ index + 1 }}
               </div>
               <div class="rank-info">
-                <img :src="item.picUrl" class="rank-img" />
+                <img :src="item.picUrl" class="rank-img">
                 <div class="rank-text">
                   <div class="rank-name">{{ item.name }}</div>
                   <el-progress
@@ -110,7 +110,7 @@
                     :show-text="false"
                     :stroke-width="6"
                     color="#67C23A"
-                  ></el-progress>
+                  />
                 </div>
               </div>
               <div class="rank-value">{{ item.value }}</div>
@@ -137,7 +137,7 @@
               </div>
               <div class="rank-info">
                 <div class="rank-poster-wrapper">
-                   <div class="rank-poster" :style="{ backgroundColor: item.color }">{{ item.abbr }}</div>
+                  <div class="rank-poster" :style="{ backgroundColor: item.color }">{{ item.abbr }}</div>
                 </div>
                 <div class="rank-text">
                   <div class="rank-name">{{ item.name }}</div>
@@ -146,7 +146,7 @@
                     :show-text="false"
                     :stroke-width="6"
                     color="#E6A23C"
-                  ></el-progress>
+                  />
                 </div>
               </div>
               <div class="rank-value">{{ item.value }}</div>
@@ -170,7 +170,7 @@
                 {{ index + 1 }}
               </div>
               <div class="rank-info">
-                <img :src="item.picUrl" class="rank-img" />
+                <img :src="item.picUrl" class="rank-img">
                 <div class="rank-text">
                   <div class="rank-name">{{ item.name }}</div>
                   <el-progress
@@ -178,7 +178,7 @@
                     :show-text="false"
                     :stroke-width="6"
                     color="#F56C6C"
-                  ></el-progress>
+                  />
                 </div>
               </div>
               <div class="rank-value">{{ item.value }}</div>
@@ -191,26 +191,12 @@
 </template>
 
 <script>
-import CountTo from "vue-count-to";
-import bedSetGrey from '@/assets/dashboard/bed-set-grey.png'
-import summerQuilt from '@/assets/dashboard/summer-quilt.png'
-import bedSetPink from '@/assets/dashboard/bed-set-pink.png'
-import pillow from '@/assets/dashboard/pillow.png'
-import babyGift from '@/assets/dashboard/baby-gift.png'
-import clock from '@/assets/dashboard/clock.png'
-import mirrorWood from '@/assets/dashboard/mirror-wood.png'
-import tableWood from '@/assets/dashboard/table-wood.png'
-import blanket from '@/assets/dashboard/blanket.png'
-import mirrorRound from '@/assets/dashboard/mirror-round.png'
-import chair from '@/assets/dashboard/chair.png'
-import pen from '@/assets/dashboard/pen.png'
-import roundTableCorner from '@/assets/dashboard/round-table-corner.png'
-import roundTableStand from '@/assets/dashboard/round-table-stand.png'
-import bedSetBall from '@/assets/dashboard/bed-set-ball.png'
+import CountTo from 'vue-count-to'
+// 川着transmute 商品图片使用 /images/goods/ 目录下的图片
 
 export default {
   components: {
-    CountTo,
+    CountTo
   },
   data() {
     return {
@@ -220,53 +206,57 @@ export default {
       salesTop: [],
       repurchaseTop: [],
       posterClickTop: [],
-      afterSalesTop: [],
-    };
+      afterSalesTop: []
+    }
   },
   created() {
-    this.fetchData();
+    this.fetchData()
   },
   methods: {
     fetchData() {
       // Fake data simulation
-      this.revenue = 1258000;
-      this.orders = 5400;
-      this.dau = 1205;
+      this.revenue = 1258000
+      this.orders = 5400
+      this.dau = 1205
 
+      // 商品销售榜 - 川着transmute 春日系列
       this.salesTop = [
-        { name: "简约知性全棉四件套 素雅灰", value: 1200, percentage: 90, picUrl: bedSetGrey },
-        { name: "色织华夫格夏凉被", value: 900, percentage: 70, picUrl: summerQuilt },
-        { name: "简约知性全棉四件套 胭脂粉", value: 800, percentage: 60, picUrl: bedSetPink },
-        { name: "日式纯棉针织条纹抱枕", value: 600, percentage: 45, picUrl: pillow },
-        { name: "新生彩棉初衣礼盒（婴童）", value: 400, percentage: 30, picUrl: babyGift },
-      ];
+        { name: '春日优雅连衣裙', value: 856, percentage: 95, picUrl: '/images/goods/dress.png' },
+        { name: '法式雪纺衬衫', value: 623, percentage: 72, picUrl: '/images/goods/shirt.png' },
+        { name: '温柔针织开衫', value: 518, percentage: 60, picUrl: '/images/goods/knit.png' },
+        { name: '干练西装外套', value: 445, percentage: 52, picUrl: '/images/goods/suit.png' },
+        { name: '经典风衣外套', value: 389, percentage: 45, picUrl: '/images/goods/coat.png' }
+      ]
 
+      // 商品复购榜 - 川着transmute 春日系列
       this.repurchaseTop = [
-        { name: "LCD电子钟 升级版", value: "45%", percentage: 45, picUrl: clock },
-        { name: "悦己日式木质落地镜", value: "38%", percentage: 38, picUrl: mirrorWood },
-        { name: "原素系列实木餐桌", value: "30%", percentage: 30, picUrl: tableWood },
-        { name: "澳洲羊羔毛华夫格盖毯", value: "25%", percentage: 25, picUrl: blanket },
-        { name: "古风圆角木质落地镜", value: "20%", percentage: 20, picUrl: mirrorRound },
-      ];
+        { name: '春日优雅连衣裙', value: '68%', percentage: 68, picUrl: '/images/goods/dress.png' },
+        { name: '法式雪纺衬衫', value: '52%', percentage: 52, picUrl: '/images/goods/shirt.png' },
+        { name: '温柔针织开衫', value: '45%', percentage: 45, picUrl: '/images/goods/knit.png' },
+        { name: 'A字半身裙', value: '38%', percentage: 38, picUrl: '/images/goods/skirt.png' },
+        { name: '高腰阔腿裤', value: '32%', percentage: 32, picUrl: '/images/goods/pants.png' }
+      ]
 
+      // 海报点击榜 - 川着transmute 春日系列
       this.posterClickTop = [
-        { name: "夏季大促海报", value: 3000, percentage: 95, color: '#409EFF', abbr: '促' },
-        { name: "新品上市海报", value: 2500, percentage: 80, color: '#67C23A', abbr: '新' },
-        { name: "会员日海报", value: 2000, percentage: 65, color: '#E6A23C', abbr: '会' },
-        { name: "节日特惠海报", value: 1500, percentage: 45, color: '#F56C6C', abbr: '节' },
-        { name: "限时秒杀海报", value: 1000, percentage: 30, color: '#909399', abbr: '秒' },
-      ];
+        { name: '川着transmute 春日系列', value: 2345, percentage: 95, color: '#f8b4c4', abbr: '春' },
+        { name: '职场穿搭精选', value: 1876, percentage: 76, color: '#7c9885', abbr: '职' },
+        { name: '温柔针织系列', value: 1523, percentage: 62, color: '#b8a99a', abbr: '针' },
+        { name: '经典风衣专场', value: 1234, percentage: 50, color: '#c4a77d', abbr: '风' },
+        { name: '基础款穿搭', value: 987, percentage: 40, color: '#9b8e8e', abbr: '基' }
+      ]
 
+      // 售后商品榜 - 川着transmute 春日系列
       this.afterSalesTop = [
-        { name: "原素系列实木餐椅（两把）", value: 50, percentage: 50, picUrl: chair },
-        { name: "磨砂杆直杆中性笔", value: 45, percentage: 45, picUrl: pen },
-        { name: "原素系列折角实木圆桌", value: 30, percentage: 30, picUrl: roundTableCorner },
-        { name: "原素系列立式实木圆桌", value: 20, percentage: 20, picUrl: roundTableStand },
-        { name: "意式毛线绣球四件套", value: 10, percentage: 10, picUrl: bedSetBall },
-      ];
-    },
-  },
-};
+        { name: '法式雪纺衬衫', value: 23, percentage: 45, picUrl: '/images/goods/shirt.png' },
+        { name: 'A字半身裙', value: 18, percentage: 35, picUrl: '/images/goods/skirt.png' },
+        { name: '高腰阔腿裤', value: 15, percentage: 30, picUrl: '/images/goods/pants.png' },
+        { name: '温柔针织开衫', value: 12, percentage: 24, picUrl: '/images/goods/knit.png' },
+        { name: '春日优雅连衣裙', value: 8, percentage: 16, picUrl: '/images/goods/dress.png' }
+      ]
+    }
+  }
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
@@ -408,12 +398,12 @@ export default {
         object-fit: cover;
         background-color: #f0f0f0;
       }
-      
+
       .rank-poster-wrapper {
          margin-right: 10px;
          flex-shrink: 0;
       }
-      
+
       .rank-poster {
          width: 40px;
          height: 40px;
@@ -429,7 +419,7 @@ export default {
       .rank-text {
         flex: 1;
         overflow: hidden;
-        
+
         .rank-name {
           font-size: 14px;
           color: #303133;

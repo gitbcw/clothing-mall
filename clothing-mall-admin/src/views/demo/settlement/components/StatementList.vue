@@ -154,9 +154,6 @@ export default {
       ordersPageSize: 5
     }
   },
-  created() {
-    this.generateMockData()
-  },
   computed: {
     filteredOrders() {
       if (!this.currentDetail) return []
@@ -169,6 +166,9 @@ export default {
       const start = (this.ordersPage - 1) * this.ordersPageSize
       return this.filteredOrders.slice(start, start + this.ordersPageSize)
     }
+  },
+  created() {
+    this.generateMockData()
   },
   methods: {
     generateMockData() {

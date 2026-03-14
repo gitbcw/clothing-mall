@@ -351,6 +351,16 @@ export const asyncRoutes = [
           title: '会员等级',
           noCache: true
         }
+      },
+      {
+        path: 'ocr',
+        component: () => import('@/views/goods/ocr'),
+        name: 'goodsOcr',
+        meta: {
+          perms: ['POST /admin/ocr/recognize', 'POST /admin/ocr/updateStock'],
+          title: 'app.menu.goods_ocr',
+          noCache: true
+        }
       }
     ]
   },

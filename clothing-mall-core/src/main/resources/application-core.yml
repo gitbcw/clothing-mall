@@ -113,3 +113,11 @@ litemall:
       accessKey: 111111
       secretKey: xxxxxx
       bucketName: litemall
+
+  # 百度OCR文字识别配置
+  # 免费额度：500次/天，约15000次/月
+  # 申请地址：https://console.bce.baidu.com/ai/#/ai/ocr/app/list
+  ocr:
+    enabled: false
+    api-key: d6adXCnmEoURuO0Lx9keO9LL
+    secret-key: TplRPeZIlxaDehEXvEcEPeagMvpbfWyM

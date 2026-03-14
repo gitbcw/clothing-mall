@@ -33,7 +33,6 @@
 
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">{{ $t('login.button.login') }}</el-button>
 
-      
     </el-form>
 
     <div class="copyright">

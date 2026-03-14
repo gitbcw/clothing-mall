@@ -105,7 +105,7 @@ export default {
           { required: true, message: '角色名称不能为空', trigger: 'blur' }
         ],
         mobile: [
-          { pattern: /^\d{6,20}$/ , message: '手机号格式不正确', trigger: 'blur' }
+          { pattern: /^\d{6,20}$/, message: '手机号格式不正确', trigger: 'blur' }
         ]
       },
       permissionDialogFormVisible: false,

@@ -68,50 +68,157 @@ export const constantRoutes = [
         meta: { title: 'app.menu.dashboard', icon: 'dashboard', affix: true }
       }
     ]
-  },
-  {
-    path: '/demo',
-    component: Layout,
-    redirect: 'noredirect',
-    alwaysShow: true,
-    name: 'Demo',
-    meta: {
-      title: '演示页面',
-      icon: 'example'
-    },
-    children: [
-      {
-        path: 'revenue',
-        component: () => import('@/views/demo/revenue'),
-        name: 'RevenueList',
-        meta: {
-          title: '营收列表',
-          noCache: true
-        }
-      },
-      {
-        path: 'supplier',
-        component: () => import('@/views/demo/supplier'),
-        name: 'SupplierList',
-        meta: {
-          title: '供应商列表',
-          noCache: true
-        }
-      },
-      {
-        path: 'settlement',
-        component: () => import('@/views/demo/settlement/index'),
-        name: 'SettlementCenter',
-        meta: {
-          title: '结算中心',
-          noCache: true
-        }
-      }
-    ]
   }
 ]
 
 export const asyncRoutes = [
+  // 1. 订单管理（独立）
+  {
+    path: '/order',
+    component: Layout,
+    redirect: 'noredirect',
+    alwaysShow: true,
+    name: 'orderManage',
+    meta: {
+      title: 'app.menu.order',
+      icon: 'chart'
+    },
+    children: [
+      {
+        path: 'order',
+        component: () => import('@/views/mall/order'),
+        name: 'order',
+        meta: {
+          perms: ['GET /admin/order/list', 'GET /admin/order/detail', 'POST /admin/order/ship', 'POST /admin/order/refund', 'POST /admin/order/delete', 'POST /admin/order/reply'],
+          title: 'app.menu.order_order',
+          noCache: true
+        }
+      }
+    ]
+  },
+
+  // 2. 售后管理（独立）
+  {
+    path: '/aftersale',
+    component: Layout,
+    redirect: 'noredirect',
+    alwaysShow: true,
+    name: 'aftersaleManage',
+    meta: {
+      title: 'app.menu.aftersale',
+      icon: 'chart'
+    },
+    children: [
+      {
+        path: 'aftersale',
+        component: () => import('@/views/mall/aftersale'),
+        name: 'aftersale',
+        meta: {
+          perms: ['GET /admin/aftersale/list', 'GET /admin/aftersale/detail', 'POST /admin/order/receive', 'POST /admin/aftersale/complete', 'POST /admin/aftersale/reject'],
+          title: 'app.menu.aftersale_aftersale',
+          noCache: true
+        }
+      }
+    ]
+  },
+
+  // 3. 商品管理
+  {
+    path: '/goods',
+    component: Layout,
+    redirect: 'noredirect',
+    alwaysShow: true,
+    name: 'goodsManage',
+    meta: {
+      title: 'app.menu.goods',
+      icon: 'chart'
+    },
+    children: [
+      {
+        path: 'list',
+        component: () => import('@/views/goods/list'),
+        name: 'goodsList',
+        meta: {
+          perms: ['GET /admin/goods/list', 'POST /admin/goods/delete'],
+          title: 'app.menu.goods_list',
+          noCache: true
+        }
+      },
+      {
+        path: 'create',
+        component: () => import('@/views/goods/create'),
+        name: 'goodsCreate',
+        meta: {
+          perms: ['POST /admin/goods/create'],
+          title: 'app.menu.goods_create',
+          noCache: true
+        }
+      },
+      {
+        path: 'edit',
+        component: () => import('@/views/goods/edit'),
+        name: 'goodsEdit',
+        meta: {
+          perms: ['GET /admin/goods/detail', 'POST /admin/goods/update', 'POST /admin/goods/catAndBrand'],
+          title: 'app.menu.goods_edit',
+          noCache: true
+        },
+        hidden: true
+      },
+      {
+        path: 'sku',
+        component: () => import('@/views/mall/sku'),
+        name: 'goodsSku',
+        meta: {
+          perms: ['GET /admin/clothing/sku/list', 'POST /admin/clothing/sku/create', 'POST /admin/clothing/sku/update', 'POST /admin/clothing/sku/delete'],
+          title: 'app.menu.goods_sku',
+          noCache: true
+        }
+      },
+      {
+        path: 'store',
+        component: () => import('@/views/mall/store'),
+        name: 'store',
+        meta: {
+          perms: ['GET /admin/clothing/store/list', 'POST /admin/clothing/store/create', 'POST /admin/clothing/store/update', 'POST /admin/clothing/store/delete'],
+          title: 'app.menu.goods_store',
+          noCache: true
+        }
+      },
+      {
+        path: 'guide',
+        component: () => import('@/views/mall/guide'),
+        name: 'guide',
+        meta: {
+          perms: ['GET /admin/clothing/guide/list', 'POST /admin/clothing/guide/create', 'POST /admin/clothing/guide/update', 'POST /admin/clothing/guide/delete'],
+          title: 'app.menu.goods_guide',
+          noCache: true
+        }
+      },
+      {
+        path: 'memberLevel',
+        component: () => import('@/views/mall/memberLevel'),
+        name: 'memberLevel',
+        meta: {
+          perms: ['GET /admin/clothing/memberLevel/list', 'POST /admin/clothing/memberLevel/create', 'POST /admin/clothing/memberLevel/update', 'POST /admin/clothing/memberLevel/delete'],
+          title: 'app.menu.goods_memberLevel',
+          noCache: true
+        }
+      },
+      {
+        path: 'ocr',
+        component: () => import('@/views/goods/ocr'),
+        name: 'goodsOcr',
+        meta: {
+          perms: ['POST /admin/ocr/recognize', 'POST /admin/ocr/updateStock'],
+          title: 'app.menu.goods_ocr',
+          noCache: true
+        }
+      }
+    ]
+  },
+
+  // 4. 会员管理
   {
     path: '/user',
     component: Layout,
@@ -186,184 +293,7 @@ export const asyncRoutes = [
     ]
   },
 
-  {
-    path: '/mall',
-    component: Layout,
-    redirect: 'noredirect',
-    alwaysShow: true,
-    name: 'mallManage',
-    meta: {
-      title: 'app.menu.mall',
-      icon: 'chart'
-    },
-    children: [
-      {
-        path: 'region',
-        component: () => import('@/views/mall/region'),
-        name: 'region',
-        meta: {
-          title: 'app.menu.mall_region',
-          noCache: true
-        }
-      },
-      {
-        path: 'brand',
-        component: () => import('@/views/mall/brand'),
-        name: 'brand',
-        meta: {
-          perms: ['GET /admin/brand/list', 'POST /admin/brand/create', 'GET /admin/brand/read', 'POST /admin/brand/update', 'POST /admin/brand/delete'],
-          title: 'app.menu.mall_brand',
-          noCache: true
-        },
-        hidden: true
-      },
-      {
-        path: 'category',
-        component: () => import('@/views/mall/category'),
-        name: 'category',
-        meta: {
-          perms: ['GET /admin/category/list', 'POST /admin/category/create', 'GET /admin/category/read', 'POST /admin/category/update', 'POST /admin/category/delete'],
-          title: 'app.menu.mall_category',
-          noCache: true
-        }
-      },
-      {
-        path: 'order',
-        component: () => import('@/views/mall/order'),
-        name: 'order',
-        meta: {
-          perms: ['GET /admin/order/list', 'GET /admin/order/detail', 'POST /admin/order/ship', 'POST /admin/order/refund', 'POST /admin/order/delete', 'POST /admin/order/reply'],
-          title: 'app.menu.mall_order',
-          noCache: true
-        }
-      },
-      {
-        path: 'aftersale',
-        component: () => import('@/views/mall/aftersale'),
-        name: 'aftersale',
-        meta: {
-          perms: ['GET /admin/aftersale/list', 'GET /admin/aftersale/detail', 'POST /admin/order/receive', 'POST /admin/aftersale/complete', 'POST /admin/aftersale/reject'],
-          title: 'app.menu.mall_aftersale',
-          noCache: true
-        }
-      },
-      {
-        path: 'issue',
-        component: () => import('@/views/mall/issue'),
-        name: 'issue',
-        meta: {
-          perms: ['GET /admin/issue/list', 'POST /admin/issue/create', 'GET /admin/issue/read', 'POST /admin/issue/update', 'POST /admin/issue/delete'],
-          title: 'app.menu.mall_issue',
-          noCache: true
-        }
-      },
-      {
-        path: 'keyword',
-        component: () => import('@/views/mall/keyword'),
-        name: 'keyword',
-        meta: {
-          perms: ['GET /admin/keyword/list', 'POST /admin/keyword/create', 'GET /admin/keyword/read', 'POST /admin/keyword/update', 'POST /admin/keyword/delete'],
-          title: 'app.menu.mall_keyword',
-          noCache: true
-        }
-      }
-    ]
-  },
-
-  {
-    path: '/goods',
-    component: Layout,
-    redirect: 'noredirect',
-    alwaysShow: true,
-    name: 'goodsManage',
-    meta: {
-      title: 'app.menu.goods',
-      icon: 'chart'
-    },
-    children: [
-      {
-        path: 'list',
-        component: () => import('@/views/goods/list'),
-        name: 'goodsList',
-        meta: {
-          perms: ['GET /admin/goods/list', 'POST /admin/goods/delete'],
-          title: 'app.menu.goods_list',
-          noCache: true
-        }
-      },
-      {
-        path: 'create',
-        component: () => import('@/views/goods/create'),
-        name: 'goodsCreate',
-        meta: {
-          perms: ['POST /admin/goods/create'],
-          title: 'app.menu.goods_create',
-          noCache: true
-        }
-      },
-      {
-        path: 'edit',
-        component: () => import('@/views/goods/edit'),
-        name: 'goodsEdit',
-        meta: {
-          perms: ['GET /admin/goods/detail', 'POST /admin/goods/update', 'POST /admin/goods/catAndBrand'],
-          title: 'app.menu.goods_edit',
-          noCache: true
-        },
-        hidden: true
-      },
-      {
-        path: 'sku',
-        component: () => import('@/views/mall/sku'),
-        name: 'goodsSku',
-        meta: {
-          perms: ['GET /admin/clothing/sku/list', 'POST /admin/clothing/sku/create', 'POST /admin/clothing/sku/update', 'POST /admin/clothing/sku/delete'],
-          title: 'SKU管理',
-          noCache: true
-        }
-      },
-      {
-        path: 'store',
-        component: () => import('@/views/mall/store'),
-        name: 'store',
-        meta: {
-          perms: ['GET /admin/clothing/store/list', 'POST /admin/clothing/store/create', 'POST /admin/clothing/store/update', 'POST /admin/clothing/store/delete'],
-          title: '门店管理',
-          noCache: true
-        }
-      },
-      {
-        path: 'guide',
-        component: () => import('@/views/mall/guide'),
-        name: 'guide',
-        meta: {
-          perms: ['GET /admin/clothing/guide/list', 'POST /admin/clothing/guide/create', 'POST /admin/clothing/guide/update', 'POST /admin/clothing/guide/delete'],
-          title: '导购管理',
-          noCache: true
-        }
-      },
-      {
-        path: 'memberLevel',
-        component: () => import('@/views/mall/memberLevel'),
-        name: 'memberLevel',
-        meta: {
-          perms: ['GET /admin/clothing/memberLevel/list', 'POST /admin/clothing/memberLevel/create', 'POST /admin/clothing/memberLevel/update', 'POST /admin/clothing/memberLevel/delete'],
-          title: '会员等级',
-          noCache: true
-        }
-      },
-      {
-        path: 'ocr',
-        component: () => import('@/views/goods/ocr'),
-        name: 'goodsOcr',
-        meta: {
-          perms: ['POST /admin/ocr/recognize', 'POST /admin/ocr/updateStock'],
-          title: 'app.menu.goods_ocr',
-          noCache: true
-        }
-      }
-    ]
-  },
+  // 5. 活动管理
   {
     path: '/promotion',
     component: Layout,
@@ -444,7 +374,7 @@ export const asyncRoutes = [
         name: 'flashSale',
         meta: {
           perms: ['GET /admin/flashSale/list', 'POST /admin/flashSale/create', 'POST /admin/flashSale/update', 'POST /admin/flashSale/delete'],
-          title: '限时特卖',
+          title: 'app.menu.promotion_flashSale',
           noCache: true
         }
       },
@@ -454,13 +384,134 @@ export const asyncRoutes = [
         name: 'fullReduction',
         meta: {
           perms: ['GET /admin/fullReduction/list', 'POST /admin/fullReduction/create', 'POST /admin/fullReduction/update', 'POST /admin/fullReduction/delete'],
-          title: '满减活动',
+          title: 'app.menu.promotion_fullReduction',
           noCache: true
         }
       }
     ]
   },
 
+  // 6. 数据统计
+  {
+    path: '/stat',
+    component: Layout,
+    redirect: 'noredirect',
+    alwaysShow: true,
+    name: 'statManage',
+    meta: {
+      title: 'app.menu.stat',
+      icon: 'chart'
+    },
+    children: [
+      {
+        path: 'growth',
+        component: () => import('@/views/stat/growth'),
+        name: 'statGrowth',
+        meta: {
+          perms: ['GET /admin/stat/growth'],
+          title: 'app.menu.stat_growth',
+          noCache: true
+        }
+      },
+      {
+        path: 'user',
+        component: () => import('@/views/stat/user'),
+        name: 'statUser',
+        meta: {
+          perms: ['GET /admin/stat/user'],
+          title: 'app.menu.stat_user',
+          noCache: true
+        }
+      },
+      {
+        path: 'order',
+        component: () => import('@/views/stat/order'),
+        name: 'statOrder',
+        meta: {
+          perms: ['GET /admin/stat/order'],
+          title: 'app.menu.stat_order',
+          noCache: true
+        }
+      },
+      {
+        path: 'goods',
+        component: () => import('@/views/stat/goods'),
+        name: 'statGoods',
+        meta: {
+          perms: ['GET /admin/stat/goods'],
+          title: 'app.menu.stat_goods',
+          noCache: true
+        }
+      }
+    ]
+  },
+
+  // 7. 商城配置
+  {
+    path: '/mall',
+    component: Layout,
+    redirect: 'noredirect',
+    alwaysShow: true,
+    name: 'mallManage',
+    meta: {
+      title: 'app.menu.mall',
+      icon: 'chart'
+    },
+    children: [
+      {
+        path: 'region',
+        component: () => import('@/views/mall/region'),
+        name: 'region',
+        meta: {
+          title: 'app.menu.mall_region',
+          noCache: true
+        }
+      },
+      {
+        path: 'brand',
+        component: () => import('@/views/mall/brand'),
+        name: 'brand',
+        meta: {
+          perms: ['GET /admin/brand/list', 'POST /admin/brand/create', 'GET /admin/brand/read', 'POST /admin/brand/update', 'POST /admin/brand/delete'],
+          title: 'app.menu.mall_brand',
+          noCache: true
+        },
+        hidden: true
+      },
+      {
+        path: 'category',
+        component: () => import('@/views/mall/category'),
+        name: 'category',
+        meta: {
+          perms: ['GET /admin/category/list', 'POST /admin/category/create', 'GET /admin/category/read', 'POST /admin/category/update', 'POST /admin/category/delete'],
+          title: 'app.menu.mall_category',
+          noCache: true
+        }
+      },
+      {
+        path: 'issue',
+        component: () => import('@/views/mall/issue'),
+        name: 'issue',
+        meta: {
+          perms: ['GET /admin/issue/list', 'POST /admin/issue/create', 'GET /admin/issue/read', 'POST /admin/issue/update', 'POST /admin/issue/delete'],
+          title: 'app.menu.mall_issue',
+          noCache: true
+        }
+      },
+      {
+        path: 'keyword',
+        component: () => import('@/views/mall/keyword'),
+        name: 'keyword',
+        meta: {
+          perms: ['GET /admin/keyword/list', 'POST /admin/keyword/create', 'GET /admin/keyword/read', 'POST /admin/keyword/update', 'POST /admin/keyword/delete'],
+          title: 'app.menu.mall_keyword',
+          noCache: true
+        }
+      }
+    ]
+  },
+
+  // 8. 系统管理
   {
     path: '/sys',
     component: Layout,
@@ -589,49 +640,7 @@ export const asyncRoutes = [
     ]
   },
 
-  {
-    path: '/stat',
-    component: Layout,
-    redirect: 'noredirect',
-    alwaysShow: true,
-    name: 'statManage',
-    meta: {
-      title: 'app.menu.stat',
-      icon: 'chart'
-    },
-    children: [
-      {
-        path: 'user',
-        component: () => import('@/views/stat/user'),
-        name: 'statUser',
-        meta: {
-          perms: ['GET /admin/stat/user'],
-          title: 'app.menu.stat_user',
-          noCache: true
-        }
-      },
-      {
-        path: 'order',
-        component: () => import('@/views/stat/order'),
-        name: 'statOrder',
-        meta: {
-          perms: ['GET /admin/stat/order'],
-          title: 'app.menu.stat_order',
-          noCache: true
-        }
-      },
-      {
-        path: 'goods',
-        component: () => import('@/views/stat/goods'),
-        name: 'statGoods',
-        meta: {
-          perms: ['GET /admin/stat/goods'],
-          title: 'app.menu.stat_goods',
-          noCache: true
-        }
-      }
-    ]
-  },
+  // 外链（隐藏）
   {
     path: 'external-link',
     component: Layout,

@@ -84,3 +84,11 @@ venv/
 /ocr_raw_response.json
 /test_ocr.py
 /update_goods_images.sql
+
+### Node.js ###
+node_modules/
+package-lock.json
+
+### Docker ###
+docker/db/data/
+docker/litemall/backup/

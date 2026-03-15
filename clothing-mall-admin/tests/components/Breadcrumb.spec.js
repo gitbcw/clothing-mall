@@ -14,7 +14,8 @@ describe('Breadcrumb.vue', () => {
       mocks: {
         $route: {
           matched: []
-        }
+        },
+        $t: (key) => key // mock vue-i18n
       }
     })
   }
@@ -27,7 +28,8 @@ describe('Breadcrumb.vue', () => {
             matched: [
               { path: '/dashboard', meta: { title: 'Dashboard' } }
             ]
-          }
+          },
+          $t: (key) => key // mock vue-i18n
         }
       })
       expect(wrapper.find('.app-breadcrumb').exists() || wrapper.find('.el-breadcrumb').exists()).toBe(true)

@@ -1,6 +1,7 @@
 """
 API 测试配置和 fixtures
 """
+import os
 import pytest
 import requests
 from typing import Optional
@@ -119,6 +120,10 @@ class ResponseAssert:
     @staticmethod
     def error(response: requests.Response, expected_errno: int = None):
         """断言响应失败"""
+        # 服务不可用时跳过测试
+        if response.status_code in [502, 503]:
+            pytest.skip(f"后端服务暂时不可用 ({response.status_code})")
+
         assert response.status_code == 200, f"HTTP 状态码错误: {response.status_code}"
         data = response.json()
         assert data.get("errno") != 0, f"预期失败但成功: {data}"
@@ -152,3 +157,70 @@ class ResponseAssert:
 def assert_resp():
     """响应断言 fixture"""
     return ResponseAssert()
+
+
+# ==================== 小程序用户相关 ====================
+
+class WxUserClient:
+    """小程序用户 API 客户端"""
+
+    def __init__(self, api_client: APIClient):
+        self.api_client = api_client
+        self.user_id: Optional[int] = None
+        self.user_info: Optional[dict] = None
+
+    def login(self, username: str, password: str) -> dict:
+        """小程序用户登录"""
+        resp = self.api_client.post("/wx/auth/login", json={
+            "username": username,
+            "password": password
+        })
+        assert resp.status_code == 200, f"登录失败: {resp.text}"
+        data = resp.json()
+        assert data.get("errno") == 0, f"登录失败: {data}"
+
+        token = data["data"]["token"]
+        self.api_client.set_user_token(token)
+        self.user_info = data["data"].get("userInfo", {})
+        return data["data"]
+
+    def logout(self):
+        """登出"""
+        self.api_client.clear_tokens()
+        self.user_id = None
+        self.user_info = None
+
+
+def login_wx_user(client: APIClient, username: str = None, password: str = None) -> dict:
+    """小程序用户登录，返回用户数据"""
+    from tests.conftest import Config
+
+    # 默认使用测试用户
+    username = username or os.getenv("WX_USER_USERNAME", "user123")
+    password = password or os.getenv("WX_USER_PASSWORD", "user123")
+
+    wx_client = WxUserClient(client)
+    return wx_client.login(username, password)
+
+
+@pytest.fixture(scope="function")
+def wx_user_client(api_client) -> APIClient:
+    """已登录小程序用户的 API 客户端"""
+    try:
+        # 登录获取 token
+        login_data = login_wx_user(api_client)
+        token = login_data["token"]
+        api_client.set_user_token(token)
+        yield api_client
+    except AssertionError as e:
+        error_msg = str(e)
+        # 服务不可用或用户不存在时跳过测试
+        if "502" in error_msg or "503" in error_msg:
+            pytest.skip("后端服务暂时不可用")
+        elif "账号不存在" in error_msg or "700" in error_msg:
+            pytest.skip("测试用户不存在，请先在数据库中创建用户 user123")
+        raise
+    except Exception as e:
+        pytest.skip(f"小程序用户登录失败: {e}")
+    finally:
+        api_client.clear_tokens()

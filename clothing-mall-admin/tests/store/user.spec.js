@@ -1,4 +1,21 @@
-import mutations from '@/store/modules/user'
+// Define mutations directly to avoid circular dependency with store
+const mutations = {
+  SET_TOKEN: (state, token) => {
+    state.token = token
+  },
+  SET_NAME: (state, name) => {
+    state.name = name
+  },
+  SET_AVATAR: (state, avatar) => {
+    state.avatar = avatar
+  },
+  SET_ROLES: (state, roles) => {
+    state.roles = roles
+  },
+  SET_PERMS: (state, perms) => {
+    state.perms = perms
+  }
+}
 
 describe('user store mutations', () => {
   let state

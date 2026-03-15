@@ -31,11 +31,11 @@ module.exports = {
   devServer: {
     proxy: {
       '/admin': {
-        target: 'http://localhost:8083',
+        target: 'http://localhost:8088',
         changeOrigin: true
       },
       '/wx': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:8088',
         changeOrigin: true
       },
     },

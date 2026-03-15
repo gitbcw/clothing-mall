@@ -81,3 +81,58 @@ class TestPromotionManagement:
             # 检查表单字段
             form = dialog.locator('.el-form')
             expect(form).to_be_visible()
+
+    @pytest.mark.e2e
+    def test_promotion_config_page_loads(self, admin_page, config):
+        """测试促销配置页面加载"""
+        admin_page.goto(f"{config.ADMIN_FRONTEND_URL}/#/config/promotion")
+        admin_page.wait_for_load_state("networkidle")
+
+        # 检查页面标题
+        expect(admin_page.locator('.app-container')).to_be_visible(timeout=10000)
+
+        # 检查表单存在
+        form = admin_page.locator('.el-form')
+        expect(form).to_be_visible()
+
+    @pytest.mark.e2e
+    def test_customer_service_config_visible(self, admin_page, config):
+        """测试客服配置表单项可见"""
+        admin_page.goto(f"{config.ADMIN_FRONTEND_URL}/#/config/promotion")
+        admin_page.wait_for_load_state("networkidle")
+
+        # 检查"小程序客服"分隔符
+        divider = admin_page.locator('.el-divider:has-text("小程序客服")')
+        expect(divider).to_be_visible(timeout=10000)
+
+        # 检查客服链接输入框
+        input_label = admin_page.locator('.el-form-item:has-text("企业微信客服链接")')
+        expect(input_label).to_be_visible()
+
+    @pytest.mark.e2e
+    def test_activity_page_loads(self, admin_page, config):
+        """测试活动位管理页面加载"""
+        admin_page.goto(f"{config.ADMIN_FRONTEND_URL}/#/promotion/activity")
+        admin_page.wait_for_load_state("networkidle")
+
+        # 检查表格存在（Mock 数据）
+        table = admin_page.locator('.el-table')
+        expect(table).to_be_visible(timeout=10000)
+
+        # 检查创建按钮
+        create_btn = admin_page.locator('button:has-text("创建")')
+        expect(create_btn).to_be_visible()
+
+    @pytest.mark.e2e
+    def test_outfit_page_loads(self, admin_page, config):
+        """测试穿搭推荐页面加载"""
+        admin_page.goto(f"{config.ADMIN_FRONTEND_URL}/#/promotion/outfit")
+        admin_page.wait_for_load_state("networkidle")
+
+        # 检查表格存在（Mock 数据）
+        table = admin_page.locator('.el-table')
+        expect(table).to_be_visible(timeout=10000)
+
+        # 检查创建按钮
+        create_btn = admin_page.locator('button:has-text("创建")')
+        expect(create_btn).to_be_visible()

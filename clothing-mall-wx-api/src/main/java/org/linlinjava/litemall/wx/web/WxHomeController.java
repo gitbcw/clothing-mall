@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -48,6 +45,9 @@ public class WxHomeController {
 
     @Autowired
     private LitemallCouponService couponService;
+
+    @Autowired
+    private LitemallSystemConfigService systemConfigService;
 
     private final static ArrayBlockingQueue<Runnable> WORK_QUEUE = new ArrayBlockingQueue<>(9);
 
@@ -131,6 +131,14 @@ public class WxHomeController {
             entity.put("topicList", topicListTask.get());
             entity.put("grouponList", new ArrayList<>());
             entity.put("floorGoodsList", floorGoodsListTask.get());
+
+            // 添加活动位配置
+            Map<String, String> activityConfig = systemConfigService.listHomeActivity();
+            Map<String, Object> activity = buildHomeActivity(activityConfig, newGoodsListTask.get(), hotGoodsListTask.get());
+            if (activity != null) {
+                entity.put("homeActivity", activity);
+            }
+
             //缓存数据
             HomeCacheManager.loadData(HomeCacheManager.INDEX, entity);
         }
@@ -141,6 +149,52 @@ public class WxHomeController {
 //            executorService.shutdown();
 //        }
         return ResponseUtil.ok(entity);
+    }
+
+    /**
+     * 构建首页活动位数据
+     */
+    private Map<String, Object> buildHomeActivity(Map<String, String> config, List newGoodsList, List hotGoodsList) {
+        String enabled = config.get("litemall_home_activity_enabled");
+        if (!"true".equals(enabled)) {
+            return null;
+        }
+
+        String name = config.get("litemall_home_activity_name");
+        String type = config.get("litemall_home_activity_type");
+        String moreUrl = config.get("litemall_home_activity_more_url");
+
+        if (name == null || type == null) {
+            return null;
+        }
+
+        // 根据类型获取商品
+        List goods;
+        switch (type) {
+            case "new":
+                goods = newGoodsList;
+                break;
+            case "hot":
+                goods = hotGoodsList;
+                break;
+            default:
+                goods = hotGoodsList;
+        }
+
+        // 取前5件商品
+        List activityGoods = goods.size() > 5 ? goods.subList(0, 5) : goods;
+        if (activityGoods.size() < 5) {
+            return null; // 不足5件不显示
+        }
+
+        Map<String, Object> activity = new HashMap<>();
+        activity.put("id", "home_activity_" + type);
+        activity.put("name", name);
+        activity.put("type", type);
+        activity.put("moreUrl", moreUrl != null ? moreUrl : "/pages/index/index");
+        activity.put("goods", activityGoods);
+
+        return activity;
     }
 
     private List<Map> getCategoryList() {

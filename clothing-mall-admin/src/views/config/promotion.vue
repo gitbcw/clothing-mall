@@ -53,6 +53,33 @@
         <span class="info">用于标识消息发送者</span>
       </el-form-item>
 
+      <el-divider content-position="left">小程序客服</el-divider>
+      <el-form-item label="企业微信客服链接" prop="litemall_customer_service_url">
+        <el-input v-model="dataForm.litemall_customer_service_url" class="input-width" placeholder="请输入企业微信客服链接" />
+        <span class="info">小程序点击"联系客服"时跳转的链接，格式如：https://work.weixin.qq.com/kfid/xxxxx</span>
+      </el-form-item>
+
+      <el-divider content-position="left">首页活动位</el-divider>
+      <el-form-item label="启用活动位" prop="litemall_home_activity_enabled">
+        <el-switch v-model="homeActivityEnabled" active-value="true" inactive-value="false" />
+        <span class="info">开启后，小程序首页轮播图下方将显示活动位</span>
+      </el-form-item>
+      <el-form-item label="活动名称" prop="litemall_home_activity_name">
+        <el-input v-model="dataForm.litemall_home_activity_name" class="input-width" placeholder="如：每周上新、新品上市、热销推荐" :disabled="!homeActivityEnabledBoolean" />
+        <span class="info">显示在活动位左上角的名称</span>
+      </el-form-item>
+      <el-form-item label="活动类型" prop="litemall_home_activity_type">
+        <el-radio-group v-model="dataForm.litemall_home_activity_type" :disabled="!homeActivityEnabledBoolean">
+          <el-radio label="new">新品商品</el-radio>
+          <el-radio label="hot">热门商品</el-radio>
+        </el-radio-group>
+        <span class="info">选择展示哪种类型的商品（展示5件）</span>
+      </el-form-item>
+      <el-form-item label="查看更多跳转" prop="litemall_home_activity_more_url">
+        <el-input v-model="dataForm.litemall_home_activity_more_url" class="input-width" placeholder="如：/pages/newGoods/newGoods" :disabled="!homeActivityEnabledBoolean" />
+        <span class="info">点击"查看更多"跳转的页面路径</span>
+      </el-form-item>
+
       <el-form-item>
         <el-button @click="cancel">取消</el-button>
         <el-button type="primary" @click="update">确定</el-button>
@@ -79,7 +106,12 @@ export default {
         litemall_wework_contact_secret: '',
         litemall_wework_push_target_type: '1',
         litemall_wework_push_tag_id: '',
-        litemall_wework_sender_id: ''
+        litemall_wework_sender_id: '',
+        litemall_customer_service_url: '',
+        litemall_home_activity_enabled: 'false',
+        litemall_home_activity_name: '',
+        litemall_home_activity_type: 'new',
+        litemall_home_activity_more_url: '/pages/newGoods/newGoods'
       },
       couponList: [],
       rules: {}
@@ -101,6 +133,17 @@ export default {
       set(val) {
         this.dataForm.litemall_full_reduction_stack_with_coupon = val
       }
+    },
+    homeActivityEnabled: {
+      get() {
+        return this.dataForm.litemall_home_activity_enabled
+      },
+      set(val) {
+        this.dataForm.litemall_home_activity_enabled = val
+      }
+    },
+    homeActivityEnabledBoolean() {
+      return this.dataForm.litemall_home_activity_enabled === 'true'
     }
   },
   created() {

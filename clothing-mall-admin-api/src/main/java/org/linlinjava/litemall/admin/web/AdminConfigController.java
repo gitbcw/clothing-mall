@@ -111,4 +111,21 @@ public class AdminConfigController {
         SystemConfig.updateConfigs(data);
         return ResponseUtil.ok();
     }
+
+    @RequiresPermissions("admin:config:promotion:list")
+    @RequiresPermissionsDesc(menu = {"配置管理", "促销配置"}, button = "活动位详情")
+    @GetMapping("/homeActivity")
+    public Object listHomeActivity() {
+        Map<String, String> data = systemConfigService.listHomeActivity();
+        return ResponseUtil.ok(data);
+    }
+
+    @RequiresPermissions("admin:config:promotion:updateConfigs")
+    @RequiresPermissionsDesc(menu = {"配置管理", "促销配置"}, button = "活动位编辑")
+    @PostMapping("/homeActivity")
+    public Object updateHomeActivity(@RequestBody String body) {
+        Map<String, String> data = JacksonUtil.toMap(body);
+        systemConfigService.updateConfig(data);
+        return ResponseUtil.ok();
+    }
 }

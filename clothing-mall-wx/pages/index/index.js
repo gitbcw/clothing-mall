@@ -7,7 +7,9 @@ const app = getApp();
 Page({
   data: {
     banner: [],
-    activities: [],
+    activity: null,  // 单个活动位
+    activityTopGoods: [],  // 活动位上排商品（2件）
+    activityBottomGoods: [],  // 活动位下排商品（3件）
     hotGoods: [],
     newGoods: [],
     flashSaleList: [],
@@ -63,15 +65,23 @@ Page({
   getIndexData() {
     util.request(api.IndexUrl).then(res => {
       if (res.errno === 0) {
-        const { banner = [], channel = [], newGoodsList = [], hotGoodsList = [], brandList = [], topicList = [], categoryList = [] } = res.data
+        const { banner = [], channel = [], newGoodsList = [], hotGoodsList = [], brandList = [], topicList = [], categoryList = [], homeActivity } = res.data
 
         // 根据分类筛选穿搭推荐和配饰
-        // 假设分类 ID: 上装=1, 下装=2, 连衣裙=3, 外套=4, 配饰=5
         const outfitList = hotGoodsList.filter(item => item.categoryId !== 5).slice(0, 4)
         const accessoryList = hotGoodsList.filter(item => item.categoryId === 5 || item.isAccessory).slice(0, 4)
 
+        // 活动位数据：从后台配置读取
+        const activity = homeActivity || null
+        const activityGoods = (homeActivity && homeActivity.goods) ? homeActivity.goods : []
+        const activityTopGoods = activityGoods.slice(0, 2)  // 上排2件
+        const activityBottomGoods = activityGoods.slice(2, 5)  // 下排3件
+
         this.setData({
           banner,
+          activity,
+          activityTopGoods,
+          activityBottomGoods,
           hotGoods: hotGoodsList.slice(0, 6),
           newGoods: newGoodsList,
           outfitList: outfitList.length > 0 ? outfitList : hotGoodsList.slice(0, 4),
@@ -113,5 +123,9 @@ Page({
   onGoodsTap(e) {
     const { id } = e.currentTarget.dataset
     wx.navigateTo({ url: `/pages/goods/goods?id=${id}` })
+  },
+
+  goSearch() {
+    wx.navigateTo({ url: '/pages/search/search' })
   }
 })

@@ -1,0 +1,34 @@
+<view class="goods-card {{mode === 'list' ? 'goods-card-list' : ''}}" bindtap="onGoodsTap" data-id="{{goods.id}}">
+  <!-- 商品图片 -->
+  <view class="goods-image-wrap">
+    <image
+      class="goods-image"
+      src="{{goods.picUrl || defaultImage}}"
+      mode="aspectFill"
+      lazy-load
+      binderror="onImageError"
+      bindload="onImageLoad"
+    />
+    <!-- 标签 -->
+    <view class="goods-tag" wx:if="{{goods.isNew}}">新品</view>
+    <view class="goods-tag hot" wx:elif="{{goods.isHot}}">热销</view>
+  </view>
+
+  <!-- 商品信息 -->
+  <view class="goods-info">
+    <view class="goods-name">{{goods.name}}</view>
+    <view class="goods-brief" wx:if="{{goods.brief}}">{{goods.brief}}</view>
+    <view class="goods-price-row">
+      <view class="goods-price">
+        <text class="price-symbol">¥</text>
+        <text class="price-value">{{goods.retailPrice}}</text>
+      </view>
+      <view class="goods-origin-price" wx:if="{{showOriginPrice && goods.counterPrice > goods.retailPrice}}">
+        ¥{{goods.counterPrice}}
+      </view>
+    </view>
+    <view class="goods-sales" wx:if="{{showSales && goods.sales}}">
+      已售 {{goods.sales}}
+    </view>
+  </view>
+</view>

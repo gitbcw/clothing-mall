@@ -1,77 +1,126 @@
-var util = require('../../utils/util.js');
-var api = require('../../config/api.js');
+const util = require('../../utils/util.js');
+const api = require('../../config/api.js');
 
 Page({
   data: {
     categoryList: [],
-    currentCategory: {},
-    currentSubCategoryList: {},
-    scrollLeft: 0,
-    scrollTop: 0,
-    goodsCount: 0,
-    scrollHeight: 0
+    currentCategoryId: null,
+    goodsList: [],
+    leftGoods: [],
+    rightGoods: [],
+    page: 1,
+    limit: 20,
+    loading: false,
+    hasMore: true,
+    refreshing: false,
+    goodsCount: 0
   },
-  onLoad: function(options) {
-    this.getCatalog();
-  },
-  onPullDownRefresh() {
-    wx.showNavigationBarLoading() //在标题栏中显示加载
-    this.getCatalog();
-    wx.hideNavigationBarLoading() //完成停止加载
-    wx.stopPullDownRefresh() //停止下拉刷新
-  },
-  getCatalog: function() {
-    //CatalogList
-    let that = this;
-    wx.showLoading({
-      title: '加载中...',
-    });
-    util.request(api.CatalogList).then(function(res) {
-      that.setData({
-        categoryList: res.data.categoryList,
-        currentCategory: res.data.currentCategory,
-        currentSubCategoryList: res.data.currentSubCategory
-      });
-      wx.hideLoading();
-    });
-    util.request(api.GoodsCount).then(function(res) {
-      that.setData({
-        goodsCount: res.data
-      });
-    });
 
+  onLoad(options) {
+    if (options.category) {
+      this.setData({ currentCategoryId: parseInt(options.category) })
+    }
+    this.loadCategories()
+    this.getGoodsCount()
   },
-  getCurrentCategory: function(id) {
-    let that = this;
-    util.request(api.CatalogCurrent, {
-        id: id
-      })
-      .then(function(res) {
-        that.setData({
-          currentCategory: res.data.currentCategory,
-          currentSubCategoryList: res.data.currentSubCategory
-        });
-      });
+
+  onPullDownRefresh() {
+    this.onRefresh()
   },
-  onReady: function() {
-    // 页面渲染完成
+
+  onRefresh() {
+    this.setData({ refreshing: true, page: 1, hasMore: true })
+    this.loadGoods().then(() => {
+      this.setData({ refreshing: false })
+      wx.stopPullDownRefresh()
+    })
   },
-  onShow: function() {
-    // 页面显示
+
+  loadCategories() {
+    util.request(api.CatalogList).then(res => {
+      if (res.errno === 0) {
+        const categoryList = [{ id: null, name: '全部' }, ...res.data.categoryList]
+        this.setData({ categoryList })
+        this.loadGoods()
+      }
+    })
   },
-  onHide: function() {
-    // 页面隐藏
+
+  getGoodsCount() {
+    util.request(api.GoodsCount).then(res => {
+      if (res.errno === 0) {
+        this.setData({ goodsCount: res.data })
+      }
+    })
   },
-  onUnload: function() {
-    // 页面关闭
+
+  switchCategory(e) {
+    const id = e.currentTarget.dataset.id
+    if (this.data.currentCategoryId === id) return
+
+    this.setData({
+      currentCategoryId: id,
+      goodsList: [],
+      leftGoods: [],
+      rightGoods: [],
+      page: 1,
+      hasMore: true
+    })
+    this.loadGoods()
   },
-  switchCate: function(event) {
-    var that = this;
-    var currentTarget = event.currentTarget;
-    if (this.data.currentCategory.id == event.currentTarget.dataset.id) {
-      return false;
+
+  loadGoods() {
+    if (this.data.loading) return Promise.resolve()
+
+    this.setData({ loading: true })
+
+    const params = {
+      page: this.data.page,
+      limit: this.data.limit
     }
 
-    this.getCurrentCategory(event.currentTarget.dataset.id);
+    if (this.data.currentCategoryId) {
+      params.categoryId = this.data.currentCategoryId
+    }
+
+    return util.request(api.GoodsList, params).then(res => {
+      if (res.errno === 0) {
+        const list = res.data.list || []
+        const newGoodsList = [...this.data.goodsList, ...list]
+
+        // 瀑布流分配
+        const { leftGoods, rightGoods } = this.distributeGoods(newGoodsList)
+
+        this.setData({
+          goodsList: newGoodsList,
+          leftGoods,
+          rightGoods,
+          hasMore: list.length >= this.data.limit,
+          page: this.data.page + 1
+        })
+      }
+    }).finally(() => {
+      this.setData({ loading: false })
+    })
+  },
+
+  distributeGoods(goodsList) {
+    const leftGoods = []
+    const rightGoods = []
+
+    goodsList.forEach((item, index) => {
+      if (index % 2 === 0) {
+        leftGoods.push(item)
+      } else {
+        rightGoods.push(item)
+      }
+    })
+
+    return { leftGoods, rightGoods }
+  },
+
+  loadMore() {
+    if (!this.data.hasMore || this.data.loading) return
+    this.loadGoods()
   }
 })

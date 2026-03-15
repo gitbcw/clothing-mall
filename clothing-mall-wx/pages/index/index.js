@@ -2,139 +2,116 @@ const util = require('../../utils/util.js');
 const api = require('../../config/api.js');
 const user = require('../../utils/user.js');
 
-//获取应用实例
 const app = getApp();
 
 Page({
   data: {
-    newGoods: [],
-    hotGoods: [],
-    topics: [],
-    brands: [],
-    floorGoods: [],
     banner: [],
-    channel: [],
-    coupon: [],
-    goodsCount: 0,
-    flashSaleList: []
+    activities: [],
+    hotGoods: [],
+    newGoods: [],
+    flashSaleList: [],
+    outfitList: [],
+    accessoryList: [],
+    goodsCount: 0
   },
 
-  onShareAppMessage: function() {
+  onShareAppMessage() {
     return {
-      title: 'litemall小程序商场',
-      desc: '开源微信小程序商城',
+      title: '川着 transmute - 发现你的专属穿搭',
+      desc: '精选服装，品质穿搭',
       path: '/pages/index/index'
     }
   },
 
   onPullDownRefresh() {
-    wx.showNavigationBarLoading() //在标题栏中显示加载
-    this.getIndexData();
-    wx.hideNavigationBarLoading() //完成停止加载
-    wx.stopPullDownRefresh() //停止下拉刷新
+    wx.showNavigationBarLoading()
+    this.loadData()
+    wx.hideNavigationBarLoading()
+    wx.stopPullDownRefresh()
   },
 
-  getIndexData: function() {
-    let that = this;
-    util.request(api.IndexUrl).then(function(res) {
-      if (res.errno === 0) {
-        that.setData({
-          newGoods: res.data.newGoodsList,
-          hotGoods: res.data.hotGoodsList,
-          topics: res.data.topicList,
-          brands: res.data.brandList,
-          floorGoods: res.data.floorGoodsList,
-          banner: res.data.banner,
-          channel: res.data.channel,
-          coupon: res.data.couponList
-        });
-      }
-    });
-    util.request(api.GoodsCount).then(function (res) {
-      that.setData({
-        goodsCount: res.data
-      });
-    });
-    // 获取限时特卖数据
-    this.getFlashSaleData();
-  },
-  getFlashSaleData: function() {
-    let that = this;
-    util.request(api.FlashSaleList, { page: 1, limit: 4 }).then(function(res) {
-      if (res.errno === 0) {
-        that.setData({
-          flashSaleList: res.data.list || []
-        });
-      }
-    });
-  },
-  onLoad: function(options) {
-
-    // 页面初始化 options为页面跳转所带来的参数
+  onLoad(options) {
+    // 场景值处理
     if (options.scene) {
-      //这个scene的值存在则证明首页的开启来源于朋友圈分享的图,同时可以通过获取到的goodId的值跳转导航到对应的详情页
-      var scene = decodeURIComponent(options.scene);
-      console.log("scene:" + scene);
-
-      let info_arr = [];
-      info_arr = scene.split(',');
-      let _type = info_arr[0];
-      let id = info_arr[1];
-
-      if (_type == 'goods') {
-        wx.navigateTo({
-          url: '../goods/goods?id=' + id
-        });
-      } else {
-        wx.navigateTo({
-          url: '../index/index'
-        });
+      const scene = decodeURIComponent(options.scene)
+      const [type, id] = scene.split(',')
+      if (type === 'goods' && id) {
+        wx.navigateTo({ url: `/pages/goods/goods?id=${id}` })
       }
     }
 
-    // 页面初始化 options为页面跳转所带来的参数
+    // 分享进入
     if (options.goodId) {
-      //这个goodId的值存在则证明首页的开启来源于分享,同时可以通过获取到的goodId的值跳转导航到对应的详情页
-      wx.navigateTo({
-        url: '../goods/goods?id=' + options.goodId
-      });
+      wx.navigateTo({ url: `/pages/goods/goods?id=${options.goodId}` })
     }
 
-    // 页面初始化 options为页面跳转所带来的参数
+    // 订单通知进入
     if (options.orderId) {
-      //这个orderId的值存在则证明首页的开启来源于订单模版通知,同时可以通过获取到的pageId的值跳转导航到对应的详情页
-      wx.navigateTo({
-        url: '../ucenter/orderDetail/orderDetail?id=' + options.orderId
-      });
+      wx.navigateTo({ url: `/pages/ucenter/orderDetail/orderDetail?id=${options.orderId}` })
     }
 
-    this.getIndexData();
+    this.loadData()
   },
-  onReady: function() {
-    // 页面渲染完成
+
+  loadData() {
+    this.getIndexData()
+    this.getFlashSaleData()
+    this.getGoodsCount()
   },
-  onShow: function() {
-    // 页面显示
-  },
-  onHide: function() {
-    // 页面隐藏
-  },
-  onUnload: function() {
-    // 页面关闭
-  },
-  getCoupon(e) {
-    let couponId = e.currentTarget.dataset.index
-    util.request(api.CouponReceive, {
-      couponId: couponId
-    }, 'POST').then(res => {
+
+  getIndexData() {
+    util.request(api.IndexUrl).then(res => {
       if (res.errno === 0) {
-        wx.showToast({
-          title: "领取成功"
+        const { banner = [], channel = [], newGoodsList = [], hotGoodsList = [], brandList = [], topicList = [], categoryList = [] } = res.data
+
+        // 根据分类筛选穿搭推荐和配饰
+        // 假设分类 ID: 上装=1, 下装=2, 连衣裙=3, 外套=4, 配饰=5
+        const outfitList = hotGoodsList.filter(item => item.categoryId !== 5).slice(0, 4)
+        const accessoryList = hotGoodsList.filter(item => item.categoryId === 5 || item.isAccessory).slice(0, 4)
+
+        this.setData({
+          banner,
+          hotGoods: hotGoodsList.slice(0, 6),
+          newGoods: newGoodsList,
+          outfitList: outfitList.length > 0 ? outfitList : hotGoodsList.slice(0, 4),
+          accessoryList: accessoryList.length > 0 ? accessoryList : []
         })
-      }
-      else{
-        util.showErrorToast(res.errmsg);
       }
     })
   },
+
+  getFlashSaleData() {
+    util.request(api.FlashSaleList, { page: 1, limit: 6 }).then(res => {
+      if (res.errno === 0) {
+        this.setData({
+          flashSaleList: res.data.list || []
+        })
+      }
+    })
+  },
+
+  getGoodsCount() {
+    util.request(api.GoodsCount).then(res => {
+      if (res.errno === 0) {
+        this.setData({ goodsCount: res.data })
+      }
+    })
+  },
+
+  getCoupon(e) {
+    const couponId = e.currentTarget.dataset.index
+    util.request(api.CouponReceive, { couponId }, 'POST').then(res => {
+      if (res.errno === 0) {
+        wx.showToast({ title: '领取成功', icon: 'success' })
+      } else {
+        util.showErrorToast(res.errmsg)
+      }
+    })
+  },
+
+  onGoodsTap(e) {
+    const { id } = e.currentTarget.dataset
+    wx.navigateTo({ url: `/pages/goods/goods?id=${id}` })
+  }
 })

@@ -24,4 +24,34 @@ public class StatService {
     public List<Map> statGoods() {
         return statMapper.statGoods();
     }
+
+    // ==================== 增长统计 ====================
+
+    /**
+     * 新增用户统计（按日）
+     */
+    public List<Map> statNewUsers(String startDate, String endDate) {
+        return statMapper.statNewUsers(startDate, endDate);
+    }
+
+    /**
+     * 日活用户统计（按日）
+     */
+    public List<Map> statDailyActiveUsers(String startDate, String endDate) {
+        return statMapper.statDailyActiveUsers(startDate, endDate);
+    }
+
+    /**
+     * 留存用户统计
+     */
+    public List<Map> statRetentionUsers(String cohortDate, int dayOffset) {
+        return statMapper.statRetentionUsers(cohortDate, dayOffset);
+    }
+
+    /**
+     * 累计用户数
+     */
+    public Map statTotalUsers() {
+        return statMapper.statTotalUsers();
+    }
 }

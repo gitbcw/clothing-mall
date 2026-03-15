@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -60,6 +61,38 @@ public class AdminStatController {
         statVo.setColumns(columns);
         statVo.setRows(rows);
         return ResponseUtil.ok(statVo);
+    }
+
+    // ==================== 增长统计 API ====================
+
+    @RequiresPermissions("admin:stat:growth")
+    @RequiresPermissionsDesc(menu = {"统计管理", "增长统计"}, button = "查询")
+    @GetMapping("/growth")
+    public Object statGrowth(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        // 新增用户
+        List<Map> newUsers = statService.statNewUsers(startDate, endDate);
+        // 日活用户
+        List<Map> dau = statService.statDailyActiveUsers(startDate, endDate);
+        // 累计用户
+        Map totalUsers = statService.statTotalUsers();
+
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        result.put("newUsers", newUsers);
+        result.put("dau", dau);
+        result.put("totalUsers", totalUsers != null ? totalUsers.get("totalUsers") : 0);
+        return ResponseUtil.ok(result);
+    }
+
+    @RequiresPermissions("admin:stat:growth")
+    @RequiresPermissionsDesc(menu = {"统计管理", "增长统计"}, button = "留存查询")
+    @GetMapping("/retention")
+    public Object statRetention(
+            @RequestParam String cohortDate,
+            @RequestParam(defaultValue = "1") int dayOffset) {
+        List<Map> retention = statService.statRetentionUsers(cohortDate, dayOffset);
+        return ResponseUtil.ok(retention);
     }
 
 }

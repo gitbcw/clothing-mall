@@ -1,259 +1,447 @@
 <template>
   <div class="dashboard-editor-container">
-    <el-row :gutter="40" class="panel-group">
-      <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-        <div class="card-panel">
-          <div class="card-panel-icon-wrapper icon-money">
-            <svg-icon icon-class="money" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">营业收入</div>
-            <count-to
-              :start-val="0"
-              :end-val="revenue"
-              :duration="2600"
-              class="card-panel-num"
-              prefix="¥ "
-            />
-          </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-        <div class="card-panel">
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="shopping" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">订单量</div>
-            <count-to
-              :start-val="0"
-              :end-val="orders"
-              :duration="3000"
-              class="card-panel-num"
-              suffix=" 单"
-            />
-          </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-        <div class="card-panel">
-          <div class="card-panel-icon-wrapper icon-people">
-            <svg-icon icon-class="peoples" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">日活用户</div>
-            <count-to
-              :start-val="0"
-              :end-val="dau"
-              :duration="3200"
-              class="card-panel-num"
-              suffix=" 人"
-            />
-          </div>
-        </div>
-      </el-col>
-    </el-row>
+    <!-- 视图切换 Tab -->
+    <el-tabs v-model="activeView" class="view-tabs" @tab-click="handleTabChange">
+      <el-tab-pane label="增长视图" name="growth" />
+      <el-tab-pane label="销售视图" name="sales" />
+    </el-tabs>
 
-    <el-row :gutter="20">
-      <el-col :xs="24" :sm="24" :lg="12" style="margin-bottom: 20px">
-        <el-card class="box-card">
-          <div slot="header" class="clearfix">
-            <span>商品销售 Top</span>
-          </div>
-          <div class="rank-list">
-            <div
-              v-for="(item, index) in salesTop"
-              :key="index"
-              class="rank-item"
-            >
-              <div class="rank-index" :class="'rank-' + (index + 1)">
-                {{ index + 1 }}
-              </div>
-              <div class="rank-info">
-                <img :src="item.picUrl" class="rank-img">
-                <div class="rank-text">
-                  <div class="rank-name">{{ item.name }}</div>
-                  <el-progress
-                    :percentage="item.percentage"
-                    :show-text="false"
-                    :stroke-width="6"
-                    color="#409EFF"
-                  />
-                </div>
-              </div>
-              <div class="rank-value">{{ item.value }}</div>
+    <!-- 增长视图 -->
+    <div v-show="activeView === 'growth'" class="growth-view">
+      <!-- 核心指标卡片 -->
+      <el-row :gutter="20" class="panel-group">
+        <el-col :xs="12" :sm="6" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-people">
+              <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">累计用户</div>
+              <count-to
+                :start-val="0"
+                :end-val="growthData.totalUsers"
+                :duration="2600"
+                class="card-panel-num"
+                suffix=" 人"
+              />
             </div>
           </div>
-        </el-card>
-      </el-col>
-
-      <el-col :xs="24" :sm="24" :lg="12" style="margin-bottom: 20px">
-        <el-card class="box-card">
-          <div slot="header" class="clearfix">
-            <span>商品复购 Top</span>
-          </div>
-          <div class="rank-list">
-            <div
-              v-for="(item, index) in repurchaseTop"
-              :key="index"
-              class="rank-item"
-            >
-              <div class="rank-index" :class="'rank-' + (index + 1)">
-                {{ index + 1 }}
-              </div>
-              <div class="rank-info">
-                <img :src="item.picUrl" class="rank-img">
-                <div class="rank-text">
-                  <div class="rank-name">{{ item.name }}</div>
-                  <el-progress
-                    :percentage="item.percentage"
-                    :show-text="false"
-                    :stroke-width="6"
-                    color="#67C23A"
-                  />
-                </div>
-              </div>
-              <div class="rank-value">{{ item.value }}</div>
+        </el-col>
+        <el-col :xs="12" :sm="6" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-new">
+              <svg-icon icon-class="user" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">今日新增</div>
+              <count-to
+                :start-val="0"
+                :end-val="growthData.todayNewUsers"
+                :duration="2800"
+                class="card-panel-num"
+                suffix=" 人"
+              />
             </div>
           </div>
-        </el-card>
-      </el-col>
-    </el-row>
-
-    <el-row :gutter="20">
-      <el-col :xs="24" :sm="24" :lg="12" style="margin-bottom: 20px">
-        <el-card class="box-card">
-          <div slot="header" class="clearfix">
-            <span>海报点击 Top</span>
-          </div>
-          <div class="rank-list">
-            <div
-              v-for="(item, index) in posterClickTop"
-              :key="index"
-              class="rank-item"
-            >
-              <div class="rank-index" :class="'rank-' + (index + 1)">
-                {{ index + 1 }}
-              </div>
-              <div class="rank-info">
-                <div class="rank-poster-wrapper">
-                  <div class="rank-poster" :style="{ backgroundColor: item.color }">{{ item.abbr }}</div>
-                </div>
-                <div class="rank-text">
-                  <div class="rank-name">{{ item.name }}</div>
-                  <el-progress
-                    :percentage="item.percentage"
-                    :show-text="false"
-                    :stroke-width="6"
-                    color="#E6A23C"
-                  />
-                </div>
-              </div>
-              <div class="rank-value">{{ item.value }}</div>
+        </el-col>
+        <el-col :xs="12" :sm="6" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-active">
+              <svg-icon icon-class="star" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">今日日活</div>
+              <count-to
+                :start-val="0"
+                :end-val="growthData.todayDau"
+                :duration="3000"
+                class="card-panel-num"
+                suffix=" 人"
+              />
             </div>
           </div>
-        </el-card>
-      </el-col>
-
-      <el-col :xs="24" :sm="24" :lg="12" style="margin-bottom: 20px">
-        <el-card class="box-card">
-          <div slot="header" class="clearfix">
-            <span>商品售后 Top</span>
-          </div>
-          <div class="rank-list">
-            <div
-              v-for="(item, index) in afterSalesTop"
-              :key="index"
-              class="rank-item"
-            >
-              <div class="rank-index" :class="'rank-' + (index + 1)">
-                {{ index + 1 }}
-              </div>
-              <div class="rank-info">
-                <img :src="item.picUrl" class="rank-img">
-                <div class="rank-text">
-                  <div class="rank-name">{{ item.name }}</div>
-                  <el-progress
-                    :percentage="item.percentage"
-                    :show-text="false"
-                    :stroke-width="6"
-                    color="#F56C6C"
-                  />
-                </div>
-              </div>
-              <div class="rank-value">{{ item.value }}</div>
+        </el-col>
+        <el-col :xs="12" :sm="6" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-rate">
+              <svg-icon icon-class="chart" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">活跃率</div>
+              <count-to
+                :start-val="0"
+                :end-val="growthData.activeRate"
+                :duration="3200"
+                class="card-panel-num"
+                suffix=" %"
+              />
             </div>
           </div>
-        </el-card>
-      </el-col>
-    </el-row>
+        </el-col>
+      </el-row>
+
+      <!-- 增长趋势图表 -->
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-card class="box-card">
+            <div slot="header">新增用户趋势（近7天）</div>
+            <ve-line :data="newUsersChartData" :settings="chartSettings.newUsers" :extend="chartExtend" />
+          </el-card>
+        </el-col>
+        <el-col :span="12">
+          <el-card class="box-card">
+            <div slot="header">日活用户趋势（近7天）</div>
+            <ve-line :data="dauChartData" :settings="chartSettings.dau" :extend="chartExtend" />
+          </el-card>
+        </el-col>
+      </el-row>
+    </div>
+
+    <!-- 销售视图 -->
+    <div v-show="activeView === 'sales'" class="sales-view">
+      <!-- 核心指标卡片 -->
+      <el-row :gutter="20" class="panel-group">
+        <el-col :xs="12" :sm="8" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-money">
+              <svg-icon icon-class="money" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">营业收入</div>
+              <count-to
+                :start-val="0"
+                :end-val="salesData.revenue"
+                :duration="2600"
+                class="card-panel-num"
+                prefix="¥ "
+              />
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="12" :sm="8" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <svg-icon icon-class="shopping" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">订单量</div>
+              <count-to
+                :start-val="0"
+                :end-val="salesData.orders"
+                :duration="3000"
+                class="card-panel-num"
+                suffix=" 单"
+              />
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="12" :sm="8" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-price">
+              <svg-icon icon-class="skill" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">客单价</div>
+              <count-to
+                :start-val="0"
+                :end-val="salesData.avgPrice"
+                :duration="3200"
+                class="card-panel-num"
+                prefix="¥ "
+              />
+            </div>
+          </div>
+        </el-col>
+      </el-row>
+
+      <!-- 销售榜单 -->
+      <el-row :gutter="20">
+        <el-col :xs="24" :sm="24" :lg="12" style="margin-bottom: 20px">
+          <el-card class="box-card">
+            <div slot="header" class="clearfix">
+              <span>商品销售 Top</span>
+            </div>
+            <div class="rank-list">
+              <div
+                v-for="(item, index) in salesData.salesTop"
+                :key="index"
+                class="rank-item"
+              >
+                <div class="rank-index" :class="'rank-' + (index + 1)">
+                  {{ index + 1 }}
+                </div>
+                <div class="rank-info">
+                  <img :src="item.picUrl" class="rank-img">
+                  <div class="rank-text">
+                    <div class="rank-name">{{ item.name }}</div>
+                    <el-progress
+                      :percentage="item.percentage"
+                      :show-text="false"
+                      :stroke-width="6"
+                      color="#409EFF"
+                    />
+                  </div>
+                </div>
+                <div class="rank-value">{{ item.value }}</div>
+              </div>
+            </div>
+          </el-card>
+        </el-col>
+
+        <el-col :xs="24" :sm="24" :lg="12" style="margin-bottom: 20px">
+          <el-card class="box-card">
+            <div slot="header" class="clearfix">
+              <span>商品复购 Top</span>
+            </div>
+            <div class="rank-list">
+              <div
+                v-for="(item, index) in salesData.repurchaseTop"
+                :key="index"
+                class="rank-item"
+              >
+                <div class="rank-index" :class="'rank-' + (index + 1)">
+                  {{ index + 1 }}
+                </div>
+                <div class="rank-info">
+                  <img :src="item.picUrl" class="rank-img">
+                  <div class="rank-text">
+                    <div class="rank-name">{{ item.name }}</div>
+                    <el-progress
+                      :percentage="item.percentage"
+                      :show-text="false"
+                      :stroke-width="6"
+                      color="#67C23A"
+                    />
+                  </div>
+                </div>
+                <div class="rank-value">{{ item.value }}</div>
+              </div>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20">
+        <el-col :xs="24" :sm="24" :lg="12" style="margin-bottom: 20px">
+          <el-card class="box-card">
+            <div slot="header" class="clearfix">
+              <span>海报点击 Top</span>
+            </div>
+            <div class="rank-list">
+              <div
+                v-for="(item, index) in salesData.posterClickTop"
+                :key="index"
+                class="rank-item"
+              >
+                <div class="rank-index" :class="'rank-' + (index + 1)">
+                  {{ index + 1 }}
+                </div>
+                <div class="rank-info">
+                  <div class="rank-poster-wrapper">
+                    <div class="rank-poster" :style="{ backgroundColor: item.color }">{{ item.abbr }}</div>
+                  </div>
+                  <div class="rank-text">
+                    <div class="rank-name">{{ item.name }}</div>
+                    <el-progress
+                      :percentage="item.percentage"
+                      :show-text="false"
+                      :stroke-width="6"
+                      color="#E6A23C"
+                    />
+                  </div>
+                </div>
+                <div class="rank-value">{{ item.value }}</div>
+              </div>
+            </div>
+          </el-card>
+        </el-col>
+
+        <el-col :xs="24" :sm="24" :lg="12" style="margin-bottom: 20px">
+          <el-card class="box-card">
+            <div slot="header" class="clearfix">
+              <span>商品售后 Top</span>
+            </div>
+            <div class="rank-list">
+              <div
+                v-for="(item, index) in salesData.afterSalesTop"
+                :key="index"
+                class="rank-item"
+              >
+                <div class="rank-index" :class="'rank-' + (index + 1)">
+                  {{ index + 1 }}
+                </div>
+                <div class="rank-info">
+                  <img :src="item.picUrl" class="rank-img">
+                  <div class="rank-text">
+                    <div class="rank-name">{{ item.name }}</div>
+                    <el-progress
+                      :percentage="item.percentage"
+                      :show-text="false"
+                      :stroke-width="6"
+                      color="#F56C6C"
+                    />
+                  </div>
+                </div>
+                <div class="rank-value">{{ item.value }}</div>
+              </div>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 
 <script>
 import CountTo from 'vue-count-to'
-// 川着transmute 商品图片使用 /images/goods/ 目录下的图片
+import VeLine from 'v-charts/lib/line'
+import { statGrowth } from '@/api/stat'
 
 export default {
   components: {
-    CountTo
+    CountTo,
+    VeLine
   },
   data() {
     return {
-      revenue: 0,
-      orders: 0,
-      dau: 0,
-      salesTop: [],
-      repurchaseTop: [],
-      posterClickTop: [],
-      afterSalesTop: []
+      activeView: 'growth',
+      // 增长视图数据
+      growthData: {
+        totalUsers: 0,
+        todayNewUsers: 0,
+        todayDau: 0,
+        activeRate: 0
+      },
+      // 图表数据
+      newUsersChartData: { columns: ['day', 'newUsers'], rows: [] },
+      dauChartData: { columns: ['day', 'dau'], rows: [] },
+      chartSettings: {
+        newUsers: { labelMap: { newUsers: '新增用户' }},
+        dau: { labelMap: { dau: '日活用户' }}
+      },
+      chartExtend: {
+        xAxis: { boundaryGap: false },
+        series: {
+          smooth: true,
+          areaStyle: { opacity: 0.3 }
+        }
+      },
+      // 销售视图数据
+      salesData: {
+        revenue: 0,
+        orders: 0,
+        avgPrice: 0,
+        salesTop: [],
+        repurchaseTop: [],
+        posterClickTop: [],
+        afterSalesTop: []
+      }
     }
   },
   created() {
-    this.fetchData()
+    this.fetchGrowthData()
+    this.fetchSalesData()
   },
   methods: {
-    fetchData() {
-      // Fake data simulation
-      this.revenue = 1258000
-      this.orders = 5400
-      this.dau = 1205
+    handleTabChange(tab) {
+      // Tab 切换时可以刷新数据
+    },
+    fetchGrowthData() {
+      // 获取近7天数据
+      const end = new Date()
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 6)
+      const formatDate = (date) => {
+        const y = date.getFullYear()
+        const m = String(date.getMonth() + 1).padStart(2, '0')
+        const d = String(date.getDate()).padStart(2, '0')
+        return `${y}-${m}-${d}`
+      }
 
-      // 商品销售榜 - 川着transmute 春日系列
-      this.salesTop = [
-        { name: '春日优雅连衣裙', value: 856, percentage: 95, picUrl: '/images/goods/dress.png' },
-        { name: '法式雪纺衬衫', value: 623, percentage: 72, picUrl: '/images/goods/shirt.png' },
-        { name: '温柔针织开衫', value: 518, percentage: 60, picUrl: '/images/goods/knit.png' },
-        { name: '干练西装外套', value: 445, percentage: 52, picUrl: '/images/goods/suit.png' },
-        { name: '经典风衣外套', value: 389, percentage: 45, picUrl: '/images/goods/coat.png' }
-      ]
+      statGrowth({
+        startDate: formatDate(start),
+        endDate: formatDate(end)
+      }).then(response => {
+        const data = response.data.data
+        this.growthData.totalUsers = data.totalUsers || 0
+        this.newUsersChartData.rows = data.newUsers || []
+        this.dauChartData.rows = data.dau || []
 
-      // 商品复购榜 - 川着transmute 春日系列
-      this.repurchaseTop = [
-        { name: '春日优雅连衣裙', value: '68%', percentage: 68, picUrl: '/images/goods/dress.png' },
-        { name: '法式雪纺衬衫', value: '52%', percentage: 52, picUrl: '/images/goods/shirt.png' },
-        { name: '温柔针织开衫', value: '45%', percentage: 45, picUrl: '/images/goods/knit.png' },
-        { name: 'A字半身裙', value: '38%', percentage: 38, picUrl: '/images/goods/skirt.png' },
-        { name: '高腰阔腿裤', value: '32%', percentage: 32, picUrl: '/images/goods/pants.png' }
-      ]
+        // 计算今日数据
+        const today = formatDate(new Date())
+        const todayNew = (data.newUsers || []).find(item => item.day === today)
+        const todayDauData = (data.dau || []).find(item => item.day === today)
+        this.growthData.todayNewUsers = todayNew ? Number(todayNew.newUsers) : 0
+        this.growthData.todayDau = todayDauData ? Number(todayDauData.dau) : 0
 
-      // 海报点击榜 - 川着transmute 春日系列
-      this.posterClickTop = [
-        { name: '川着transmute 春日系列', value: 2345, percentage: 95, color: '#f8b4c4', abbr: '春' },
-        { name: '职场穿搭精选', value: 1876, percentage: 76, color: '#7c9885', abbr: '职' },
-        { name: '温柔针织系列', value: 1523, percentage: 62, color: '#b8a99a', abbr: '针' },
-        { name: '经典风衣专场', value: 1234, percentage: 50, color: '#c4a77d', abbr: '风' },
-        { name: '基础款穿搭', value: 987, percentage: 40, color: '#9b8e8e', abbr: '基' }
-      ]
-
-      // 售后商品榜 - 川着transmute 春日系列
-      this.afterSalesTop = [
-        { name: '法式雪纺衬衫', value: 23, percentage: 45, picUrl: '/images/goods/shirt.png' },
-        { name: 'A字半身裙', value: 18, percentage: 35, picUrl: '/images/goods/skirt.png' },
-        { name: '高腰阔腿裤', value: 15, percentage: 30, picUrl: '/images/goods/pants.png' },
-        { name: '温柔针织开衫', value: 12, percentage: 24, picUrl: '/images/goods/knit.png' },
-        { name: '春日优雅连衣裙', value: 8, percentage: 16, picUrl: '/images/goods/dress.png' }
-      ]
+        // 活跃率
+        if (this.growthData.totalUsers > 0) {
+          this.growthData.activeRate = Math.round((this.growthData.todayDau / this.growthData.totalUsers) * 100)
+        }
+      }).catch(() => {
+        // API 未就绪时使用模拟数据
+        this.growthData = {
+          totalUsers: 3580,
+          todayNewUsers: 42,
+          todayDau: 215,
+          activeRate: 6
+        }
+        this.newUsersChartData.rows = [
+          { day: '03-08', newUsers: 35 },
+          { day: '03-09', newUsers: 48 },
+          { day: '03-10', newUsers: 56 },
+          { day: '03-11', newUsers: 38 },
+          { day: '03-12', newUsers: 62 },
+          { day: '03-13', newUsers: 51 },
+          { day: '03-14', newUsers: 42 }
+        ]
+        this.dauChartData.rows = [
+          { day: '03-08', dau: 180 },
+          { day: '03-09', dau: 195 },
+          { day: '03-10', dau: 220 },
+          { day: '03-11', dau: 185 },
+          { day: '03-12', dau: 240 },
+          { day: '03-13', dau: 210 },
+          { day: '03-14', dau: 215 }
+        ]
+      })
+    },
+    fetchSalesData() {
+      // TODO: 对接真实销售统计 API
+      // 目前使用模拟数据
+      this.salesData = {
+        revenue: 1258000,
+        orders: 5400,
+        avgPrice: 233,
+        salesTop: [
+          { name: '春日优雅连衣裙', value: 856, percentage: 95, picUrl: '/images/goods/dress.png' },
+          { name: '法式雪纺衬衫', value: 623, percentage: 72, picUrl: '/images/goods/shirt.png' },
+          { name: '温柔针织开衫', value: 518, percentage: 60, picUrl: '/images/goods/knit.png' },
+          { name: '干练西装外套', value: 445, percentage: 52, picUrl: '/images/goods/suit.png' },
+          { name: '经典风衣外套', value: 389, percentage: 45, picUrl: '/images/goods/coat.png' }
+        ],
+        repurchaseTop: [
+          { name: '春日优雅连衣裙', value: '68%', percentage: 68, picUrl: '/images/goods/dress.png' },
+          { name: '法式雪纺衬衫', value: '52%', percentage: 52, picUrl: '/images/goods/shirt.png' },
+          { name: '温柔针织开衫', value: '45%', percentage: 45, picUrl: '/images/goods/knit.png' },
+          { name: 'A字半身裙', value: '38%', percentage: 38, picUrl: '/images/goods/skirt.png' },
+          { name: '高腰阔腿裤', value: '32%', percentage: 32, picUrl: '/images/goods/pants.png' }
+        ],
+        posterClickTop: [
+          { name: '川着transmute 春日系列', value: 2345, percentage: 95, color: '#f8b4c4', abbr: '春' },
+          { name: '职场穿搭精选', value: 1876, percentage: 76, color: '#7c9885', abbr: '职' },
+          { name: '温柔针织系列', value: 1523, percentage: 62, color: '#b8a99a', abbr: '针' },
+          { name: '经典风衣专场', value: 1234, percentage: 50, color: '#c4a77d', abbr: '风' },
+          { name: '基础款穿搭', value: 987, percentage: 40, color: '#9b8e8e', abbr: '基' }
+        ],
+        afterSalesTop: [
+          { name: '法式雪纺衬衫', value: 23, percentage: 45, picUrl: '/images/goods/shirt.png' },
+          { name: 'A字半身裙', value: 18, percentage: 35, picUrl: '/images/goods/skirt.png' },
+          { name: '高腰阔腿裤', value: 15, percentage: 30, picUrl: '/images/goods/pants.png' },
+          { name: '温柔针织开衫', value: 12, percentage: 24, picUrl: '/images/goods/knit.png' },
+          { name: '春日优雅连衣裙', value: 8, percentage: 16, picUrl: '/images/goods/dress.png' }
+        ]
+      }
     }
   }
 }
@@ -263,18 +451,21 @@ export default {
 .dashboard-editor-container {
   padding: 32px;
   background-color: rgb(240, 242, 245);
-  .chart-wrapper {
-    background: #fff;
-    padding: 16px 16px 0;
-    margin-bottom: 32px;
-  }
+}
+
+.view-tabs {
+  margin-bottom: 20px;
+  background: #fff;
+  padding: 10px 20px 0;
+  border-radius: 4px;
 }
 
 .panel-group {
-  margin-top: 18px;
+  margin-top: 0;
+  margin-bottom: 20px;
 
   .card-panel-col {
-    margin-bottom: 32px;
+    margin-bottom: 20px;
   }
   .card-panel {
     height: 108px;
@@ -290,25 +481,21 @@ export default {
       .card-panel-icon-wrapper {
         color: #fff;
       }
-      .icon-people {
-        background: #40c9c6;
-      }
-      .icon-money {
-        background: #f4516c;
-      }
-      .icon-shopping {
-        background: #34bfa3;
-      }
+      .icon-people { background: #40c9c6; }
+      .icon-new { background: #36a3f7; }
+      .icon-active { background: #f4516c; }
+      .icon-rate { background: #34bfa3; }
+      .icon-money { background: #f4516c; }
+      .icon-shopping { background: #34bfa3; }
+      .icon-price { background: #409eff; }
     }
-    .icon-people {
-      color: #40c9c6;
-    }
-    .icon-money {
-      color: #f4516c;
-    }
-    .icon-shopping {
-      color: #34bfa3;
-    }
+    .icon-people { color: #40c9c6; }
+    .icon-new { color: #36a3f7; }
+    .icon-active { color: #f4516c; }
+    .icon-rate { color: #34bfa3; }
+    .icon-money { color: #f4516c; }
+    .icon-shopping { color: #34bfa3; }
+    .icon-price { color: #409eff; }
     .card-panel-icon-wrapper {
       float: left;
       margin: 14px 0 0 14px;
@@ -361,26 +548,11 @@ export default {
       font-size: 12px;
       flex-shrink: 0;
 
-      &.rank-1 {
-        background-color: #f56c6c;
-        color: #fff;
-      }
-      &.rank-2 {
-        background-color: #e6a23c;
-        color: #fff;
-      }
-      &.rank-3 {
-        background-color: #409eff;
-        color: #fff;
-      }
-      &.rank-4 {
-        background-color: #36a3f7;
-        color: #fff;
-      }
-      &.rank-5 {
-        background-color: #34bfa3;
-        color: #fff;
-      }
+      &.rank-1 { background-color: #f56c6c; color: #fff; }
+      &.rank-2 { background-color: #e6a23c; color: #fff; }
+      &.rank-3 { background-color: #409eff; color: #fff; }
+      &.rank-4 { background-color: #36a3f7; color: #fff; }
+      &.rank-5 { background-color: #34bfa3; color: #fff; }
     }
 
     .rank-info {
@@ -400,20 +572,20 @@ export default {
       }
 
       .rank-poster-wrapper {
-         margin-right: 10px;
-         flex-shrink: 0;
+        margin-right: 10px;
+        flex-shrink: 0;
       }
 
       .rank-poster {
-         width: 40px;
-         height: 40px;
-         border-radius: 4px;
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         color: #fff;
-         font-weight: bold;
-         font-size: 16px;
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: bold;
+        font-size: 16px;
       }
 
       .rank-text {

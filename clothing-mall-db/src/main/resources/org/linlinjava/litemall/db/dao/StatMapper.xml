@@ -28,4 +28,62 @@
         from litemall_order_goods
         group by substr(add_time,1, 10)
     </select>
+
+    <!-- 增长统计：新增用户（按日统计） -->
+    <select id="statNewUsers" resultType="map">
+        select
+        substr(add_time,1,10) as day,
+        count(*) as newUsers
+        from litemall_user
+        where deleted = 0
+        <if test="startDate != null and startDate != ''">
+            and substr(add_time,1,10) &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            and substr(add_time,1,10) &lt;= #{endDate}
+        </if>
+        group by substr(add_time,1,10)
+        order by day
+    </select>
+
+    <!-- 增长统计：日活用户（基于登录时间） -->
+    <select id="statDailyActiveUsers" resultType="map">
+        select
+        substr(last_login_time,1,10) as day,
+        count(distinct id) as dau
+        from litemall_user
+        where deleted = 0
+        and last_login_time is not null
+        <if test="startDate != null and startDate != ''">
+            and substr(last_login_time,1,10) &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            and substr(last_login_time,1,10) &lt;= #{endDate}
+        </if>
+        group by substr(last_login_time,1,10)
+        order by day
+    </select>
+
+    <!-- 增长统计：留存用户 -->
+    <select id="statRetentionUsers" resultType="map">
+        select
+        substr(u.add_time,1,10) as cohortDay,
+        count(distinct u.id) as retainedUsers
+        from litemall_user u
+        where u.deleted = 0
+        and substr(u.add_time,1,10) = #{cohortDate}
+        and exists (
+            select 1 from litemall_user u2
+            where u2.id = u.id
+            and substr(u2.last_login_time,1,10) = date_add(#{cohortDate}, interval #{dayOffset} day)
+        )
+    </select>
+
+    <!-- 增长统计：累计用户数 -->
+    <select id="statTotalUsers" resultType="map">
+        select
+        count(*) as totalUsers
+        from litemall_user
+        where deleted = 0
+    </select>
 </mapper>

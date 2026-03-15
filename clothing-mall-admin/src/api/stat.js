@@ -23,3 +23,21 @@ export function statGoods(query) {
     params: query
   })
 }
+
+// 增长统计
+export function statGrowth(query) {
+  return request({
+    url: '/stat/growth',
+    method: 'get',
+    params: query
+  })
+}
+
+// 留存统计
+export function statRetention(query) {
+  return request({
+    url: '/stat/retention',
+    method: 'get',
+    params: query
+  })
+}

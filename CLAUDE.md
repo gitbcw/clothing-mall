@@ -140,10 +140,12 @@ cd docker && docker compose up mysql -d
 ## 当前状态
 - 当前阶段：功能开发
 - 最近在动的模块：clothing-mall-wx（小程序）、clothing-mall-admin（管理后台）
-- 当前核心任务：品牌更名收尾（有未提交的修改待处理）
+- 当前核心任务：埋点数据统计展示（管理后台页面）
+- 已完成功能：
+  - ✓ 品牌更名（joypick/欢乐小玩家 → 川着Transmute）
+  - ✓ 埋点全链路（前端 tracker.js + 页面集成 + 后端 API + 数据库）
 - 下一步计划：
-  - 小程序方向：埋点集成（页面引用 tracker）→ 后端上报 API → 数据统计展示
-  - 后台管理方向：用户体验优化（待确认具体需求）
+  - 管理后台：埋点数据统计展示页面
 
 ## 已知技术债与注意事项
 - **前端页面待对接后端**：`clothing-mall-admin/src/views/promotion/activity.vue` 和 `outfit.vue` 已创建，但后端 API 尚未实现
@@ -153,4 +155,4 @@ cd docker && docker compose up mysql -d
 - **字体依赖**：`QCodeService.java:164` 生成的二维码依赖服务器安装的字体，部署时需确认
 - **品牌模块已删除**：小程序 `pages/brand/` 和 `pages/brandDetail/` 已删除，app.json 路由已同步移除 ✓
 - **CI/CD 配置**：GitHub Actions 跳过了 vue lint，改为构建检查（见 commit 6faaefc）
-- **埋点功能未完成**：`utils/tracker.js` 工具已实现，但尚未集成到任何页面，后端上报 API 也未实现
+- **部署注意事项**：上传 JAR 包后必须重建 Docker 镜像（`docker compose build app`），否则新代码不会生效

@@ -190,3 +190,6 @@
   bind:buynow="skuBuyNow"
   bind:imagechange="onSkuImageChange"
 />
+
+<!-- 悬浮购物车 -->
+<floating-cart />

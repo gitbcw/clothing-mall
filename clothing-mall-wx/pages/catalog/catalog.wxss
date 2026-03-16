@@ -114,6 +114,7 @@ page {
 }
 
 .goods-item {
+  position: relative;
   width: calc(50% - 8rpx);
   margin-bottom: 16rpx;
   background: #fff;
@@ -197,4 +198,26 @@ page {
 .empty-text {
   font-size: 28rpx;
   color: #999;
+}
+
+/* 快速加购按钮 - 分类页：白色背景 + 红色图标 */
+.quick-cart-btn {
+  position: absolute;
+  right: 12rpx;
+  bottom: 12rpx;
+  width: 48rpx;
+  height: 48rpx;
+  background: #fff;
+  border: 2rpx solid #f44;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4rpx 12rpx rgba(244, 68, 68, 0.15);
+  z-index: 10;
+}
+
+.quick-cart-btn:active {
+  transform: scale(0.9);
+  opacity: 0.8;
 }

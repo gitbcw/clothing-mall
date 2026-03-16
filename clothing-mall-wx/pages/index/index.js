@@ -131,6 +131,33 @@ Page({
     wx.navigateTo({ url: `/pages/goods/goods?id=${id}` })
   },
 
+  // 快速加购
+  quickAddCart(e) {
+    const goodsId = e.currentTarget.dataset.id
+    const that = this
+    util.request(api.CartAdd, {
+      goodsId: goodsId,
+      number: 1,
+      productId: 0
+    }, 'POST').then(function(res) {
+      if (res.errno === 0) {
+        wx.showToast({ title: '已加入购物车', icon: 'success' })
+        // 加购埋点
+        const goods = that.data.hotGoods.find(g => g.id === goodsId) ||
+                      that.data.activityTopGoods.find(g => g.id === goodsId) ||
+                      that.data.activityBottomGoods.find(g => g.id === goodsId) ||
+                      that.data.outfitList.find(g => g.id === goodsId)
+        if (goods) {
+          tracker.trackAddCart(goods.id, goods.name, goods.retailPrice, 1)
+        }
+      } else {
+        wx.showToast({ title: res.errmsg || '加购失败', icon: 'none' })
+      }
+    }).catch(function() {
+      wx.showToast({ title: '网络错误', icon: 'none' })
+    })
+  },
+
   goSearch() {
     wx.navigateTo({ url: '/pages/search/search' })
   }

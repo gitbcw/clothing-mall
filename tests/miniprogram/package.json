@@ -9,6 +9,8 @@
     "test:goods": "jest test_goods.spec.js --runInBand",
     "test:cart": "jest test_cart.spec.js --runInBand",
     "test:user": "jest test_user.spec.js --runInBand",
+    "test:floating-cart": "jest test_floating_cart.spec.js --runInBand",
+    "test:order": "jest test_order.spec.js --runInBand",
     "test:verbose": "jest --verbose --runInBand"
   },
   "devDependencies": {

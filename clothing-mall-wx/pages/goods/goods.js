@@ -126,13 +126,20 @@ Page({
     util.request(api.GoodsDetail, {
       id: that.data.id
     }).then(function(res) {
-      if (res.errno === 0) {
+      if (res.errno === 0 && res.data && res.data.info) {
+        // 数据校验：gallery 为空时使用主图作为备选
+        let info = res.data.info;
+        if (!info.gallery || info.gallery.length === 0) {
+          info.gallery = [info.picUrl];
+        }
 
-        let _specificationList = res.data.specificationList;
-        let _tmpPicUrl = res.data.productList[0].url;
+        let _specificationList = res.data.specificationList || [];
+        let _tmpPicUrl = res.data.productList && res.data.productList[0]
+          ? res.data.productList[0].url
+          : info.picUrl;
         //console.log("pic: "+_tmpPicUrl);
         // 如果仅仅存在一种货品，那么商品页面初始化时默认checked
-        if (_specificationList.length == 1) {
+        if (_specificationList.length == 1 && _specificationList[0].valueList) {
           if (_specificationList[0].valueList.length == 1) {
             _specificationList[0].valueList[0].checked = true
 
@@ -193,7 +200,15 @@ Page({
         that.getSkuList();
         //获取特卖信息
         that.getFlashSaleInfo();
+      } else {
+        util.showErrorToast('商品信息加载失败');
+        setTimeout(function() {
+          wx.navigateBack();
+        }, 1500);
       }
+    }).catch(function(err) {
+      console.error('获取商品详情失败:', err);
+      util.showErrorToast('网络错误');
     });
   },
 

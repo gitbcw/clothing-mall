@@ -19,6 +19,11 @@ Component({
     showSales: {
       type: Boolean,
       value: false
+    },
+    // 是否显示购物车图标
+    showCartIcon: {
+      type: Boolean,
+      value: true
     }
   },
 
@@ -33,6 +38,12 @@ Component({
       wx.navigateTo({
         url: `/pages/goods/goods?id=${id}`
       })
+    },
+
+    onQuickCart(e) {
+      // 阻止事件冒泡，避免跳转详情页
+      const goodsId = this.data.goods.id
+      this.triggerEvent('quickcart', { id: goodsId, goods: this.data.goods })
     },
 
     onImageError() {

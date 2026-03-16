@@ -31,4 +31,9 @@
       已售 {{goods.sales}}
     </view>
   </view>
+
+  <!-- 快速加购按钮 -->
+  <view class="quick-cart" catchtap="onQuickCart" wx:if="{{showCartIcon !== false}}">
+    <van-icon name="shopping-cart-o" size="18px" color="#fff" />
+  </view>
 </view>

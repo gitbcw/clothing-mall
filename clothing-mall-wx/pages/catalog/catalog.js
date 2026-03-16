@@ -98,5 +98,27 @@ Page({
   loadMore() {
     if (!this.data.hasMore || this.data.loading) return
     this.loadGoods()
+  },
+
+  onGoodsTap(e) {
+    const { id } = e.currentTarget.dataset
+    wx.navigateTo({ url: `/pages/goods/goods?id=${id}` })
+  },
+
+  quickAddCart(e) {
+    const goodsId = e.currentTarget.dataset.id
+    util.request(api.CartAdd, {
+      goodsId: goodsId,
+      number: 1,
+      productId: 0
+    }, 'POST').then(res => {
+      if (res.errno === 0) {
+        wx.showToast({ title: '已加入购物车', icon: 'success' })
+      } else {
+        wx.showToast({ title: res.errmsg || '加购失败', icon: 'none' })
+      }
+    }).catch(() => {
+      wx.showToast({ title: '网络错误', icon: 'none' })
+    })
   }
 })

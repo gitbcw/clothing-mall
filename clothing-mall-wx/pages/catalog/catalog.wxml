@@ -39,11 +39,12 @@
     >
       <!-- 商品网格（每行2个） -->
       <view class="goods-grid">
-        <navigator
+        <view
           class="goods-item"
           wx:for="{{goodsList}}"
           wx:key="id"
-          url="/pages/goods/goods?id={{item.id}}"
+          bindtap="onGoodsTap"
+          data-id="{{item.id}}"
         >
           <image class="goods-image" src="{{item.picUrl}}" mode="aspectFill" lazy-load />
           <view class="goods-info">
@@ -54,7 +55,10 @@
               <text class="goods-origin-price" wx:if="{{item.counterPrice > item.retailPrice}}">¥{{item.counterPrice}}</text>
             </view>
           </view>
-        </navigator>
+          <view class="quick-cart-btn" catchtap="quickAddCart" data-id="{{item.id}}">
+            <van-icon name="shopping-cart-o" size="16px" color="#f44" />
+          </view>
+        </view>
       </view>
 
       <!-- 加载状态 -->
@@ -73,4 +77,7 @@
       </view>
     </scroll-view>
   </view>
+
+  <!-- 悬浮购物车 -->
+  <floating-cart />
 </view>

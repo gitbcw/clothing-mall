@@ -7,13 +7,23 @@
 
 /* 搜索框 */
 .search-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  background: #f5f5f5;
+  padding: 20rpx;
+}
+
+.search-bar-inner {
   display: flex;
   align-items: center;
   background: #fff;
-  margin: 20rpx;
   padding: 16rpx 24rpx;
   border-radius: 40rpx;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  flex: 1;
 }
 
 .search-icon {
@@ -424,4 +434,40 @@
 
 .goods-item, .outfit-item, .flash-item {
   animation: fadeInUp 0.3s ease both;
+}
+
+/* 快速加购按钮 - 首页：渐变咖啡色背景 + 白色图标 */
+.quick-cart-btn {
+  position: absolute;
+  right: 12rpx;
+  bottom: 12rpx;
+  width: 48rpx;
+  height: 48rpx;
+  background: linear-gradient(135deg, #AB956D, #8B7355);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4rpx 12rpx rgba(171, 149, 109, 0.3);
+  z-index: 10;
+}
+
+.quick-cart-btn:active {
+  transform: scale(0.9);
+  opacity: 0.8;
+}
+
+/* 活动位商品相对定位 */
+.activity-goods-item {
+  position: relative;
+}
+
+/* 穿搭推荐商品相对定位 */
+.outfit-item {
+  position: relative;
+}
+
+/* 热销款商品相对定位 */
+.goods-item {
+  position: relative;
 }

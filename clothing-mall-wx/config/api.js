@@ -105,4 +105,7 @@ module.exports = {
   FlashSaleList: WxApiRoot + 'flashSale/list', // 特卖列表
   FlashSaleDetail: WxApiRoot + 'flashSale/detail', // 特卖详情
   FlashSaleGoods: WxApiRoot + 'flashSale/goods', // 商品特卖信息
+
+  // 埋点上报接口
+  TrackerReport: WxApiRoot + 'tracker/report',
 };

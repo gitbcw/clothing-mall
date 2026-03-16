@@ -3,6 +3,7 @@ var WxParse = require('../../lib/wxParse/wxParse.js');
 var util = require('../../utils/util.js');
 var api = require('../../config/api.js');
 var user = require('../../utils/user.js');
+var tracker = require('../../utils/tracker.js');
 
 Page({
   data: {
@@ -177,6 +178,15 @@ Page({
         }
 
         WxParse.wxParse('goodsDetail', 'html', res.data.info.detail, that);
+
+        // 商品浏览埋点
+        tracker.trackGoodsView(
+          res.data.info.id,
+          res.data.info.name,
+          res.data.info.retailPrice,
+          res.data.info.categoryId
+        );
+
         //获取推荐商品
         that.getGoodsRelated();
         //获取 SKU 列表
@@ -260,6 +270,8 @@ Page({
           showSkuPicker: false,
           cartGoodsCount: res.data
         });
+        // 加购埋点
+        tracker.trackAddCart(that.data.goods.id, that.data.goods.name, that.data.goods.retailPrice, quantity, skuId);
       } else {
         wx.showToast({ title: res.errmsg, icon: 'none' });
       }
@@ -509,6 +521,7 @@ Page({
         valueId: this.data.id
       }, "POST")
       .then(function(res) {
+        const isCollect = that.data.userHasCollect !== 1;
         if (that.data.userHasCollect == 1) {
           that.setData({
             collect: false,
@@ -521,6 +534,8 @@ Page({
           });
         }
 
+        // 收藏埋点
+        tracker.trackCollect(that.data.goods.id, that.data.goods.name, isCollect);
       });
 
   },
@@ -638,6 +653,8 @@ Page({
                 collect: false
               });
             }
+            // 加购埋点
+            tracker.trackAddCart(that.data.goods.id, that.data.goods.name, that.data.goods.retailPrice, that.data.number, checkedProduct.id);
           } else {
             util.showErrorToast(_res.errmsg);
           }

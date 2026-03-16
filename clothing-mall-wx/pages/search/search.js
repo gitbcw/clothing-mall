@@ -1,5 +1,6 @@
 var util = require('../../utils/util.js');
 var api = require('../../config/api.js');
+var tracker = require('../../utils/tracker.js');
 
 var app = getApp()
 Page({
@@ -107,6 +108,8 @@ Page({
           goodsList: res.data.list,
           filterCategory: res.data.filterCategoryList
         });
+        // 搜索埋点
+        tracker.trackSearch(that.data.keyword, res.data.list ? res.data.list.length : 0);
       }
 
       //重新获取关键词

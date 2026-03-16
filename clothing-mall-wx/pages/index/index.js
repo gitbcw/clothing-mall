@@ -1,6 +1,7 @@
 const util = require('../../utils/util.js');
 const api = require('../../config/api.js');
 const user = require('../../utils/user.js');
+const tracker = require('../../utils/tracker.js');
 
 const app = getApp();
 
@@ -54,6 +55,11 @@ Page({
     }
 
     this.loadData()
+  },
+
+  onShow() {
+    // 页面浏览埋点
+    tracker.trackPageView('首页')
   },
 
   loadData() {

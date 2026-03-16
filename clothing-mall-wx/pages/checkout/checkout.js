@@ -1,5 +1,6 @@
 var util = require('../../utils/util.js');
 var api = require('../../config/api.js');
+var tracker = require('../../utils/tracker.js');
 
 var app = getApp();
 
@@ -213,6 +214,10 @@ Page({
 
     util.request(api.OrderSubmit, params, 'POST').then(res => {
       if (res.errno === 0) {
+
+        // 下单埋点
+        const goodsCount = this.data.checkedGoodsList.reduce((sum, item) => sum + item.number, 0);
+        tracker.trackOrderCreate(res.data.orderId, this.data.actualPrice, goodsCount);
 
         // 下单成功，重置couponId
         try {

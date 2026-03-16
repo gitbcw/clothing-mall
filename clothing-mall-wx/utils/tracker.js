@@ -4,6 +4,7 @@
  */
 
 const api = require('../config/api.js')
+const util = require('./util.js')
 
 // 埋点事件类型
 const EventType = {
@@ -139,22 +140,18 @@ function report() {
   const events = getCachedEvents()
   if (events.length === 0) return
 
-  // 这里暂时只做本地缓存，后续可以对接后端API
-  // 如果需要上报到服务器，可以取消下面的注释
-  /*
-  wx.request({
-    url: api.TrackerReport,
-    method: 'POST',
-    data: { events },
-    success: () => {
+  // 使用项目统一的 util.request 上报到服务器
+  util.request(api.TrackerReport, { events }, 'POST').then(res => {
+    if (res.errno === 0) {
       // 上报成功，清空缓存
       saveCachedEvents([])
+      console.log('[埋点上报] 成功上报', events.length, '条事件')
+    } else {
+      console.error('[埋点上报] 上报失败:', res.errmsg)
     }
+  }).catch(err => {
+    console.error('[埋点上报] 请求失败:', err)
   })
-  */
-
-  // 开发模式下打印日志
-  console.log('[埋点上报]', events.length, '条事件')
 }
 
 /**

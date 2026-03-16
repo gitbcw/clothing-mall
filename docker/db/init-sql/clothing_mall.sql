@@ -1675,3 +1675,22 @@ INSERT INTO litemall_footprint (user_id, goods_id, add_time, update_time, delete
 (4, 1181004, NOW(), NOW(), 0),
 (5, 1181008, NOW(), NOW(), 0),
 (6, 1181005, NOW(), NOW(), 0);
+
+-- 13. 埋点事件表
+CREATE TABLE IF NOT EXISTS `litemall_tracker_event` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL COMMENT '用户ID',
+  `event_type` varchar(32) NOT NULL COMMENT '事件类型',
+  `event_data` text DEFAULT NULL COMMENT '事件数据(JSON)',
+  `page_route` varchar(128) DEFAULT NULL COMMENT '页面路由',
+  `device_info` text DEFAULT NULL COMMENT '设备信息(JSON)',
+  `timestamp` bigint(20) NOT NULL COMMENT '客户端时间戳',
+  `server_time` datetime DEFAULT NULL COMMENT '服务器时间',
+  `add_time` datetime DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
+  `deleted` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `idx_event_type` (`event_type`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_server_time` (`server_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='埋点事件表';

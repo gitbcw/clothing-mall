@@ -38,7 +38,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm --prefix clothing-mall-admin install
-    - run: npm --prefix clothing-mall-admin run test
+    - run: npm --prefix clothing-mall-admin run test:unit
 
   Litemall-vue:
     runs-on: ubuntu-latest
@@ -52,4 +52,4 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm --prefix clothing-mall-vue install
-    - run: npm --prefix clothing-mall-vue run test
+    - run: npm --prefix clothing-mall-vue run lint

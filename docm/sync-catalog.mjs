@@ -91,7 +91,7 @@ function build() {
     return { id: slugify(title), title, path: `pages/${f}` };
   });
   const unique = new Map(items.map(i => [i.path, i]));
-  const catalog = { title: 'JoyPick Docs', items: Array.from(unique.values()) };
+  const catalog = { title: '川着Transmute Docs', items: Array.from(unique.values()) };
   fs.writeFileSync(catalogFile, JSON.stringify(catalog, null, 2) + '\n');
   console.log(`catalog.json updated: ${catalog.items.length} items`);
 }

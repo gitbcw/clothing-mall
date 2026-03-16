@@ -42,7 +42,7 @@ function scanDir(abs, rel = '') {
 function buildCatalogFromPages() {
   ensureDir(pagesDir);
   const items = scanDir(pagesDir, '');
-  const catalog = { title: 'JoyPick Docs', items };
+  const catalog = { title: '川着Transmute Docs', items };
   fs.writeFileSync(catalogFile, JSON.stringify(catalog, null, 2) + '\n', 'utf8');
   console.log('catalog.json updated');
 }

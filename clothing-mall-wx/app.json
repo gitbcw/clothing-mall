@@ -23,8 +23,6 @@
     "pages/topicComment/topicComment",
     "pages/topicDetail/topicDetail",
     "pages/topicCommentPost/topicCommentPost",
-    "pages/brand/brand",
-    "pages/brandDetail/brandDetail",
     "pages/search/search",
     "pages/category/category",
     "pages/cart/cart",
@@ -39,7 +37,7 @@
   ],
   "window": {
     "navigationBarBackgroundColor": "#F4F4F4",
-    "navigationBarTitleText": "欢乐小玩家",
+    "navigationBarTitleText": "川着Transmute",
     "enablePullDownRefresh": false,
     "navigationBarTextStyle": "black",
     "backgroundColor": "#f4f4f4",

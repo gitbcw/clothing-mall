@@ -165,6 +165,35 @@
   margin-top: 28rpx;
 }
 
+/* 配送模块 */
+.section-delivery {
+  display: flex;
+  align-items: center;
+  height: 108rpx;
+  background: #fff;
+  border-bottom: 1px solid #f4f4f4;
+}
+
+.section-delivery .delivery-label {
+  width: 120rpx;
+  margin-left: 31.25rpx;
+  font-size: 29rpx;
+  color: #999;
+}
+
+.section-delivery .delivery-info {
+  flex: 1;
+  font-size: 29rpx;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.section-delivery .delivery-info .placeholder {
+  color: #999;
+}
+
 .section-act .t {
   float: left;
   display: flex;

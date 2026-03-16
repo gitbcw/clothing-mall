@@ -9,7 +9,7 @@ Page({
     aftersale: {
       pictures: []
     },
-    columns: ['未收货退款', '不退货退款', '退货退款'],
+    columns: ['尺码不合适', '颜色不喜欢', '商品有瑕疵', '其他原因'],
     contentLength: 0,
     fileList: []
   },
@@ -38,8 +38,7 @@ Page({
         that.setData({
           orderInfo: res.data.orderInfo,
           orderGoods: res.data.orderGoods,
-          'aftersale.orderId': that.data.orderId,
-          'aftersale.amount': res.data.orderInfo.actualPrice - res.data.orderInfo.freightPrice
+          'aftersale.orderId': that.data.orderId
         });
       }
 
@@ -119,12 +118,12 @@ Page({
   submit: function () {
     let that = this;
     if (that.data.aftersale.type == undefined) {
-      util.showErrorToast('请选择退款类型');
+      util.showErrorToast('请选择换货类型');
       return false;
     }
 
     if (that.data.reason == '') {
-      util.showErrorToast('请输入退款原因');
+      util.showErrorToast('请输入换货原因');
       return false;
     }
 

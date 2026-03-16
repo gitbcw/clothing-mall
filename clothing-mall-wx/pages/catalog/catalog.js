@@ -6,8 +6,6 @@ Page({
     categoryList: [],
     currentCategoryId: null,
     goodsList: [],
-    leftGoods: [],
-    rightGoods: [],
     page: 1,
     limit: 20,
     loading: false,
@@ -29,7 +27,7 @@ Page({
   },
 
   onRefresh() {
-    this.setData({ refreshing: true, page: 1, hasMore: true })
+    this.setData({ refreshing: true, page: 1, hasMore: true, goodsList: [] })
     this.loadGoods().then(() => {
       this.setData({ refreshing: false })
       wx.stopPullDownRefresh()
@@ -61,8 +59,6 @@ Page({
     this.setData({
       currentCategoryId: id,
       goodsList: [],
-      leftGoods: [],
-      rightGoods: [],
       page: 1,
       hasMore: true
     })
@@ -88,13 +84,8 @@ Page({
         const list = res.data.list || []
         const newGoodsList = [...this.data.goodsList, ...list]
 
-        // 瀑布流分配
-        const { leftGoods, rightGoods } = this.distributeGoods(newGoodsList)
-
         this.setData({
           goodsList: newGoodsList,
-          leftGoods,
-          rightGoods,
           hasMore: list.length >= this.data.limit,
           page: this.data.page + 1
         })
@@ -102,21 +93,6 @@ Page({
     }).finally(() => {
       this.setData({ loading: false })
     })
-  },
-
-  distributeGoods(goodsList) {
-    const leftGoods = []
-    const rightGoods = []
-
-    goodsList.forEach((item, index) => {
-      if (index % 2 === 0) {
-        leftGoods.push(item)
-      } else {
-        rightGoods.push(item)
-      }
-    })
-
-    return { leftGoods, rightGoods }
   },
 
   loadMore() {

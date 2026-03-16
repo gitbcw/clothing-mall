@@ -50,16 +50,19 @@
         <view class="counterPrice">原价：￥{{goods.counterPrice}}</view>
         <view class="retailPrice">现价：￥{{checkedSpecPrice}}</view>
       </view>
-
-      <view class="brand" wx:if="{{brand.name}}">
-        <navigator url="../brandDetail/brandDetail?id={{brand.id}}">
-          <text>{{brand.name}}</text>
-        </navigator>
-      </view>
     </view>
   </view>
   <view class="section-nav section-attr" bindtap="switchAttrPop">
     <view class="t">{{checkedSpecText}}</view>
+    <van-icon class="i" name="arrow" />
+  </view>
+  <!-- 配送 -->
+  <view class="section-nav section-delivery" bindtap="selectAddress">
+    <view class="delivery-label">配送</view>
+    <view class="delivery-info">
+      <text wx:if="{{address}}">{{address.province}}{{address.city}}{{address.county}}</text>
+      <text wx:else class="placeholder">请选择收货地址</text>
+    </view>
     <van-icon class="i" name="arrow" />
   </view>
   <view class="goods-attr">
@@ -153,9 +156,8 @@
 
 <!-- 底部按钮 -->
 <view class="bottom-btn">
-<view class="l">
-  <button show-message-card send-message-title="{{ goods.name }}" send-message-path="{{ goods.path }}"
-				send-message-img="{{ goods.picUrl }}" open-type="contact"  class="l-contact">
+<view class="l" bindtap="contactService">
+  <button class="l-contact">
 				<van-icon class="icon" name="/static/images/customer.png" />
 			</button>
 </view>

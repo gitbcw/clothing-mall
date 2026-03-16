@@ -123,3 +123,34 @@ cd docker && docker compose up mysql -d
 - 使用 JDK 1.8
 - Vue 2 + webpack4 与新版 Node 兼容问题：Windows 下需设置 `NODE_OPTIONS=--openssl-legacy-provider`
 - 本地联调优先使用 `127.0.0.1` 而非 `localhost`
+
+## 工作约定
+
+### 每次会话结束前
+- 如果当前任务已完成，更新「当前状态」中的核心任务和下一步计划
+- 如果发现新的技术债或踩到坑，追加到「已知技术债与注意事项」
+- 如果有信息缺口，向用户提问补齐信息缺口
+
+
+### 更新原则
+- 只更新你有直接证据的内容，不确定的标注「待确认」
+- 不删除已有条目，只追加或修正
+- 更新前说明你要改什么，等用户确认再写入
+
+## 当前状态
+- 当前阶段：功能开发
+- 最近在动的模块：clothing-mall-wx（小程序）、clothing-mall-admin（管理后台）
+- 当前核心任务：品牌更名收尾（有未提交的修改待处理）
+- 下一步计划：
+  - 小程序方向：埋点集成（页面引用 tracker）→ 后端上报 API → 数据统计展示
+  - 后台管理方向：用户体验优化（待确认具体需求）
+
+## 已知技术债与注意事项
+- **前端页面待对接后端**：`clothing-mall-admin/src/views/promotion/activity.vue` 和 `outfit.vue` 已创建，但后端 API 尚未实现
+- **编号唯一性问题**：`LitemallOrderService` 和 `LitemallAftersaleService` 中的订单号/售后编号生成逻辑存在重复可能（见 `TODO` 注释）
+- **通知功能未完善**：订单状态变更时的邮件/短信通知标记为 `TODO`，采用异步发送但未实现
+- **Dashboard 统计**：`dashboard/index.vue` 中的销售统计 API 标记为 `TODO`，目前使用模拟数据
+- **字体依赖**：`QCodeService.java:164` 生成的二维码依赖服务器安装的字体，部署时需确认
+- **品牌模块已删除**：小程序 `pages/brand/` 和 `pages/brandDetail/` 已删除，app.json 路由已同步移除 ✓
+- **CI/CD 配置**：GitHub Actions 跳过了 vue lint，改为构建检查（见 commit 6faaefc）
+- **埋点功能未完成**：`utils/tracker.js` 工具已实现，但尚未集成到任何页面，后端上报 API 也未实现

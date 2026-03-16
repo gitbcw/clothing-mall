@@ -38,7 +38,10 @@ Page({
 
     // 限时特卖相关
     flashSale: null,
-    flashSaleId: null
+    flashSaleId: null,
+
+    // 配送地址
+    address: null
   },
 
   // 页面分享
@@ -683,6 +686,29 @@ Page({
     wx.switchTab({
       url: '/pages/cart/cart'
     });
+  },
+  // 联系客服 - 企业微信客服
+  contactService: function() {
+    wx.openCustomerServiceChat({
+      extInfo: { url: '' },
+      corpId: '',
+      success(res) {
+        console.log('客服窗口打开成功', res)
+      },
+      fail(err) {
+        console.error('客服窗口打开失败', err)
+        wx.showToast({
+          title: '请联系在线客服',
+          icon: 'none'
+        })
+      }
+    })
+  },
+  // 选择收货地址
+  selectAddress: function() {
+    wx.navigateTo({
+      url: '/pages/ucenter/address/address?selectMode=1'
+    })
   },
   onReady: function() {
     // 页面渲染完成

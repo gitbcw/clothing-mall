@@ -387,6 +387,26 @@ export const asyncRoutes = [
           title: 'app.menu.promotion_fullReduction',
           noCache: true
         }
+      },
+      {
+        path: 'activity',
+        component: () => import('@/views/promotion/activity'),
+        name: 'activity',
+        meta: {
+          perms: ['GET /admin/activity/list', 'POST /admin/activity/create', 'POST /admin/activity/update', 'POST /admin/activity/delete'],
+          title: '活动位管理',
+          noCache: true
+        }
+      },
+      {
+        path: 'outfit',
+        component: () => import('@/views/promotion/outfit'),
+        name: 'outfit',
+        meta: {
+          perms: ['GET /admin/outfit/list', 'POST /admin/outfit/create', 'POST /admin/outfit/update', 'POST /admin/outfit/delete'],
+          title: '穿搭推荐',
+          noCache: true
+        }
       }
     ]
   },

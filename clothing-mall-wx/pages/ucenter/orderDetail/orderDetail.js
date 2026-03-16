@@ -326,6 +326,27 @@ Page({
       util.redirect('/pages/ucenter/aftersaleDetail/aftersaleDetail?id=' + this.data.orderId);
     }
   },
+  // "联系客服"点击效果 - 企业微信客服
+  contactService: function() {
+    // 企业微信客服链接（需后台配置或替换为实际链接）
+    // 方式1: 使用 web-view 跳转企业微信客服链接
+    // wx.navigateTo({ url: '/pages/webview/webview?url=https://work.weixin.qq.com/kfid/XXXXX' })
+    // 方式2: 使用微信客服功能（需在小程序后台配置）
+    wx.openCustomerServiceChat({
+      extInfo: { url: '' },
+      corpId: '',
+      success(res) {
+        console.log('客服窗口打开成功', res)
+      },
+      fail(err) {
+        console.error('客服窗口打开失败', err)
+        wx.showToast({
+          title: '请联系在线客服',
+          icon: 'none'
+        })
+      }
+    })
+  },
   // 获取自提门店信息
   getPickupStore: function(storeId) {
     let that = this;

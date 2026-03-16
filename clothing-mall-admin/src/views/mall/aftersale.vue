@@ -339,8 +339,7 @@ export default {
           '订单ID',
           '用户ID',
           '售后类型',
-          '退款原因',
-          '退款价格',
+          '换货原因',
           '申请时间'
         ]
         const filterVal = [
@@ -349,7 +348,6 @@ export default {
           'userId',
           'type',
           'reason',
-          'amount',
           'addTime'
         ]
         excel.export_json_to_excel2(tHeader, this.list, filterVal, '售后信息')

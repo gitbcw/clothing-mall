@@ -1,5 +1,10 @@
-<!-- 商品列表页 - 分类 Tab + 瀑布流 -->
+<!-- 分类页 - 左右分栏布局 -->
 <view class="container">
+  <!-- 顶部品牌名 -->
+  <view class="brand-header">
+    <text class="brand-name">川着 transmute</text>
+  </view>
+
   <!-- 搜索栏 -->
   <view class="search-bar">
     <navigator url="/pages/search/search" class="search-input">
@@ -8,36 +13,39 @@
     </navigator>
   </view>
 
-  <!-- 分类 Tab -->
-  <scroll-view scroll-x class="category-tabs">
-    <view
-      class="tab-item {{currentCategoryId == item.id ? 'active' : ''}}"
-      wx:for="{{categoryList}}"
-      wx:key="id"
-      data-id="{{item.id}}"
-      bindtap="switchCategory"
-    >{{item.name}}</view>
-  </scroll-view>
+  <!-- 主内容区：左右分栏 -->
+  <view class="main-content">
+    <!-- 左侧分类栏 -->
+    <scroll-view scroll-y class="category-sidebar">
+      <view
+        class="category-item {{currentCategoryId == item.id ? 'active' : ''}}"
+        wx:for="{{categoryList}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="switchCategory"
+      >
+        <text class="category-name">{{item.name}}</text>
+      </view>
+    </scroll-view>
 
-  <!-- 商品列表 -->
-  <scroll-view
-    scroll-y
-    class="goods-scroll"
-    bindscrolltolower="loadMore"
-    refresher-enabled
-    refresher-triggered="{{refreshing}}"
-    bindrefresherrefresh="onRefresh"
-  >
-    <!-- 瀑布流商品 -->
-    <view class="goods-waterfall">
-      <view class="goods-column">
+    <!-- 右侧商品列表 -->
+    <scroll-view
+      scroll-y
+      class="goods-scroll"
+      bindscrolltolower="loadMore"
+      refresher-enabled
+      refresher-triggered="{{refreshing}}"
+      bindrefresherrefresh="onRefresh"
+    >
+      <!-- 商品网格（每行2个） -->
+      <view class="goods-grid">
         <navigator
-          class="goods-card"
-          wx:for="{{leftGoods}}"
+          class="goods-item"
+          wx:for="{{goodsList}}"
           wx:key="id"
           url="/pages/goods/goods?id={{item.id}}"
         >
-          <image class="goods-image" src="{{item.picUrl}}" mode="widthFix" lazy-load />
+          <image class="goods-image" src="{{item.picUrl}}" mode="aspectFill" lazy-load />
           <view class="goods-info">
             <text class="goods-name">{{item.name}}</text>
             <text class="goods-brief" wx:if="{{item.brief}}">{{item.brief}}</text>
@@ -48,39 +56,21 @@
           </view>
         </navigator>
       </view>
-      <view class="goods-column">
-        <navigator
-          class="goods-card"
-          wx:for="{{rightGoods}}"
-          wx:key="id"
-          url="/pages/goods/goods?id={{item.id}}"
-        >
-          <image class="goods-image" src="{{item.picUrl}}" mode="widthFix" lazy-load />
-          <view class="goods-info">
-            <text class="goods-name">{{item.name}}</text>
-            <text class="goods-brief" wx:if="{{item.brief}}">{{item.brief}}</text>
-            <view class="goods-price-row">
-              <text class="goods-price">¥{{item.retailPrice}}</text>
-              <text class="goods-origin-price" wx:if="{{item.counterPrice > item.retailPrice}}">¥{{item.counterPrice}}</text>
-            </view>
-          </view>
-        </navigator>
-      </view>
-    </view>
 
-    <!-- 加载状态 -->
-    <view class="load-status">
-      <view wx:if="{{loading}}" class="loading">
-        <text>加载中...</text>
+      <!-- 加载状态 -->
+      <view class="load-status">
+        <view wx:if="{{loading}}" class="loading">
+          <text>加载中...</text>
+        </view>
+        <view wx:elif="{{!hasMore && goodsList.length > 0}}" class="no-more">
+          <text>没有更多了</text>
+        </view>
       </view>
-      <view wx:elif="{{!hasMore && goodsList.length > 0}}" class="no-more">
-        <text>没有更多了</text>
-      </view>
-    </view>
 
-    <!-- 空状态 -->
-    <view class="empty-state" wx:if="{{!loading && goodsList.length === 0}}">
-      <text class="empty-text">暂无商品</text>
-    </view>
-  </scroll-view>
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{!loading && goodsList.length === 0}}">
+        <text class="empty-text">暂无商品</text>
+      </view>
+    </scroll-view>
+  </view>
 </view>

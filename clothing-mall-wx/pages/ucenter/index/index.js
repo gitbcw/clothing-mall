@@ -15,8 +15,7 @@ Page({
       unrecv: 0,
       uncomment: 0
     },
-    hasLogin: false,
-    showAll: false
+    hasLogin: false
   },
   onLoad: function (options) {
     // 页面初始化 options为页面跳转所带来的参数
@@ -54,11 +53,6 @@ Page({
   },
   onUnload: function () {
     // 页面关闭
-  },
-  showAllMenu() {
-    this.setData({
-      showAll: !this.data.showAll
-    });
   },
   goLogin() {
     if (!this.data.hasLogin) {
@@ -207,6 +201,23 @@ Page({
     wx.navigateTo({
       url: '/pages/help/help'
     });
+  },
+  // 联系客服 - 企业微信客服
+  contactService: function () {
+    wx.openCustomerServiceChat({
+      extInfo: { url: '' },
+      corpId: '',
+      success(res) {
+        console.log('客服窗口打开成功', res)
+      },
+      fail(err) {
+        console.error('客服窗口打开失败', err)
+        wx.showToast({
+          title: '请联系在线客服',
+          icon: 'none'
+        })
+      }
+    })
   },
   exitLogin: function () {
     wx.showModal({

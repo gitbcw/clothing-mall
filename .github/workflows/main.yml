@@ -52,4 +52,4 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm --prefix clothing-mall-vue install
-    - run: npm --prefix clothing-mall-vue run lint
+    - run: npm --prefix clothing-mall-vue run build

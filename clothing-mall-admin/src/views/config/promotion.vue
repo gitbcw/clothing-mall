@@ -39,18 +39,26 @@
       <el-form-item label="客户联系Secret" prop="litemall_wework_contact_secret">
         <el-input v-model="dataForm.litemall_wework_contact_secret" class="input-width" placeholder="请输入客户联系Secret" show-password />
       </el-form-item>
-      <el-form-item label="推送目标类型" prop="litemall_wework_push_target_type">
-        <el-radio-group v-model="dataForm.litemall_wework_push_target_type">
-          <el-radio label="0">全部客户</el-radio>
-          <el-radio label="1">按标签筛选</el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item v-if="dataForm.litemall_wework_push_target_type === '1'" label="推送目标标签ID" prop="litemall_wework_push_tag_id">
-        <el-input v-model="dataForm.litemall_wework_push_tag_id" class="input-width" placeholder="请输入标签ID" />
-      </el-form-item>
       <el-form-item label="发送者账号ID" prop="litemall_wework_sender_id">
         <el-input v-model="dataForm.litemall_wework_sender_id" class="input-width" placeholder="请输入发送者的企业微信账号" />
         <span class="info">用于标识消息发送者</span>
+      </el-form-item>
+      <el-form-item label="小程序AppID" prop="litemall_wework_miniprogram_appid">
+        <el-input v-model="dataForm.litemall_wework_miniprogram_appid" class="input-width" placeholder="请输入关联的小程序AppID" />
+        <span class="info">在企业微信管理后台关联的小程序AppID，用于发送小程序卡片</span>
+      </el-form-item>
+
+      <!-- 活动页面配置 -->
+      <el-form-item label="活动页面配置" prop="litemall_wework_activity_pages">
+        <div class="activity-pages-config">
+          <div v-for="(page, index) in activityPages" :key="index" class="activity-page-item">
+            <el-input v-model="page.name" placeholder="页面名称" style="width: 150px;" />
+            <el-input v-model="page.path" placeholder="页面路径（如：pages/activity/spring）" style="width: 280px; margin-left: 10px;" />
+            <el-button type="danger" icon="el-icon-delete" circle style="margin-left: 10px;" @click="removeActivityPage(index)" />
+          </div>
+          <el-button type="primary" plain icon="el-icon-plus" @click="addActivityPage">添加活动页面</el-button>
+        </div>
+        <div class="info" style="margin-top: 8px;">配置后可在「企业微信 → 消息推送」中选择跳转到这些活动页面</div>
       </el-form-item>
 
       <el-divider content-position="left">小程序客服</el-divider>
@@ -104,15 +112,16 @@ export default {
         litemall_full_reduction_stack_with_coupon: '0',
         litemall_wework_corp_id: '',
         litemall_wework_contact_secret: '',
-        litemall_wework_push_target_type: '1',
-        litemall_wework_push_tag_id: '',
         litemall_wework_sender_id: '',
+        litemall_wework_miniprogram_appid: '',
+        litemall_wework_activity_pages: '',
         litemall_customer_service_url: '',
         litemall_home_activity_enabled: 'false',
         litemall_home_activity_name: '',
         litemall_home_activity_type: 'new',
         litemall_home_activity_more_url: '/pages/newGoods/newGoods'
       },
+      activityPages: [],
       couponList: [],
       rules: {}
     }
@@ -156,7 +165,34 @@ export default {
         const data = response.data.data
         // 合并默认值和返回数据
         this.dataForm = { ...this.dataForm, ...data }
+        // 解析活动页面 JSON
+        this.parseActivityPages()
       })
+    },
+    parseActivityPages() {
+      try {
+        const json = this.dataForm.litemall_wework_activity_pages
+        if (json && json.trim()) {
+          this.activityPages = JSON.parse(json)
+        } else {
+          this.activityPages = []
+        }
+      } catch (e) {
+        this.activityPages = []
+      }
+    },
+    serializeActivityPages() {
+      if (this.activityPages.length > 0) {
+        this.dataForm.litemall_wework_activity_pages = JSON.stringify(this.activityPages)
+      } else {
+        this.dataForm.litemall_wework_activity_pages = ''
+      }
+    },
+    addActivityPage() {
+      this.activityPages.push({ name: '', path: '' })
+    },
+    removeActivityPage(index) {
+      this.activityPages.splice(index, 1)
     },
     loadCouponList() {
       listCoupon({ page: 1, limit: 100 }).then(response => {
@@ -175,6 +211,8 @@ export default {
       })
     },
     doUpdate() {
+      // 序列化活动页面配置
+      this.serializeActivityPages()
       updatePromotion(this.dataForm)
         .then(response => {
           this.$notify.success({
@@ -204,5 +242,13 @@ export default {
 }
 .el-divider--horizontal {
   margin: 24px 0 16px;
+}
+.activity-pages-config {
+  max-width: 600px;
+}
+.activity-page-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
 }
 </style>

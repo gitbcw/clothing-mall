@@ -54,4 +54,27 @@ public class StatService {
     public Map statTotalUsers() {
         return statMapper.statTotalUsers();
     }
+
+    // ==================== 埋点统计 ====================
+
+    /**
+     * 埋点统计：事件概览
+     */
+    public List<Map> statTrackerOverview(String startDate, String endDate) {
+        return statMapper.statTrackerOverview(startDate, endDate);
+    }
+
+    /**
+     * 埋点统计：事件趋势
+     */
+    public List<Map> statTrackerTrend(String startDate, String endDate) {
+        return statMapper.statTrackerTrend(startDate, endDate);
+    }
+
+    /**
+     * 埋点统计：页面排行
+     */
+    public List<Map> statTrackerPages(String startDate, String endDate, String eventType, Integer limit) {
+        return statMapper.statTrackerPages(startDate, endDate, eventType, limit);
+    }
 }

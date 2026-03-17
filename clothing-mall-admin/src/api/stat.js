@@ -41,3 +41,30 @@ export function statRetention(query) {
     params: query
   })
 }
+
+// 埋点统计 - 概览
+export function statTrackerOverview(query) {
+  return request({
+    url: '/stat/tracker/overview',
+    method: 'get',
+    params: query
+  })
+}
+
+// 埋点统计 - 趋势
+export function statTrackerTrend(query) {
+  return request({
+    url: '/stat/tracker/trend',
+    method: 'get',
+    params: query
+  })
+}
+
+// 埋点统计 - 页面排行
+export function statTrackerPages(query) {
+  return request({
+    url: '/stat/tracker/pages',
+    method: 'get',
+    params: query
+  })
+}

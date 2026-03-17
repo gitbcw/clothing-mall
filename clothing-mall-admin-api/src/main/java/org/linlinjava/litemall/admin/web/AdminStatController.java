@@ -95,4 +95,67 @@ public class AdminStatController {
         return ResponseUtil.ok(retention);
     }
 
+    // ==================== 埋点统计 API ====================
+
+    @RequiresPermissions("admin:stat:tracker")
+    @RequiresPermissionsDesc(menu = {"统计管理", "埋点统计"}, button = "查询")
+    @GetMapping("/tracker/overview")
+    public Object statTrackerOverview(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        List<Map> byType = statService.statTrackerOverview(startDate, endDate);
+
+        // 计算总数
+        long total = 0;
+        long pageView = 0;
+        long addCart = 0;
+        long orderPay = 0;
+
+        for (Map item : byType) {
+            long count = ((Number) item.get("count")).longValue();
+            total += count;
+            String eventType = (String) item.get("eventType");
+            if ("page_view".equals(eventType)) pageView = count;
+            if ("add_cart".equals(eventType)) addCart = count;
+            if ("order_pay".equals(eventType)) orderPay = count;
+        }
+
+        // 计算转化率
+        double addCartRate = pageView > 0 ? (addCart * 100.0 / pageView) : 0;
+        double payRate = addCart > 0 ? (orderPay * 100.0 / addCart) : 0;
+
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        result.put("byType", byType);
+        result.put("total", total);
+        result.put("pageView", pageView);
+        result.put("addCart", addCart);
+        result.put("orderPay", orderPay);
+        result.put("addCartRate", Math.round(addCartRate * 10) / 10.0);
+        result.put("payRate", Math.round(payRate * 10) / 10.0);
+
+        return ResponseUtil.ok(result);
+    }
+
+    @RequiresPermissions("admin:stat:tracker")
+    @RequiresPermissionsDesc(menu = {"统计管理", "埋点统计"}, button = "趋势查询")
+    @GetMapping("/tracker/trend")
+    public Object statTrackerTrend(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        List<Map> trend = statService.statTrackerTrend(startDate, endDate);
+        return ResponseUtil.ok(trend);
+    }
+
+    @RequiresPermissions("admin:stat:tracker")
+    @RequiresPermissionsDesc(menu = {"统计管理", "埋点统计"}, button = "页面排行")
+    @GetMapping("/tracker/pages")
+    public Object statTrackerPages(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(defaultValue = "page_view") String eventType,
+            @RequestParam(defaultValue = "10") Integer limit) {
+        List<Map> pages = statService.statTrackerPages(startDate, endDate, eventType, limit);
+        return ResponseUtil.ok(pages);
+    }
+
 }

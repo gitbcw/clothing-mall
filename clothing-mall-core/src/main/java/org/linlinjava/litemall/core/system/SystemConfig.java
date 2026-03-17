@@ -228,6 +228,20 @@ public class SystemConfig {
         return getConfig(LITEMALL_WEWORK_SENDER_ID);
     }
 
+    /**
+     * 获取企微关联的小程序 AppID
+     */
+    public static String getWeWorkMiniProgramAppId() {
+        return getConfig(LITEMALL_WEWORK_MINIPROGRAM_APPID);
+    }
+
+    /**
+     * 获取企微推送活动页面配置（JSON格式）
+     */
+    public static String getWeWorkActivityPages() {
+        return getConfig(LITEMALL_WEWORK_ACTIVITY_PAGES);
+    }
+
     // 运费相关扩展配置
     public final static String LITEMALL_EXPRESS_FREIGHT_TYPE = "litemall_express_freight_type";
     public final static String LITEMALL_EXPRESS_FREIGHT_ADDITIONAL = "litemall_express_freight_additional";
@@ -251,6 +265,8 @@ public class SystemConfig {
     public final static String LITEMALL_WEWORK_PUSH_TARGET_TYPE = "litemall_wework_push_target_type";
     public final static String LITEMALL_WEWORK_PUSH_TAG_ID = "litemall_wework_push_tag_id";
     public final static String LITEMALL_WEWORK_SENDER_ID = "litemall_wework_sender_id";
+    public final static String LITEMALL_WEWORK_MINIPROGRAM_APPID = "litemall_wework_miniprogram_appid";
+    public final static String LITEMALL_WEWORK_ACTIVITY_PAGES = "litemall_wework_activity_pages";
 
     public static void setConfigs(Map<String, String> configs) {
         SYSTEM_CONFIGS = configs;

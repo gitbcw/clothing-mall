@@ -86,4 +86,62 @@
         from litemall_user
         where deleted = 0
     </select>
+
+    <!-- 埋点统计：事件概览（按类型统计） -->
+    <select id="statTrackerOverview" resultType="map">
+        SELECT
+            event_type AS eventType,
+            COUNT(*) AS count
+        FROM litemall_tracker_event
+        WHERE deleted = 0
+        <if test="startDate != null and startDate != ''">
+            AND DATE(server_time) &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND DATE(server_time) &lt;= #{endDate}
+        </if>
+        GROUP BY event_type
+        ORDER BY count DESC
+    </select>
+
+    <!-- 埋点统计：事件趋势（按日统计） -->
+    <select id="statTrackerTrend" resultType="map">
+        SELECT
+            DATE(server_time) AS day,
+            SUM(CASE WHEN event_type = 'page_view' THEN 1 ELSE 0 END) AS page_view,
+            SUM(CASE WHEN event_type = 'goods_view' THEN 1 ELSE 0 END) AS goods_view,
+            SUM(CASE WHEN event_type = 'add_cart' THEN 1 ELSE 0 END) AS add_cart,
+            SUM(CASE WHEN event_type = 'order_create' THEN 1 ELSE 0 END) AS order_create,
+            SUM(CASE WHEN event_type = 'order_pay' THEN 1 ELSE 0 END) AS order_pay
+        FROM litemall_tracker_event
+        WHERE deleted = 0
+        <if test="startDate != null and startDate != ''">
+            AND DATE(server_time) &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND DATE(server_time) &lt;= #{endDate}
+        </if>
+        GROUP BY DATE(server_time)
+        ORDER BY day
+    </select>
+
+    <!-- 埋点统计：页面排行 -->
+    <select id="statTrackerPages" resultType="map">
+        SELECT
+            page_route AS pageRoute,
+            COUNT(*) AS count,
+            COUNT(DISTINCT user_id) AS uniqueUsers
+        FROM litemall_tracker_event
+        WHERE deleted = 0
+        AND event_type = #{eventType}
+        <if test="startDate != null and startDate != ''">
+            AND DATE(server_time) &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND DATE(server_time) &lt;= #{endDate}
+        </if>
+        GROUP BY page_route
+        ORDER BY count DESC
+        LIMIT #{limit}
+    </select>
 </mapper>

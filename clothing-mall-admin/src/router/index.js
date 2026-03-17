@@ -462,6 +462,16 @@ export const asyncRoutes = [
           title: 'app.menu.stat_goods',
           noCache: true
         }
+      },
+      {
+        path: 'tracker',
+        component: () => import('@/views/stat/tracker'),
+        name: 'statTracker',
+        meta: {
+          perms: ['GET /admin/stat/tracker/overview'],
+          title: '埋点统计',
+          noCache: true
+        }
       }
     ]
   },
@@ -654,6 +664,31 @@ export const asyncRoutes = [
         meta: {
           perms: ['GET /admin/config/promotion', 'POST /admin/config/promotion'],
           title: '促销配置',
+          noCache: true
+        }
+      }
+    ]
+  },
+
+  // 企业微信
+  {
+    path: '/wework',
+    component: Layout,
+    redirect: 'noredirect',
+    alwaysShow: true,
+    name: 'weworkManage',
+    meta: {
+      title: '企业微信',
+      icon: 'chart'
+    },
+    children: [
+      {
+        path: 'push',
+        component: () => import('@/views/wework/push'),
+        name: 'weworkPush',
+        meta: {
+          perms: ['POST /admin/wework/uploadMedia', 'POST /admin/wework/sendCard', 'POST /admin/wework/sendCardByTag'],
+          title: '消息推送',
           noCache: true
         }
       }

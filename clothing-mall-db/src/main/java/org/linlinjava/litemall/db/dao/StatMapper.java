@@ -31,4 +31,24 @@ public interface StatMapper {
      * 增长统计：累计用户数
      */
     Map statTotalUsers();
+
+    // ==================== 埋点统计 ====================
+
+    /**
+     * 埋点统计：事件概览（按类型统计）
+     */
+    List<Map> statTrackerOverview(@Param("startDate") String startDate, @Param("endDate") String endDate);
+
+    /**
+     * 埋点统计：事件趋势（按日统计）
+     */
+    List<Map> statTrackerTrend(@Param("startDate") String startDate, @Param("endDate") String endDate);
+
+    /**
+     * 埋点统计：页面排行
+     */
+    List<Map> statTrackerPages(@Param("startDate") String startDate,
+                               @Param("endDate") String endDate,
+                               @Param("eventType") String eventType,
+                               @Param("limit") Integer limit);
 }

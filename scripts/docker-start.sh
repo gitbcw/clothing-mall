@@ -322,8 +322,10 @@ deploy_prod() {
 cd /home/admin/clothing-mall/docker
 echo "重建 App 镜像..."
 docker compose build app
-echo "重启服务..."
+echo "重启后端服务..."
 docker compose up -d app
+echo "重启 Nginx（刷新前端文件）..."
+docker compose restart nginx
 echo "等待服务启动..."
 sleep 10
 docker compose ps

@@ -10,14 +10,38 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | 文档 | 用途 |
 |------|------|
-| [docs/开发环境指南.md](docs/开发环境指南.md) | 本地开发环境配置、启动流程 |
-| [docs/阿里云部署指南.md](docs/阿里云部署指南.md) | 服务器部署流程、常见问题解决 |
+| [docs/开发环境指南.md](docs/开发环境指南.md) | 本地开发环境配置、Docker 一键启动 |
+| [docs/阿里云部署指南.md](docs/阿里云部署指南.md) | 服务器部署流程、一键部署命令 |
+| [docker/README.md](docker/README.md) | Docker 详细配置说明 |
 
 **快速导航**：
-- 本地开发 → [开发环境指南](docs/开发环境指南.md)
-- 服务器部署 → [阿里云部署指南](docs/阿里云部署指南.md)
+- 本地开发 → `./scripts/docker-start.sh deploy`
+- 服务器部署 → `./scripts/docker-start.sh deploy-prod`
 
 ## 常用命令
+
+### Docker 一键管理（推荐）
+
+```bash
+# 查看所有命令
+./scripts/docker-start.sh --help
+
+# 本地开发
+./scripts/docker-start.sh deploy          # 一键部署本地环境
+./scripts/docker-start.sh start           # 启动服务
+./scripts/docker-start.sh stop            # 停止服务
+./scripts/docker-start.sh restart         # 重启服务
+./scripts/docker-start.sh status          # 查看状态
+./scripts/docker-start.sh logs app        # 查看应用日志
+
+# 生产部署
+./scripts/docker-start.sh deploy-prod     # 一键部署到生产服务器
+./scripts/docker-start.sh sync-db         # 从服务器同步数据库
+
+# 打包
+./scripts/docker-start.sh pack            # 打包后端 JAR
+./scripts/docker-start.sh pack-admin      # 打包管理前端
+```
 
 ### 后端 (Maven)
 
@@ -64,6 +88,16 @@ npm run build
 
 ## 端口配置
 
+### Docker 环境（本地开发）
+
+| 服务 | 端口 | 说明 |
+|------|------|------|
+| Nginx | 80 | 管理后台入口 |
+| Java App | 8088 | 后端 API |
+| MySQL | 3306 | 数据库 |
+
+### 本地直跑模式
+
 | 服务 | 端口 |
 |------|------|
 | 聚合后端 | 8080 |
@@ -71,6 +105,14 @@ npm run build
 | 管理后台 API | 8083 |
 | 管理前端 (开发) | 9527 |
 | H5 前端 (开发) | 8081 |
+
+### 生产环境
+
+| 服务 | 端口 |
+|------|------|
+| Nginx | 8080 |
+| Java App | 8088 |
+| MySQL | 3306 |
 
 ## 模块架构
 
@@ -158,48 +200,14 @@ cd docker && docker compose up mysql -d
 | **5. 更新** | 同步项目状态 | 更新「当前状态」→ 追加「技术债/注意事项」 |
 | **6. 汇报** | 清晰汇报结果 | 测试结果 + 改动摘要 + 覆盖率 |
 
-#### 计划模板
 
-```markdown
-## 任务理解
-[一句话描述任务目标]
+#### 计划模式集成
 
-## 代码分析
-- 相关文件: [文件列表]
-- 调用链: [关键调用路径]
-- 风险点: [潜在风险]
+当使用计划模式（EnterPlanMode / plan agent）生成实现计划时，**必须将开发反馈循环的步骤纳入计划**：
 
-## 测试设计
-| 测试用例 | 输入 | 预期输出 | 类型 |
-|---------|------|---------|------|
-| ... | ... | ... | 正常/边界/异常 |
-
-## 实现方案
-[方案描述]
-
-## 影响面 & 回滚
-- 影响模块: [...]
-- 回滚方式: [...]
-```
-
-#### 汇报模板
-
-```markdown
-## 完成汇报
-
-### 改动摘要
-- [x] 新增/修改的功能点
-
-### 测试结果
-| 测试类型 | 状态 | 通过/总数 |
-|---------|------|----------|
-| ... | ✅/❌ | X/Y |
-
-### 项目状态更新
-- 当前任务: [...]
-- 技术债: [如有新增]
-- 注意事项: [如有新增]
-```
+1. 计划文件的每个步骤要明确标注属于 TDD 哪个阶段
+2. 计划必须包含：测试设计 → 实现代码 → 验证测试 → 更新文档
+3. 执行时按计划中的 TDD 阶段顺序推进
 
 ---
 
@@ -215,14 +223,31 @@ cd docker && docker compose up mysql -d
 
 ## 当前状态
 - 当前阶段：功能开发
-- 最近在动的模块：clothing-mall-admin（管理后台）、clothing-mall-core（企微服务）
-- 当前核心任务：企业微信小程序卡片推送功能
+- 最近在动的模块：clothing-mall-admin（管理后台）、clothing-mall-core（存储服务）
+- 当前核心任务：商品图片 OSS 存储
 - 已完成功能：
   - ✓ 品牌更名（joypick/欢乐小玩家 → 川着Transmute）
   - ✓ 埋点全链路（前端 tracker.js + 页面集成 + 后端 API + 数据库）
   - ✓ 企业微信小程序卡片推送（后端 API + 管理后台推送页面）
+  - ✓ 阿里云 OSS 存储配置（使用内网 endpoint 节省流量）
+  - ✓ OSS URL 重复拼接问题修复（AliyunStorage.generateUrl 防护）
+  - ✓ 本地 Docker 一键启动环境（M4 Mac ARM64 兼容）
 - 下一步计划：
   - 企业微信真实环境测试（需配置企微企业ID、Secret、小程序AppID）
+
+### Docker 环境快速参考
+
+```bash
+# 本地一键启动
+./scripts/docker-start.sh deploy
+
+# 一键部署到生产
+./scripts/docker-start.sh deploy-prod
+
+# 访问地址
+# 本地: http://localhost (管理后台)
+# 生产: http://47.107.151.70:8080 (管理后台)
+```
 
 ## 已知技术债与注意事项
 - **前端页面待对接后端**：`clothing-mall-admin/src/views/promotion/activity.vue` 和 `outfit.vue` 已创建，但后端 API 尚未实现
@@ -232,4 +257,10 @@ cd docker && docker compose up mysql -d
 - **字体依赖**：`QCodeService.java:164` 生成的二维码依赖服务器安装的字体，部署时需确认
 - **品牌模块已删除**：小程序 `pages/brand/` 和 `pages/brandDetail/` 已删除，app.json 路由已同步移除 ✓
 - **CI/CD 配置**：GitHub Actions 跳过了 vue lint，改为构建检查（见 commit 6faaefc）
-- **部署注意事项**：上传 JAR 包后必须重建 Docker 镜像（`docker compose build app`），否则新代码不会生效
+- **Docker 部署**：
+  - 使用 `./scripts/docker-start.sh` 脚本管理本地和生产环境
+  - 部署后必须重建镜像：`docker compose build app && docker compose up -d app`
+  - 前端部署后需要清除浏览器缓存
+  - 本地环境使用 `docker-compose.local.yml`，生产使用 `docker-compose.yml`
+- **OSS 存储防护**：已修复 `AliyunStorage.generateUrl()` 方法，防止 URL 重复拼接（当 key 已是完整 URL 时直接返回）
+- **gallery JSON 格式**：MySQL 中 gallery 字段必须为合法 JSON 数组格式 `["url1","url2"]`，字符串必须用双引号包裹

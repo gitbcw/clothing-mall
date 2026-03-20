@@ -92,3 +92,5 @@ package-lock.json
 ### Docker ###
 docker/db/data/
 docker/litemall/backup/
+docker/litemall/storage/
+docker/admin-dist/

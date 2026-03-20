@@ -36,9 +36,12 @@
 
         <el-form-item :label="$t('goods_edit.form.pic_url')">
           <el-upload
+            ref="picUpload"
             :action="uploadPath"
             :show-file-list="false"
             :headers="headers"
+            :auto-upload="false"
+            :on-change="handlePicChange"
             :on-success="uploadPicUrl"
             :on-error="uploadError"
             :http-request="httpUpload"
@@ -131,11 +134,14 @@
             </el-tag>
           </template>
         </el-table-column>
+        <!-- 规格图片暂不使用，隐藏表格列 -->
+        <!--
         <el-table-column property="picUrl" :label="$t('goods_edit.table.specification_pic_url')">
           <template slot-scope="scope">
             <img v-if="scope.row.picUrl" :src="scope.row.picUrl" width="40">
           </template>
         </el-table-column>
+        -->
         <el-table-column
           v-if="multipleSpec"
           align="center"
@@ -165,11 +171,15 @@
           <el-form-item :label="$t('goods_edit.form.specification_value')" prop="value">
             <el-input v-model="specForm.value" />
           </el-form-item>
+          <!-- 规格图片暂不使用，隐藏上传入口 -->
+          <!--
           <el-form-item :label="$t('goods_edit.form.specification_pic_url')" prop="picUrl">
             <el-upload
               :action="uploadPath"
               :show-file-list="false"
               :headers="headers"
+              :auto-upload="false"
+              :on-change="handleSpecPicChange"
               :on-success="uploadSpecPicUrl"
               :on-error="uploadError"
               :http-request="httpUpload"
@@ -180,6 +190,7 @@
               <i v-else class="el-icon-plus avatar-uploader-icon" />
             </el-upload>
           </el-form-item>
+          -->
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="specVisiable = false">{{ $t('app.button.cancel') }}</el-button>
@@ -237,6 +248,8 @@
               :action="uploadPath"
               :show-file-list="false"
               :headers="headers"
+              :auto-upload="false"
+              :on-change="handleProductPicChange"
               :on-success="uploadProductUrl"
               :on-error="uploadError"
               :http-request="httpUpload"
@@ -341,6 +354,7 @@
     width: 145px;
     height: 145px;
     display: block;
+    object-fit: cover;
   }
 </style>
 
@@ -364,6 +378,9 @@ export default {
       categoryList: [],
       brandList: [],
       goods: { picUrl: '', gallery: [], isHot: false, isNew: true, isOnSale: true },
+      picFile: null, // 待上传的商品图片文件
+      specPicFile: null, // 待上传的规格图片文件
+      productPicFile: null, // 待上传的货品图片文件
       specVisiable: false,
       specForm: { specification: '', value: '', picUrl: '' },
       multipleSpec: false,
@@ -421,7 +438,25 @@ export default {
       this.$store.dispatch('tagsView/delView', this.$route)
       this.$router.push({ path: '/goods/list' })
     },
-    handlePublish: function() {
+    handlePublish: async function() {
+      // 如果有待上传的商品图片，先上传
+      if (this.picFile) {
+        try {
+          const formData = new FormData()
+          formData.append('file', this.picFile)
+          const uploadRes = await createStorage(formData)
+          if (uploadRes.data.errno === 0) {
+            this.goods.picUrl = uploadRes.data.data.url
+          } else {
+            this.$message.error('商品图片上传失败')
+            return
+          }
+        } catch (e) {
+          this.$message.error('商品图片上传失败')
+          return
+        }
+      }
+
       const finalGoods = {
         goods: this.goods,
         specifications: this.specifications,
@@ -461,7 +496,16 @@ export default {
       this.newKeywordVisible = false
       this.newKeyword = ''
     },
+    handlePicChange: function(file) {
+      // 选择文件时生成本地预览 URL，暂不上传
+      if (file.raw) {
+        this.picFile = file.raw
+        this.goods.picUrl = URL.createObjectURL(file.raw)
+      }
+    },
     uploadPicUrl: function(response) {
+      // 由于使用 auto-upload=false，此方法不会自动调用
+      // 保留用于手动上传时的回调
       if (response && response.errno === 0 && response.data && response.data.url) {
         this.goods.picUrl = response.data.url
       } else {
@@ -520,9 +564,35 @@ export default {
     },
     handleSpecificationShow() {
       this.specForm = { specification: '', value: '', picUrl: '' }
+      this.specPicFile = null
       this.specVisiable = true
     },
-    handleSpecificationAdd() {
+    handleSpecPicChange: function(file) {
+      // 选择文件时生成本地预览 URL
+      if (file.raw) {
+        this.specPicFile = file.raw
+        this.specForm.picUrl = URL.createObjectURL(file.raw)
+      }
+    },
+    handleSpecificationAdd: async function() {
+      // 如果有待上传的规格图片，先上传
+      if (this.specPicFile) {
+        try {
+          const formData = new FormData()
+          formData.append('file', this.specPicFile)
+          const uploadRes = await createStorage(formData)
+          if (uploadRes.data.errno === 0) {
+            this.specForm.picUrl = uploadRes.data.data.url
+          } else {
+            this.$message.error('规格图片上传失败')
+            return
+          }
+        } catch (e) {
+          this.$message.error('规格图片上传失败')
+          return
+        }
+      }
+
       var index = this.specifications.length - 1
       for (var i = 0; i < this.specifications.length; i++) {
         const v = this.specifications[i]
@@ -618,7 +688,15 @@ export default {
     },
     handleProductShow(row) {
       this.productForm = Object.assign({}, row)
+      this.productPicFile = null
       this.productVisiable = true
+    },
+    handleProductPicChange: function(file) {
+      // 选择文件时生成本地预览 URL
+      if (file.raw) {
+        this.productPicFile = file.raw
+        this.productForm.url = URL.createObjectURL(file.raw)
+      }
     },
     uploadProductUrl: function(response) {
       if (response && response.errno === 0 && response.data && response.data.url) {
@@ -643,7 +721,25 @@ export default {
           option.onError(err)
         })
     },
-    handleProductEdit() {
+    handleProductEdit: async function() {
+      // 如果有待上传的货品图片，先上传
+      if (this.productPicFile) {
+        try {
+          const formData = new FormData()
+          formData.append('file', this.productPicFile)
+          const uploadRes = await createStorage(formData)
+          if (uploadRes.data.errno === 0) {
+            this.productForm.url = uploadRes.data.data.url
+          } else {
+            this.$message.error('货品图片上传失败')
+            return
+          }
+        } catch (e) {
+          this.$message.error('货品图片上传失败')
+          return
+        }
+      }
+
       for (var i = 0; i < this.products.length; i++) {
         const v = this.products[i]
         if (v.id === this.productForm.id) {

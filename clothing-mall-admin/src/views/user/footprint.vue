@@ -11,11 +11,10 @@
 
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" :element-loading-text="$t('app.message.list_loading')" border fit highlight-current-row>
-      <el-table-column align="center" width="100px" :label="$t('user_footprint.table.id')" prop="id" sortable />
+      <!-- 足迹ID列已隐藏 -->
+      <el-table-column align="center" min-width="100px" :label="$t('user_footprint.table.user_name')" prop="userName" />
 
-      <el-table-column align="center" min-width="100px" :label="$t('user_footprint.table.user_id')" prop="userId" />
-
-      <el-table-column align="center" min-width="100px" :label="$t('user_footprint.table.goods_id')" prop="goodsId" />
+      <el-table-column align="center" min-width="100px" :label="$t('user_footprint.table.goods_name')" prop="goodsName" />
 
       <el-table-column align="center" min-width="100px" :label="$t('user_footprint.table.add_time')" prop="addTime" />
 
@@ -74,13 +73,13 @@ export default {
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['用户ID', '商品ID', '添加时间']
-        const filterVal = ['userId', 'goodsId', 'addTime']
+        const tHeader = ['会员名称', '商品名称', '添加时间']
+        const filterVal = ['userName', 'goodsName', 'addTime']
         excel.export_json_to_excel2(
           tHeader,
           this.list,
           filterVal,
-          '用户收藏信息'
+          '会员足迹信息'
         )
         this.downloadLoading = false
       })

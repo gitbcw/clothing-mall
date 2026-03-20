@@ -153,9 +153,9 @@ export default {
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['用户名', '手机号码', '性别', '生日', '状态']
-        const filterVal = ['username', 'mobile', 'gender', 'birthday', 'status']
-        excel.export_json_to_excel2(tHeader, this.list, filterVal, '用户信息')
+        const tHeader = ['会员名称', '手机号码', '性别', '生日', '状态']
+        const filterVal = ['nickname', 'mobile', 'gender', 'birthday', 'status']
+        excel.export_json_to_excel2(tHeader, this.list, filterVal, '会员信息')
         this.downloadLoading = false
       })
     },

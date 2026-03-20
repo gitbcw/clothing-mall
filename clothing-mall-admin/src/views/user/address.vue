@@ -11,9 +11,11 @@
 
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" :element-loading-text="$t('app.message.list_loading')" border fit highlight-current-row>
-      <el-table-column align="center" width="100px" :label="$t('user_address.table.id')" prop="id" sortable />
+      <!-- 隐藏地址ID列 -->
+      <!-- <el-table-column align="center" width="100px" :label="$t('user_address.table.id')" prop="id" sortable /> -->
 
-      <el-table-column align="center" min-width="100px" :label="$t('user_address.table.user_id')" prop="userId" />
+      <!-- 隐藏用户ID列 -->
+      <!-- <el-table-column align="center" min-width="100px" :label="$t('user_address.table.user_id')" prop="userId" /> -->
 
       <el-table-column align="center" min-width="100px" :label="$t('user_address.table.name')" prop="name" />
 
@@ -86,9 +88,9 @@ export default {
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['地址ID', '用户ID', '收货人', '手机号', '省', '市', '区', '地址', '是否默认']
-        const filterVal = ['id', 'userId', 'name', 'tel', 'province', 'city', 'county', 'addressDetail', 'isDefault']
-        excel.export_json_to_excel2(tHeader, this.list, filterVal, '用户地址信息')
+        const tHeader = ['收货人', '手机号', '省', '市', '区', '地址', '是否默认']
+        const filterVal = ['name', 'tel', 'province', 'city', 'county', 'addressDetail', 'isDefault']
+        excel.export_json_to_excel2(tHeader, this.list, filterVal, '收货地址信息')
         this.downloadLoading = false
       })
     }

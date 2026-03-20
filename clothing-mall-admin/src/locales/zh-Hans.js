@@ -142,30 +142,30 @@ export default {
   },
   user_user: {
     table: {
-      id: '用户ID',
-      nickname: '用户昵称',
-      avatar: '用户头像',
+      id: '会员ID',
+      nickname: '会员昵称',
+      avatar: '会员头像',
       mobile: '手机号码',
       gender: '性别',
       birthday: '生日',
-      user_level: '用户等级',
+      user_level: '会员等级',
       status: '状态',
       actions: '操作'
     },
     dialog: {
-      edit: '用户编辑'
+      edit: '会员编辑'
     },
     form: {
-      username: '用户名',
-      nickname: '用户昵称',
-      mobile: '用户手机',
-      gender: '用户性别',
-      user_level: '用户等级',
+      username: '会员名',
+      nickname: '会员昵称',
+      mobile: '手机号码',
+      gender: '性别',
+      user_level: '会员等级',
       status: '状态'
     },
     placeholder: {
-      filter_username: '请输入用户名',
-      filter_user_id: '请输入用户Id',
+      filter_username: '请输入会员名',
+      filter_user_id: '请输入会员Id',
       filter_mobile: '请输入手机号',
       gender: '请选择',
       user_level: '请选择',
@@ -175,15 +175,15 @@ export default {
   user_address: {
     table: {
       id: '地址ID',
-      user_id: '用户ID',
+      user_id: '会员ID',
       name: '收货人名称',
       tel: '手机号码',
       address_region: '区域地址',
-      address_detail: '区域地址',
+      address_detail: '详细地址',
       is_default: '默认'
     },
     placeholder: {
-      filter_user_id: '请输入用户ID',
+      filter_user_id: '请输入会员ID',
       filter_name: '请输入收货人名称'
     }
   },
@@ -202,12 +202,14 @@ export default {
   user_footprint: {
     table: {
       id: '足迹ID',
-      user_id: '用户ID',
+      user_id: '会员ID',
       goods_id: '商品ID',
+      user_name: '会员名称',
+      goods_name: '商品名称',
       add_time: '添加时间'
     },
     placeholder: {
-      filter_user_id: '请输入用户ID',
+      filter_user_id: '请输入会员ID',
       filter_goods_id: '请输入商品ID'
     }
   },

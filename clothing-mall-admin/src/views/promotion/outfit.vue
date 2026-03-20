@@ -72,15 +72,18 @@
           <el-input v-model="dataForm.name" placeholder="请输入穿搭名称" />
         </el-form-item>
         <el-form-item label="关联商品" prop="goodsIds">
-          <el-select
-            v-model="dataForm.goodsIds"
-            multiple
-            filterable
-            placeholder="请选择关联商品"
-            style="width: 100%;"
-          >
-            <el-option v-for="item in allGoodsList" :key="item.id" :label="item.name" :value="item.id" />
-          </el-select>
+          <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+            <el-tag
+              v-for="goods in selectedGoodsList"
+              :key="goods.id"
+              closable
+              size="medium"
+              @close="removeSelectedGoods(goods.id)"
+            >
+              {{ goods.name }}
+            </el-tag>
+            <el-button type="primary" size="small" icon="el-icon-plus" @click="openGoodsSelector">选择商品</el-button>
+          </div>
         </el-form-item>
         <el-form-item label="排序" prop="sortOrder">
           <el-input-number v-model="dataForm.sortOrder" :min="0" :max="100" />
@@ -92,6 +95,80 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取消</el-button>
         <el-button type="primary" @click="dialogStatus === 'create' ? createData() : updateData()">确定</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 商品选择对话框 -->
+    <el-dialog title="选择商品" :visible.sync="goodsSelectorVisible" width="900px" append-to-body>
+      <!-- 筛选条件 -->
+      <div class="filter-container" style="margin-bottom: 15px;">
+        <el-input
+          v-model="goodsQuery.name"
+          clearable
+          class="filter-item"
+          style="width: 200px;"
+          placeholder="商品名称"
+          @keyup.enter.native="searchGoods"
+        />
+        <el-cascader
+          v-model="goodsQuery.categoryIds"
+          :options="categoryList"
+          :props="{ checkStrictly: true, value: 'id', label: 'label', children: 'children' }"
+          clearable
+          class="filter-item"
+          style="width: 200px;"
+          placeholder="商品分类"
+          @change="handleCategoryChange"
+        />
+        <el-select
+          v-model="goodsQuery.isOnSale"
+          clearable
+          class="filter-item"
+          style="width: 120px;"
+          placeholder="上架状态"
+        >
+          <el-option label="上架" :value="true" />
+          <el-option label="下架" :value="false" />
+        </el-select>
+        <el-button class="filter-item" type="primary" icon="el-icon-search" @click="searchGoods">搜索</el-button>
+        <el-button class="filter-item" icon="el-icon-refresh" @click="resetGoodsQuery">重置</el-button>
+      </div>
+
+      <!-- 商品列表 -->
+      <el-table
+        ref="goodsTable"
+        v-loading="goodsLoading"
+        :data="goodsList"
+        border
+        fit
+        highlight-current-row
+        max-height="400"
+        @selection-change="handleGoodsSelectionChange"
+      >
+        <el-table-column type="selection" width="55" />
+        <el-table-column align="center" label="ID" prop="id" width="80" />
+        <el-table-column align="center" label="商品图片" width="100">
+          <template slot-scope="scope">
+            <el-image :src="scope.row.picUrl" style="width: 60px; height: 60px" fit="cover" />
+          </template>
+        </el-table-column>
+        <el-table-column align="center" label="商品名称" prop="name" min-width="150" show-overflow-tooltip />
+        <el-table-column align="center" label="分类" prop="categoryName" width="120" />
+        <el-table-column align="center" label="价格" prop="retailPrice" width="100" />
+        <el-table-column align="center" label="状态" width="80">
+          <template slot-scope="scope">
+            <el-tag :type="scope.row.isOnSale ? 'success' : 'info'">
+              {{ scope.row.isOnSale ? '上架' : '下架' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <pagination v-show="goodsTotal > 0" :total="goodsTotal" :page.sync="goodsQuery.page" :limit.sync="goodsQuery.limit" @pagination="getGoodsList" />
+
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="goodsSelectorVisible = false">取消</el-button>
+        <el-button type="primary" @click="confirmGoodsSelection">确定（已选 {{ tempSelectedGoods.length }} 个）</el-button>
       </div>
     </el-dialog>
 
@@ -126,6 +203,7 @@
 
 <script>
 import { uploadPath } from '@/api/storage'
+import { listGoods, listCatAndBrand } from '@/api/goods'
 import { getToken } from '@/utils/auth'
 import Pagination from '@/components/Pagination'
 
@@ -164,7 +242,22 @@ export default {
         posterUrl: [{ required: true, message: '海报图不能为空', trigger: 'blur' }],
         goodsIds: [{ required: true, message: '请选择至少一个商品', trigger: 'change', type: 'array', min: 1 }]
       },
-      allGoodsList: []
+      // 商品选择器相关数据
+      goodsSelectorVisible: false,
+      goodsLoading: false,
+      goodsList: [],
+      goodsTotal: 0,
+      goodsQuery: {
+        page: 1,
+        limit: 10,
+        name: undefined,
+        categoryId: undefined,
+        categoryIds: [],
+        isOnSale: undefined
+      },
+      categoryList: [],
+      tempSelectedGoods: [],
+      selectedGoodsList: []
     }
   },
   computed: {
@@ -176,7 +269,7 @@ export default {
   },
   created() {
     this.getList()
-    this.getAllGoodsList()
+    this.getCategoryList()
   },
   methods: {
     getList() {
@@ -221,20 +314,12 @@ export default {
         this.listLoading = false
       }, 500)
     },
-    getAllGoodsList() {
-      // TODO: 获取所有商品用于选择
-      // listGoods({ page: 1, limit: 1000 }).then(response => {
-      //   this.allGoodsList = response.data.data.list
-      // })
-      this.allGoodsList = [
-        { id: 101, name: '白色T恤' },
-        { id: 102, name: '牛仔裤' },
-        { id: 103, name: '帆布鞋' },
-        { id: 201, name: '衬衫' },
-        { id: 202, name: '西装裤' },
-        { id: 203, name: '高跟鞋' },
-        { id: 204, name: '手提包' }
-      ]
+    getCategoryList() {
+      listCatAndBrand().then(response => {
+        this.categoryList = response.data.data.categoryList || []
+      }).catch(() => {
+        this.categoryList = []
+      })
     },
     handleFilter() {
       this.listQuery.page = 1
@@ -249,6 +334,7 @@ export default {
         sortOrder: 0,
         enabled: true
       }
+      this.selectedGoodsList = []
     },
     handleCreate() {
       this.resetForm()
@@ -293,6 +379,7 @@ export default {
         sortOrder: row.sortOrder,
         enabled: row.enabled
       }
+      this.selectedGoodsList = [...row.goodsList]
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -325,6 +412,77 @@ export default {
         title: '提示',
         message: '后端 API 尚未实现，功能待开发'
       })
+    },
+    // ========== 商品选择器相关方法 ==========
+    openGoodsSelector() {
+      this.goodsSelectorVisible = true
+      this.tempSelectedGoods = [...this.selectedGoodsList]
+      this.resetGoodsQuery()
+      this.getGoodsList()
+    },
+    getGoodsList() {
+      this.goodsLoading = true
+      const params = {
+        page: this.goodsQuery.page,
+        limit: this.goodsQuery.limit,
+        name: this.goodsQuery.name,
+        categoryId: this.goodsQuery.categoryId,
+        isOnSale: this.goodsQuery.isOnSale
+      }
+      listGoods(params).then(response => {
+        this.goodsList = response.data.data.list || []
+        this.goodsTotal = response.data.data.total || 0
+        this.goodsLoading = false
+        // 恢复选中状态
+        this.$nextTick(() => {
+          if (this.$refs.goodsTable) {
+            this.goodsList.forEach(row => {
+              if (this.tempSelectedGoods.some(g => g.id === row.id)) {
+                this.$refs.goodsTable.toggleRowSelection(row, true)
+              }
+            })
+          }
+        })
+      }).catch(() => {
+        this.goodsList = []
+        this.goodsTotal = 0
+        this.goodsLoading = false
+      })
+    },
+    searchGoods() {
+      this.goodsQuery.page = 1
+      this.getGoodsList()
+    },
+    resetGoodsQuery() {
+      this.goodsQuery = {
+        page: 1,
+        limit: 10,
+        name: undefined,
+        categoryId: undefined,
+        categoryIds: [],
+        isOnSale: undefined
+      }
+    },
+    handleCategoryChange(value) {
+      // 取最后一级分类ID
+      this.goodsQuery.categoryId = value && value.length > 0 ? value[value.length - 1] : undefined
+    },
+    handleGoodsSelectionChange(selection) {
+      // 合并新选择和已选择（去重）
+      // 保留之前选中但当前页未显示的
+      const notInCurrentPage = this.tempSelectedGoods.filter(g => !this.goodsList.some(item => item.id === g.id))
+      // 当前页选中的
+      const inCurrentPage = selection
+      this.tempSelectedGoods = [...notInCurrentPage, ...inCurrentPage]
+    },
+    confirmGoodsSelection() {
+      this.selectedGoodsList = [...this.tempSelectedGoods]
+      this.dataForm.goodsIds = this.selectedGoodsList.map(g => g.id)
+      this.goodsSelectorVisible = false
+    },
+    removeSelectedGoods(id) {
+      this.selectedGoodsList = this.selectedGoodsList.filter(g => g.id !== id)
+      this.dataForm.goodsIds = this.selectedGoodsList.map(g => g.id)
     }
   }
 }

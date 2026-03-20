@@ -134,7 +134,7 @@ export default {
       actions: 'Actions'
     },
     dialog: {
-      edit: 'Edit user'
+      edit: 'Edit member'
     },
     form: {
       username: 'Username',
@@ -146,7 +146,7 @@ export default {
     },
     placeholder: {
       filter_username: 'Username',
-      filter_user_id: 'User ID',
+      filter_user_id: 'Member ID',
       filter_mobile: 'Mobile',
       gender: 'Please choose',
       user_level: 'Please choose',
@@ -156,7 +156,7 @@ export default {
   user_address: {
     table: {
       id: 'ID',
-      user_id: 'User ID',
+      user_id: 'Member ID',
       name: 'Name',
       tel: 'Mobile',
       address_region: 'Region',
@@ -164,7 +164,7 @@ export default {
       is_default: 'Default'
     },
     placeholder: {
-      filter_user_id: 'User ID',
+      filter_user_id: 'Member ID',
       filter_name: 'Name'
     }
   },
@@ -183,12 +183,14 @@ export default {
   user_footprint: {
     table: {
       id: 'ID',
-      user_id: 'User ID',
+      user_id: 'Member ID',
       goods_id: 'Goods ID',
+      user_name: 'Member name',
+      goods_name: 'Goods name',
       add_time: 'Time added'
     },
     placeholder: {
-      filter_user_id: 'User ID',
+      filter_user_id: 'Member ID',
       filter_goods_id: 'Goods ID'
     }
   },

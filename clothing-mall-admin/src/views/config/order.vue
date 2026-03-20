@@ -13,12 +13,13 @@
         </el-input>
         <span class="info">{{ $t('config_order.help.unconfirm') }}</span>
       </el-form-item>
-      <el-form-item :label="$t('config_order.form.comment')" prop="litemall_order_comment">
+      <!-- 隐藏评价配置项，系统暂无评价功能 -->
+      <!-- <el-form-item :label="$t('config_order.form.comment')" prop="litemall_order_comment">
         <el-input v-model="dataForm.litemall_order_comment" class="input-width">
           <template slot="append">{{ $t('config_order.text.days') }}</template>
         </el-input>
         <span class="info">{{ $t('config_order.help.comment') }}</span>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item>
         <el-button @click="cancel">{{ $t('app.button.cancel') }}</el-button>
         <el-button type="primary" @click="update">{{ $t('app.button.confirm') }}</el-button>

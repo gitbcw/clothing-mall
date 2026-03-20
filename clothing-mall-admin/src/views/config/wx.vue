@@ -57,7 +57,7 @@ export default {
         litemall_wx_index_topic: 0,
         litemall_wx_catlog_list: 0,
         litemall_wx_catlog_goods: 0,
-        litemall_wx_share: false
+        litemall_wx_share: true
       },
       rules: {
         litemall_wx_index_new: [

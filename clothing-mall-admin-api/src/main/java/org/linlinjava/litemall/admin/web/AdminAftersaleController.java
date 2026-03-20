@@ -6,12 +6,15 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.service.LogHelper;
 import org.linlinjava.litemall.admin.util.AdminResponseCode;
+import org.linlinjava.litemall.core.notify.NotifyService;
+import org.linlinjava.litemall.core.notify.NotifyType;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallAftersale;
 import org.linlinjava.litemall.db.domain.LitemallOrder;
+import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.db.util.AftersaleConstant;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +43,10 @@ public class AdminAftersaleController {
     private LitemallOrderService orderService;
     @Autowired
     private LitemallOrderGoodsService orderGoodsService;
+    @Autowired
+    private LitemallUserService userService;
+    @Autowired
+    private NotifyService notifyService;
     @Autowired
     private LogHelper logHelper;
 
@@ -79,6 +86,21 @@ public class AdminAftersaleController {
 
         // 订单也要更新售后状态
         orderService.updateAftersaleStatus(aftersaleOne.getOrderId(), AftersaleConstant.STATUS_RECEPT);
+
+        // 发送短信通知用户：换货审核通过
+        // 注意：需要在短信平台申请专用模板，模板示例："您的换货申请已审核通过，售后编号{1}，请等待发货。"
+        // 目前暂时只记录日志，不发送短信（因为参数与现有模板不匹配）
+        LitemallOrder order = orderService.findById(aftersaleOne.getOrderId());
+        if (order != null) {
+            LitemallUser user = userService.findById(order.getUserId());
+            if (user != null && user.getMobile() != null) {
+                // 暂时注释，待申请专用短信模板后启用
+                // notifyService.notifySmsTemplate(user.getMobile(), NotifyType.AFTERSALE_RECEPT,
+                //         new String[]{aftersaleOne.getAftersaleSn()});
+                logger.info("换货审核通过通知: 用户手机=" + user.getMobile() + ", 售后编号=" + aftersaleOne.getAftersaleSn());
+            }
+        }
+
         return ResponseUtil.ok();
     }
 
@@ -189,6 +211,17 @@ public class AdminAftersaleController {
 
         // 更新订单售后状态
         orderService.updateAftersaleStatus(aftersale.getOrderId(), AftersaleConstant.STATUS_SHIPPED);
+
+        // 发送短信通知用户：换货已发货
+        // 模板示例："您的换货商品已发货，快递公司{1}，快递单号{2}，请注意查收。"
+        LitemallOrder order = orderService.findById(aftersale.getOrderId());
+        if (order != null) {
+            LitemallUser user = userService.findById(order.getUserId());
+            if (user != null && user.getMobile() != null) {
+                notifyService.notifySmsTemplate(user.getMobile(), NotifyType.AFTERSALE_SHIP,
+                        new String[]{shipChannel, shipSn});
+            }
+        }
 
         logHelper.logOrderSucceed("换货发货", "售后编号 " + aftersale.getAftersaleSn() + " 快递公司 " + shipChannel + " 快递单号 " + shipSn);
         return ResponseUtil.ok();

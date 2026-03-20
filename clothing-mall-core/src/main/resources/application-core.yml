@@ -42,6 +42,11 @@ litemall:
         templateId: 158002
       - name: refund
         templateId: 159447
+      # 售后相关模板（复用现有模板）
+      - name: aftersaleShip
+        templateId: 158002  # 复用发货通知模板，参数：快递公司、快递单号
+      - name: aftersaleRecept
+        templateId: 158002  # 暂复用发货模板，实际需申请"审核通过"专用模板
       tencent:
         appid: 111111111
         appkey: xxxxxxxxxxxxxx

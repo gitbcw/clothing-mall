@@ -5,7 +5,9 @@ public enum NotifyType {
     SHIP("ship"),
     REFUND("refund"),
     CAPTCHA("captcha"),
-    OPS_PAY_SUCCEED("opsPaySucceed");
+    OPS_PAY_SUCCEED("opsPaySucceed"),
+    AFTERSALE_RECEPT("aftersaleRecept"),
+    AFTERSALE_SHIP("aftersaleShip");
 
     private String type;
 

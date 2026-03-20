@@ -2,13 +2,13 @@
 
   <view class="h">
     <view class="item {{ status == 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">
-      <view class="txt">未使用</view>
+      <view class="txt">可用</view>
     </view>
     <view class="item {{ status == 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">
-      <view class="txt">已使用</view>
+      <view class="txt">已用</view>
     </view>
     <view class="item {{ status == 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">
-      <view class="txt">已过期</view>
+      <view class="txt">过期</view>
     </view>
   </view>
 

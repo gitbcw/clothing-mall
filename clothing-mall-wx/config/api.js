@@ -90,6 +90,7 @@ module.exports = {
   StorageUpload: WxApiRoot + 'storage/upload', //图片上传,
 
   UserIndex: WxApiRoot + 'user/index', //个人页面用户相关信息
+  UserUpdate: WxApiRoot + 'user/update', //更新用户信息
   IssueList: WxApiRoot + 'issue/list', //帮助信息
 
   // 服装店 SKU 相关接口

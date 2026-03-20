@@ -16,4 +16,11 @@
     <button wx:else type="primary" open-type="getUserProfile" class="wx-login-btn" open-type="getUserInfo" bindgetuserinfo="wxLogin">微信一键登录</button>
     <button class="account-login-btn" bindtap="accountLogin">账号登录</button>
   </view>
+
+  <!-- 生日填写弹窗 -->
+  <birthday-popup
+    show="{{ showBirthdayPopup }}"
+    bind:submit="onBirthdaySubmit"
+    bind:skip="onBirthdaySkip"
+  />
 </view>

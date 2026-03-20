@@ -15,7 +15,8 @@ Page({
       unrecv: 0,
       uncomment: 0
     },
-    hasLogin: false
+    hasLogin: false,
+    couponCount: 0 // 可用优惠券数量
   },
   onLoad: function (options) {
     // 页面初始化 options为页面跳转所带来的参数
@@ -41,6 +42,15 @@ Page({
         if (res.errno === 0) {
           that.setData({
             order: res.data.order
+          });
+        }
+      });
+
+      // 获取可用优惠券数量
+      util.request(api.CouponMyList, { status: 0, page: 1, limit: 1 }).then(function (res) {
+        if (res.errno === 0) {
+          that.setData({
+            couponCount: res.data.total || 0
           });
         }
       });

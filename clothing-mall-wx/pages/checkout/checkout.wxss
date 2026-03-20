@@ -124,6 +124,15 @@ page {
   color: #666;
 }
 
+.coupon-box .l .txt.available {
+  color: #b4282d;
+}
+
+.coupon-box .l .txt.discount {
+  color: #ff6b6b;
+  font-weight: 500;
+}
+
 .coupon-box .r {
   margin-top: 15.5rpx;
   width: 77rpx;

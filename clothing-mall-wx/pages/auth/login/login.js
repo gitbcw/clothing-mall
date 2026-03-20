@@ -10,6 +10,7 @@ Page({
     navContentHeight: 48,
     navTotalHeight: 68,
     navTitle: '账户登录',
+    showBirthdayPopup: false,
   },
   onLoad: function(options) {
     // 页面初始化 options为页面跳转所带来的参数
@@ -65,9 +66,16 @@ Page({
     user.checkLogin().catch(() => {
       user.loginByWeixin(userInfo).then(res => {
         app.globalData.hasLogin = true;
-        wx.navigateBack({
-          delta: 1
-        })
+
+        // 检查是否需要显示生日弹窗（新用户且未填写生日）
+        const userInfo = res.data.userInfo;
+        if (userInfo && !userInfo.birthday) {
+          this.setData({ showBirthdayPopup: true });
+        } else {
+          wx.navigateBack({
+            delta: 1
+          });
+        }
       }).catch((err) => {
         app.globalData.hasLogin = false;
         util.showErrorToast('微信登录失败');
@@ -82,5 +90,25 @@ Page({
   },
   handleBack: function() {
     wx.navigateBack({ delta: 1 })
+  },
+
+  /**
+   * 生日提交成功
+   */
+  onBirthdaySubmit: function(e) {
+    this.setData({ showBirthdayPopup: false });
+    wx.navigateBack({
+      delta: 1
+    });
+  },
+
+  /**
+   * 跳过生日填写
+   */
+  onBirthdaySkip: function() {
+    this.setData({ showBirthdayPopup: false });
+    wx.navigateBack({
+      delta: 1
+    });
   }
 })

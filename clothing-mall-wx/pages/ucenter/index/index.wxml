@@ -50,6 +50,7 @@
   <view class="menu-section">
     <view class='menu-row'>
       <view class='menu-item' bindtap='goCoupon'>
+        <text class="coupon-badge" wx:if="{{couponCount > 0}}">{{couponCount}}</text>
         <image class='menu-icon' src='/static/images/coupon.png'></image>
         <text class='menu-text'>优惠券</text>
       </view>

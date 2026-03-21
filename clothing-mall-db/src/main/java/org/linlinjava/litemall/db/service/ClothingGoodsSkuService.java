@@ -2,9 +2,11 @@ package org.linlinjava.litemall.db.service;
 
 import org.linlinjava.litemall.db.dao.ClothingGoodsSkuMapper;
 import org.linlinjava.litemall.db.domain.ClothingGoodsSku;
+import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -13,8 +15,28 @@ public class ClothingGoodsSkuService {
     @Resource
     private ClothingGoodsSkuMapper skuMapper;
 
+    @Resource
+    private LitemallGoodsService goodsService;
+
     public List<ClothingGoodsSku> queryByGoodsId(Integer goodsId) {
         return skuMapper.selectByGoodsId(goodsId);
+    }
+
+    /**
+     * 根据商品款号查询SKU列表
+     *
+     * @param goodsSn 商品款号
+     * @return SKU列表
+     */
+    public List<ClothingGoodsSku> queryByGoodsSn(String goodsSn) {
+        if (goodsSn == null || goodsSn.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        LitemallGoods goods = goodsService.findByGoodsSn(goodsSn);
+        if (goods == null) {
+            return new ArrayList<>();
+        }
+        return skuMapper.selectByGoodsId(goods.getId());
     }
 
     public List<ClothingGoodsSku> queryByGoodsIdAndColor(Integer goodsId, String color) {

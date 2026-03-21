@@ -44,24 +44,7 @@ public class AdminCategoryController {
             categoryVO.setKeywords(category.getKeywords());
             categoryVO.setName(category.getName());
             categoryVO.setLevel(category.getLevel());
-
-            List<CategoryVo> children = new ArrayList<>();
-            List<LitemallCategory> subCategoryList = categoryService.queryByPid(category.getId());
-            for (LitemallCategory subCategory : subCategoryList) {
-                CategoryVo subCategoryVo = new CategoryVo();
-                subCategoryVo.setId(subCategory.getId());
-                subCategoryVo.setDesc(subCategory.getDesc());
-                subCategoryVo.setIconUrl(subCategory.getIconUrl());
-                subCategoryVo.setPicUrl(subCategory.getPicUrl());
-                subCategoryVo.setKeywords(subCategory.getKeywords());
-                subCategoryVo.setName(subCategory.getName());
-                subCategoryVo.setLevel(subCategory.getLevel());
-                subCategoryVo.setPid(subCategory.getPid());
-
-                children.add(subCategoryVo);
-            }
-
-            categoryVO.setChildren(children);
+            categoryVO.setPid(category.getPid());
             categoryVoList.add(categoryVO);
         }
 

@@ -16,7 +16,7 @@ import java.util.List;
 
 @Service
 public class LitemallGoodsService {
-    Column[] columns = new Column[]{Column.id, Column.name, Column.brief, Column.picUrl, Column.isHot, Column.isNew, Column.counterPrice, Column.retailPrice};
+    Column[] columns = new Column[]{Column.id, Column.name, Column.brief, Column.picUrl, Column.isHot, Column.isNew, Column.counterPrice, Column.retailPrice, Column.categoryId};
     @Resource
     private LitemallGoodsMapper goodsMapper;
 
@@ -256,5 +256,20 @@ public class LitemallGoodsService {
         LitemallGoodsExample example = new LitemallGoodsExample();
         example.or().andIdIn(Arrays.asList(ids)).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
         return goodsMapper.selectByExampleSelective(example, columns);
+    }
+
+    /**
+     * 根据商品款号查询商品
+     *
+     * @param goodsSn 商品款号
+     * @return 商品对象，不存在则返回null
+     */
+    public LitemallGoods findByGoodsSn(String goodsSn) {
+        if (StringUtils.isEmpty(goodsSn)) {
+            return null;
+        }
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        example.or().andGoodsSnEqualTo(goodsSn).andDeletedEqualTo(false);
+        return goodsMapper.selectOneByExampleWithBLOBs(example);
     }
 }

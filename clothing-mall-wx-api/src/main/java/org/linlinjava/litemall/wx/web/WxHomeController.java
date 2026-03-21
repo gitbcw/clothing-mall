@@ -6,7 +6,10 @@ import org.linlinjava.litemall.core.system.SystemConfig;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallCategory;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
+import org.linlinjava.litemall.db.domain.LitemallOutfit;
 import org.linlinjava.litemall.db.service.*;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.service.HomeCacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +51,9 @@ public class WxHomeController {
 
     @Autowired
     private LitemallSystemConfigService systemConfigService;
+
+    @Autowired
+    private LitemallOutfitService outfitService;
 
     private final static ArrayBlockingQueue<Runnable> WORK_QUEUE = new ArrayBlockingQueue<>(9);
 
@@ -102,6 +108,8 @@ public class WxHomeController {
 
         Callable<List> floorGoodsListCallable = this::getCategoryList;
 
+        Callable<List> outfitListCallable = this::getOutfitList;
+
         FutureTask<List> bannerTask = new FutureTask<>(bannerListCallable);
         FutureTask<List> channelTask = new FutureTask<>(channelListCallable);
         FutureTask<List> couponListTask = new FutureTask<>(couponListCallable);
@@ -110,6 +118,7 @@ public class WxHomeController {
         FutureTask<List> brandListTask = new FutureTask<>(brandListCallable);
         FutureTask<List> topicListTask = new FutureTask<>(topicListCallable);
         FutureTask<List> floorGoodsListTask = new FutureTask<>(floorGoodsListCallable);
+        FutureTask<List> outfitListTask = new FutureTask<>(outfitListCallable);
 
         executorService.submit(bannerTask);
         executorService.submit(channelTask);
@@ -119,6 +128,7 @@ public class WxHomeController {
         executorService.submit(brandListTask);
         executorService.submit(topicListTask);
         executorService.submit(floorGoodsListTask);
+        executorService.submit(outfitListTask);
 
         Map<String, Object> entity = new HashMap<>();
         try {
@@ -131,6 +141,7 @@ public class WxHomeController {
             entity.put("topicList", topicListTask.get());
             entity.put("grouponList", new ArrayList<>());
             entity.put("floorGoodsList", floorGoodsListTask.get());
+            entity.put("outfitList", outfitListTask.get());
 
             // 添加活动位配置
             Map<String, String> activityConfig = systemConfigService.listHomeActivity();
@@ -221,6 +232,48 @@ public class WxHomeController {
             categoryList.add(catGoods);
         }
         return categoryList;
+    }
+
+    /**
+     * 获取穿搭推荐列表（包含关联商品信息）
+     */
+    private List<Map<String, Object>> getOutfitList() {
+        List<LitemallOutfit> outfits = outfitService.queryEnabled();
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        ObjectMapper mapper = new ObjectMapper();
+        for (LitemallOutfit outfit : outfits) {
+            Map<String, Object> outfitMap = new HashMap<>();
+            outfitMap.put("id", outfit.getId());
+            outfitMap.put("title", outfit.getTitle());
+            outfitMap.put("coverPic", outfit.getCoverPic());
+            outfitMap.put("sortOrder", outfit.getSortOrder());
+
+            // 解析 goodsIds JSON 并查询商品
+            List<Map<String, Object>> goodsList = new ArrayList<>();
+            String goodsIdsJson = outfit.getGoodsIds();
+            if (goodsIdsJson != null && !goodsIdsJson.isEmpty()) {
+                try {
+                    List<Integer> goodsIds = mapper.readValue(goodsIdsJson, new TypeReference<List<Integer>>() {});
+                    for (Integer goodsId : goodsIds) {
+                        LitemallGoods goods = goodsService.findById(goodsId);
+                        if (goods != null) {
+                            Map<String, Object> goodsMap = new HashMap<>();
+                            goodsMap.put("id", goods.getId());
+                            goodsMap.put("name", goods.getName());
+                            goodsMap.put("picUrl", goods.getPicUrl());
+                            goodsMap.put("retailPrice", goods.getRetailPrice());
+                            goodsList.add(goodsMap);
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("解析穿搭商品ID失败: " + goodsIdsJson, e);
+                }
+            }
+            outfitMap.put("goods", goodsList);
+            result.add(outfitMap);
+        }
+        return result;
     }
 
     /**

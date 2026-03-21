@@ -170,14 +170,20 @@ public class WxGoodsController {
 	 */
 	@GetMapping("category")
 	public Object category(@NotNull Integer id) {
+		List<LitemallCategory> l1CategoryList = categoryService.queryL1();
+		if (l1CategoryList.isEmpty()) {
+			return ResponseUtil.ok(new HashMap<>(0));
+		}
 		LitemallCategory cur = categoryService.findById(id);
+		if (cur == null || id == 0) {
+			cur = l1CategoryList.get(0);
+		}
 		LitemallCategory parent = null;
 		List<LitemallCategory> children = null;
 
 		if (cur.getPid() == 0) {
 			parent = cur;
-			children = categoryService.queryByPid(cur.getId());
-			cur = children.size() > 0 ? children.get(0) : cur;
+			children = l1CategoryList;
 		} else {
 			parent = categoryService.findById(cur.getPid());
 			children = categoryService.queryByPid(cur.getPid());

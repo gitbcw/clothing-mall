@@ -105,4 +105,17 @@ public class AdminGoodsController {
 
     }
 
+    /**
+     * 生成商品分享海报
+     *
+     * @param id 商品ID
+     * @return
+     */
+    @RequiresPermissions("admin:goods:update")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "生成海报")
+    @PostMapping("/generate-share-image")
+    public Object generateShareImage(@NotNull Integer id) {
+        return adminGoodsService.generateShareImage(id);
+    }
+
 }

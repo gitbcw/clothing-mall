@@ -36,13 +36,17 @@ public class AdminClothingSkuController {
     @RequiresPermissions("admin:clothing:sku:list")
     @RequiresPermissionsDesc(menu = {"服装管理", "SKU管理"}, button = "查询")
     @GetMapping("/list")
-    public Object list(Integer goodsId, String color, String size,
+    public Object list(Integer goodsId, String goodsSn, String color, String size,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit) {
-        if (goodsId == null) {
+        List<ClothingGoodsSku> skuList;
+        if (goodsId != null) {
+            skuList = skuService.queryByGoodsId(goodsId);
+        } else if (goodsSn != null && !goodsSn.trim().isEmpty()) {
+            skuList = skuService.queryByGoodsSn(goodsSn);
+        } else {
             return ResponseUtil.badArgument();
         }
-        List<ClothingGoodsSku> skuList = skuService.queryByGoodsId(goodsId);
         return ResponseUtil.okList(skuList);
     }
 

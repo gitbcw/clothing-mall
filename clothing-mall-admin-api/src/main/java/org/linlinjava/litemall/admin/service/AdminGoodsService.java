@@ -16,8 +16,10 @@ import org.springframework.util.StringUtils;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.linlinjava.litemall.admin.util.AdminResponseCode.GOODS_NAME_EXIST;
 
@@ -152,20 +154,19 @@ public class AdminGoodsService {
         LitemallGoodsSpecification[] specifications = goodsAllinone.getSpecifications();
         LitemallGoodsProduct[] products = goodsAllinone.getProducts();
 
-        //将生成的分享图片地址写入数据库
-        String url = qCodeService.createGoodShareImage(goods.getId().toString(), goods.getPicUrl(), goods.getName());
-        goods.setShareUrl(url);
-
         // 商品表里面有一个字段retailPrice记录当前商品的最低价
-        BigDecimal retailPrice = new BigDecimal(Integer.MAX_VALUE);
-        for (LitemallGoodsProduct product : products) {
-            BigDecimal productPrice = product.getPrice();
-            if(retailPrice.compareTo(productPrice) == 1){
-                retailPrice = productPrice;
+        BigDecimal retailPrice = goods.getRetailPrice(); // 保留原值作为默认
+        if (products != null && products.length > 0) {
+            retailPrice = new BigDecimal(Integer.MAX_VALUE);
+            for (LitemallGoodsProduct product : products) {
+                BigDecimal productPrice = product.getPrice();
+                if(retailPrice.compareTo(productPrice) == 1){
+                    retailPrice = productPrice;
+                }
             }
         }
         goods.setRetailPrice(retailPrice);
-        
+
         // 商品基本信息表litemall_goods
         if (goodsService.updateById(goods) == 0) {
             throw new RuntimeException("更新数据失败");
@@ -246,11 +247,14 @@ public class AdminGoodsService {
         }
 
         // 商品表里面有一个字段retailPrice记录当前商品的最低价
-        BigDecimal retailPrice = new BigDecimal(Integer.MAX_VALUE);
-        for (LitemallGoodsProduct product : products) {
-            BigDecimal productPrice = product.getPrice();
-            if(retailPrice.compareTo(productPrice) == 1){
-                retailPrice = productPrice;
+        BigDecimal retailPrice = BigDecimal.ZERO; // 默认值为0
+        if (products != null && products.length > 0) {
+            retailPrice = new BigDecimal(Integer.MAX_VALUE);
+            for (LitemallGoodsProduct product : products) {
+                BigDecimal productPrice = product.getPrice();
+                if(retailPrice.compareTo(productPrice) == 1){
+                    retailPrice = productPrice;
+                }
             }
         }
         goods.setRetailPrice(retailPrice);
@@ -258,16 +262,13 @@ public class AdminGoodsService {
         // 商品基本信息表litemall_goods
         goodsService.add(goods);
 
-        //将生成的分享图片地址写入数据库
-        String url = qCodeService.createGoodShareImage(goods.getId().toString(), goods.getPicUrl(), goods.getName());
-        if (!StringUtils.isEmpty(url)) {
-            goods.setShareUrl(url);
-            if (goodsService.updateById(goods) == 0) {
-                throw new RuntimeException("更新数据失败");
-            }
-        }
-
         // 商品规格表litemall_goods_specification
+        // 从products数组自动生成规格表记录
+        // 提取规格名称列表（按出现顺序去重）
+        String[] specNames = extractSpecificationNames(specifications);
+        generateSpecificationsFromProducts(goods.getId(), products, specNames);
+
+        // 商品规格表litemall_goods_specification（兼容旧数据，如果前端仍传规格则处理）
         for (LitemallGoodsSpecification specification : specifications) {
             specification.setGoodsId(goods.getId());
             specificationService.add(specification);
@@ -288,7 +289,7 @@ public class AdminGoodsService {
     }
 
     public Object list2() {
-        // http://element-cn.eleme.io/#/zh-CN/component/cascader
+        // http://element-cn.eleme.io/#/zh-CN/component/select
         // 管理员设置“所属分类”
         List<LitemallCategory> l1CatList = categoryService.queryL1();
         List<CatVo> categoryList = new ArrayList<>(l1CatList.size());
@@ -297,17 +298,6 @@ public class AdminGoodsService {
             CatVo l1CatVo = new CatVo();
             l1CatVo.setValue(l1.getId());
             l1CatVo.setLabel(l1.getName());
-
-            List<LitemallCategory> l2CatList = categoryService.queryByPid(l1.getId());
-            List<CatVo> children = new ArrayList<>(l2CatList.size());
-            for (LitemallCategory l2 : l2CatList) {
-                CatVo l2CatVo = new CatVo();
-                l2CatVo.setValue(l2.getId());
-                l2CatVo.setLabel(l2.getName());
-                children.add(l2CatVo);
-            }
-            l1CatVo.setChildren(children);
-
             categoryList.add(l1CatVo);
         }
 
@@ -338,8 +328,7 @@ public class AdminGoodsService {
         LitemallCategory category = categoryService.findById(categoryId);
         Integer[] categoryIds = new Integer[]{};
         if (category != null) {
-            Integer parentCategoryId = category.getPid();
-            categoryIds = new Integer[]{parentCategoryId, categoryId};
+            categoryIds = new Integer[]{categoryId};
         }
 
         Map<String, Object> data = new HashMap<>();
@@ -350,6 +339,139 @@ public class AdminGoodsService {
         data.put("categoryIds", categoryIds);
 
         return ResponseUtil.ok(data);
+    }
+
+    /**
+     * 手动生成商品分享海报
+     *
+     * @param id 商品ID
+     * @return
+     */
+    public Object generateShareImage(Integer id) {
+        LitemallGoods goods = goodsService.findById(id);
+        if (goods == null) {
+            return ResponseUtil.badArgumentValue();
+        }
+
+        // 生成分享海报
+        String shareUrl = qCodeService.createGoodShareImage(id.toString(), goods.getPicUrl(), goods.getName());
+        if (StringUtils.isEmpty(shareUrl)) {
+            return ResponseUtil.fail(500, "生成分享海报失败");
+        }
+
+        // 更新商品分享图URL
+        goods.setShareUrl(shareUrl);
+        if (goodsService.updateById(goods) == 0) {
+            return ResponseUtil.updatedDataFailed();
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("shareUrl", shareUrl);
+        return ResponseUtil.ok(data);
+    }
+
+    /**
+     * 从products数组自动生成goods_specification表记录
+     * specifications数组格式：
+     *   - 新格式(带规格名): ["颜色:红色,尺码:S", "颜色:蓝色,尺码:M"]
+     *   - 旧格式(纯值): ["红色", "S"] (需要结合specificationsNames参数)
+     *
+     * @param goodsId 商品ID
+     * @param products SKU数组
+     * @param specificationsNames 规格名称数组，用于旧格式纯值解析，如["颜色", "尺码"]
+     */
+    private void generateSpecificationsFromProducts(Integer goodsId, LitemallGoodsProduct[] products, String[] specificationsNames) {
+        // 使用Map存储规格名->规格值集合的去重结果
+        Map<String, Set<String>> specMap = new HashMap<>();
+
+        for (LitemallGoodsProduct product : products) {
+            String[] specs = product.getSpecifications();
+            if (specs == null || specs.length == 0) {
+                continue;
+            }
+
+            for (int i = 0; i < specs.length; i++) {
+                String specStr = specs[i];
+
+                // 格式1: "颜色:红色,尺码:S" (新格式，带规格名和值)
+                if (specStr.contains(":") && specStr.contains(",")) {
+                    String[] parts = specStr.split(",");
+                    for (String part : parts) {
+                        parseAndAddSpec(specMap, part.trim());
+                    }
+                }
+                // 格式2: "颜色:红色" (新格式，单个带规格名)
+                else if (specStr.contains(":")) {
+                    parseAndAddSpec(specMap, specStr.trim());
+                }
+                // 格式3: "红色" (旧格式纯值，需要结合规格名称)
+                else if (specificationsNames != null && i < specificationsNames.length) {
+                    String specName = specificationsNames[i];
+                    String specValue = specStr.trim();
+                    if (!specName.isEmpty() && !specValue.isEmpty()) {
+                        specMap.computeIfAbsent(specName, k -> new HashSet<>()).add(specValue);
+                    }
+                }
+            }
+        }
+
+        // 将去重后的规格写入数据库
+        for (Map.Entry<String, Set<String>> entry : specMap.entrySet()) {
+            String specName = entry.getKey();
+            for (String specValue : entry.getValue()) {
+                LitemallGoodsSpecification spec = new LitemallGoodsSpecification();
+                spec.setGoodsId(goodsId);
+                spec.setSpecification(specName);
+                spec.setValue(specValue);
+                specificationService.add(spec);
+            }
+        }
+    }
+
+    /**
+     * 从products数组自动生成goods_specification表记录(重载，默认不使用规格名解析)
+     */
+    private void generateSpecificationsFromProducts(Integer goodsId, LitemallGoodsProduct[] products) {
+        generateSpecificationsFromProducts(goodsId, products, null);
+    }
+
+    /**
+     * 解析单个规格字符串并添加到Map
+     * 格式: "颜色:红色" -> {颜色: 红色}
+     */
+    private void parseAndAddSpec(Map<String, Set<String>> specMap, String specStr) {
+        if (specStr == null || specStr.isEmpty() || !specStr.contains(":")) {
+            return;
+        }
+        String[] parts = specStr.split(":");
+        if (parts.length >= 2) {
+            String specName = parts[0].trim();
+            String specValue = parts[1].trim();
+            if (!specName.isEmpty() && !specValue.isEmpty()) {
+                specMap.computeIfAbsent(specName, k -> new HashSet<>()).add(specValue);
+            }
+        }
+    }
+
+    /**
+     * 从规格数组中提取规格名称列表（按出现顺序去重）
+     * 输入: [{specification: '颜色', value: '红色'}, {specification: '颜色', value: '蓝色'}, {specification: '尺码', value: 'S'}]
+     * 输出: ['颜色', '尺码']
+     */
+    private String[] extractSpecificationNames(LitemallGoodsSpecification[] specifications) {
+        if (specifications == null || specifications.length == 0) {
+            return new String[0];
+        }
+        List<String> names = new ArrayList<>();
+        Set<String> nameSet = new HashSet<>();
+        for (LitemallGoodsSpecification spec : specifications) {
+            String name = spec.getSpecification();
+            if (name != null && !nameSet.contains(name)) {
+                nameSet.add(name);
+                names.add(name);
+            }
+        }
+        return names.toArray(new String[0]);
     }
 
 }

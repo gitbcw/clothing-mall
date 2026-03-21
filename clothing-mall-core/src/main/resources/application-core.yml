@@ -126,3 +126,12 @@ litemall:
     enabled: false
     api-key: d6adXCnmEoURuO0Lx9keO9LL
     secret-key: TplRPeZIlxaDehEXvEcEPeagMvpbfWyM
+
+  # AI 服装识别配置（MiniMax M2.7）
+  # 文档地址：https://platform.minimax.io/docs/api-reference/text-chat
+  ai:
+    enabled: false
+    api-key: ${MINIMAX_API_KEY:}
+    endpoint: https://api.minimax.io/v1/chat/completions
+    model: MiniMax-Text-01
+    timeout: 30000

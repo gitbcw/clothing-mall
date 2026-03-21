@@ -43,6 +43,8 @@ public class AdminGoodsService {
     private LitemallCartService cartService;
     @Autowired
     private QCodeService qCodeService;
+    @Autowired
+    private ClothingGoodsSkuService clothingGoodsSkuService;
 
     public Object list(Integer goodsId, String goodsSn, String name,
                        Integer page, Integer limit, String sort, String order) {
@@ -285,6 +287,16 @@ public class AdminGoodsService {
             product.setGoodsId(goods.getId());
             productService.add(product);
         }
+
+        // 关联 SKU（服装店扩展功能）
+        List<Integer> skuIds = goodsAllinone.getSkuIds();
+        if (skuIds != null && !skuIds.isEmpty()) {
+            // 批量关联商品
+            clothingGoodsSkuService.bindGoodsBatch(skuIds, goods.getId());
+            // 批量更新状态为已上架
+            clothingGoodsSkuService.updateStatusBatch(skuIds, "published");
+        }
+
         return ResponseUtil.ok();
     }
 

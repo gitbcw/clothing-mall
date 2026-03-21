@@ -5,13 +5,34 @@ import java.time.LocalDateTime;
 
 /**
  * 商品 SKU 实体类（颜色+尺码组合）
+ * 支持独立 SKU 库、AI 识别、草稿状态
  */
 public class ClothingGoodsSku {
     public static final Boolean IS_DELETED = true;
     public static final Boolean NOT_DELETED = false;
 
+    // SKU 状态常量
+    public static final String STATUS_DRAFT = "draft";        // 草稿
+    public static final String STATUS_PENDING = "pending";    // 待上架
+    public static final String STATUS_PUBLISHED = "published"; // 已上架
+
+    // 用于 Service 层查询
+    public static final String STATUS_DRAFT_ = STATUS_DRAFT;
+    public static final String STATUS_PENDING_ = STATUS_PENDING;
+
     private Integer id;
-    private Integer goodsId;
+    private Integer goodsId;          // 商品ID（未上架时为空）
+    private String status;            // 状态：draft/pending/published
+    private Integer categoryId;       // 分类ID
+    private String brand;             // 品牌
+    private String name;              // SKU名称（AI识别结果）
+    private String brief;             // 简介
+    private String material;          // 材质
+    private String season;            // 季节
+    private String style;             // 风格标签
+    private Boolean aiRecognized;     // 是否AI识别录入
+    private BigDecimal aiConfidence;  // AI识别置信度
+    private String sourceImage;       // 源图片（拍照图片）
     private String skuCode;
     private String color;
     private String colorImage;
@@ -28,6 +49,7 @@ public class ClothingGoodsSku {
     // 关联查询字段
     private String goodsName;
     private String goodsImageUrl;
+    private String categoryName;
 
     public Integer getId() {
         return id;
@@ -43,6 +65,94 @@ public class ClothingGoodsSku {
 
     public void setGoodsId(Integer goodsId) {
         this.goodsId = goodsId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Integer getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Integer categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getBrief() {
+        return brief;
+    }
+
+    public void setBrief(String brief) {
+        this.brief = brief;
+    }
+
+    public String getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(String material) {
+        this.material = material;
+    }
+
+    public String getSeason() {
+        return season;
+    }
+
+    public void setSeason(String season) {
+        this.season = season;
+    }
+
+    public String getStyle() {
+        return style;
+    }
+
+    public void setStyle(String style) {
+        this.style = style;
+    }
+
+    public Boolean getAiRecognized() {
+        return aiRecognized;
+    }
+
+    public void setAiRecognized(Boolean aiRecognized) {
+        this.aiRecognized = aiRecognized;
+    }
+
+    public BigDecimal getAiConfidence() {
+        return aiConfidence;
+    }
+
+    public void setAiConfidence(BigDecimal aiConfidence) {
+        this.aiConfidence = aiConfidence;
+    }
+
+    public String getSourceImage() {
+        return sourceImage;
+    }
+
+    public void setSourceImage(String sourceImage) {
+        this.sourceImage = sourceImage;
     }
 
     public String getSkuCode() {
@@ -155,5 +265,13 @@ public class ClothingGoodsSku {
 
     public void setGoodsImageUrl(String goodsImageUrl) {
         this.goodsImageUrl = goodsImageUrl;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 }

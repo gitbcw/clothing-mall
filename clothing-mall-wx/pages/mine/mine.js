@@ -23,7 +23,10 @@ Page({
       uncomment: 0
     },
     hasLogin: false,
-    couponCount: 0
+    couponCount: 0,
+    // 管理员相关
+    isManager: false,
+    userRole: 'user'
   },
 
   onLoad() {
@@ -54,16 +57,38 @@ Page({
       this.getOrderInfo()
       // 获取优惠券数量
       this.getCouponCount()
+      // 获取用户角色
+      this.getUserRole()
     } else {
       this.setData({
         hasLogin: false,
         avatarLoadError: false,
+        isManager: false,
+        userRole: 'user',
         userInfo: {
           nickName: '点击登录',
           avatarUrl: '/static/images/user.png'
         }
       })
     }
+  },
+
+  // 获取用户角色
+  getUserRole() {
+    let that = this
+    util.request(api.UserIsManager).then(function(res) {
+      if (res.errno === 0) {
+        that.setData({
+          isManager: res.data.isManager,
+          userRole: res.data.role
+        })
+      }
+    }).catch(function() {
+      that.setData({
+        isManager: false,
+        userRole: 'user'
+      })
+    })
   },
 
   // 获取订单统计
@@ -213,5 +238,14 @@ Page({
       title: '敬请期待',
       icon: 'none'
     })
+  },
+
+  // 跳转管理后台
+  goManager() {
+    if (this.data.isManager) {
+      wx.navigateTo({
+        url: '/pages/manager/index/index'
+      })
+    }
   }
 })

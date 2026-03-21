@@ -125,3 +125,11 @@ litemall:
 
 swagger:
   production: false
+
+  # AI 服装识别配置（MiniMax M2.7）
+  ai:
+    enabled: ${AI_ENABLED:false}
+    api-key: ${MINIMAX_API_KEY:}
+    endpoint: https://api.minimax.io/v1/chat/completions
+    model: MiniMax-Text-01
+    timeout: 30000

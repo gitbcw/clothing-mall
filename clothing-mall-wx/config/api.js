@@ -95,11 +95,15 @@ module.exports = {
 
   UserIndex: WxApiRoot + 'user/index', //个人页面用户相关信息
   UserUpdate: WxApiRoot + 'user/update', //更新用户信息
+  UserRole: WxApiRoot + 'user/role', // 获取用户角色
+  UserIsManager: WxApiRoot + 'user/isManager', // 检查用户是否有管理权限
   IssueList: WxApiRoot + 'issue/list', //帮助信息
 
   // 服装店 SKU 相关接口
   ClothingSkuList: WxApiRoot + 'clothing/sku/list', // 商品 SKU 列表
   ClothingSkuDetail: WxApiRoot + 'clothing/sku/detail', // SKU 详情
+  ClothingSkuCreate: WxApiRoot + 'clothing/sku/create', // 创建 SKU
+  ClothingSkuUpdate: WxApiRoot + 'clothing/sku/update', // 更新 SKU
   ClothingSkuCheckStock: WxApiRoot + 'clothing/sku/checkStock', // 检查库存
   ClothingStoreList: WxApiRoot + 'clothing/store/list', // 门店列表
   ClothingStoreDetail: WxApiRoot + 'clothing/store/detail', // 门店详情
@@ -113,4 +117,18 @@ module.exports = {
 
   // 埋点上报接口
   TrackerReport: WxApiRoot + 'tracker/report',
+
+  // 文件上传
+  StorageUpload: WxApiRoot + 'storage/upload',
+
+  // AI 识别相关接口
+  AiRecognizeByUrl: WxApiRoot + 'ai/recognizeByUrl', // 通过 URL 识别服装
+  AiRecognize: WxApiRoot + 'ai/recognize', // 上传图片识别服装
+  AiStatus: WxApiRoot + 'ai/status', // AI 服务状态
+
+  // 管理端订单接口
+  ManagerOrderDetail: WxApiRoot + 'manager/order/detail', // 管理端订单详情
+  ManagerOrderShip: WxApiRoot + 'manager/order/ship', // 发货
+  ManagerOrderConfirm: WxApiRoot + 'manager/order/confirm', // 确认收货
+  ManagerOrderCancel: WxApiRoot + 'manager/order/cancel', // 取消订单
 };

@@ -54,7 +54,10 @@ upload
 gen_code
 
 ### test ignore ###
-# 测试环境配置（包含敏感信息）
+# 环境变量配置（包含敏感信息）
+.env
+.env.local
+.env.*.local
 .env.test
 
 # 测试报告
@@ -94,3 +97,5 @@ docker/db/data/
 docker/litemall/backup/
 docker/litemall/storage/
 docker/admin-dist/
+docker/.env
+.claude/

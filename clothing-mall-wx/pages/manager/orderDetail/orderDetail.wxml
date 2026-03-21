@@ -1,0 +1,112 @@
+<view class="container" wx:if="{{!loading}}">
+  <!-- 订单状态 -->
+  <view class="status-section">
+    <text class="status-text">{{order.orderStatusText}}</text>
+  </view>
+
+  <!-- 收货信息 -->
+  <view class="address-section">
+    <view class="address-info">
+      <text class="name">{{order.consignee}}</text>
+      <text class="mobile">{{order.mobile}}</text>
+    </view>
+    <text class="address">{{order.address}}</text>
+  </view>
+
+  <!-- 商品列表 -->
+  <view class="goods-section">
+    <view class="goods-item" wx:for="{{order.goodsList}}" wx:key="id">
+      <image class="goods-image" src="{{item.picUrl}}" mode="aspectFill"></image>
+      <view class="goods-info">
+        <text class="goods-name">{{item.goodsName}}</text>
+        <text class="goods-spec">{{item.specifications}}</text>
+        <view class="goods-price-num">
+          <text class="goods-price">¥{{item.price}}</text>
+          <text class="goods-num">x{{item.number}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 物流信息（已发货时显示） -->
+  <view class="info-section" wx:if="{{order.shipSn}}">
+    <view class="section-title">物流信息</view>
+    <view class="info-item">
+      <text class="label">物流公司</text>
+      <text class="value">{{order.shipChannel}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">物流单号</text>
+      <text class="value">{{order.shipSn}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">发货时间</text>
+      <text class="value">{{order.shipTime}}</text>
+    </view>
+  </view>
+
+  <!-- 订单信息 -->
+  <view class="info-section">
+    <view class="section-title">订单信息</view>
+    <view class="info-item">
+      <text class="label">订单编号</text>
+      <text class="value">{{order.orderSn}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">下单时间</text>
+      <text class="value">{{order.addTime}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">支付方式</text>
+      <text class="value">微信支付</text>
+    </view>
+    <view class="info-item">
+      <text class="label">订单金额</text>
+      <text class="value">¥{{order.goodsPrice}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">运费</text>
+      <text class="value">¥{{order.freightPrice}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">实付金额</text>
+      <text class="value price">¥{{order.actualPrice}}</text>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-section">
+    <view class="action-btn ship" wx:if="{{order.handleOption.ship}}" bindtap="handleShip">发货</view>
+    <view class="action-btn confirm" wx:if="{{order.handleOption.confirm}}" bindtap="handleConfirm">确认收货</view>
+    <view class="action-btn refund" wx:if="{{order.handleOption.refund}}" bindtap="handleRefund">退款</view>
+  </view>
+
+  <!-- 发货弹窗 -->
+  <view class="ship-dialog-mask" wx:if="{{showShipDialog}}" bindtap="closeShipDialog"></view>
+  <view class="ship-dialog" wx:if="{{showShipDialog}}">
+    <view class="dialog-title">发货</view>
+    <view class="dialog-content">
+      <view class="form-item">
+        <text class="form-label">物流公司</text>
+        <picker mode="selector" range="{{channelOptions}}" value="{{channelIndex}}" bindchange="onChannelChange">
+          <view class="picker">
+            {{channelOptions[channelIndex]}}
+            <text class="arrow">></text>
+          </view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">物流单号</text>
+        <input class="form-input" placeholder="请输入物流单号" value="{{shipSn}}" bindinput="onShipSnInput" />
+      </view>
+    </view>
+    <view class="dialog-actions">
+      <view class="btn-cancel" bindtap="closeShipDialog">取消</view>
+      <view class="btn-confirm" bindtap="confirmShip">确认发货</view>
+    </view>
+  </view>
+</view>
+
+<view class="loading" wx:if="{{loading}}">
+  <text>加载中...</text>
+</view>

@@ -34,4 +34,38 @@ public interface ClothingGoodsSkuMapper {
     int countSelective(ClothingGoodsSku record);
 
     int deleteByGoodsId(@Param("goodsId") Integer goodsId);
+
+    // ==================== 新增方法 ====================
+
+    /**
+     * 查询 SKU 列表（支持分页和筛选）
+     */
+    List<ClothingGoodsSku> selectSkuList(@Param("status") String status,
+                                          @Param("categoryId") Integer categoryId,
+                                          @Param("color") String color,
+                                          @Param("size") String size,
+                                          @Param("keyword") String keyword,
+                                          @Param("goodsId") Integer goodsId,
+                                          @Param("hasGoods") Boolean hasGoods);
+
+    /**
+     * 统计 SKU 数量
+     */
+    int countSkuList(@Param("status") String status,
+                     @Param("categoryId") Integer categoryId,
+                     @Param("color") String color,
+                     @Param("size") String size,
+                     @Param("keyword") String keyword,
+                     @Param("goodsId") Integer goodsId,
+                     @Param("hasGoods") Boolean hasGoods);
+
+    /**
+     * 批量更新状态
+     */
+    int updateStatusBatch(@Param("ids") List<Integer> ids, @Param("status") String status);
+
+    /**
+     * 批量关联商品
+     */
+    int bindGoodsBatch(@Param("skuIds") List<Integer> skuIds, @Param("goodsId") Integer goodsId);
 }

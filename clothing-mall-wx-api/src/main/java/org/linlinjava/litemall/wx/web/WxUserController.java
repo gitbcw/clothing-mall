@@ -4,18 +4,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallUser;
-import org.linlinjava.litemall.db.service.LitemallOrderService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,32 +23,10 @@ public class WxUserController {
     private final Log logger = LogFactory.getLog(WxUserController.class);
 
     @Autowired
-    private LitemallOrderService orderService;
-
-    @Autowired
     private LitemallUserService userService;
 
     /**
-     * 用户个人页面数据
-     * <p>
-     * 目前是用户订单统计信息
-     *
-     * @param userId 用户ID
-     * @return 用户个人页面数据
-     */
-    @GetMapping("index")
-    public Object list(@LoginUser Integer userId) {
-        if (userId == null) {
-            return ResponseUtil.unlogin();
-        }
-
-        Map<Object, Object> data = new HashMap<Object, Object>();
-        data.put("order", orderService.orderInfo(userId));
-        return ResponseUtil.ok(data);
-    }
-
-    /**
-     * 获取用户信息
+     * 获取当前用户信息（包括角色）
      *
      * @param userId 用户ID
      * @return 用户信息
@@ -71,24 +43,25 @@ public class WxUserController {
         }
 
         Map<String, Object> data = new HashMap<>();
+        data.put("id", user.getId());
         data.put("nickname", user.getNickname());
         data.put("avatar", user.getAvatar());
-        data.put("gender", user.getGender());
-        data.put("birthday", user.getBirthday());
         data.put("mobile", user.getMobile());
+        data.put("role", user.getRole() != null ? user.getRole() : "user");
+        data.put("storeId", user.getStoreId());
+        data.put("guideId", user.getGuideId());
 
         return ResponseUtil.ok(data);
     }
 
     /**
-     * 更新用户信息
+     * 获取当前用户角色
      *
      * @param userId 用户ID
-     * @param body   用户信息
-     * @return 操作结果
+     * @return 用户角色
      */
-    @PostMapping("update")
-    public Object update(@LoginUser Integer userId, @RequestBody Map<String, Object> body) {
+    @GetMapping("role")
+    public Object getRole(@LoginUser Integer userId) {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
@@ -98,43 +71,44 @@ public class WxUserController {
             return ResponseUtil.badArgumentValue();
         }
 
-        // 更新昵称
-        String nickname = (String) body.get("nickname");
-        if (nickname != null && !nickname.isEmpty()) {
-            user.setNickname(nickname);
+        String role = user.getRole();
+        if (role == null || role.isEmpty()) {
+            role = "user";
         }
 
-        // 更新头像
-        String avatar = (String) body.get("avatar");
-        if (avatar != null && !avatar.isEmpty()) {
-            user.setAvatar(avatar);
-        }
+        Map<String, Object> data = new HashMap<>();
+        data.put("role", role);
+        data.put("isOwner", "owner".equals(role));
+        data.put("isGuide", "guide".equals(role));
+        data.put("isManager", "owner".equals(role) || "guide".equals(role));
 
-        // 更新性别
-        Integer gender = (Integer) body.get("gender");
-        if (gender != null) {
-            user.setGender(gender.byteValue());
-        }
-
-        // 更新生日
-        String birthdayStr = (String) body.get("birthday");
-        if (birthdayStr != null && !birthdayStr.isEmpty()) {
-            try {
-                user.setBirthday(LocalDate.parse(birthdayStr));
-            } catch (Exception e) {
-                logger.warn("生日格式错误: " + birthdayStr, e);
-            }
-        }
-
-        // 更新手机号
-        String mobile = (String) body.get("mobile");
-        if (mobile != null && !mobile.isEmpty()) {
-            user.setMobile(mobile);
-        }
-
-        userService.updateById(user);
-
-        return ResponseUtil.ok();
+        return ResponseUtil.ok(data);
     }
 
+    /**
+     * 检查用户是否有管理权限
+     *
+     * @param userId 用户ID
+     * @return 是否有管理权限
+     */
+    @GetMapping("isManager")
+    public Object isManager(@LoginUser Integer userId) {
+        if (userId == null) {
+            return ResponseUtil.unlogin();
+        }
+
+        LitemallUser user = userService.findById(userId);
+        if (user == null) {
+            return ResponseUtil.badArgumentValue();
+        }
+
+        String role = user.getRole();
+        boolean isManager = "owner".equals(role) || "guide".equals(role);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("isManager", isManager);
+        data.put("role", role != null ? role : "user");
+
+        return ResponseUtil.ok(data);
+    }
 }

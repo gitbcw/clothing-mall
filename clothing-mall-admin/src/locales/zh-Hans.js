@@ -26,6 +26,7 @@ export default {
       goods_comment: '商品评论',
       goods_ocr: 'OCR识别',
       goods_sku: 'SKU管理',
+      goods_scene: '场景管理',
       goods_store: '门店管理',
       goods_guide: '导购管理',
       goods_memberLevel: '会员等级',
@@ -41,8 +42,8 @@ export default {
       promotion_groupon_activity: '团购活动',
       promotion_flashSale: '限时特卖',
       promotion_fullReduction: '满减活动',
-      // 数据统计
-      stat: '数据统计',
+      // 营收分析（原数据统计）
+      stat: '营收分析',
       stat_growth: '增长分析',
       stat_sales: '销售分析',
       stat_tracker: '行为分析',
@@ -53,7 +54,20 @@ export default {
       mall_category: '商品分类',
       mall_issue: '通用问题',
       mall_keyword: '关键词',
-      // 系统管理
+      // 平台设置（合并系统管理、会员管理、运营管理等）
+      platform: '平台设置',
+      platform_user: '会员管理',
+      platform_store: '门店管理',
+      platform_guide: '导购管理',
+      platform_wework: '消息推送',
+      platform_config: '商城配置',
+      platform_admin: '管理员',
+      platform_notice: '通知管理',
+      platform_log: '操作日志',
+      platform_role: '角色管理',
+      platform_storage: '对象存储',
+      platform_wx: '小程序设置',
+      // 系统管理（保留旧 key 兼容）
       sys: '系统管理',
       sys_admin: '管理员',
       sys_notice: '通知管理',

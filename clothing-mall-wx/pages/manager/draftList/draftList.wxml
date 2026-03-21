@@ -1,0 +1,39 @@
+<view class="container">
+  <!-- 顶部操作栏 -->
+  <view class="header">
+    <view class="draft-count">共 {{drafts.length}} 个草稿</view>
+    <view class="clear-btn" bindtap="clearAllDrafts" wx:if="{{drafts.length > 0}}">清空</view>
+  </view>
+
+  <!-- 草稿列表 -->
+  <view class="draft-list" wx:if="{{drafts.length > 0}}">
+    <view class="draft-item" wx:for="{{drafts}}" wx:key="index">
+      <image class="draft-image" src="{{item.imageUrl || '/static/images/default-goods.png'}}" mode="aspectFill"></image>
+      <view class="draft-info" bindtap="editDraft" data-index="{{index}}">
+        <view class="draft-name">{{item.name || '未命名商品'}}</view>
+        <view class="draft-meta">
+          <text wx:if="{{item.category}}">{{item.category}}</text>
+          <text wx:if="{{item.color}}">{{item.color}}</text>
+          <text wx:if="{{item.size}}">{{item.size}}</text>
+        </view>
+        <view class="draft-time">{{item.savedAt}}</view>
+      </view>
+      <view class="draft-actions">
+        <button class="btn-edit" catchtap="editDraft" data-index="{{index}}">编辑</button>
+        <button class="btn-delete" catchtap="deleteDraft" data-index="{{index}}">删除</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{!loading && drafts.length === 0}}">
+    <view class="empty-icon">📝</view>
+    <view class="empty-text">暂无草稿</view>
+    <button class="create-btn" bindtap="createNew">去创建商品</button>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

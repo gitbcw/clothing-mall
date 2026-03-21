@@ -1,0 +1,57 @@
+<view class="container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <text class="title">管理后台</text>
+    <text class="subtitle">{{userRole === 'owner' ? '店主' : '导购'}}</text>
+  </view>
+
+  <!-- 功能模块 -->
+  <view class="section">
+    <!-- 订单管理 -->
+    <view class="section-title">订单管理</view>
+    <view class="menu-grid">
+      <view class="menu-item" bindtap="goOrderList" data-type="unpaid">
+        <view class="menu-icon icon-unpaid"></view>
+        <text class="menu-text">待付款</text>
+        <view class="badge" wx:if="{{orderStats.unpaid > 0}}">{{orderStats.unpaid}}</view>
+      </view>
+      <view class="menu-item" bindtap="goOrderList" data-type="unship">
+        <view class="menu-icon icon-unship"></view>
+        <text class="menu-text">待发货</text>
+        <view class="badge" wx:if="{{orderStats.unship > 0}}">{{orderStats.unship}}</view>
+      </view>
+      <view class="menu-item" bindtap="goOrderList" data-type="unrecv">
+        <view class="menu-icon icon-unrecv"></view>
+        <text class="menu-text">待收货</text>
+        <view class="badge" wx:if="{{orderStats.unrecv > 0}}">{{orderStats.unrecv}}</view>
+      </view>
+      <view class="menu-item" bindtap="goAftersaleList">
+        <view class="menu-icon icon-aftersale"></view>
+        <text class="menu-text">售后</text>
+        <view class="badge" wx:if="{{orderStats.aftersale > 0}}">{{orderStats.aftersale}}</view>
+      </view>
+    </view>
+
+    <!-- 商品管理 -->
+    <view class="section-title">商品管理</view>
+    <view class="menu-grid">
+      <view class="menu-item" bindtap="goQuickUpload">
+        <view class="menu-icon icon-camera"></view>
+        <text class="menu-text">快速上架</text>
+      </view>
+      <view class="menu-item" bindtap="goSkuList">
+        <view class="menu-icon icon-sku"></view>
+        <text class="menu-text">SKU管理</text>
+      </view>
+      <view class="menu-item" bindtap="goDraftList">
+        <view class="menu-icon icon-draft"></view>
+        <text class="menu-text">草稿箱</text>
+        <view class="badge" wx:if="{{draftCount > 0}}">{{draftCount}}</view>
+      </view>
+      <view class="menu-item" bindtap="goGoodsList">
+        <view class="menu-icon icon-goods"></view>
+        <text class="menu-text">商品列表</text>
+      </view>
+    </view>
+  </view>
+</view>

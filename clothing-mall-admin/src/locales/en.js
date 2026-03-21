@@ -266,6 +266,7 @@ export default {
       keywords: 'Keywords',
       desc: 'Description',
       level: 'Level',
+      season_switch: 'Season Switch',
       actions: 'Actions'
     },
     form: {
@@ -275,7 +276,8 @@ export default {
       pid: 'Parent',
       icon_url: 'Icon',
       pic_url: 'Picture',
-      desc: 'Description'
+      desc: 'Description',
+      season_switch: 'Season Switch'
     },
     value: {
       level_L1: 'Level 1',

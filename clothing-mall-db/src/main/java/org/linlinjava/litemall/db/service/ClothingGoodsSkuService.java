@@ -1,5 +1,6 @@
 package org.linlinjava.litemall.db.service;
 
+import com.github.pagehelper.PageHelper;
 import org.linlinjava.litemall.db.dao.ClothingGoodsSkuMapper;
 import org.linlinjava.litemall.db.domain.ClothingGoodsSku;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
@@ -87,5 +88,78 @@ public class ClothingGoodsSkuService {
     public boolean checkStock(Integer id, Integer num) {
         ClothingGoodsSku sku = findById(id);
         return sku != null && sku.getStock() >= num;
+    }
+
+    // ==================== 新增方法 ====================
+
+    /**
+     * 查询 SKU 列表（支持分页和筛选）
+     *
+     * @param status     状态：draft/pending/published
+     * @param categoryId 分类ID
+     * @param color      颜色（模糊匹配）
+     * @param size       尺码
+     * @param keyword    关键词（名称或SKU编码）
+     * @param goodsId    商品ID
+     * @param hasGoods   是否已关联商品（true=已上架，false=未上架）
+     * @param page       页码
+     * @param limit      每页数量
+     * @return SKU列表
+     */
+    public List<ClothingGoodsSku> querySkuList(String status, Integer categoryId, String color,
+                                                String size, String keyword, Integer goodsId,
+                                                Boolean hasGoods, Integer page, Integer limit) {
+        PageHelper.startPage(page, limit);
+        return skuMapper.selectSkuList(status, categoryId, color, size, keyword, goodsId, hasGoods);
+    }
+
+    /**
+     * 统计 SKU 数量
+     */
+    public int countSkuList(String status, Integer categoryId, String color,
+                            String size, String keyword, Integer goodsId, Boolean hasGoods) {
+        return skuMapper.countSkuList(status, categoryId, color, size, keyword, goodsId, hasGoods);
+    }
+
+    /**
+     * 批量更新状态
+     *
+     * @param ids   SKU ID列表
+     * @param status 新状态
+     * @return 更新数量
+     */
+    public int updateStatusBatch(List<Integer> ids, String status) {
+        if (ids == null || ids.isEmpty()) {
+            return 0;
+        }
+        return skuMapper.updateStatusBatch(ids, status);
+    }
+
+    /**
+     * 批量关联商品（上架）
+     *
+     * @param skuIds  SKU ID列表
+     * @param goodsId 商品ID
+     * @return 更新数量
+     */
+    public int bindGoodsBatch(List<Integer> skuIds, Integer goodsId) {
+        if (skuIds == null || skuIds.isEmpty()) {
+            return 0;
+        }
+        return skuMapper.bindGoodsBatch(skuIds, goodsId);
+    }
+
+    /**
+     * 查询待上架的 SKU（未关联商品的）
+     */
+    public List<ClothingGoodsSku> queryPendingSku(Integer page, Integer limit) {
+        return querySkuList(ClothingGoodsSku.STATUS_PENDING, null, null, null, null, null, false, page, limit);
+    }
+
+    /**
+     * 查询草稿 SKU
+     */
+    public List<ClothingGoodsSku> queryDraftSku(Integer page, Integer limit) {
+        return querySkuList(ClothingGoodsSku.STATUS_DRAFT, null, null, null, null, null, null, page, limit);
     }
 }

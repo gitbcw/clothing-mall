@@ -29,6 +29,13 @@
 
       <el-table-column align="center" min-width="100" :label="$t('mall_category.table.desc')" prop="desc" />
 
+      <el-table-column align="center" :label="$t('mall_category.table.season_switch')" prop="seasonSwitch">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.seasonSwitch" size="small">{{ formatSeasonSwitch(scope.row.seasonSwitch) }}</el-tag>
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
+
       <el-table-column align="center" :label="$t('mall_category.table.level')" prop="level">
         <template slot-scope="scope">
           <el-tag :type="scope.row.level === 'L1' ? 'primary' : 'info' ">{{ $t(scope.row.level === 'L1' ? 'mall_category.value.level_L1' : 'mall_category.value.level_L2') }}</el-tag>
@@ -91,6 +98,15 @@
         </el-form-item>
         <el-form-item :label="$t('mall_category.form.desc')" prop="desc">
           <el-input v-model="dataForm.desc" />
+        </el-form-item>
+        <el-form-item :label="$t('mall_category.form.season_switch')" prop="seasonSwitch">
+          <el-select v-model="dataForm.seasonSwitch" multiple placeholder="选择适用季节" style="width: 100%">
+            <el-option label="春季" value="spring" />
+            <el-option label="夏季" value="summer" />
+            <el-option label="秋季" value="autumn" />
+            <el-option label="冬季" value="winter" />
+            <el-option label="四季通用" value="all" />
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -155,6 +171,7 @@ export default {
         level: 'L2',
         pid: 0,
         desc: '',
+        seasonSwitch: ['all'],
         iconUrl: '',
         picUrl: ''
       },
@@ -206,6 +223,7 @@ export default {
         level: 'L2',
         pid: 0,
         desc: '',
+        seasonSwitch: ['all'],
         iconUrl: '',
         picUrl: ''
       }
@@ -214,6 +232,27 @@ export default {
       if (value === 'L1') {
         this.dataForm.pid = 0
       }
+    },
+    formatSeasonSwitch(seasonSwitch) {
+      if (!seasonSwitch) return ''
+      const seasonMap = {
+        'spring': '春',
+        'summer': '夏',
+        'autumn': '秋',
+        'winter': '冬',
+        'all': '四季'
+      }
+      const seasons = seasonSwitch.split(',').filter(s => s)
+      return seasons.map(s => seasonMap[s] || s).join('/')
+    },
+    parseSeasonSwitch(seasonSwitch) {
+      if (Array.isArray(seasonSwitch)) {
+        return seasonSwitch
+      }
+      if (typeof seasonSwitch === 'string' && seasonSwitch) {
+        return seasonSwitch.split(',').filter(s => s)
+      }
+      return ['all']
     },
     handleCreate() {
       this.resetForm()
@@ -232,7 +271,12 @@ export default {
     createData() {
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
-          createCategory(this.dataForm)
+          // 处理季节开关：数组转字符串
+          const data = Object.assign({}, this.dataForm)
+          if (Array.isArray(data.seasonSwitch)) {
+            data.seasonSwitch = data.seasonSwitch.join(',')
+          }
+          createCategory(data)
             .then(response => {
               this.getList()
               // 更新L1目录
@@ -254,6 +298,8 @@ export default {
     },
     handleUpdate(row) {
       this.dataForm = Object.assign({}, row)
+      // 处理季节开关：字符串转数组
+      this.dataForm.seasonSwitch = this.parseSeasonSwitch(row.seasonSwitch)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {

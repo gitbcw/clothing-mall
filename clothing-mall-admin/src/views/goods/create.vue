@@ -117,17 +117,33 @@
     <el-card class="box-card">
       <h3>SKU 信息</h3>
       <el-row :gutter="20" type="flex" align="middle" style="padding:20px 0;">
-        <el-col :span="12">
+        <el-col :span="14">
           <el-input v-model="skuQueryGoodsSn" placeholder="输入商品款号查询已有SKU" style="width: 250px;" />
           <el-button type="primary" style="margin-left: 10px;" @click="loadSkuByGoodsSn">查询SKU</el-button>
           <span class="form-tip" style="margin-left: 10px;">SKU在【服装管理-SKU管理】中维护</span>
         </el-col>
+        <el-col :span="10" style="text-align: right;">
+          <span v-if="selectedSkuIds.length > 0" class="form-tip" style="color: #67C23A;">
+            已选择 {{ selectedSkuIds.length }} 个SKU
+          </span>
+        </el-col>
       </el-row>
-      <el-table v-if="skuList.length > 0" :data="skuList" border>
+      <el-table
+        v-if="skuList.length > 0"
+        ref="skuTable"
+        :data="skuList"
+        border
+        @selection-change="handleSkuSelectionChange"
+      >
+        <el-table-column type="selection" width="55" align="center" />
         <el-table-column align="center" label="SKU编码" prop="skuCode" width="120" />
         <el-table-column align="center" label="颜色" prop="color" width="100" />
         <el-table-column align="center" label="尺码" prop="size" width="80" />
-        <el-table-column align="center" label="价格" prop="price" width="100" />
+        <el-table-column align="center" label="价格" prop="price" width="100">
+          <template slot-scope="scope">
+            ¥{{ scope.row.price }}
+          </template>
+        </el-table-column>
         <el-table-column align="center" label="库存" prop="stock" width="80" />
         <el-table-column align="center" label="条形码" prop="barCode" width="120" />
         <el-table-column align="center" label="默认" prop="isDefault" width="80">
@@ -181,6 +197,7 @@
 
     <div class="op-container">
       <el-button @click="handleCancel">{{ $t('app.button.cancel') }}</el-button>
+      <el-button type="info" @click="handleSaveDraft">暂存草稿</el-button>
       <el-button type="primary" @click="handlePublish">{{ $t('goods_edit.button.publish') }}</el-button>
     </div>
 
@@ -265,6 +282,7 @@ export default {
       skuQueryGoodsSn: '',
       skuList: [],
       skuLoading: false,
+      selectedSkuIds: [], // 选中的 SKU ID 列表
       attributeVisiable: false,
       attributeForm: { attribute: '', value: '' },
       attributes: [],
@@ -335,7 +353,8 @@ export default {
         goods: this.goods,
         specifications: [],
         products: [],
-        attributes: this.attributes
+        attributes: this.attributes,
+        skuIds: this.selectedSkuIds // 关联选中的 SKU
       }
       publishGoods(finalGoods).then(response => {
         this.$notify.success({
@@ -347,6 +366,47 @@ export default {
       }).catch(error => {
         const errMsg = error?.response?.data?.errmsg || error?.message || '未知错误'
         MessageBox.alert('业务错误：' + errMsg, '警告', {
+          confirmButtonText: '确定',
+          type: 'error'
+        })
+      })
+    },
+    // 暂存草稿
+    handleSaveDraft: async function() {
+      // 如果有待上传的商品图片，先上传
+      if (this.picFile) {
+        try {
+          const formData = new FormData()
+          formData.append('file', this.picFile)
+          const uploadRes = await createStorage(formData)
+          if (uploadRes.data.errno === 0) {
+            this.goods.picUrl = uploadRes.data.data.url
+          }
+        } catch (e) {
+          // 草稿模式允许图片上传失败
+          console.warn('草稿保存时图片上传失败:', e)
+        }
+      }
+
+      const draftGoods = {
+        goods: { ...this.goods, isOnSale: false }, // 草稿默认不上架
+        specifications: [],
+        products: [],
+        attributes: this.attributes,
+        skuIds: this.selectedSkuIds,
+        isDraft: true // 标记为草稿
+      }
+
+      publishGoods(draftGoods).then(response => {
+        this.$notify.success({
+          title: '成功',
+          message: '草稿保存成功'
+        })
+        this.$store.dispatch('tagsView/delView', this.$route)
+        this.$router.push({ path: '/goods/list' })
+      }).catch(error => {
+        const errMsg = error?.response?.data?.errmsg || error?.message || '未知错误'
+        MessageBox.alert('保存草稿失败：' + errMsg, '警告', {
           confirmButtonText: '确定',
           type: 'error'
         })
@@ -448,6 +508,10 @@ export default {
       }).finally(() => {
         this.skuLoading = false
       })
+    },
+    // SKU 选择变更
+    handleSkuSelectionChange(selection) {
+      this.selectedSkuIds = selection.map(item => item.id)
     },
     handleAttributeShow() {
       this.attributeForm = {}

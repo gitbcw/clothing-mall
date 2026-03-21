@@ -1,5 +1,6 @@
 package org.linlinjava.litemall;
 
+import org.linlinjava.litemall.core.ai.AiRecognitionProperties;
 import org.linlinjava.litemall.core.ocr.OcrProperties;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -12,7 +13,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @MapperScan("org.linlinjava.litemall.db.dao")
 @EnableTransactionManagement
 @EnableScheduling
-@EnableConfigurationProperties(OcrProperties.class)
+@EnableConfigurationProperties({OcrProperties.class, AiRecognitionProperties.class})
 public class Application {
 
     public static void main(String[] args) throws Exception {

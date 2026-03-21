@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类目服务
@@ -30,17 +32,72 @@ public class WxCatalogController {
     @Autowired
     private LitemallCategoryService categoryService;
 
+    /**
+     * 获取当前季节
+     * @return 季节字符串: spring, summer, autumn, winter
+     */
+    private String getCurrentSeason() {
+        LocalDate now = LocalDate.now();
+        int month = now.getMonthValue();
+
+        // 季节映射（北半球）: 3-5=春, 6-8=夏, 9-11=秋, 12-2=冬
+        if (month >= 3 && month <= 5) {
+            return "spring";
+        } else if (month >= 6 && month <= 8) {
+            return "summer";
+        } else if (month >= 9 && month <= 11) {
+            return "autumn";
+        } else {
+            return "winter";
+        }
+    }
+
+    /**
+     * 过滤分类列表 - 根据季节开关
+     * @param categories 分类列表
+     * @param season 当前季节
+     * @return 过滤后的分类列表
+     */
+    private List<LitemallCategory> filterBySeason(List<LitemallCategory> categories, String season) {
+        if (categories == null) {
+            return null;
+        }
+        return categories.stream()
+            .filter(cat -> {
+                String seasonSwitch = cat.getSeasonSwitch();
+                if (seasonSwitch == null || seasonSwitch.isEmpty()) {
+                    return true; // 未设置则默认显示
+                }
+                // 季节开关支持多选（逗号分隔）和"all"
+                String[] enabledSeasons = seasonSwitch.split(",");
+                for (String s : enabledSeasons) {
+                    String trimmed = s.trim();
+                    if (trimmed.equals("all") || trimmed.equals(season)) {
+                        return true;
+                    }
+                }
+                return false;
+            })
+            .collect(Collectors.toList());
+    }
+
     @GetMapping("/getfirstcategory")
     public Object getFirstCategory() {
+        String currentSeason = getCurrentSeason();
         // 所有一级分类目录
         List<LitemallCategory> l1CatList = categoryService.queryL1();
+        // 根据季节过滤
+        l1CatList = filterBySeason(l1CatList, currentSeason);
         return ResponseUtil.ok(l1CatList);
     }
 
     @GetMapping("/getsecondcategory")
     public Object getSecondCategory(@NotNull Integer id) {
+        String currentSeason = getCurrentSeason();
         // 所有二级分类目录
         List<LitemallCategory> currentSubCategory = categoryService.queryByPid(id);
+        // 根据季节过滤
+        currentSubCategory = filterBySeason(currentSubCategory, currentSeason);
         return ResponseUtil.ok(currentSubCategory);
     }
 
@@ -55,8 +112,12 @@ public class WxCatalogController {
     @GetMapping("index")
     public Object index(Integer id) {
 
+        String currentSeason = getCurrentSeason();
+
         // 所有一级分类目录
         List<LitemallCategory> l1CatList = categoryService.queryL1();
+        // 根据季节过滤
+        l1CatList = filterBySeason(l1CatList, currentSeason);
 
         // 当前一级分类目录
         LitemallCategory currentCategory = null;
@@ -72,6 +133,8 @@ public class WxCatalogController {
         List<LitemallCategory> currentSubCategory = null;
         if (null != currentCategory) {
             currentSubCategory = categoryService.queryByPid(currentCategory.getId());
+            // 根据季节过滤
+            currentSubCategory = filterBySeason(currentSubCategory, currentSeason);
         }
 
         Map<String, Object> data = new HashMap<String, Object>();

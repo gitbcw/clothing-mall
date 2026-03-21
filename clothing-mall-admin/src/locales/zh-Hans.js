@@ -7,11 +7,8 @@ export default {
   app: {
     menu: {
       dashboard: '首页',
-      // 订单管理（独立）
-      order: '订单管理',
+      order_manage: '订单管理',
       order_order: '订单列表',
-      // 售后管理（独立）
-      aftersale: '售后管理',
       aftersale_aftersale: '售后列表',
       // 会员管理
       user: '会员管理',
@@ -33,7 +30,7 @@ export default {
       goods_guide: '导购管理',
       goods_memberLevel: '会员等级',
       // 活动管理
-      promotion: '活动管理',
+      promotion: '营销管理',
       promotion_ad: '广告管理',
       promotion_coupon: '优惠券管理',
       promotion_coupon_detail: '优惠券详情',
@@ -46,15 +43,14 @@ export default {
       promotion_fullReduction: '满减活动',
       // 数据统计
       stat: '数据统计',
-      stat_user: '用户统计',
-      stat_order: '订单统计',
-      stat_goods: '商品统计',
       stat_growth: '增长分析',
+      stat_sales: '销售分析',
+      stat_tracker: '行为分析',
       // 商城配置
       mall: '商城配置',
       mall_region: '行政区域',
       mall_brand: '品牌制造商',
-      mall_category: '商品类目',
+      mall_category: '商品分类',
       mall_issue: '通用问题',
       mall_keyword: '关键词',
       // 系统管理
@@ -64,11 +60,17 @@ export default {
       sys_log: '操作日志',
       sys_role: '角色管理',
       sys_os: '对象存储',
+      operation_config: '运营配置',
+      operation_manage: '运营管理',
+      operation_message_push: '消息推送',
+      promotion_outfit: '穿搭推荐',
+      promotion_activity: '活动位管理',
+      mini_program_config: '小程序设置',
       config: '配置管理',
       config_mall: '商场配置',
       config_express: '运费配置',
       config_order: '订单配置',
-      config_wx: '小程序配置',
+      config_wx: '小程序设置',
       config_promotion: '促销配置',
       external_link: '外链',
       external_link_tencent_cos: '腾讯云存储',
@@ -269,27 +271,20 @@ export default {
   },
   mall_category: {
     table: {
-      id: '类目ID',
-      name: '类目名',
-      icon_url: '类目图标',
-      pic_url: '类目图片',
+      id: '分类ID',
+      name: '分类名',
+      icon_url: '分类图标',
+      pic_url: '分类图片',
       keywords: '关键字',
       desc: '简介',
-      level: '级别',
       actions: '操作'
     },
     form: {
-      name: '类目名称',
+      name: '分类名称',
       keywords: '关键字',
-      level: '级别',
-      pid: '父类目',
-      icon_url: '类目图标',
-      pic_url: '类目图片',
-      desc: '类目简介'
-    },
-    value: {
-      level_L1: '一级类目',
-      level_L2: '二级类目'
+      icon_url: '分类图标',
+      pic_url: '分类图片',
+      desc: '分类简介'
     }
   },
   mall_order: {
@@ -330,7 +325,7 @@ export default {
       ship_channel: '物流渠道',
       actions: '操作',
       detail_goods_name: '商品名称',
-      detail_goods_sn: '商品编号',
+      detail_goods_sn: '商品款号',
       detail_goods_specifications: '货品规格',
       detail_goods_price: '货品价格',
       detail_goods_number: '货品数量',
@@ -500,7 +495,7 @@ export default {
       is_hot: '是否热品',
       is_on_sale: '是否在售',
       actions: '操作',
-      goods_sn: '商品编号',
+      goods_sn: '商品款号',
       gallery: '宣传画廊',
       brief: '商品介绍',
       unit: '商品单位',
@@ -521,7 +516,7 @@ export default {
     },
     placeholder: {
       filter_goods_id: '请输入商品ID',
-      filter_goods_sn: '请输入商品编号',
+      filter_goods_sn: '请输入商品款号',
       filter_name: '请输入商品名称'
     }
   },
@@ -557,7 +552,7 @@ export default {
     },
     form: {
       id: '商品ID',
-      goods_sn: '商品编号',
+      goods_sn: '商品款号',
       name: '商品名称',
       counter_price: '市场售价',
       is_new: '是否新品',
@@ -679,7 +674,7 @@ export default {
       category_name: '分类名称',
       category_actions: '操作',
       goods_name: '商品名称',
-      goods_sn: '商品编号',
+      goods_sn: '商品款号',
       goods_actions: '操作'
     },
     form: {
@@ -785,7 +780,7 @@ export default {
       goods: '专题商品'
     },
     placeholder: {
-      search_goods_sn: '请输入商品编号',
+      search_goods_sn: '请输入商品款号',
       search_name: '请输入商品名称'
     },
     button: {
@@ -811,7 +806,7 @@ export default {
       expire_time: '过期时间'
     },
     placeholder: {
-      filter_goods_id: '请输入商品编号',
+      filter_goods_id: '请输入商品款号',
       expire_time: '选择日期'
     }
   },

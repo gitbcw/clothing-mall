@@ -8,7 +8,7 @@
         style="margin-bottom: 15px;"
       >
         <div>
-          上传库存表格图片，系统将自动识别商品编号、颜色、尺码、数量信息，
+          上传库存表格图片，系统将自动识别商品款号、颜色、尺码、数量信息，
           并尝试匹配系统中对应的SKU，确认后可批量更新库存。
           <br>
           <strong>免费额度：</strong>百度OCR提供500次/天免费调用
@@ -71,7 +71,7 @@
           </div>
 
           <el-table v-else :data="recognizeResults" border fit highlight-current-row>
-            <el-table-column align="center" label="商品编号" prop="goodsSn" width="100" />
+            <el-table-column align="center" label="商品款号" prop="goodsSn" width="100" />
             <el-table-column align="center" label="商品名称" prop="goodsName" min-width="120">
               <template slot-scope="scope">
                 <span v-if="scope.row.goodsName">{{ scope.row.goodsName }}</span>
@@ -122,7 +122,7 @@
       <div v-if="updateResult && updateResult.failedItems && updateResult.failedItems.length > 0">
         <h4>失败明细：</h4>
         <el-table :data="updateResult.failedItems" border size="small">
-          <el-table-column prop="goodsSn" label="商品编号" />
+          <el-table-column prop="goodsSn" label="商品款号" />
           <el-table-column prop="color" label="颜色" />
           <el-table-column prop="size" label="尺码" />
           <el-table-column prop="errorMsg" label="原因" />

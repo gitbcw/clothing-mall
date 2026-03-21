@@ -7,6 +7,9 @@ export default {
   app: {
     menu: {
       dashboard: 'Dashboard',
+      order_manage: 'Order Management',
+      order_order: 'Order List',
+      aftersale_aftersale: 'After-sales List',
       user: 'Users',
       user_user: 'Users',
       user_address: 'Addresses',
@@ -27,7 +30,7 @@ export default {
       goods_create: 'Add goods',
       goods_edit: 'Edit goods',
       goods_comment: 'Comments',
-      promotion: 'Promotion',
+      promotion: 'Marketing Management',
       promotion_ad: 'Ads',
       promotion_coupon: 'Coupons',
       promotion_coupon_detail: 'Coupon details',
@@ -42,15 +45,21 @@ export default {
       sys_log: 'Logs',
       sys_role: 'Roles',
       sys_os: 'Storage',
+      operation_config: 'Operation Config',
       config: 'Configuration',
+      mini_program_config: 'Mini Program Settings',
       config_mall: 'Mall config',
       config_express: 'Freight config',
       config_order: 'Order config',
-      config_wx: 'Mini-program config',
+      config_wx: 'Mini-program Settings',
+      operation_manage: 'Operation Management',
+      operation_message_push: 'Message Push',
+      promotion_outfit: 'Outfit Recommendations',
+      promotion_activity: 'Activity Slots',
       stat: 'Statistics',
-      stat_user: 'User stats',
-      stat_order: 'Order stats',
-      stat_goods: 'Goods stats',
+      stat_growth: 'Growth',
+      stat_sales: 'Sales',
+      stat_tracker: 'Behavior',
       external_link: 'External links',
       external_link_tencent_cos: 'Tencent cloud storage',
       external_link_tencent_sms: 'Tencent cloud SMS',
@@ -311,7 +320,7 @@ export default {
       ship_channel: 'Ship channel',
       actions: 'Actions',
       detail_goods_name: 'Name',
-      detail_goods_sn: 'Goods SN',
+      detail_goods_sn: 'Goods No.',
       detail_goods_specifications: 'Specifications',
       detail_goods_price: 'Price',
       detail_goods_number: 'Quantity',
@@ -481,7 +490,7 @@ export default {
       is_hot: 'Hot',
       is_on_sale: 'On sale',
       actions: 'Actions',
-      goods_sn: 'Goods SN',
+      goods_sn: 'Goods No.',
       gallery: 'Gallery',
       brief: 'Description',
       unit: 'Unit',
@@ -502,7 +511,7 @@ export default {
     },
     placeholder: {
       filter_goods_id: 'Goods ID',
-      filter_goods_sn: 'Goods SN',
+      filter_goods_sn: 'Goods No.',
       filter_name: 'Goods name'
     }
   },
@@ -538,7 +547,7 @@ export default {
     },
     form: {
       id: 'ID',
-      goods_sn: 'Goods SN',
+      goods_sn: 'Goods No.',
       name: 'Name',
       counter_price: 'Counter price',
       is_new: 'New',
@@ -660,7 +669,7 @@ export default {
       category_name: 'Name',
       category_actions: 'Actions',
       goods_name: 'Name',
-      goods_sn: 'Goods SN',
+      goods_sn: 'Goods No.',
       goods_actions: 'Actions'
     },
     form: {
@@ -766,7 +775,7 @@ export default {
       goods: 'Goods'
     },
     placeholder: {
-      search_goods_sn: 'Goods SN',
+      search_goods_sn: 'Goods No.',
       search_name: 'Name'
     },
     button: {

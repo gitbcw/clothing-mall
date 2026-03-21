@@ -8,15 +8,16 @@
           <el-input v-model="goods.id" disabled />
         </el-form-item>
         <el-form-item :label="$t('goods_edit.form.name')" prop="name">
-          <el-input v-model="goods.name" />
+          <el-input v-model="goods.name" style="width: 300px" />
         </el-form-item>
         <el-form-item :label="$t('goods_edit.form.goods_sn')" prop="goodsSn">
-          <el-input v-model="goods.goodsSn" />
+          <el-input v-model="goods.goodsSn" style="width: 300px" />
         </el-form-item>
         <el-form-item :label="$t('goods_edit.form.counter_price')" prop="counterPrice">
-          <el-input v-model="goods.counterPrice" placeholder="0.00">
+          <el-input v-model="goods.counterPrice" placeholder="0.00" style="width: 300px">
             <template slot="append">元</template>
           </el-input>
+          <span class="form-tip">（小程序显示为划线原价，非实际售价）</span>
         </el-form-item>
         <el-form-item :label="$t('goods_edit.form.is_new')" prop="isNew">
           <el-radio-group v-model="goods.isNew">
@@ -83,7 +84,9 @@
         </el-form-item>
 
         <el-form-item :label="$t('goods_edit.form.category_id')">
-          <el-cascader v-model="categoryIds" :options="categoryList" clearable expand-trigger="hover" @change="handleCategoryChange" />
+          <el-select v-model="goods.categoryId" clearable>
+            <el-option v-for="item in categoryList" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
 
         <el-form-item :label="$t('goods_edit.form.brand_id')">
@@ -103,123 +106,32 @@
     </el-card>
 
     <el-card class="box-card">
-      <h3>{{ $t('goods_edit.section.specifications') }}</h3>
-      <el-table :data="specifications">
-        <el-table-column property="specification" :label="$t('goods_edit.table.specification_name')" />
-        <el-table-column property="value" :label="$t('goods_edit.table.specification_value')">
+      <h3>SKU 信息</h3>
+      <el-row :gutter="20" type="flex" align="middle" style="padding:20px 0;">
+        <el-col :span="12">
+          <el-input v-model="skuQueryGoodsSn" placeholder="输入商品款号查询已有SKU" style="width: 250px;" />
+          <el-button type="primary" style="margin-left: 10px;" @click="loadSkuByGoodsSn">查询SKU</el-button>
+          <span class="form-tip" style="margin-left: 10px;">SKU在【服装管理-SKU管理】中维护</span>
+        </el-col>
+      </el-row>
+      <el-table v-if="skuList.length > 0" :data="skuList" border>
+        <el-table-column align="center" label="SKU编码" prop="skuCode" width="120" />
+        <el-table-column align="center" label="颜色" prop="color" width="100" />
+        <el-table-column align="center" label="尺码" prop="size" width="80" />
+        <el-table-column align="center" label="价格" prop="price" width="100" />
+        <el-table-column align="center" label="库存" prop="stock" width="80" />
+        <el-table-column align="center" label="条形码" prop="barCode" width="120" />
+        <el-table-column align="center" label="默认" prop="isDefault" width="80">
           <template slot-scope="scope">
-            <el-tag type="primary">
-              {{ scope.row.value }}
+            <el-tag :type="scope.row.isDefault ? 'success' : 'info'">
+              {{ scope.row.isDefault ? '是' : '否' }}
             </el-tag>
-          </template>
-        </el-table-column>
-        <!-- 规格图片暂不使用，隐藏表格列 -->
-        <!--
-        <el-table-column property="picUrl" :label="$t('goods_edit.table.specification_pic_url')">
-          <template slot-scope="scope">
-            <img v-if="scope.row.picUrl" :src="scope.row.picUrl" width="40">
-          </template>
-        </el-table-column>
-        -->
-        <el-table-column align="center" :label="$t('goods_edit.table.specification_actions')" width="200" class-name="small-padding fixed-width">
-          <template slot-scope="scope">
-            <el-button type="primary" size="mini" @click="handleSpecificationShow(scope.row)">{{ $t('app.button.settings') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
-
-      <el-dialog :visible.sync="specVisiable" :title="$t('goods_edit.dialog.edit_specification')">
-        <el-form ref="specForm" :rules="rules" :model="specForm" status-icon label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
-          <el-form-item :label="$t('goods_edit.form.specification_name')" prop="specification">
-            <el-input v-model="specForm.specification" disabled />
-          </el-form-item>
-          <el-form-item :label="$t('goods_edit.form.specification_value')" prop="value">
-            <el-input v-model="specForm.value" disabled />
-          </el-form-item>
-          <!-- 规格图片暂不使用，隐藏上传入口 -->
-          <!--
-          <el-form-item :label="$t('goods_edit.form.specification_pic_url')" prop="picUrl">
-            <el-upload
-              :headers="headers"
-              :action="uploadPath"
-              :show-file-list="false"
-              :auto-upload="false"
-              :on-change="handleSpecPicChange"
-              :on-success="uploadSpecPicUrl"
-              class="avatar-uploader"
-              accept=".jpg,.jpeg,.png,.gif"
-            >
-              <img v-if="specForm.picUrl" :src="specForm.picUrl" class="avatar">
-              <i v-else class="el-icon-plus avatar-uploader-icon" />
-            </el-upload>
-          </el-form-item>
-          -->
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="specVisiable = false">{{ $t('app.button.cancel') }}</el-button>
-          <el-button type="primary" @click="handleSpecificationEdit">{{ $t('app.button.confirm') }}</el-button>
-        </div>
-      </el-dialog>
-    </el-card>
-
-    <el-card class="box-card">
-      <h3>{{ $t('goods_edit.section.products') }}</h3>
-      <el-table :data="products">
-        <el-table-column property="value" :label="$t('goods_edit.table.product_specifications')">
-          <template slot-scope="scope">
-            <el-tag v-for="tag in scope.row.specifications" :key="tag">
-              {{ tag }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column property="price" :label="$t('goods_edit.table.product_price')" />
-        <el-table-column property="number" :label="$t('goods_edit.table.product_number')" />
-        <el-table-column property="url" :label="$t('goods_edit.table.product_url')">
-          <template slot-scope="scope">
-            <img v-if="scope.row.url" :src="scope.row.url" width="40">
-          </template>
-        </el-table-column>
-        <el-table-column align="center" :label="$t('goods_edit.table.product_actions')" width="200" class-name="small-padding fixed-width">
-          <template slot-scope="scope">
-            <el-button type="primary" size="mini" @click="handleProductShow(scope.row)">{{ $t('app.button.settings') }}</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <el-dialog :visible.sync="productVisiable" :title="$t('goods_edit.dialog.edit_product')">
-        <el-form ref="productForm" :model="productForm" status-icon label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
-          <el-form-item :label="$t('goods_edit.form.product_specifications')" prop="specifications">
-            <el-tag v-for="tag in productForm.specifications" :key="tag">
-              {{ tag }}
-            </el-tag>
-          </el-form-item>
-          <el-form-item :label="$t('goods_edit.form.product_price')" prop="price">
-            <el-input v-model="productForm.price" />
-          </el-form-item>
-          <el-form-item :label="$t('goods_edit.form.product_number')" prop="number">
-            <el-input v-model="productForm.number" />
-          </el-form-item>
-          <el-form-item :label="$t('goods_edit.form.product_url')" prop="url">
-            <el-upload
-              :headers="headers"
-              :action="uploadPath"
-              :show-file-list="false"
-              :auto-upload="false"
-              :on-change="handleProductPicChange"
-              :on-success="uploadProductUrl"
-              class="avatar-uploader"
-              accept=".jpg,.jpeg,.png,.gif"
-            >
-              <img v-if="productForm.url" :src="productForm.url" class="avatar">
-              <i v-else class="el-icon-plus avatar-uploader-icon" />
-            </el-upload>
-          </el-form-item>
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="productVisiable = false">{{ $t('app.button.cancel') }}</el-button>
-          <el-button type="primary" @click="handleProductEdit">{{ $t('app.button.confirm') }}</el-button>
-        </div>
-      </el-dialog>
+      <div v-else-if="skuQueryGoodsSn && !skuLoading" style="padding: 20px; text-align: center; color: #909399;">
+        该款号下暂无SKU，请到【服装管理-SKU管理】中添加
+      </div>
     </el-card>
 
     <el-card class="box-card">
@@ -301,10 +213,16 @@
   display: flex;
   justify-content: center;
 }
+.form-tip {
+  margin-left: 12px;
+  color: #909399;
+  font-size: 12px;
+}
 </style>
 
 <script>
 import { detailGoods, editGoods, listCatAndBrand } from '@/api/goods'
+import { listSku } from '@/api/sku'
 import { createStorage, uploadPath } from '@/api/storage'
 import Editor from '@tinymce/tinymce-vue'
 import { MessageBox } from 'element-ui'
@@ -321,26 +239,13 @@ export default {
       keywords: [],
       galleryFileList: [],
       picFile: null, // 待上传的商品图片文件
-      specPicFile: null, // 待上传的规格图片文件
-      productPicFile: null, // 待上传的货品图片文件
       categoryList: [],
       brandList: [],
-      categoryIds: [],
       goods: { gallery: [] },
-      specVisiable: false,
-      specForm: { specification: '', value: '', picUrl: '' },
-      specifications: [{ specification: '规格', value: '标准', picUrl: '' }],
-      productVisiable: false,
-      productForm: {
-        id: 0,
-        specifications: [],
-        price: 0.0,
-        number: 0,
-        url: ''
-      },
-      products: [
-        { id: 0, specifications: ['标准'], price: 0.0, number: 0, url: '' }
-      ],
+      // SKU 查询相关
+      skuQueryGoodsSn: '',
+      skuList: [],
+      skuLoading: false,
       attributeVisiable: false,
       attributeAdd: true,
       attributeForm: { attribute: '', value: '' },
@@ -412,8 +317,6 @@ export default {
         this.specifications = response.data.data.specifications
         this.products = response.data.data.products
         this.attributes = response.data.data.attributes
-        this.categoryIds = response.data.data.categoryIds
-
         this.galleryFileList = []
         for (var i = 0; i < this.goods.gallery.length; i++) {
           this.galleryFileList.push({
@@ -430,9 +333,6 @@ export default {
         this.categoryList = response.data.data.categoryList
         this.brandList = response.data.data.brandList
       })
-    },
-    handleCategoryChange(value) {
-      this.goods.categoryId = value[value.length - 1]
     },
     handleCancel: function() {
       this.$store.dispatch('tagsView/delView', this.$route)
@@ -459,7 +359,7 @@ export default {
 
       const finalGoods = {
         goods: this.goods,
-        specifications: this.specifications,
+        specifications: [],
         products: this.products,
         attributes: this.attributes
       }
@@ -472,8 +372,9 @@ export default {
           this.$store.dispatch('tagsView/delView', this.$route)
           this.$router.push({ path: '/goods/list' })
         })
-        .catch(response => {
-          MessageBox.alert('业务错误：' + response.data.errmsg, '警告', {
+        .catch(error => {
+          const errMsg = error?.response?.data?.errmsg || error?.message || '未知错误'
+          MessageBox.alert('业务错误：' + errMsg, '警告', {
             confirmButtonText: '确定',
             type: 'error'
           })
@@ -540,106 +441,24 @@ export default {
         }
       }
     },
-    specChanged: function(label) {
-      if (label === false) {
-        this.specifications = [
-          { specification: '规格', value: '标准', picUrl: '' }
-        ]
-        this.products = [
-          { id: 0, specifications: ['标准'], price: 0.0, number: 0, url: '' }
-        ]
-      } else {
-        this.specifications = []
-        this.products = []
+    // 根据款号加载SKU列表
+    loadSkuByGoodsSn() {
+      if (!this.skuQueryGoodsSn || !this.skuQueryGoodsSn.trim()) {
+        this.$message.warning('请输入商品款号')
+        return
       }
-    },
-    uploadSpecPicUrl: function(response) {
-      this.specForm.picUrl = response.data.url
-    },
-    handleSpecPicChange: function(file) {
-      // 选择文件时生成本地预览 URL
-      if (file.raw) {
-        this.specPicFile = file.raw
-        this.specForm.picUrl = URL.createObjectURL(file.raw)
-      }
-    },
-    handleSpecificationShow(row) {
-      this.specForm = Object.assign({}, row)
-      this.specPicFile = null
-      this.specVisiable = true
-    },
-    handleSpecificationEdit: async function() {
-      // 如果有待上传的规格图片，先上传
-      if (this.specPicFile) {
-        try {
-          const formData = new FormData()
-          formData.append('file', this.specPicFile)
-          const uploadRes = await createStorage(formData)
-          if (uploadRes.data.errno === 0) {
-            this.specForm.picUrl = uploadRes.data.data.url
-          } else {
-            this.$message.error('规格图片上传失败')
-            return
-          }
-        } catch (e) {
-          this.$message.error('规格图片上传失败')
-          return
+      this.skuLoading = true
+      listSku({ goodsSn: this.skuQueryGoodsSn.trim() }).then(response => {
+        this.skuList = response.data.data || []
+        if (this.skuList.length === 0) {
+          this.$message.info('该款号下暂无SKU')
         }
-      }
-
-      this.specForm.updateTime = ''
-      for (var i = 0; i < this.specifications.length; i++) {
-        const v = this.specifications[i]
-        if (v.id === this.specForm.id) {
-          this.specifications.splice(i, 1, this.specForm)
-          break
-        }
-      }
-      this.specVisiable = false
-    },
-    handleProductShow(row) {
-      this.productForm = Object.assign({}, row)
-      this.productPicFile = null
-      this.productVisiable = true
-    },
-    handleProductPicChange: function(file) {
-      // 选择文件时生成本地预览 URL
-      if (file.raw) {
-        this.productPicFile = file.raw
-        this.productForm.url = URL.createObjectURL(file.raw)
-      }
-    },
-    uploadProductUrl: function(response) {
-      this.productForm.url = response.data.url
-    },
-    handleProductEdit: async function() {
-      // 如果有待上传的货品图片，先上传
-      if (this.productPicFile) {
-        try {
-          const formData = new FormData()
-          formData.append('file', this.productPicFile)
-          const uploadRes = await createStorage(formData)
-          if (uploadRes.data.errno === 0) {
-            this.productForm.url = uploadRes.data.data.url
-          } else {
-            this.$message.error('货品图片上传失败')
-            return
-          }
-        } catch (e) {
-          this.$message.error('货品图片上传失败')
-          return
-        }
-      }
-
-      this.productForm.updateTime = ''
-      for (var i = 0; i < this.products.length; i++) {
-        const v = this.products[i]
-        if (v.id === this.productForm.id) {
-          this.products.splice(i, 1, this.productForm)
-          break
-        }
-      }
-      this.productVisiable = false
+      }).catch(() => {
+        this.$message.error('查询失败')
+        this.skuList = []
+      }).finally(() => {
+        this.skuLoading = false
+      })
     },
     handleAttributeShow(row) {
       if (row.id) {

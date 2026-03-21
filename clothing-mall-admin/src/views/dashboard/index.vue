@@ -80,17 +80,38 @@
         </el-col>
       </el-row>
 
+      <!-- 时间范围切换 -->
+      <div class="date-range-selector">
+        <el-radio-group v-model="growthDays" size="small" @change="handleGrowthDaysChange">
+          <el-radio-button :label="7">7天</el-radio-button>
+          <el-radio-button :label="30">1个月</el-radio-button>
+          <el-radio-button :label="90">3个月</el-radio-button>
+        </el-radio-group>
+        <span class="date-separator">或</span>
+        <el-date-picker
+          v-model="customDateRange"
+          type="daterange"
+          size="small"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          value-format="yyyy-MM-dd"
+          :picker-options="pickerOptions"
+          @change="handleCustomDateChange"
+        />
+      </div>
+
       <!-- 增长趋势图表 -->
       <el-row :gutter="20">
         <el-col :span="12">
           <el-card class="box-card">
-            <div slot="header">新增用户趋势（近7天）</div>
+            <div slot="header">新增用户趋势</div>
             <ve-line :data="newUsersChartData" :settings="chartSettings.newUsers" :extend="chartExtend" />
           </el-card>
         </el-col>
         <el-col :span="12">
           <el-card class="box-card">
-            <div slot="header">日活用户趋势（近7天）</div>
+            <div slot="header">日活用户趋势</div>
             <ve-line :data="dauChartData" :settings="chartSettings.dau" :extend="chartExtend" />
           </el-card>
         </el-col>
@@ -305,6 +326,36 @@ export default {
   data() {
     return {
       activeView: 'growth',
+      growthDays: 7, // 时间范围：7/30/90天，null 表示使用自定义日期
+      customDateRange: null, // 自定义日期范围
+      growthLoading: false, // 加载状态
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 6)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 29)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 89)
+            picker.$emit('pick', [start, end])
+          }
+        }]
+      },
       // 增长视图数据
       growthData: {
         totalUsers: 0,
@@ -346,11 +397,22 @@ export default {
     handleTabChange(tab) {
       // Tab 切换时可以刷新数据
     },
+    handleGrowthDaysChange() {
+      // 切换快速按钮时，清空自定义日期
+      this.customDateRange = null
+      this.fetchGrowthData()
+    },
+    handleCustomDateChange(val) {
+      if (val) {
+        // 选择自定义日期时，取消快速按钮选中状态
+        this.growthDays = null
+        this.fetchGrowthData()
+      }
+    },
     fetchGrowthData() {
-      // 获取近7天数据
-      const end = new Date()
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 6)
+      this.growthLoading = true
+      let startDate, endDate
+
       const formatDate = (date) => {
         const y = date.getFullYear()
         const m = String(date.getMonth() + 1).padStart(2, '0')
@@ -358,9 +420,22 @@ export default {
         return `${y}-${m}-${d}`
       }
 
+      // 优先使用自定义日期范围，否则使用快速按钮
+      if (this.customDateRange && this.customDateRange.length === 2) {
+        startDate = this.customDateRange[0]
+        endDate = this.customDateRange[1]
+      } else {
+        const end = new Date()
+        const start = new Date()
+        const days = this.growthDays || 7
+        start.setTime(start.getTime() - 3600 * 1000 * 24 * (days - 1))
+        startDate = formatDate(start)
+        endDate = formatDate(end)
+      }
+
       statGrowth({
-        startDate: formatDate(start),
-        endDate: formatDate(end)
+        startDate,
+        endDate
       }).then(response => {
         const data = response.data.data
         this.growthData.totalUsers = data.totalUsers || 0
@@ -386,25 +461,41 @@ export default {
           todayDau: 215,
           activeRate: 6
         }
-        this.newUsersChartData.rows = [
-          { day: '03-08', newUsers: 35 },
-          { day: '03-09', newUsers: 48 },
-          { day: '03-10', newUsers: 56 },
-          { day: '03-11', newUsers: 38 },
-          { day: '03-12', newUsers: 62 },
-          { day: '03-13', newUsers: 51 },
-          { day: '03-14', newUsers: 42 }
-        ]
-        this.dauChartData.rows = [
-          { day: '03-08', dau: 180 },
-          { day: '03-09', dau: 195 },
-          { day: '03-10', dau: 220 },
-          { day: '03-11', dau: 185 },
-          { day: '03-12', dau: 240 },
-          { day: '03-13', dau: 210 },
-          { day: '03-14', dau: 215 }
-        ]
+        // 根据时间范围生成模拟数据
+        this.generateMockChartData()
+      }).finally(() => {
+        this.growthLoading = false
       })
+    },
+    generateMockChartData() {
+      // 计算实际的天数
+      let days
+      if (this.customDateRange && this.customDateRange.length === 2) {
+        const start = new Date(this.customDateRange[0])
+        const end = new Date(this.customDateRange[1])
+        days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1
+      } else {
+        days = this.growthDays || 7
+      }
+
+      const now = new Date()
+      const formatDate = (date) => {
+        const m = String(date.getMonth() + 1).padStart(2, '0')
+        const d = String(date.getDate()).padStart(2, '0')
+        return `${m}-${d}`
+      }
+
+      const newUsersRows = []
+      const dauRows = []
+      for (let i = days - 1; i >= 0; i--) {
+        const date = new Date(now)
+        date.setDate(date.getDate() - i)
+        const dayStr = formatDate(date)
+        newUsersRows.push({ day: dayStr, newUsers: Math.floor(Math.random() * 50) + 20 })
+        dauRows.push({ day: dayStr, dau: Math.floor(Math.random() * 100) + 150 })
+      }
+      this.newUsersChartData.rows = newUsersRows
+      this.dauChartData.rows = dauRows
     },
     fetchSalesData() {
       // TODO: 对接真实销售统计 API
@@ -458,6 +549,20 @@ export default {
   background: #fff;
   padding: 10px 20px 0;
   border-radius: 4px;
+}
+
+.date-range-selector {
+  margin-bottom: 20px;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+
+  .date-separator {
+    color: #909399;
+    font-size: 14px;
+  }
 }
 
 .panel-group {

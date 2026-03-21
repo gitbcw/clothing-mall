@@ -13,7 +13,8 @@
           :headers="headers"
           :action="uploadPath"
           :show-file-list="false"
-          :on-success="uploadPicUrl"
+          :auto-upload="false"
+          :on-change="handlePicChange"
           class="avatar-uploader"
           accept=".jpg,.jpeg,.png,.gif"
         >
@@ -130,6 +131,7 @@ export default {
     return {
       uploadPath,
       id: 0,
+      picFile: null,
       topic: {
         goods: []
       },
@@ -218,6 +220,11 @@ export default {
     uploadPicUrl: function(response) {
       this.topic.picUrl = response.data.url
     },
+    handlePicChange(file) {
+      this.picFile = file.raw
+      // 本地预览
+      this.topic.picUrl = URL.createObjectURL(file.raw)
+    },
     handleCreate() {
       this.listQuery = {
         page: 1,
@@ -273,17 +280,36 @@ export default {
     handleConfirm() {
       this.$refs['topic'].validate(valid => {
         if (valid) {
-          createTopic(this.topic).then(response => {
-            this.$router.push({ path: '/promotion/topic' })
-          })
-            .catch(response => {
+          // 如果有待上传的图片，先上传
+          if (this.picFile) {
+            const formData = new FormData()
+            formData.append('file', this.picFile)
+            createStorage(formData).then(res => {
+              this.topic.picUrl = res.data.data.url
+              this.picFile = null
+              this.submitTopic()
+            }).catch(() => {
               this.$notify.error({
                 title: '失败',
-                message: response.data.errmsg
+                message: '图片上传失败'
               })
             })
+          } else {
+            this.submitTopic()
+          }
         }
       })
+    },
+    submitTopic() {
+      createTopic(this.topic).then(response => {
+        this.$router.push({ path: '/promotion/topic' })
+      })
+        .catch(response => {
+          this.$notify.error({
+            title: '失败',
+            message: response.data.errmsg
+          })
+        })
     }
   }
 }

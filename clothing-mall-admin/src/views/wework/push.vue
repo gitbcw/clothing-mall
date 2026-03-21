@@ -51,7 +51,7 @@
           <div v-if="pushForm.mediaId" class="upload-success">
             <i class="el-icon-success" /> 封面已上传
           </div>
-          <div class="form-tip">建议尺寸：520×416px，支持 JPG/PNG，不超过 2MB</div>
+          <div class="form-tip">建议尺寸：520×416px，支持 JPG/PNG，不超过 20MB</div>
         </el-form-item>
 
         <!-- 跳转页面 -->
@@ -190,13 +190,13 @@ export default {
     },
     beforeUpload(file) {
       const isImage = file.type.startsWith('image/')
-      const isLt2M = file.size / 1024 / 1024 < 2
+      const isLt20M = file.size / 1024 / 1024 < 20
       if (!isImage) {
         this.$message.error('只能上传图片文件')
         return false
       }
-      if (!isLt2M) {
-        this.$message.error('图片大小不能超过 2MB')
+      if (!isLt20M) {
+        this.$message.error('图片大小不能超过 20MB')
         return false
       }
       return true

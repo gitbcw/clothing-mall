@@ -46,3 +46,11 @@ export function listCatAndBrand() {
     method: 'get'
   })
 }
+
+export function generateShareImage(id) {
+  return request({
+    url: '/goods/generate-share-image',
+    method: 'post',
+    params: { id }
+  })
+}

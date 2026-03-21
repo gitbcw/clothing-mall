@@ -48,6 +48,7 @@ function request(url, data = {}, method = "GET") {
             wx.navigateTo({
               url: '/pages/auth/login/login'
             });
+            reject(res.data);
           } else {
             resolve(res.data);
           }

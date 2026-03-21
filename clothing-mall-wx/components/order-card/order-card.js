@@ -8,12 +8,13 @@ Component({
   },
 
   data: {
+    defaultGoodsImage: '/static/images/fallback-image.svg',
     // 订单状态映射
     statusMap: {
       101: { text: '待付款', color: '#ff976a' },
       102: { text: '待发货', color: '#07c160' },
       103: { text: '待收货', color: '#1989fa' },
-      104: { text: '待评价', color: '#ff976a' },
+      104: { text: '已完成', color: '#07c160' },
       201: { text: '已取消', color: '#999' },
       202: { text: '已退款', color: '#999' },
       301: { text: '已完成', color: '#07c160' },
@@ -34,8 +35,18 @@ Component({
     onGoodsTap(e) {
       const { id } = e.currentTarget.dataset
       wx.navigateTo({
-        url: `/pages/goods/goods?id=${id}`
+        url: `/pages/goods_detail/goods_detail?id=${id}`
       })
+    },
+
+    onGoodsImageError(e) {
+      const goodsIndex = e.currentTarget.dataset.goodsIndex
+      const goodsList = this.data.order.goodsList || []
+      if (goodsList[goodsIndex] && goodsList[goodsIndex].picUrl !== this.data.defaultGoodsImage) {
+        this.setData({
+          [`order.goodsList[${goodsIndex}].picUrl`]: this.data.defaultGoodsImage
+        })
+      }
     },
 
     onActionTap(e) {

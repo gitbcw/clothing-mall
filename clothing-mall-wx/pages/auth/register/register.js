@@ -100,7 +100,7 @@ Page({
             data: res.data.data.token,
             success: function() {
               wx.switchTab({
-                url: '/pages/ucenter/index/index'
+                url: '/pages/mine/mine'
               });
             }
           });

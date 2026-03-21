@@ -16,7 +16,7 @@
       bindtap="onGoodsTap"
       data-id="{{item.goodsId}}"
     >
-      <image class="goods-image" src="{{item.picUrl}}" mode="aspectFill" />
+      <image class="goods-image" src="{{item.picUrl || defaultGoodsImage}}" mode="aspectFill" binderror="onGoodsImageError" data-goods-index="{{index}}" />
       <view class="goods-info">
         <view class="goods-name">{{item.goodsName}}</view>
         <view class="goods-spec" wx:if="{{item.specifications}}">{{item.specifications}}</view>
@@ -57,12 +57,6 @@
       data-action="confirm"
       catchtap="onActionTap"
     >确认收货</view>
-    <view
-      class="action-btn primary"
-      wx:if="{{order.handleOption.comment}}"
-      data-action="comment"
-      catchtap="onActionTap"
-    >评价</view>
     <view
       class="action-btn"
       wx:if="{{order.handleOption.aftersale}}"

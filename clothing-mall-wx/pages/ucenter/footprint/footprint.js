@@ -80,7 +80,7 @@ Page({
       });
     } else {
       wx.navigateTo({
-        url: '/pages/goods/goods?id=' + goodsId,
+        url: '/pages/goods_detail/goods_detail?id=' + goodsId,
       });
     }
 

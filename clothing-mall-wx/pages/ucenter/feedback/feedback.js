@@ -13,7 +13,8 @@ Page({
     mobile: '',
     hasPicture: false,
     picUrls: [],
-    files: []
+    files: [],
+    submitting: false
   },
   chooseImage: function(e) {
     if (this.data.files.length >= 5) {
@@ -99,6 +100,11 @@ Page({
       wx.navigateTo({
         url: "/pages/auth/login/login"
       });
+      return false;
+    }
+
+    if (this.data.submitting) {
+      return false;
     }
 
     let that = this;
@@ -116,6 +122,10 @@ Page({
       util.showErrorToast('请输入手机号码');
       return false;
     }
+
+    this.setData({
+      submitting: true
+    });
 
     wx.showLoading({
       title: '提交中...',
@@ -147,14 +157,23 @@ Page({
               mobile: '',
               hasPicture: false,
               picUrls: [],
-              files: []
+              files: [],
+              submitting: false
             });
           }
         });
       } else {
+        that.setData({
+          submitting: false
+        });
         util.showErrorToast(res.errmsg);
       }
-
+    }).catch(function() {
+      wx.hideLoading();
+      that.setData({
+        submitting: false
+      });
+      util.showErrorToast('提交失败');
     });
   },
   onLoad: function(options) {

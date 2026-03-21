@@ -1,24 +1,18 @@
-/**app.wxss **/
 page {
-  --primary-color: #f4f4f4;    /* 主题色 */
-  --font-size-base: 28rpx;     /* 基础字号 */
-  --padding-normal: 20rpx;     /* 常规内边距 */
-  --border-radius: 8rpx;       /* 圆角 */
+  background-color: #F7F8FA;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+  color: #333333;
 }
-.container {
-  box-sizing: border-box;
-  background-color: var(--primary-color);
-  font-family: PingFangSC-Light, helvetica, 'Heiti SC';
-}
-
-view, image, text, navigator {
-  box-sizing: border-box;
+/* Utility classes for resetting button styles if needed */
+.reset-btn {
   padding: 0;
   margin: 0;
+  border-radius: 0;
+  background-color: transparent;
+  line-height: inherit;
+  font-size: inherit;
+  color: inherit;
 }
-
-view, text {
-  font-family: PingFangSC-Light, helvetica, 'Heiti SC';
-  font-size: 29rpx;
-  color: #333;
+.reset-btn::after {
+  display: none;
 }

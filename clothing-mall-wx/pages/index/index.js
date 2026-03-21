@@ -1,22 +1,30 @@
 const util = require('../../utils/util.js');
 const api = require('../../config/api.js');
-const user = require('../../utils/user.js');
 const tracker = require('../../utils/tracker.js');
 
 const app = getApp();
 
 Page({
   data: {
-    banner: [],
-    activity: null,  // 单个活动位
-    activityTopGoods: [],  // 活动位上排商品（2件）
-    activityBottomGoods: [],  // 活动位下排商品（3件）
-    hotGoods: [],
-    newGoods: [],
-    flashSaleList: [],
-    outfitList: [],
-    accessoryList: [],
-    goodsCount: 0
+    statusBarHeight: 20,
+    navBarHeight: 44,
+    navOpacity: 0,
+
+    // 轮播图
+    banners: [],
+
+    // 每周上新
+    weeklyNews: [],
+
+    // 热销推荐
+    hotSales: [],
+
+    // 搭配推荐
+    matchRecommends: [],
+
+    // 饰饰如意
+    accessories: [],
+    defaultImage: '/static/images/fallback-image.svg'
   },
 
   onShareAppMessage() {
@@ -28,137 +36,154 @@ Page({
   },
 
   onPullDownRefresh() {
-    wx.showNavigationBarLoading()
     this.loadData()
-    wx.hideNavigationBarLoading()
     wx.stopPullDownRefresh()
   },
 
-  onLoad(options) {
-    // 场景值处理
-    if (options.scene) {
-      const scene = decodeURIComponent(options.scene)
-      const [type, id] = scene.split(',')
-      if (type === 'goods' && id) {
-        wx.navigateTo({ url: `/pages/goods/goods?id=${id}` })
-      }
-    }
-
-    // 分享进入
-    if (options.goodId) {
-      wx.navigateTo({ url: `/pages/goods/goods?id=${options.goodId}` })
-    }
-
-    // 订单通知进入
-    if (options.orderId) {
-      wx.navigateTo({ url: `/pages/ucenter/orderDetail/orderDetail?id=${options.orderId}` })
-    }
+  onLoad() {
+    // 初始化导航栏
+    const sysInfo = wx.getSystemInfoSync()
+    const isIOS = sysInfo.system.indexOf('iOS') > -1
+    this.setData({
+      statusBarHeight: sysInfo.statusBarHeight,
+      navBarHeight: isIOS ? 44 : 48
+    })
 
     this.loadData()
   },
 
   onShow() {
+    // 更新 TabBar 状态
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ active: 0 })
+    }
     // 页面浏览埋点
     tracker.trackPageView('首页')
   },
 
-  loadData() {
-    this.getIndexData()
-    this.getFlashSaleData()
-    this.getGoodsCount()
+  onPageScroll(e) {
+    const scrollTop = e.scrollTop
+    let opacity = scrollTop / 100
+    if (opacity > 1) opacity = 1
+    this.setData({ navOpacity: opacity })
   },
 
-  getIndexData() {
+  // 加载数据
+  loadData() {
     util.request(api.IndexUrl).then(res => {
       if (res.errno === 0) {
-        const { banner = [], channel = [], newGoodsList = [], hotGoodsList = [], brandList = [], topicList = [], categoryList = [], homeActivity } = res.data
+        const { banner = [], hotGoodsList = [], newGoodsList = [] } = res.data
 
-        // 根据分类筛选穿搭推荐和配饰
-        const outfitList = hotGoodsList.filter(item => item.categoryId !== 5).slice(0, 4)
-        const accessoryList = hotGoodsList.filter(item => item.categoryId === 5 || item.isAccessory).slice(0, 4)
-
-        // 活动位数据：从后台配置读取
-        const activity = homeActivity || null
-        const activityGoods = (homeActivity && homeActivity.goods) ? homeActivity.goods : []
-        const activityTopGoods = activityGoods.slice(0, 2)  // 上排2件
-        const activityBottomGoods = activityGoods.slice(2, 5)  // 下排3件
+        // 搭配推荐：从热销商品中排除饰品分类
+        const matchRecommends = hotGoodsList.filter(item => item.categoryId !== 1022001).slice(0, 4)
 
         this.setData({
-          banner,
-          activity,
-          activityTopGoods,
-          activityBottomGoods,
-          hotGoods: hotGoodsList.slice(0, 6),
-          newGoods: newGoodsList,
-          outfitList: outfitList.length > 0 ? outfitList : hotGoodsList.slice(0, 4),
-          accessoryList: accessoryList.length > 0 ? accessoryList : []
+          banners: banner,
+          weeklyNews: newGoodsList.filter(item => item.categoryId !== 1022001).slice(0, 5),
+          hotSales: hotGoodsList.filter(item => item.categoryId !== 1022001).slice(0, 6),
+          matchRecommends: matchRecommends.length > 0 ? matchRecommends : hotGoodsList.slice(0, 4)
         })
       }
-    })
+    }).catch(() => {
+        wx.showToast({ title: '网络错误', icon: 'none' })
+      })
+
+    // 单独加载饰品（从饰品分类获取）
+    this.loadAccessories()
   },
 
-  getFlashSaleData() {
-    util.request(api.FlashSaleList, { page: 1, limit: 6 }).then(res => {
-      if (res.errno === 0) {
+  // 加载饰品数据
+  loadAccessories() {
+    util.request(api.GoodsList, {
+      categoryId: 1022001,
+      page: 1,
+      limit: 4
+    }).then(res => {
+      if (res.errno === 0 && res.data.list) {
         this.setData({
-          flashSaleList: res.data.list || []
+          accessories: res.data.list.slice(0, 4)
         })
       }
+    }).catch(() => {})
+  },
+
+  // 跳转商品详情
+  goToDetail(e) {
+    const id = e.currentTarget.dataset.id
+    wx.navigateTo({
+      url: `/pages/goods_detail/goods_detail?id=${id}`
     })
   },
 
-  getGoodsCount() {
-    util.request(api.GoodsCount).then(res => {
-      if (res.errno === 0) {
-        this.setData({ goodsCount: res.data })
+  onHomeImageError(e) {
+    const { source, index } = e.currentTarget.dataset
+    const defaultImage = this.data.defaultImage
+    if (source === 'banners') {
+      // banner 元素是对象，需要设置 url 属性
+      if (this.data.banners[index] && this.data.banners[index].url !== defaultImage) {
+        this.setData({
+          [`banners[${index}].url`]: defaultImage
+        })
       }
-    })
+      return
+    }
+    const list = this.data[source] || []
+    if (list[index] && list[index].picUrl !== defaultImage) {
+      this.setData({
+        [`${source}[${index}].picUrl`]: defaultImage
+      })
+    }
   },
 
-  getCoupon(e) {
-    const couponId = e.currentTarget.dataset.index
-    util.request(api.CouponReceive, { couponId }, 'POST').then(res => {
-      if (res.errno === 0) {
-        wx.showToast({ title: '领取成功', icon: 'success' })
-      } else {
-        util.showErrorToast(res.errmsg)
-      }
-    })
-  },
-
-  onGoodsTap(e) {
-    const { id } = e.currentTarget.dataset
-    wx.navigateTo({ url: `/pages/goods/goods?id=${id}` })
-  },
-
-  // 快速加购
-  quickAddCart(e) {
-    const goodsId = e.currentTarget.dataset.id
-    const that = this
+  // 加入购物车
+  addToCart(e) {
+    const id = e.currentTarget.dataset.id
     util.request(api.CartAdd, {
-      goodsId: goodsId,
+      goodsId: id,
       number: 1,
       productId: 0
-    }, 'POST').then(function(res) {
+    }, 'POST').then(res => {
       if (res.errno === 0) {
         wx.showToast({ title: '已加入购物车', icon: 'success' })
         // 加购埋点
-        const goods = that.data.hotGoods.find(g => g.id === goodsId) ||
-                      that.data.activityTopGoods.find(g => g.id === goodsId) ||
-                      that.data.activityBottomGoods.find(g => g.id === goodsId) ||
-                      that.data.outfitList.find(g => g.id === goodsId)
-        if (goods) {
-          tracker.trackAddCart(goods.id, goods.name, goods.retailPrice, 1)
-        }
+        tracker.trackAddCart(id, '商品', 0, 1)
       } else {
         wx.showToast({ title: res.errmsg || '加购失败', icon: 'none' })
       }
-    }).catch(function() {
+    }).catch(() => {
       wx.showToast({ title: '网络错误', icon: 'none' })
     })
   },
 
-  goSearch() {
-    wx.navigateTo({ url: '/pages/search/search' })
+  // 立即购买
+  buyNow(e) {
+    const id = e.currentTarget.dataset.id
+    util.request(api.CartFastAdd, {
+      goodsId: id,
+      number: 1,
+      productId: 0
+    }, 'POST').then(res => {
+      if (res.errno === 0) {
+        wx.setStorageSync('cartId', res.data)
+        wx.navigateTo({
+          url: '/pages/confirm_order/confirm_order'
+        })
+      } else {
+        wx.showToast({ title: res.errmsg || '下单失败', icon: 'none' })
+      }
+    }).catch(() => {
+      wx.showToast({ title: '网络错误', icon: 'none' })
+    })
+  },
+
+  // 跳转购物车
+  goToCart() {
+    wx.switchTab({ url: '/pages/cart/cart' })
+  },
+
+  // 切换 Tab
+  switchTab(e) {
+    const url = e.currentTarget.dataset.url
+    wx.switchTab({ url })
   }
 })

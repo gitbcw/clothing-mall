@@ -108,10 +108,14 @@ Page({
         }
       })
     } else {
-      var prefix = '/pages/goods/goods?id='
-      if(this.data.type == 1){
-        prefix = "/pages/topicDetail/topicDetail?id="
+      if (this.data.type == 1) {
+        wx.showToast({
+          title: '专题暂未开放',
+          icon: 'none'
+        });
+        return;
       }
+      var prefix = '/pages/goods_detail/goods_detail?id='
       wx.navigateTo({
         url: prefix + valueId,
       });

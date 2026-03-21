@@ -27,8 +27,17 @@ Component({
     }
   },
 
+  observers: {
+    goods() {
+      this.setData({
+        imageError: false
+      })
+    }
+  },
+
   data: {
-    defaultImage: '/images/default-goods.png'
+    defaultImage: '/static/images/fallback-image.svg',
+    imageError: false
   },
 
   methods: {
@@ -36,7 +45,7 @@ Component({
       const { id } = e.currentTarget.dataset
       this.triggerEvent('click', { id, goods: this.data.goods })
       wx.navigateTo({
-        url: `/pages/goods/goods?id=${id}`
+        url: `/pages/goods_detail/goods_detail?id=${id}`
       })
     },
 
@@ -47,11 +56,15 @@ Component({
     },
 
     onImageError() {
-      // 图片加载失败时使用默认图
+      this.setData({
+        imageError: true
+      })
     },
 
     onImageLoad() {
-      // 图片加载完成
+      this.setData({
+        imageError: false
+      })
     }
   }
 })

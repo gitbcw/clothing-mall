@@ -134,7 +134,7 @@ Page({
   },
   nextPage: function(event) {
     var that = this;
-    if (this.data.page > that.data.count / that.data.limit) {
+    if (this.data.page >= Math.ceil(that.data.count / that.data.limit)) {
       return true;
     }
 

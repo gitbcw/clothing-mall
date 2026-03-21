@@ -1,50 +1,46 @@
-var api = require('../../../config/api.js');
-var util = require('../../../utils/util.js');
-var user = require('../../../utils/user.js');
+var api = require("../../../config/api.js");
+var util = require("../../../utils/util.js");
+var user = require("../../../utils/user.js");
 
 var app = getApp();
 Page({
   data: {
-    username: '',
-    password: '',
-    code: '',
+    username: "",
+    password: "",
+    code: "",
     loginErrorCount: 0,
     statusBarHeight: 20,
     navContentHeight: 48,
     navTotalHeight: 68,
-    navTitle: '登录'
+    navTitle: "登录",
   },
-  onLoad: function(options) {
+  onLoad: function (options) {
     // 页面初始化 options为页面跳转所带来的参数
     // 页面渲染完成
-    const sysInfo = wx.getSystemInfoSync()
-    const statusBarHeight = sysInfo.statusBarHeight || 20
-    const navContentHeight = this.data.navContentHeight
-    const navTotalHeight = statusBarHeight + navContentHeight
-    this.setData({ statusBarHeight, navTotalHeight })
+    const sysInfo = wx.getSystemInfoSync();
+    const statusBarHeight = sysInfo.statusBarHeight || 20;
+    const navContentHeight = this.data.navContentHeight;
+    const navTotalHeight = statusBarHeight + navContentHeight;
+    this.setData({ statusBarHeight, navTotalHeight });
   },
-  onReady: function() {
-
-  },
-  onShow: function() {
+  onReady: function () {},
+  onShow: function () {
     // 页面显示
   },
-  onHide: function() {
+  onHide: function () {
     // 页面隐藏
-
   },
-  onUnload: function() {
+  onUnload: function () {
     // 页面关闭
-
   },
-  accountLogin: function() {
+  accountLogin: function () {
     var that = this;
 
     if (this.data.password.length < 1 || this.data.username.length < 1) {
       wx.showModal({
-        title: '错误信息',
-        content: '请输入用户名和密码',
-        showCancel: false
+        title: "错误信息",
+        content: "请输入用户名和密码",
+        showCancel: false,
       });
       return false;
     }
@@ -53,76 +49,73 @@ Page({
       url: api.AuthLoginByAccount,
       data: {
         username: that.data.username,
-        password: that.data.password
+        password: that.data.password,
       },
-      method: 'POST',
+      method: "POST",
       header: {
-        'content-type': 'application/json'
+        "content-type": "application/json",
       },
-      success: function(res) {
+      success: function (res) {
         if (res.data.errno == 0) {
           that.setData({
-            loginErrorCount: 0
+            loginErrorCount: 0,
           });
           app.globalData.hasLogin = true;
-          wx.setStorageSync('userInfo', res.data.data.userInfo);
+          wx.setStorageSync("userInfo", res.data.data.userInfo);
           wx.setStorage({
             key: "token",
             data: res.data.data.token,
-            success: function() {
+            success: function () {
               wx.switchTab({
-                url: '/pages/ucenter/index/index'
+                url: "/pages/mine/mine",
               });
-            }
+            },
           });
         } else {
           that.setData({
-            loginErrorCount: that.data.loginErrorCount + 1
+            loginErrorCount: that.data.loginErrorCount + 1,
           });
           app.globalData.hasLogin = false;
-          util.showErrorToast('账户登录失败');
+          util.showErrorToast("账户登录失败");
         }
-      }
+      },
     });
   },
-  bindUsernameInput: function(e) {
-
+  bindUsernameInput: function (e) {
     this.setData({
-      username: e.detail.value
+      username: e.detail.value,
     });
   },
-  bindPasswordInput: function(e) {
-
+  bindPasswordInput: function (e) {
     this.setData({
-      password: e.detail.value
+      password: e.detail.value,
     });
   },
-  bindCodeInput: function(e) {
-
+  bindCodeInput: function (e) {
     this.setData({
-      code: e.detail.value
+      code: e.detail.value,
     });
   },
-  clearInput: function(e) {
+  clearInput: function (e) {
     switch (e.currentTarget.id) {
-      case 'clear-username':
+      case "clear-username":
         this.setData({
-          username: ''
+          username: "",
         });
         break;
-      case 'clear-password':
+      case "clear-password":
         this.setData({
-          password: ''
+          password: "",
         });
         break;
-      case 'clear-code':
+      case "clear-code":
         this.setData({
-          code: ''
+          code: "",
         });
         break;
     }
   },
-  handleBack: function() {
-    wx.navigateBack({ delta: 1 })
-  }
-})
+  handleBack: function () {
+    wx.navigateBack({ delta: 1 });
+  },
+});

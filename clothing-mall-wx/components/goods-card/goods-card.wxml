@@ -3,7 +3,7 @@
   <view class="goods-image-wrap">
     <image
       class="goods-image"
-      src="{{goods.picUrl || defaultImage}}"
+      src="{{imageError ? defaultImage : (goods.picUrl || defaultImage)}}"
       mode="aspectFill"
       lazy-load
       binderror="onImageError"

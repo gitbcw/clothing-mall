@@ -5,10 +5,13 @@ var app = getApp();
 Page({
   data: {
     addressList: [],
-    total: 0
+    total: 0,
+    selectMode: 0
   },
   onLoad: function(options) {
-    // 页面初始化 options为页面跳转所带来的参数
+    this.setData({
+      selectMode: Number(options.selectMode || 0)
+    });
   },
   onReady: function() {
     // 页面渲染完成
@@ -29,31 +32,15 @@ Page({
     });
   },
   addressAddOrUpdate(event) {
-    console.log(event)
-
-    //返回之前，先取出上一页对象，并设置addressId
-    var pages = getCurrentPages();
-    var prevPage = pages[pages.length - 2];
-
-    if (prevPage.route == "pages/checkout/checkout") {
+    let addressId = event.currentTarget.dataset.addressId;
+    if (this.data.selectMode === 1 && addressId && addressId != 0) {
       try {
-        wx.setStorageSync('addressId', event.currentTarget.dataset.addressId);
-      } catch (e) {
-
-      }
-
-      let addressId = event.currentTarget.dataset.addressId;
-      if (addressId && addressId != 0) {
-        wx.navigateBack();
-      } else {
-        wx.navigateTo({
-          url: '/pages/ucenter/addressAdd/addressAdd?id=' + addressId
-        })
-      }
-
+        wx.setStorageSync('addressId', addressId);
+      } catch (e) {}
+      wx.navigateBack();
     } else {
       wx.navigateTo({
-        url: '/pages/ucenter/addressAdd/addressAdd?id=' + event.currentTarget.dataset.addressId
+        url: '/pages/ucenter/addressAdd/addressAdd?id=' + addressId
       })
     }
   },

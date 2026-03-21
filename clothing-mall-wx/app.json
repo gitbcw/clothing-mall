@@ -1,77 +1,58 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/catalog/catalog",
-    "pages/newGoods/newGoods",
-    "pages/hotGoods/hotGoods",
-    "pages/ucenter/index/index",
-    "pages/ucenter/address/address",
-    "pages/ucenter/addressAdd/addressAdd",
-    "pages/ucenter/feedback/feedback",
-    "pages/ucenter/footprint/footprint",
-    "pages/ucenter/order/order",
-    "pages/ucenter/orderDetail/orderDetail",
-    "pages/ucenter/couponList/couponList",
-    "pages/ucenter/couponSelect/couponSelect",
-    "pages/ucenter/collect/collect",
+    "pages/category/category",
+    "pages/cart/cart",
+    "pages/mine/mine",
+    "pages/goods_detail/goods_detail",
+    "pages/confirm_order/confirm_order",
+    "pages/order/order",
     "pages/auth/login/login",
     "pages/auth/accountLogin/accountLogin",
     "pages/auth/register/register",
     "pages/auth/reset/reset",
-    "pages/payResult/payResult",
-    "pages/topic/topic",
-    "pages/topicComment/topicComment",
-    "pages/topicDetail/topicDetail",
-    "pages/topicCommentPost/topicCommentPost",
-    "pages/search/search",
-    "pages/category/category",
-    "pages/cart/cart",
-    "pages/checkout/checkout",
-    "pages/goods/goods",
-    "pages/about/about",
-    "pages/coupon/coupon",
-    "pages/help/help",
+    "pages/ucenter/address/address",
+    "pages/ucenter/addressAdd/addressAdd",
+    "pages/ucenter/couponList/couponList",
+    "pages/ucenter/couponSelect/couponSelect",
+    "pages/ucenter/collect/collect",
+    "pages/ucenter/footprint/footprint",
+    "pages/ucenter/feedback/feedback",
+    "pages/ucenter/orderDetail/orderDetail",
     "pages/ucenter/aftersale/aftersale",
+    "pages/ucenter/aftersaleDetail/aftersaleDetail",
     "pages/ucenter/aftersaleList/aftersaleList",
-    "pages/ucenter/aftersaleDetail/aftersaleDetail"
+    "pages/search/search",
+    "pages/payResult/payResult"
   ],
   "window": {
-    "navigationBarBackgroundColor": "#F4F4F4",
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTitleText": "川着Transmute",
-    "enablePullDownRefresh": false,
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#f4f4f4",
-    "backgroundTextStyle": "dark"
+    "navigationStyle": "custom"
   },
   "tabBar": {
-    "backgroundColor": "#fafafa",
-    "borderStyle": "white",
-    "selectedColor": "#AB956D",
-    "color": "#666",
+    "custom": true,
+    "color": "#999999",
+    "selectedColor": "#BA8D59",
+    "backgroundColor": "#ffffff",
     "list": [
       {
         "pagePath": "pages/index/index",
-        "iconPath": "static/images/home.png",
-        "selectedIconPath": "static/images/home@selected.png",
         "text": "首页"
       },
       {
-        "pagePath": "pages/catalog/catalog",
-        "iconPath": "static/images/category.png",
-        "selectedIconPath": "static/images/category@selected.png",
+        "pagePath": "pages/category/category",
         "text": "分类"
       },
       {
         "pagePath": "pages/cart/cart",
-        "iconPath": "static/images/cart.png",
-        "selectedIconPath": "static/images/cart@selected.png",
         "text": "购物车"
       },
       {
-        "pagePath": "pages/ucenter/index/index",
-        "iconPath": "static/images/my.png",
-        "selectedIconPath": "static/images/my@selected.png",
-        "text": "个人"
+        "pagePath": "pages/mine/mine",
+        "text": "我的"
       }
     ]
   },
@@ -81,7 +62,7 @@
     "uploadFile": 10000,
     "downloadFile": 10000
   },
-  "debug": true,
+  "debug": false,
   "usingComponents": {
     "van-cell": "./lib/vant-weapp/cell/index",
     "van-cell-group": "./lib/vant-weapp/cell-group/index",
@@ -93,8 +74,7 @@
     "van-tag": "./lib/vant-weapp/tag/index",
     "van-icon": "./lib/vant-weapp/icon/index",
     "van-checkbox": "./lib/vant-weapp/checkbox/index",
-    "van-steps": "./lib/vant-weapp/steps/index",
-    "floating-cart": "/components/floating-cart/floating-cart"
+    "van-steps": "./lib/vant-weapp/steps/index"
   },
   "sitemapLocation": "sitemap.json"
 }

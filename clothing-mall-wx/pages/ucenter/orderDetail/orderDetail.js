@@ -199,7 +199,7 @@ Page({
           'paySign': payParam.paySign,
           'success': function(res) {
             console.log("支付过程成功");
-            util.redirect('/pages/ucenter/order/order');
+            util.redirect('/pages/order/order');
           },
           'fail': function(res) {
             console.log("支付过程失败");
@@ -230,7 +230,7 @@ Page({
               wx.showToast({
                 title: '取消订单成功'
               });
-              util.redirect('/pages/ucenter/order/order');
+              util.redirect('/pages/order/order');
             } else {
               util.showErrorToast(res.errmsg);
             }
@@ -256,7 +256,7 @@ Page({
               wx.showToast({
                 title: '取消订单成功'
               });
-              util.redirect('/pages/ucenter/order/order');
+              util.redirect('/pages/order/order');
             } else {
               util.showErrorToast(res.errmsg);
             }
@@ -282,7 +282,7 @@ Page({
               wx.showToast({
                 title: '删除订单成功'
               });
-              util.redirect('/pages/ucenter/order/order');
+              util.redirect('/pages/order/order');
             } else {
               util.showErrorToast(res.errmsg);
             }
@@ -308,7 +308,7 @@ Page({
               wx.showToast({
                 title: '确认收货成功！'
               });
-              util.redirect('/pages/ucenter/order/order');
+              util.redirect('/pages/order/order');
             } else {
               util.showErrorToast(res.errmsg);
             }

@@ -1,4 +1,6 @@
 {
+  "libVersion": "3.15.0",
+  "projectname": "clothing-mall-wx",
   "setting": {
     "urlCheck": false,
     "coverView": true,
@@ -6,19 +8,14 @@
     "skylineRenderEnable": false,
     "preloadBackgroundData": false,
     "autoAudits": false,
-    "useApiHook": true,
-    "useApiHostProcess": true,
     "showShadowRootInWxmlPanel": true,
+    "compileHotReLoad": true,
+    "useApiHook": true,
     "useStaticServer": false,
     "useLanDebug": false,
     "showES6CompileOption": false,
-    "compileHotReLoad": true,
     "checkInvalidKey": true,
     "ignoreDevUnusedFiles": true,
-    "bigPackageSizeSupport": false,
-    "useIsolateContext": true
-  },
-  "condition": {},
-  "libVersion": "3.15.0",
-  "projectname": "clothing-mall-wx"
+    "bigPackageSizeSupport": false
+  }
 }

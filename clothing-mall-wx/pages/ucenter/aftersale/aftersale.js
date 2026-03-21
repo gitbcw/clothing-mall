@@ -122,7 +122,7 @@ Page({
       return false;
     }
 
-    if (that.data.reason == '') {
+    if (!that.data.aftersale.reason) {
       util.showErrorToast('请输入换货原因');
       return false;
     }
@@ -145,7 +145,7 @@ Page({
           duration: 2000,
           complete: function () {
             wx.switchTab({
-              url: '/pages/ucenter/index/index'
+              url: '/pages/mine/mine'
             });
           }
         });

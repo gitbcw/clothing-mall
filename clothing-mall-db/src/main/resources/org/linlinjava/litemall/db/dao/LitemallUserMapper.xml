@@ -225,17 +225,21 @@
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into litemall_user (username, `password`, gender, 
-      birthday, last_login_time, last_login_ip, 
-      user_level, nickname, mobile, 
-      avatar, weixin_openid, session_key, 
-      `status`, add_time, update_time, 
+    insert into litemall_user (username, `password`, gender,
+      birthday, last_login_time, last_login_ip,
+      user_level, nickname, mobile,
+      level_id, total_points, available_points,
+      guide_id, store_id, role,
+      avatar, weixin_openid, session_key,
+      `status`, add_time, update_time,
       deleted)
-    values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{gender,jdbcType=TINYINT}, 
-      #{birthday,jdbcType=DATE}, #{lastLoginTime,jdbcType=TIMESTAMP}, #{lastLoginIp,jdbcType=VARCHAR}, 
-      #{userLevel,jdbcType=TINYINT}, #{nickname,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, 
-      #{avatar,jdbcType=VARCHAR}, #{weixinOpenid,jdbcType=VARCHAR}, #{sessionKey,jdbcType=VARCHAR}, 
-      #{status,jdbcType=TINYINT}, #{addTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+    values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{gender,jdbcType=TINYINT},
+      #{birthday,jdbcType=DATE}, #{lastLoginTime,jdbcType=TIMESTAMP}, #{lastLoginIp,jdbcType=VARCHAR},
+      #{userLevel,jdbcType=TINYINT}, #{nickname,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR},
+      #{levelId,jdbcType=INTEGER}, #{totalPoints,jdbcType=INTEGER}, #{availablePoints,jdbcType=INTEGER},
+      #{guideId,jdbcType=INTEGER}, #{storeId,jdbcType=INTEGER}, #{role,jdbcType=VARCHAR},
+      #{avatar,jdbcType=VARCHAR}, #{weixinOpenid,jdbcType=VARCHAR}, #{sessionKey,jdbcType=VARCHAR},
+      #{status,jdbcType=TINYINT}, #{addTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
       #{deleted,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="org.linlinjava.litemall.db.domain.LitemallUser">
@@ -274,6 +278,24 @@
       </if>
       <if test="mobile != null">
         mobile,
+      </if>
+      <if test="levelId != null">
+        level_id,
+      </if>
+      <if test="totalPoints != null">
+        total_points,
+      </if>
+      <if test="availablePoints != null">
+        available_points,
+      </if>
+      <if test="guideId != null">
+        guide_id,
+      </if>
+      <if test="storeId != null">
+        store_id,
+      </if>
+      <if test="role != null">
+        role,
       </if>
       <if test="avatar != null">
         avatar,
@@ -324,6 +346,24 @@
       </if>
       <if test="mobile != null">
         #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="levelId != null">
+        #{levelId,jdbcType=INTEGER},
+      </if>
+      <if test="totalPoints != null">
+        #{totalPoints,jdbcType=INTEGER},
+      </if>
+      <if test="availablePoints != null">
+        #{availablePoints,jdbcType=INTEGER},
+      </if>
+      <if test="guideId != null">
+        #{guideId,jdbcType=INTEGER},
+      </if>
+      <if test="storeId != null">
+        #{storeId,jdbcType=INTEGER},
+      </if>
+      <if test="role != null">
+        #{role,jdbcType=VARCHAR},
       </if>
       <if test="avatar != null">
         #{avatar,jdbcType=VARCHAR},
@@ -394,6 +434,24 @@
       </if>
       <if test="record.mobile != null">
         mobile = #{record.mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="record.levelId != null">
+        level_id = #{record.levelId,jdbcType=INTEGER},
+      </if>
+      <if test="record.totalPoints != null">
+        total_points = #{record.totalPoints,jdbcType=INTEGER},
+      </if>
+      <if test="record.availablePoints != null">
+        available_points = #{record.availablePoints,jdbcType=INTEGER},
+      </if>
+      <if test="record.guideId != null">
+        guide_id = #{record.guideId,jdbcType=INTEGER},
+      </if>
+      <if test="record.storeId != null">
+        store_id = #{record.storeId,jdbcType=INTEGER},
+      </if>
+      <if test="record.role != null">
+        role = #{record.role,jdbcType=VARCHAR},
       </if>
       <if test="record.avatar != null">
         avatar = #{record.avatar,jdbcType=VARCHAR},
@@ -482,6 +540,24 @@
       <if test="mobile != null">
         mobile = #{mobile,jdbcType=VARCHAR},
       </if>
+      <if test="levelId != null">
+        level_id = #{levelId,jdbcType=INTEGER},
+      </if>
+      <if test="totalPoints != null">
+        total_points = #{totalPoints,jdbcType=INTEGER},
+      </if>
+      <if test="availablePoints != null">
+        available_points = #{availablePoints,jdbcType=INTEGER},
+      </if>
+      <if test="guideId != null">
+        guide_id = #{guideId,jdbcType=INTEGER},
+      </if>
+      <if test="storeId != null">
+        store_id = #{storeId,jdbcType=INTEGER},
+      </if>
+      <if test="role != null">
+        role = #{role,jdbcType=VARCHAR},
+      </if>
       <if test="avatar != null">
         avatar = #{avatar,jdbcType=VARCHAR},
       </if>
@@ -521,6 +597,12 @@
       user_level = #{userLevel,jdbcType=TINYINT},
       nickname = #{nickname,jdbcType=VARCHAR},
       mobile = #{mobile,jdbcType=VARCHAR},
+      level_id = #{levelId,jdbcType=INTEGER},
+      total_points = #{totalPoints,jdbcType=INTEGER},
+      available_points = #{availablePoints,jdbcType=INTEGER},
+      guide_id = #{guideId,jdbcType=INTEGER},
+      store_id = #{storeId,jdbcType=INTEGER},
+      role = #{role,jdbcType=VARCHAR},
       avatar = #{avatar,jdbcType=VARCHAR},
       weixin_openid = #{weixinOpenid,jdbcType=VARCHAR},
       session_key = #{sessionKey,jdbcType=VARCHAR},

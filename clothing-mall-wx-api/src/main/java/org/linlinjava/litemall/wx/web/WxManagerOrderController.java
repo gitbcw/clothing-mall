@@ -5,7 +5,10 @@ import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallOrder;
+import org.linlinjava.litemall.db.domain.LitemallOrderGoods;
 import org.linlinjava.litemall.db.domain.LitemallUser;
+import org.linlinjava.litemall.db.service.LitemallGoodsProductService;
+import org.linlinjava.litemall.db.service.LitemallOrderGoodsService;
 import org.linlinjava.litemall.db.service.LitemallOrderService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.linlinjava.litemall.db.util.OrderUtil;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 小程序管理端订单控制器
@@ -29,6 +33,12 @@ public class WxManagerOrderController {
 
     @Autowired
     private LitemallOrderService orderService;
+
+    @Autowired
+    private LitemallOrderGoodsService orderGoodsService;
+
+    @Autowired
+    private LitemallGoodsProductService goodsProductService;
 
     @Autowired
     private LitemallUserService userService;
@@ -159,6 +169,7 @@ public class WxManagerOrderController {
 
     /**
      * 取消订单（管理员取消）
+     * 回滚库存
      *
      * @param userId 用户ID
      * @param body   订单信息，{ orderId: xxx }
@@ -184,6 +195,17 @@ public class WxManagerOrderController {
         // 如果订单不是待付款状态，则不能取消
         if (!order.getOrderStatus().equals(OrderUtil.STATUS_CREATE)) {
             return ResponseUtil.fail(403, "订单状态不允许取消");
+        }
+
+        // 回滚库存：获取订单商品列表
+        List<LitemallOrderGoods> orderGoodsList = orderGoodsService.queryByOid(orderId);
+        for (LitemallOrderGoods orderGoods : orderGoodsList) {
+            // 恢复商品库存
+            Integer productId = orderGoods.getProductId();
+            Short number = orderGoods.getNumber();
+            if (productId != null && number != null && number > 0) {
+                goodsProductService.addStock(productId, number);
+            }
         }
 
         order.setOrderStatus(OrderUtil.STATUS_CANCEL);

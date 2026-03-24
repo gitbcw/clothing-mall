@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.linlinjava.litemall.db.domain.LitemallOrder;
+import org.linlinjava.litemall.db.domain.LitemallOrderGoods;
 import org.linlinjava.litemall.db.domain.LitemallUser;
+import org.linlinjava.litemall.db.service.LitemallGoodsProductService;
+import org.linlinjava.litemall.db.service.LitemallOrderGoodsService;
 import org.linlinjava.litemall.db.service.LitemallOrderService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.linlinjava.litemall.db.util.OrderUtil;
@@ -14,7 +17,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -32,6 +37,8 @@ public class WxManagerOrderControllerTest {
     private MockMvc mvc;
     private MockUserService mockUserService;
     private MockOrderService mockOrderService;
+    private MockOrderGoodsService mockOrderGoodsService;
+    private MockGoodsProductService mockGoodsProductService;
     private WxManagerOrderController controller;
     private ObjectMapper objectMapper;
 
@@ -73,14 +80,51 @@ public class WxManagerOrderControllerTest {
         }
     }
 
+    /**
+     * 简单的 Mock 订单商品服务
+     */
+    static class MockOrderGoodsService extends LitemallOrderGoodsService {
+        private Map<Integer, List<LitemallOrderGoods>> orderGoodsByOrderId = new HashMap<>();
+
+        public void addOrderGoods(Integer orderId, LitemallOrderGoods orderGoods) {
+            orderGoodsByOrderId.computeIfAbsent(orderId, k -> new ArrayList<>()).add(orderGoods);
+        }
+
+        @Override
+        public List<LitemallOrderGoods> queryByOid(Integer orderId) {
+            return orderGoodsByOrderId.getOrDefault(orderId, new ArrayList<>());
+        }
+    }
+
+    /**
+     * 简单的 Mock 商品规格服务
+     */
+    static class MockGoodsProductService extends LitemallGoodsProductService {
+        private Map<Integer, Integer> productStock = new HashMap<>();
+
+        @Override
+        public int addStock(Integer id, Short num) {
+            productStock.merge(id, (int) num, Integer::sum);
+            return 1;
+        }
+
+        public int getStock(Integer id) {
+            return productStock.getOrDefault(id, 0);
+        }
+    }
+
     @Before
     public void setup() {
         controller = new WxManagerOrderController();
         mockUserService = new MockUserService();
         mockOrderService = new MockOrderService();
+        mockOrderGoodsService = new MockOrderGoodsService();
+        mockGoodsProductService = new MockGoodsProductService();
 
         org.springframework.test.util.ReflectionTestUtils.setField(controller, "userService", mockUserService);
         org.springframework.test.util.ReflectionTestUtils.setField(controller, "orderService", mockOrderService);
+        org.springframework.test.util.ReflectionTestUtils.setField(controller, "orderGoodsService", mockOrderGoodsService);
+        org.springframework.test.util.ReflectionTestUtils.setField(controller, "goodsProductService", mockGoodsProductService);
 
         mvc = MockMvcBuilders.standaloneSetup(controller)
                 .setCustomArgumentResolvers(new LoginUserHandlerMethodArgumentResolver())

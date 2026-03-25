@@ -840,6 +840,7 @@ export default {
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-bottom: 16px;
+  align-items: start; // 卡片顶部对齐，不拉伸
 
   .stat-card {
     background: #fff;
@@ -875,34 +876,30 @@ export default {
       }
 
       .grid-cell {
-        padding: 14px 16px;
+        padding: 16px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         border-right: 1px solid #f0f0f0;
         border-bottom: 1px solid #f0f0f0;
-        min-height: 60px;
+        min-height: 64px;
 
         // 移除右侧边框（每行最后一个）
-        &:nth-child(2n),
-        &:nth-child(3n) {
+        &:nth-child(2n) {
           border-right: none;
+        }
+
+        // 3格布局边框处理
+        .grid-3 & {
+          &:nth-child(3n) {
+            border-right: none;
+          }
         }
 
         // 移除底部边框（最后一行）
         &:nth-last-child(-n+2) {
           border-bottom: none;
-        }
-
-        // 3格布局：每行3个
-        .grid-3 & {
-          &:nth-child(3n) {
-            border-right: none;
-          }
-          &:nth-last-child(-n+3) {
-            border-bottom: none;
-          }
         }
 
         .cell-label {

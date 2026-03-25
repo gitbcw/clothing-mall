@@ -10,13 +10,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | 文档 | 用途 |
 |------|------|
-| [docs/开发环境指南.md](docs/开发环境指南.md) | 本地开发环境配置、Docker 一键启动 |
-| [docs/阿里云部署指南.md](docs/阿里云部署指南.md) | 服务器部署流程、一键部署命令 |
+| [docs/README.md](docs/README.md) | 文档导航入口 |
+| [docs/guides/开发环境指南.md](docs/guides/开发环境指南.md) | 本地开发环境配置、Docker 一键启动 |
+| [docs/guides/阿里云部署指南.md](docs/guides/阿里云部署指南.md) | 服务器部署流程、一键部署命令 |
+| [docs/current/INDEX.md](docs/current/INDEX.md) | 当前开发进度与任务 |
 | [docker/README.md](docker/README.md) | Docker 详细配置说明 |
 
 **快速导航**：
 - 本地开发 → `./scripts/docker-start.sh deploy`
 - 服务器部署 → `./scripts/docker-start.sh deploy-prod`
+- 文档入口 → `docs/README.md`
 
 ## 常用命令
 

@@ -1113,7 +1113,7 @@ export default {
   margin-left: auto;
 
   &.active {
-    /deep/ .el-input__inner {
+    ::v-deep .el-input__inner {
       border-color: #1a1a1a;
     }
   }

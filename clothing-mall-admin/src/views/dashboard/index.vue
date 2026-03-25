@@ -27,11 +27,11 @@
           </div>
         </div>
 
-        <!-- 活跃数卡片 (3格：上1下2) -->
+        <!-- 活跃数卡片 (3格横排) -->
         <div class="stat-card">
           <div class="card-title-bar">活跃数</div>
           <div class="card-grid grid-3">
-            <div class="grid-cell cell-full">
+            <div class="grid-cell">
               <span class="cell-label">日活 (DAU)</span>
               <span class="cell-value">{{ formatNumber(growthData.todayDau) }}</span>
             </div>
@@ -864,9 +864,9 @@ export default {
         grid-template-columns: repeat(2, 1fr);
       }
 
-      // 3格：上1下2
+      // 3格横排
       &.grid-3 {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
       }
 
       // 2x2表格
@@ -884,20 +884,25 @@ export default {
         border-bottom: 1px solid #f0f0f0;
         min-height: 60px;
 
-        // 移除右侧边框
-        &:nth-child(2n) {
+        // 移除右侧边框（每行最后一个）
+        &:nth-child(2n),
+        &:nth-child(3n) {
           border-right: none;
         }
 
-        // 移除底部边框
+        // 移除底部边框（最后一行）
         &:nth-last-child(-n+2) {
           border-bottom: none;
         }
 
-        // 3格布局：第一个占满整行
-        &.cell-full {
-          grid-column: 1 / -1;
-          border-right: none;
+        // 3格布局：每行3个
+        .grid-3 & {
+          &:nth-child(3n) {
+            border-right: none;
+          }
+          &:nth-last-child(-n+3) {
+            border-bottom: none;
+          }
         }
 
         .cell-label {

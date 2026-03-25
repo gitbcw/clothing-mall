@@ -10,13 +10,12 @@
     <div v-show="activeView === 'growth'" class="growth-view">
       <!-- 三列指标卡片 -->
       <div class="stat-cards">
-        <!-- 用户数卡片 -->
+        <!-- 用户数卡片 (2项) -->
         <div class="stat-card">
           <div class="card-header">
             <span class="card-title">用户数</span>
-            <span class="card-subtitle">Users</span>
           </div>
-          <div class="card-metrics">
+          <div class="card-metrics metrics-2">
             <div class="metric-item">
               <span class="metric-label">总数量</span>
               <span class="metric-value primary">{{ formatNumber(growthData.totalUsers) }}</span>
@@ -30,13 +29,12 @@
           </div>
         </div>
 
-        <!-- 活跃数卡片 -->
+        <!-- 活跃数卡片 (3项) -->
         <div class="stat-card">
           <div class="card-header">
             <span class="card-title">活跃数</span>
-            <span class="card-subtitle">Active</span>
           </div>
-          <div class="card-metrics">
+          <div class="card-metrics metrics-3">
             <div class="metric-item">
               <span class="metric-label">DAU</span>
               <span class="metric-value">{{ formatNumber(growthData.todayDau) }}</span>
@@ -52,13 +50,12 @@
           </div>
         </div>
 
-        <!-- 转化率卡片 -->
+        <!-- 转化率卡片 (4项) -->
         <div class="stat-card">
           <div class="card-header">
             <span class="card-title">转化率</span>
-            <span class="card-subtitle">Conversion</span>
           </div>
-          <div class="card-metrics">
+          <div class="card-metrics metrics-4">
             <div class="metric-item">
               <span class="metric-label">推送查看率</span>
               <span class="metric-value accent">{{ conversionData.pushViewRate }}%</span>
@@ -79,7 +76,7 @@
         </div>
       </div>
 
-      <!-- 时间筛选器（仅筛选趋势图） -->
+      <!-- 时间筛选器 -->
       <div class="toolbar">
         <span class="toolbar-label">趋势图时间范围</span>
         <div class="time-pills">
@@ -105,14 +102,12 @@
         <div class="chart-card">
           <div class="card-header">
             <span class="card-title">新增用户趋势</span>
-            <span class="card-subtitle">New Users</span>
           </div>
           <ve-line :data="newUsersChartData" :settings="chartSettings.newUsers" :extend="chartExtend" />
         </div>
         <div class="chart-card">
           <div class="card-header">
             <span class="card-title">日活趋势</span>
-            <span class="card-subtitle">Daily Active</span>
           </div>
           <ve-line :data="dauChartData" :settings="chartSettings.dau" :extend="chartExtend" />
         </div>
@@ -858,9 +853,6 @@ export default {
     border: 1px solid #ebeef5;
 
     .card-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
       padding: 14px 16px;
       border-bottom: 1px solid #f0f0f0;
       background: #fafbfc;
@@ -870,29 +862,43 @@ export default {
         font-weight: 600;
         color: #303133;
       }
-
-      .card-subtitle {
-        font-size: 11px;
-        color: #909399;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
     }
 
     .card-metrics {
       padding: 16px;
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
+      gap: 16px;
+
+      // 2项：水平居中排列
+      &.metrics-2 {
+        grid-template-columns: repeat(2, 1fr);
+        justify-items: center;
+      }
+
+      // 3项：三等分
+      &.metrics-3 {
+        grid-template-columns: repeat(3, 1fr);
+        justify-items: center;
+      }
+
+      // 4项：2x2 网格
+      &.metrics-4 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px 20px;
+      }
 
       .metric-item {
+        text-align: center;
+
         .metric-label {
+          display: block;
           font-size: 12px;
           color: #909399;
-          margin-bottom: 4px;
+          margin-bottom: 8px;
         }
 
         .metric-value {
+          display: block;
           font-size: 22px;
           font-weight: 600;
           color: #303133;
@@ -922,9 +928,6 @@ export default {
     border: 1px solid #ebeef5;
 
     .card-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
       padding: 14px 16px;
       border-bottom: 1px solid #f0f0f0;
       background: #fafbfc;
@@ -933,13 +936,6 @@ export default {
         font-size: 15px;
         font-weight: 600;
         color: #303133;
-      }
-
-      .card-subtitle {
-        font-size: 11px;
-        color: #909399;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
       }
     }
 
@@ -954,7 +950,8 @@ export default {
     grid-template-columns: 1fr;
 
     .stat-card .card-metrics {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(4, 1fr) !important;
+      justify-items: center;
     }
   }
 
@@ -975,7 +972,7 @@ export default {
   }
 
   .stat-cards .stat-card .card-metrics {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 

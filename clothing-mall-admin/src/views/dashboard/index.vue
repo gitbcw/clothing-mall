@@ -36,15 +36,15 @@
           </div>
           <div class="card-metrics metrics-3">
             <div class="metric-item">
-              <span class="metric-label">DAU</span>
+              <span class="metric-label">日活 (DAU)</span>
               <span class="metric-value">{{ formatNumber(growthData.todayDau) }}</span>
             </div>
             <div class="metric-item">
-              <span class="metric-label">WAU</span>
+              <span class="metric-label">周活 (WAU)</span>
               <span class="metric-value">{{ formatNumber(growthData.wau) }}</span>
             </div>
             <div class="metric-item">
-              <span class="metric-label">MAU</span>
+              <span class="metric-label">月活 (MAU)</span>
               <span class="metric-value">{{ formatNumber(growthData.mau) }}</span>
             </div>
           </div>
@@ -866,40 +866,29 @@ export default {
 
     .card-metrics {
       padding: 16px;
-      display: grid;
-      gap: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
 
-      // 2项：水平居中排列
-      &.metrics-2 {
-        grid-template-columns: repeat(2, 1fr);
-        justify-items: center;
-      }
-
-      // 3项：三等分
-      &.metrics-3 {
-        grid-template-columns: repeat(3, 1fr);
-        justify-items: center;
-      }
-
-      // 4项：2x2 网格
+      // 4项：2列网格
       &.metrics-4 {
+        display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px 20px;
+        gap: 12px 24px;
       }
 
       .metric-item {
-        text-align: center;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
 
         .metric-label {
-          display: block;
-          font-size: 12px;
-          color: #909399;
-          margin-bottom: 8px;
+          font-size: 13px;
+          color: #606266;
         }
 
         .metric-value {
-          display: block;
-          font-size: 22px;
+          font-size: 18px;
           font-weight: 600;
           color: #303133;
 

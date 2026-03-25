@@ -8,26 +8,6 @@
 
     <!-- 增长视图 - 三卡片 + 两图表布局 -->
     <div v-show="activeView === 'growth'" class="growth-view">
-      <!-- 顶部工具栏：时间选择 -->
-      <div class="toolbar">
-        <div class="time-pills">
-          <button :class="['pill', { active: growthDays === 7 }]" @click="selectDays(7)">7天</button>
-          <button :class="['pill', { active: growthDays === 30 }]" @click="selectDays(30)">1个月</button>
-          <button :class="['pill', { active: growthDays === 90 }]" @click="selectDays(90)">3个月</button>
-        </div>
-        <el-date-picker
-          v-model="customDateRange"
-          type="daterange"
-          size="mini"
-          range-separator="—"
-          start-placeholder="开始"
-          end-placeholder="结束"
-          value-format="yyyy-MM-dd"
-          :picker-options="pickerOptions"
-          @change="handleCustomDateChange"
-        />
-      </div>
-
       <!-- 三列指标卡片 -->
       <div class="stat-cards">
         <!-- 用户数卡片 -->
@@ -97,6 +77,27 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- 时间筛选器（仅筛选趋势图） -->
+      <div class="toolbar">
+        <span class="toolbar-label">趋势图时间范围</span>
+        <div class="time-pills">
+          <button :class="['pill', { active: growthDays === 7 }]" @click="selectDays(7)">7天</button>
+          <button :class="['pill', { active: growthDays === 30 }]" @click="selectDays(30)">1个月</button>
+          <button :class="['pill', { active: growthDays === 90 }]" @click="selectDays(90)">3个月</button>
+        </div>
+        <el-date-picker
+          v-model="customDateRange"
+          type="daterange"
+          size="mini"
+          range-separator="—"
+          start-placeholder="开始"
+          end-placeholder="结束"
+          value-format="yyyy-MM-dd"
+          :picker-options="pickerOptions"
+          @change="handleCustomDateChange"
+        />
       </div>
 
       <!-- 两个趋势图表 -->
@@ -800,15 +801,21 @@ export default {
 
 // ================== Three Card Dashboard Style ==================
 
-// Toolbar - 顶部工具栏
+// Toolbar - 筛选器（放在卡片和图表之间）
 .toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
+  gap: 16px;
+  padding: 12px 16px;
   background: #f5f7fa;
   border-radius: 6px;
   margin-bottom: 16px;
+
+  .toolbar-label {
+    font-size: 13px;
+    color: #606266;
+    white-space: nowrap;
+  }
 
   .time-pills {
     display: flex;

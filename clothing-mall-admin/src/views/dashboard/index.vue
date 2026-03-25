@@ -799,155 +799,110 @@ export default {
   }
 }
 
-// ================== Refined Business Style ==================
+// ================== Three Card Dashboard Style ==================
 
-// Toolbar - 筛选器
+// Toolbar - 筛选器（放在卡片和图表之间）
 .toolbar {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 10px 16px;
-  background: linear-gradient(to right, #f8fafc, #fff);
-  border-radius: 8px;
-  border: 1px solid #e8ecf0;
+  padding: 12px 16px;
+  background: #f5f7fa;
+  border-radius: 6px;
   margin-bottom: 16px;
 
   .toolbar-label {
-    font-size: 12px;
-    color: #64748b;
-    font-weight: 500;
+    font-size: 13px;
+    color: #606266;
+    white-space: nowrap;
   }
 
   .time-pills {
     display: flex;
-    gap: 4px;
+    gap: 6px;
 
     .pill {
-      padding: 4px 12px;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
+      padding: 5px 12px;
+      border: 1px solid #dcdfe6;
+      border-radius: 4px;
       background: #fff;
       font-size: 12px;
-      color: #475569;
+      color: #606266;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
 
       &:hover {
-        border-color: #3b82f6;
-        color: #3b82f6;
-        background: #eff6ff;
+        border-color: #409eff;
+        color: #409eff;
       }
 
       &.active {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        border-color: transparent;
+        background: #409eff;
+        border-color: #409eff;
         color: #fff;
-        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
       }
     }
   }
 }
 
-// Three Stat Cards - 精致指标卡片
+// Three Stat Cards - 三列指标卡片
 .stat-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: 16px;
+  margin-bottom: 16px;
 
   .stat-card {
     background: #fff;
-    border-radius: 12px;
-    border: 1px solid #e8ecf0;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    transition: all 0.2s ease;
-
-    &:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      transform: translateY(-1px);
-    }
-
-    // 左侧色条装饰
-    &::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 3px;
-    }
-
-    &:nth-child(1)::before {
-      background: linear-gradient(180deg, #3b82f6, #60a5fa);
-    }
-
-    &:nth-child(2)::before {
-      background: linear-gradient(180deg, #10b981, #34d399);
-    }
-
-    &:nth-child(3)::before {
-      background: linear-gradient(180deg, #f59e0b, #fbbf24);
-    }
-
-    position: relative;
+    border-radius: 8px;
+    border: 1px solid #ebeef5;
 
     .card-header {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      padding: 16px 20px 12px;
-      background: linear-gradient(to right, #f8fafc, #fff);
-      border-bottom: 1px solid #f1f5f9;
+      padding: 14px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fafbfc;
 
       .card-title {
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 600;
-        color: #1e293b;
+        color: #303133;
       }
 
       .card-subtitle {
-        font-size: 10px;
-        color: #94a3b8;
+        font-size: 11px;
+        color: #909399;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: 500;
+        letter-spacing: 0.5px;
       }
     }
 
     .card-metrics {
-      padding: 16px 20px 20px;
+      padding: 16px;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
+      gap: 12px;
 
       .metric-item {
         .metric-label {
-          font-size: 11px;
-          color: #64748b;
-          margin-bottom: 6px;
-          font-weight: 500;
+          font-size: 12px;
+          color: #909399;
+          margin-bottom: 4px;
         }
 
         .metric-value {
-          font-size: 26px;
-          font-weight: 700;
-          color: #1e293b;
-          line-height: 1;
-          font-family: 'SF Mono', 'Roboto Mono', monospace;
+          font-size: 22px;
+          font-weight: 600;
+          color: #303133;
 
           &.primary {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #409eff;
           }
 
           &.accent {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #e6a23c;
           }
         }
       }
@@ -955,44 +910,41 @@ export default {
   }
 }
 
-// Chart Cards - 图表卡片
+// Chart Cards - 图表卡片区域
 .chart-cards {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: 16px;
 
   .chart-card {
     background: #fff;
-    border-radius: 12px;
-    border: 1px solid #e8ecf0;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    border-radius: 8px;
+    border: 1px solid #ebeef5;
 
     .card-header {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      padding: 16px 20px;
-      background: linear-gradient(to right, #f8fafc, #fff);
-      border-bottom: 1px solid #f1f5f9;
+      padding: 14px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fafbfc;
 
       .card-title {
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 600;
-        color: #1e293b;
+        color: #303133;
       }
 
       .card-subtitle {
-        font-size: 10px;
-        color: #94a3b8;
+        font-size: 11px;
+        color: #909399;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: 500;
+        letter-spacing: 0.5px;
       }
     }
 
     .ve-line {
-      padding: 20px;
+      padding: 16px;
     }
   }
 }

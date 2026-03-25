@@ -6,7 +6,7 @@
       <el-tab-pane label="销售视图" name="sales" />
     </el-tabs>
 
-    <!-- 增长视图 - 紧凑仪表盘布局 -->
+    <!-- 增长视图 - 三卡片布局 -->
     <div v-show="activeView === 'growth'" class="growth-view">
       <!-- 顶部工具栏：时间选择 -->
       <div class="toolbar">
@@ -28,50 +28,83 @@
         />
       </div>
 
-      <!-- 指标卡片行 -->
-      <div class="metrics-row">
-        <div class="metric-card highlight">
-          <div class="metric-label">今日新增</div>
-          <div class="metric-value">
-            <count-to :start-val="0" :end-val="growthData.todayNewUsers" :duration="2000" />
+      <!-- 三列卡片布局 -->
+      <div class="stat-cards">
+        <!-- 用户数卡片 -->
+        <div class="stat-card">
+          <div class="card-header">
+            <span class="card-title">用户数</span>
+            <span class="card-subtitle">Users</span>
+          </div>
+          <div class="card-metrics">
+            <div class="metric-item">
+              <span class="metric-label">总数量</span>
+              <span class="metric-value primary">{{ formatNumber(growthData.totalUsers) }}</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">今日新增</span>
+              <span class="metric-value">
+                <count-to :start-val="0" :end-val="growthData.todayNewUsers" :duration="2000" />
+              </span>
+            </div>
+          </div>
+          <div class="card-chart">
+            <ve-line :data="newUsersChartData" :settings="chartSettings.newUsers" :extend="miniChartExtend" />
           </div>
         </div>
-        <div class="metric-card">
-          <div class="metric-label">DAU</div>
-          <div class="metric-value">{{ formatNumber(growthData.todayDau) }}</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">WAU</div>
-          <div class="metric-value">{{ formatNumber(growthData.wau) }}</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">MAU</div>
-          <div class="metric-value">{{ formatNumber(growthData.mau) }}</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">累计用户</div>
-          <div class="metric-value">{{ formatNumber(growthData.totalUsers) }}</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">DAU/MAU</div>
-          <div class="metric-value accent">{{ dauMauRate }}%</div>
-          <div class="metric-hint">粘性指标</div>
-        </div>
-      </div>
 
-      <!-- 趋势图表 -->
-      <div class="charts-row">
-        <div class="chart-panel">
-          <div class="panel-header">
-            <span class="panel-title">新增用户趋势</span>
+        <!-- 活跃数卡片 -->
+        <div class="stat-card">
+          <div class="card-header">
+            <span class="card-title">活跃数</span>
+            <span class="card-subtitle">Active</span>
           </div>
-          <ve-line :data="newUsersChartData" :settings="chartSettings.newUsers" :extend="chartExtend" />
+          <div class="card-metrics">
+            <div class="metric-item">
+              <span class="metric-label">DAU</span>
+              <span class="metric-value">{{ formatNumber(growthData.todayDau) }}</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">WAU</span>
+              <span class="metric-value">{{ formatNumber(growthData.wau) }}</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">MAU</span>
+              <span class="metric-value">{{ formatNumber(growthData.mau) }}</span>
+            </div>
+          </div>
+          <div class="card-chart">
+            <ve-line :data="dauChartData" :settings="chartSettings.dau" :extend="miniChartExtend" />
+          </div>
         </div>
-        <div class="chart-panel">
-          <div class="panel-header">
-            <span class="panel-title">日活趋势</span>
+
+        <!-- 转化率卡片 -->
+        <div class="stat-card">
+          <div class="card-header">
+            <span class="card-title">转化率</span>
+            <span class="card-subtitle">Conversion</span>
           </div>
-          <ve-line :data="dauChartData" :settings="chartSettings.dau" :extend="chartExtend" />
+          <div class="card-metrics">
+            <div class="metric-item">
+              <span class="metric-label">推送查看率</span>
+              <span class="metric-value accent">{{ conversionData.pushViewRate }}%</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">场景点击率</span>
+              <span class="metric-value accent">{{ conversionData.sceneClickRate }}%</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">收藏量</span>
+              <span class="metric-value">{{ formatNumber(conversionData.favoriteCount) }}</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">下单量</span>
+              <span class="metric-value">{{ formatNumber(conversionData.orderCount) }}</span>
+            </div>
+          </div>
+          <div class="card-chart">
+            <ve-line :data="conversionChartData" :settings="chartSettings.conversion" :extend="miniChartExtend" />
+          </div>
         </div>
       </div>
     </div>
@@ -323,18 +356,37 @@ export default {
         mau: 0,
         activeRate: 0
       },
+      conversionData: {
+        pushViewRate: 0,
+        sceneClickRate: 0,
+        favoriteCount: 0,
+        orderCount: 0
+      },
       // 图表数据
       newUsersChartData: { columns: ['day', 'newUsers'], rows: [] },
       dauChartData: { columns: ['day', 'dau'], rows: [] },
+      conversionChartData: { columns: ['day', 'rate'], rows: [] },
       chartSettings: {
         newUsers: { labelMap: { newUsers: '新增用户' }},
-        dau: { labelMap: { dau: '日活用户' }}
+        dau: { labelMap: { dau: '日活用户' }},
+        conversion: { labelMap: { rate: '转化率' }}
       },
       chartExtend: {
         xAxis: { boundaryGap: false },
         series: {
           smooth: true,
           areaStyle: { opacity: 0.3 }
+        }
+      },
+      miniChartExtend: {
+        xAxis: { boundaryGap: false, axisLine: { show: false }, axisLabel: { show: false }},
+        yAxis: { axisLine: { show: false }, axisLabel: { show: false }, splitLine: { show: false }},
+        grid: { top: 10, bottom: 10, left: 0, right: 0 },
+        series: {
+          smooth: true,
+          areaStyle: { opacity: 0.3 },
+          symbol: 'none',
+          lineStyle: { width: 2 }
         }
       },
       // 销售视图数据
@@ -359,6 +411,7 @@ export default {
     this.fetchGrowthData()
     this.fetchActiveUsers()
     this.fetchSalesData()
+    this.fetchConversionData()
   },
   methods: {
     formatNumber(num) {
@@ -451,6 +504,33 @@ export default {
         this.growthData.wau = 856
         this.growthData.mau = 1520
       })
+    },
+    fetchConversionData() {
+      // TODO: 对接真实转化率 API
+      // 目前使用模拟数据
+      this.conversionData = {
+        pushViewRate: 45.2,
+        sceneClickRate: 32.8,
+        favoriteCount: 567,
+        orderCount: 89
+      }
+      // 生成转化率趋势图数据
+      const now = new Date()
+      const formatDate = (date) => {
+        const m = String(date.getMonth() + 1).padStart(2, '0')
+        const d = String(date.getDate()).padStart(2, '0')
+        return `${m}-${d}`
+      }
+      const rows = []
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(now)
+        date.setDate(date.getDate() - i)
+        rows.push({
+          day: formatDate(date),
+          rate: (Math.random() * 20 + 30).toFixed(1)
+        })
+      }
+      this.conversionChartData.rows = rows
     },
     generateMockChartData() {
       // 计算实际的天数
@@ -709,16 +789,16 @@ export default {
   }
 }
 
-// ================== Compact Dashboard Style ==================
+// ================== Three Card Dashboard Style ==================
 
 // Toolbar - 顶部工具栏
 .toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  background: #f8f9fa;
-  border-radius: 8px;
+  padding: 10px 16px;
+  background: #f5f7fa;
+  border-radius: 6px;
   margin-bottom: 16px;
 
   .time-pills {
@@ -726,136 +806,125 @@ export default {
     gap: 6px;
 
     .pill {
-      padding: 6px 14px;
-      border: 1px solid #ddd;
-      border-radius: 16px;
+      padding: 5px 12px;
+      border: 1px solid #dcdfe6;
+      border-radius: 4px;
       background: #fff;
       font-size: 12px;
-      font-weight: 500;
-      color: #666;
+      color: #606266;
       cursor: pointer;
       transition: all 0.15s ease;
 
       &:hover {
-        border-color: #999;
-        color: #333;
+        border-color: #409eff;
+        color: #409eff;
       }
 
       &.active {
-        background: #333;
-        border-color: #333;
+        background: #409eff;
+        border-color: #409eff;
         color: #fff;
       }
     }
   }
 }
 
-// Metrics Row - 指标卡片行
-.metrics-row {
+// Three Stat Cards - 三列统计卡片
+.stat-cards {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 12px;
-  margin-bottom: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 
-  .metric-card {
+  .stat-card {
     background: #fff;
-    border: 1px solid #eee;
     border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-    transition: all 0.2s ease;
+    border: 1px solid #ebeef5;
+    overflow: hidden;
 
-    &:hover {
-      border-color: #ddd;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
+    .card-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fafbfc;
 
-    &.highlight {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-color: transparent;
-
-      .metric-label {
-        color: rgba(255, 255, 255, 0.85);
+      .card-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #303133;
       }
 
-      .metric-value {
-        color: #fff;
-      }
-    }
-
-    .metric-label {
-      font-size: 12px;
-      color: #888;
-      margin-bottom: 8px;
-    }
-
-    .metric-value {
-      font-size: 24px;
-      font-weight: 600;
-      color: #333;
-      line-height: 1;
-
-      &.accent {
-        color: #e53e3e;
+      .card-subtitle {
+        font-size: 11px;
+        color: #909399;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
       }
     }
 
-    .metric-hint {
-      font-size: 10px;
-      color: #999;
-      margin-top: 4px;
+    .card-metrics {
+      padding: 12px 16px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px 16px;
+
+      .metric-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .metric-label {
+          font-size: 12px;
+          color: #909399;
+        }
+
+        .metric-value {
+          font-size: 20px;
+          font-weight: 600;
+          color: #303133;
+
+          &.primary {
+            color: #409eff;
+          }
+
+          &.accent {
+            color: #e6a23c;
+          }
+        }
+      }
+    }
+
+    .card-chart {
+      height: 80px;
+      padding: 0 8px 8px;
     }
   }
 }
 
 @media (max-width: 1200px) {
-  .metrics-row {
-    grid-template-columns: repeat(3, 1fr);
+  .stat-cards {
+    grid-template-columns: 1fr;
+
+    .stat-card .card-metrics {
+      grid-template-columns: repeat(4, 1fr);
+    }
   }
 }
 
 @media (max-width: 768px) {
-  .metrics-row {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .toolbar {
     flex-direction: column;
     gap: 10px;
+    align-items: stretch;
 
     .el-date-editor {
       width: 100%;
     }
   }
-}
 
-// Charts Row - 图表区域
-.charts-row {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-
-  .chart-panel {
-    background: #fff;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 16px;
-
-    .panel-header {
-      margin-bottom: 12px;
-
-      .panel-title {
-        font-size: 14px;
-        font-weight: 500;
-        color: #333;
-      }
-    }
-  }
-}
-
-@media (max-width: 992px) {
-  .charts-row {
-    grid-template-columns: 1fr;
+  .stat-cards .stat-card .card-metrics {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 

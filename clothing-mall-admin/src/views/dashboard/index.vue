@@ -10,67 +10,61 @@
     <div v-show="activeView === 'growth'" class="growth-view">
       <!-- 三列指标卡片 -->
       <div class="stat-cards">
-        <!-- 用户数卡片 (2项) -->
+        <!-- 用户数卡片 (2格横排) -->
         <div class="stat-card">
-          <div class="card-header">
-            <span class="card-title">用户数</span>
-          </div>
-          <div class="card-metrics metrics-2">
-            <div class="metric-item">
-              <span class="metric-label">总数量</span>
-              <span class="metric-value primary">{{ formatNumber(growthData.totalUsers) }}</span>
+          <div class="card-title-bar">用户数</div>
+          <div class="card-grid grid-2">
+            <div class="grid-cell">
+              <span class="cell-label">总数量</span>
+              <span class="cell-value primary">{{ formatNumber(growthData.totalUsers) }}</span>
             </div>
-            <div class="metric-item">
-              <span class="metric-label">今日新增</span>
-              <span class="metric-value">
+            <div class="grid-cell">
+              <span class="cell-label">今日新增</span>
+              <span class="cell-value">
                 <count-to :start-val="0" :end-val="growthData.todayNewUsers" :duration="2000" />
               </span>
             </div>
           </div>
         </div>
 
-        <!-- 活跃数卡片 (3项) -->
+        <!-- 活跃数卡片 (3格：上1下2) -->
         <div class="stat-card">
-          <div class="card-header">
-            <span class="card-title">活跃数</span>
-          </div>
-          <div class="card-metrics metrics-3">
-            <div class="metric-item">
-              <span class="metric-label">日活 (DAU)</span>
-              <span class="metric-value">{{ formatNumber(growthData.todayDau) }}</span>
+          <div class="card-title-bar">活跃数</div>
+          <div class="card-grid grid-3">
+            <div class="grid-cell cell-full">
+              <span class="cell-label">日活 (DAU)</span>
+              <span class="cell-value">{{ formatNumber(growthData.todayDau) }}</span>
             </div>
-            <div class="metric-item">
-              <span class="metric-label">周活 (WAU)</span>
-              <span class="metric-value">{{ formatNumber(growthData.wau) }}</span>
+            <div class="grid-cell">
+              <span class="cell-label">周活 (WAU)</span>
+              <span class="cell-value">{{ formatNumber(growthData.wau) }}</span>
             </div>
-            <div class="metric-item">
-              <span class="metric-label">月活 (MAU)</span>
-              <span class="metric-value">{{ formatNumber(growthData.mau) }}</span>
+            <div class="grid-cell">
+              <span class="cell-label">月活 (MAU)</span>
+              <span class="cell-value">{{ formatNumber(growthData.mau) }}</span>
             </div>
           </div>
         </div>
 
-        <!-- 转化率卡片 (4项) -->
+        <!-- 转化率卡片 (2x2表格) -->
         <div class="stat-card">
-          <div class="card-header">
-            <span class="card-title">转化率</span>
-          </div>
-          <div class="card-metrics metrics-4">
-            <div class="metric-item">
-              <span class="metric-label">推送查看率</span>
-              <span class="metric-value accent">{{ conversionData.pushViewRate }}%</span>
+          <div class="card-title-bar">转化率</div>
+          <div class="card-grid grid-4">
+            <div class="grid-cell">
+              <span class="cell-label">推送查看率</span>
+              <span class="cell-value accent">{{ conversionData.pushViewRate }}%</span>
             </div>
-            <div class="metric-item">
-              <span class="metric-label">场景点击率</span>
-              <span class="metric-value accent">{{ conversionData.sceneClickRate }}%</span>
+            <div class="grid-cell">
+              <span class="cell-label">场景点击率</span>
+              <span class="cell-value accent">{{ conversionData.sceneClickRate }}%</span>
             </div>
-            <div class="metric-item">
-              <span class="metric-label">收藏量</span>
-              <span class="metric-value">{{ formatNumber(conversionData.favoriteCount) }}</span>
+            <div class="grid-cell">
+              <span class="cell-label">收藏量</span>
+              <span class="cell-value">{{ formatNumber(conversionData.favoriteCount) }}</span>
             </div>
-            <div class="metric-item">
-              <span class="metric-label">下单量</span>
-              <span class="metric-value">{{ formatNumber(conversionData.orderCount) }}</span>
+            <div class="grid-cell">
+              <span class="cell-label">下单量</span>
+              <span class="cell-value">{{ formatNumber(conversionData.orderCount) }}</span>
             </div>
           </div>
         </div>
@@ -851,51 +845,71 @@ export default {
     background: #fff;
     border-radius: 8px;
     border: 1px solid #ebeef5;
+    overflow: hidden;
 
-    .card-header {
-      padding: 14px 16px;
-      border-bottom: 1px solid #f0f0f0;
+    .card-title-bar {
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #303133;
       background: #fafbfc;
-
-      .card-title {
-        font-size: 15px;
-        font-weight: 600;
-        color: #303133;
-      }
+      border-bottom: 1px solid #ebeef5;
     }
 
-    .card-metrics {
-      padding: 16px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items: center;
+    .card-grid {
+      display: grid;
 
-      // 4项：2列网格
-      &.metrics-4 {
-        display: grid;
+      // 2格横排
+      &.grid-2 {
         grid-template-columns: repeat(2, 1fr);
-        gap: 10px 16px;
-        align-items: unset;
       }
 
-      .metric-item {
-        display: flex;
-        align-items: center;
-        gap: 24px;
+      // 3格：上1下2
+      &.grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+      }
 
-        .metric-label {
-          font-size: 13px;
-          color: #606266;
-          white-space: nowrap;
+      // 2x2表格
+      &.grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .grid-cell {
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-right: 1px solid #f0f0f0;
+        border-bottom: 1px solid #f0f0f0;
+        min-height: 60px;
+
+        // 移除右侧边框
+        &:nth-child(2n) {
+          border-right: none;
         }
 
-        .metric-value {
-          font-size: 18px;
+        // 移除底部边框
+        &:nth-last-child(-n+2) {
+          border-bottom: none;
+        }
+
+        // 3格布局：第一个占满整行
+        &.cell-full {
+          grid-column: 1 / -1;
+          border-right: none;
+        }
+
+        .cell-label {
+          font-size: 12px;
+          color: #909399;
+          margin-bottom: 6px;
+        }
+
+        .cell-value {
+          font-size: 20px;
           font-weight: 600;
           color: #303133;
-          min-width: 60px;
-          text-align: right;
 
           &.primary {
             color: #409eff;

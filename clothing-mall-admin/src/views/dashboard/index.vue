@@ -840,7 +840,6 @@ export default {
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-bottom: 16px;
-  align-items: start; // 卡片顶部对齐，不拉伸
 
   .stat-card {
     background: #fff;

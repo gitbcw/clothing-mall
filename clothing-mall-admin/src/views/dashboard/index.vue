@@ -865,32 +865,37 @@ export default {
     }
 
     .card-metrics {
-      padding: 16px;
+      padding: 16px 20px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
+      align-items: center;
 
       // 4项：2列网格
       &.metrics-4 {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px 24px;
+        gap: 10px 16px;
+        align-items: unset;
       }
 
       .metric-item {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        gap: 24px;
 
         .metric-label {
           font-size: 13px;
           color: #606266;
+          white-space: nowrap;
         }
 
         .metric-value {
           font-size: 18px;
           font-weight: 600;
           color: #303133;
+          min-width: 60px;
+          text-align: right;
 
           &.primary {
             color: #409eff;

@@ -6,7 +6,7 @@
       <el-tab-pane label="销售视图" name="sales" />
     </el-tabs>
 
-    <!-- 增长视图 - 三卡片布局 -->
+    <!-- 增长视图 - 三卡片 + 两图表布局 -->
     <div v-show="activeView === 'growth'" class="growth-view">
       <!-- 顶部工具栏：时间选择 -->
       <div class="toolbar">
@@ -28,7 +28,7 @@
         />
       </div>
 
-      <!-- 三列卡片布局 -->
+      <!-- 三列指标卡片 -->
       <div class="stat-cards">
         <!-- 用户数卡片 -->
         <div class="stat-card">
@@ -47,9 +47,6 @@
                 <count-to :start-val="0" :end-val="growthData.todayNewUsers" :duration="2000" />
               </span>
             </div>
-          </div>
-          <div class="card-chart">
-            <ve-line :data="newUsersChartData" :settings="chartSettings.newUsers" :extend="miniChartExtend" />
           </div>
         </div>
 
@@ -72,9 +69,6 @@
               <span class="metric-label">MAU</span>
               <span class="metric-value">{{ formatNumber(growthData.mau) }}</span>
             </div>
-          </div>
-          <div class="card-chart">
-            <ve-line :data="dauChartData" :settings="chartSettings.dau" :extend="miniChartExtend" />
           </div>
         </div>
 
@@ -102,9 +96,24 @@
               <span class="metric-value">{{ formatNumber(conversionData.orderCount) }}</span>
             </div>
           </div>
-          <div class="card-chart">
-            <ve-line :data="conversionChartData" :settings="chartSettings.conversion" :extend="miniChartExtend" />
+        </div>
+      </div>
+
+      <!-- 两个趋势图表 -->
+      <div class="chart-cards">
+        <div class="chart-card">
+          <div class="card-header">
+            <span class="card-title">新增用户趋势</span>
+            <span class="card-subtitle">New Users</span>
           </div>
+          <ve-line :data="newUsersChartData" :settings="chartSettings.newUsers" :extend="chartExtend" />
+        </div>
+        <div class="chart-card">
+          <div class="card-header">
+            <span class="card-title">日活趋势</span>
+            <span class="card-subtitle">Daily Active</span>
+          </div>
+          <ve-line :data="dauChartData" :settings="chartSettings.dau" :extend="chartExtend" />
         </div>
       </div>
     </div>
@@ -829,17 +838,17 @@ export default {
   }
 }
 
-// Three Stat Cards - 三列统计卡片
+// Three Stat Cards - 三列指标卡片
 .stat-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
+  margin-bottom: 16px;
 
   .stat-card {
     background: #fff;
     border-radius: 8px;
     border: 1px solid #ebeef5;
-    overflow: hidden;
 
     .card-header {
       display: flex;
@@ -864,23 +873,20 @@ export default {
     }
 
     .card-metrics {
-      padding: 12px 16px;
+      padding: 16px;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 8px 16px;
+      gap: 12px;
 
       .metric-item {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-
         .metric-label {
           font-size: 12px;
           color: #909399;
+          margin-bottom: 4px;
         }
 
         .metric-value {
-          font-size: 20px;
+          font-size: 22px;
           font-weight: 600;
           color: #303133;
 
@@ -894,10 +900,44 @@ export default {
         }
       }
     }
+  }
+}
 
-    .card-chart {
-      height: 80px;
-      padding: 0 8px 8px;
+// Chart Cards - 图表卡片区域
+.chart-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  .chart-card {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #ebeef5;
+
+    .card-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fafbfc;
+
+      .card-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #303133;
+      }
+
+      .card-subtitle {
+        font-size: 11px;
+        color: #909399;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    }
+
+    .ve-line {
+      padding: 16px;
     }
   }
 }
@@ -909,6 +949,10 @@ export default {
     .stat-card .card-metrics {
       grid-template-columns: repeat(4, 1fr);
     }
+  }
+
+  .chart-cards {
+    grid-template-columns: 1fr;
   }
 }
 

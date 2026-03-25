@@ -144,4 +144,38 @@
         ORDER BY count DESC
         LIMIT #{limit}
     </select>
+
+    <!-- 增长统计：周活跃用户 WAU（最近7天有登录的不重复用户） -->
+    <select id="statWAU" resultType="map">
+        SELECT COUNT(DISTINCT id) AS wau
+        FROM litemall_user
+        WHERE deleted = 0
+        AND last_login_time IS NOT NULL
+        AND DATE(last_login_time) &gt;= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+    </select>
+
+    <!-- 增长统计：月活跃用户 MAU（最近30天有登录的不重复用户） -->
+    <select id="statMAU" resultType="map">
+        SELECT COUNT(DISTINCT id) AS mau
+        FROM litemall_user
+        WHERE deleted = 0
+        AND last_login_time IS NOT NULL
+        AND DATE(last_login_time) &gt;= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+    </select>
+
+    <!-- 推送转化统计：推送发送量与查看量 -->
+    <select id="statPushConversion" resultType="map">
+        SELECT
+            COUNT(*) AS totalPush,
+            SUM(CASE WHEN view_time IS NOT NULL THEN 1 ELSE 0 END) AS viewedPush,
+            SUM(CASE WHEN order_id IS NOT NULL THEN 1 ELSE 0 END) AS orderedPush
+        FROM litemall_push_log
+        WHERE deleted = 0
+        <if test="startDate != null and startDate != ''">
+            AND DATE(send_time) &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND DATE(send_time) &lt;= #{endDate}
+        </if>
+    </select>
 </mapper>

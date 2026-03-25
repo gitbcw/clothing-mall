@@ -5,6 +5,7 @@ import org.linlinjava.litemall.db.dao.LitemallGoodsMapper;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.linlinjava.litemall.db.domain.LitemallGoods.Column;
 import org.linlinjava.litemall.db.domain.LitemallGoodsExample;
+import org.linlinjava.litemall.db.domain.LitemallGoodsProduct;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -272,4 +273,44 @@ public class LitemallGoodsService {
         example.or().andGoodsSnEqualTo(goodsSn).andDeletedEqualTo(false);
         return goodsMapper.selectOneByExampleWithBLOBs(example);
     }
+
+    /**
+     * 设置商品预售状态
+     *
+     * @param goodsId 商品ID
+     * @param isPresale 是否预售
+     */
+    public void setPresale(Integer goodsId, Boolean isPresale) {
+        LitemallGoods goods = new LitemallGoods();
+        goods.setId(goodsId);
+        goods.setIsPresale(isPresale);
+        goods.setUpdateTime(LocalDateTime.now());
+        goodsMapper.updateByPrimaryKeySelective(goods);
+    }
+
+    /**
+     * 检查商品库存并更新预售状态
+     * 当所有货品库存为0时，自动标记为预售
+     *
+     * @param goodsId 商品ID
+     * @param products 商品货品列表
+     */
+    public void checkAndUpdatePresaleStatus(Integer goodsId, List<LitemallGoodsProduct> products) {
+        if (products == null || products.isEmpty()) {
+            return;
+        }
+
+        // 检查是否所有货品都无库存
+        boolean allOutOfStock = true;
+        for (LitemallGoodsProduct product : products) {
+            if (product.getNumber() != null && product.getNumber() > 0) {
+                allOutOfStock = false;
+                break;
+            }
+        }
+
+        // 根据库存状态更新预售标记
+        setPresale(goodsId, allOutOfStock);
+    }
+
 }

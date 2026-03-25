@@ -77,4 +77,27 @@ public class StatService {
     public List<Map> statTrackerPages(String startDate, String endDate, String eventType, Integer limit) {
         return statMapper.statTrackerPages(startDate, endDate, eventType, limit);
     }
+
+    // ==================== 活跃用户统计 ====================
+
+    /**
+     * 周活跃用户 WAU
+     */
+    public Map statWAU() {
+        return statMapper.statWAU();
+    }
+
+    /**
+     * 月活跃用户 MAU
+     */
+    public Map statMAU() {
+        return statMapper.statMAU();
+    }
+
+    /**
+     * 推送转化统计
+     */
+    public Map statPushConversion(String startDate, String endDate) {
+        return statMapper.statPushConversion(startDate, endDate);
+    }
 }

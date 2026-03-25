@@ -68,3 +68,11 @@ export function statTrackerPages(query) {
     params: query
   })
 }
+
+// 活跃用户统计 (WAU/MAU)
+export function statActiveUsers() {
+  return request({
+    url: '/stat/active-users',
+    method: 'get'
+  })
+}

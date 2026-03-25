@@ -259,6 +259,9 @@ public class SystemConfig {
     // 满减活动配置
     public final static String LITEMALL_FULL_REDUCTION_STACK_WITH_COUPON = "litemall_full_reduction_stack_with_coupon";
 
+    // 预售配置
+    public final static String LITEMALL_PRESALE_SHIP_DAYS = "litemall_presale_ship_days";
+
     // 企业微信配置
     public final static String LITEMALL_WEWORK_CORP_ID = "litemall_wework_corp_id";
     public final static String LITEMALL_WEWORK_CONTACT_SECRET = "litemall_wework_contact_secret";
@@ -268,13 +271,79 @@ public class SystemConfig {
     public final static String LITEMALL_WEWORK_MINIPROGRAM_APPID = "litemall_wework_miniprogram_appid";
     public final static String LITEMALL_WEWORK_ACTIVITY_PAGES = "litemall_wework_activity_pages";
 
+    // 推送组配置
+    public final static String LITEMALL_PUSH_ACTIVE_DAYS = "litemall_push_active_days";
+    public final static String LITEMALL_PUSH_DORMANT_DAYS = "litemall_push_dormant_days";
+
+    // 配置缓存
+    private static Integer cachedPresaleShipDays = null;
+    private static Integer cachedPushActiveDays = null;
+    private static Integer cachedPushDormantDays = null;
+
+    /**
+     * 获取预售发货天数（带缓存）
+     * 库存为0时商品自动标记为预售，预计发货时间为当前日期+此配置天数
+     */
+    public static Integer getPresaleShipDays() {
+        if (cachedPresaleShipDays != null) {
+            return cachedPresaleShipDays;
+        }
+        String value = getConfig(LITEMALL_PRESALE_SHIP_DAYS);
+        if (value == null || value.isEmpty()) {
+            cachedPresaleShipDays = 2; // 默认2天
+        } else {
+            cachedPresaleShipDays = Integer.parseInt(value);
+        }
+        return cachedPresaleShipDays;
+    }
+
+    /**
+     * 获取活跃用户判定天数（带缓存）
+     */
+    public static Integer getPushActiveDays() {
+        if (cachedPushActiveDays != null) {
+            return cachedPushActiveDays;
+        }
+        String value = getConfig(LITEMALL_PUSH_ACTIVE_DAYS);
+        if (value == null || value.isEmpty()) {
+            cachedPushActiveDays = 3; // 默认3天
+        } else {
+            cachedPushActiveDays = Integer.parseInt(value);
+        }
+        return cachedPushActiveDays;
+    }
+
+    /**
+     * 获取潜水用户判定天数（带缓存）
+     */
+    public static Integer getPushDormantDays() {
+        if (cachedPushDormantDays != null) {
+            return cachedPushDormantDays;
+        }
+        String value = getConfig(LITEMALL_PUSH_DORMANT_DAYS);
+        if (value == null || value.isEmpty()) {
+            cachedPushDormantDays = 30; // 默认30天
+        } else {
+            cachedPushDormantDays = Integer.parseInt(value);
+        }
+        return cachedPushDormantDays;
+    }
+
     public static void setConfigs(Map<String, String> configs) {
         SYSTEM_CONFIGS = configs;
+        // 清除缓存
+        cachedPresaleShipDays = null;
+        cachedPushActiveDays = null;
+        cachedPushDormantDays = null;
     }
 
     public static void updateConfigs(Map<String, String> data) {
         for (Map.Entry<String, String> entry : data.entrySet()) {
             SYSTEM_CONFIGS.put(entry.getKey(), entry.getValue());
         }
+        // 清除缓存
+        cachedPresaleShipDays = null;
+        cachedPushActiveDays = null;
+        cachedPushDormantDays = null;
     }
 }

@@ -51,4 +51,21 @@ public interface StatMapper {
                                @Param("endDate") String endDate,
                                @Param("eventType") String eventType,
                                @Param("limit") Integer limit);
+
+    // ==================== 活跃用户统计 ====================
+
+    /**
+     * 周活跃用户 WAU（最近7天有登录的不重复用户）
+     */
+    Map statWAU();
+
+    /**
+     * 月活跃用户 MAU（最近30天有登录的不重复用户）
+     */
+    Map statMAU();
+
+    /**
+     * 推送转化统计
+     */
+    Map statPushConversion(@Param("startDate") String startDate, @Param("endDate") String endDate);
 }

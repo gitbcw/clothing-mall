@@ -10,7 +10,7 @@
     <div v-show="activeView === 'growth'" class="growth-view">
       <!-- 核心指标卡片 -->
       <el-row :gutter="20" class="panel-group">
-        <el-col :xs="12" :sm="6" class="card-panel-col">
+        <el-col :xs="12" :sm="6" :lg="4" class="card-panel-col">
           <div class="card-panel">
             <div class="card-panel-icon-wrapper icon-people">
               <svg-icon icon-class="peoples" class-name="card-panel-icon" />
@@ -27,7 +27,7 @@
             </div>
           </div>
         </el-col>
-        <el-col :xs="12" :sm="6" class="card-panel-col">
+        <el-col :xs="12" :sm="6" :lg="4" class="card-panel-col">
           <div class="card-panel">
             <div class="card-panel-icon-wrapper icon-new">
               <svg-icon icon-class="user" class-name="card-panel-icon" />
@@ -44,7 +44,7 @@
             </div>
           </div>
         </el-col>
-        <el-col :xs="12" :sm="6" class="card-panel-col">
+        <el-col :xs="12" :sm="6" :lg="4" class="card-panel-col">
           <div class="card-panel">
             <div class="card-panel-icon-wrapper icon-active">
               <svg-icon icon-class="star" class-name="card-panel-icon" />
@@ -61,13 +61,47 @@
             </div>
           </div>
         </el-col>
-        <el-col :xs="12" :sm="6" class="card-panel-col">
+        <el-col :xs="12" :sm="6" :lg="4" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-wau">
+              <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">周活 WAU</div>
+              <count-to
+                :start-val="0"
+                :end-val="growthData.wau"
+                :duration="3000"
+                class="card-panel-num"
+                suffix=" 人"
+              />
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="12" :sm="6" :lg="4" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-mau">
+              <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">月活 MAU</div>
+              <count-to
+                :start-val="0"
+                :end-val="growthData.mau"
+                :duration="3000"
+                class="card-panel-num"
+                suffix=" 人"
+              />
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="12" :sm="6" :lg="4" class="card-panel-col">
           <div class="card-panel">
             <div class="card-panel-icon-wrapper icon-rate">
               <svg-icon icon-class="chart" class-name="card-panel-icon" />
             </div>
             <div class="card-panel-description">
-              <div class="card-panel-text">活跃率</div>
+              <div class="card-panel-text">当日活跃率</div>
               <count-to
                 :start-val="0"
                 :end-val="growthData.activeRate"
@@ -316,7 +350,7 @@
 <script>
 import CountTo from 'vue-count-to'
 import VeLine from 'v-charts/lib/line'
-import { statGrowth } from '@/api/stat'
+import { statGrowth, statActiveUsers } from '@/api/stat'
 
 export default {
   components: {
@@ -361,6 +395,8 @@ export default {
         totalUsers: 0,
         todayNewUsers: 0,
         todayDau: 0,
+        wau: 0,
+        mau: 0,
         activeRate: 0
       },
       // 图表数据
@@ -391,6 +427,7 @@ export default {
   },
   created() {
     this.fetchGrowthData()
+    this.fetchActiveUsers()
     this.fetchSalesData()
   },
   methods: {
@@ -455,16 +492,25 @@ export default {
         }
       }).catch(() => {
         // API 未就绪时使用模拟数据
-        this.growthData = {
-          totalUsers: 3580,
-          todayNewUsers: 42,
-          todayDau: 215,
-          activeRate: 6
-        }
+        this.growthData.totalUsers = 3580
+        this.growthData.todayNewUsers = 42
+        this.growthData.todayDau = 215
+        this.growthData.activeRate = 6
         // 根据时间范围生成模拟数据
         this.generateMockChartData()
       }).finally(() => {
         this.growthLoading = false
+      })
+    },
+    fetchActiveUsers() {
+      statActiveUsers().then(response => {
+        const data = response.data.data
+        this.growthData.wau = data.wau || 0
+        this.growthData.mau = data.mau || 0
+      }).catch(() => {
+        // API 未就绪时使用模拟数据
+        this.growthData.wau = 856
+        this.growthData.mau = 1520
       })
     },
     generateMockChartData() {
@@ -589,6 +635,8 @@ export default {
       .icon-people { background: #40c9c6; }
       .icon-new { background: #36a3f7; }
       .icon-active { background: #f4516c; }
+      .icon-wau { background: #9b59b6; }
+      .icon-mau { background: #8e44ad; }
       .icon-rate { background: #34bfa3; }
       .icon-money { background: #f4516c; }
       .icon-shopping { background: #34bfa3; }
@@ -597,6 +645,8 @@ export default {
     .icon-people { color: #40c9c6; }
     .icon-new { color: #36a3f7; }
     .icon-active { color: #f4516c; }
+    .icon-wau { color: #9b59b6; }
+    .icon-mau { color: #8e44ad; }
     .icon-rate { color: #34bfa3; }
     .icon-money { color: #f4516c; }
     .icon-shopping { color: #34bfa3; }

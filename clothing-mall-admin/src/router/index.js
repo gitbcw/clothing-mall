@@ -339,6 +339,17 @@ export const asyncRoutes = [
           noCache: true
         }
       },
+      // 推送组管理
+      {
+        path: 'push-group',
+        component: () => import('@/views/platform/pushGroup'),
+        name: 'platformPushGroup',
+        meta: {
+          perms: ['admin:push:group:list', 'admin:push:group:create', 'admin:push:group:update', 'admin:push:group:delete'],
+          title: 'app.menu.platform_push_group',
+          noCache: true
+        }
+      },
       // 商城配置
       {
         path: 'config-mall',
@@ -476,6 +487,16 @@ export const asyncRoutes = [
     },
     children: [
       {
+        path: 'index',
+        component: () => import('@/views/promotion/index'),
+        name: 'promotionIndex',
+        meta: {
+          perms: ['GET /admin/flashSale/list', 'GET /admin/coupon/list', 'GET /admin/fullReduction/list'],
+          title: 'app.menu.promotion_index',
+          noCache: true
+        }
+      },
+      {
         path: 'ad',
         component: () => import('@/views/promotion/ad'),
         name: 'ad',
@@ -535,7 +556,8 @@ export const asyncRoutes = [
           perms: ['GET /admin/flashSale/list', 'POST /admin/flashSale/create', 'POST /admin/flashSale/update', 'POST /admin/flashSale/delete'],
           title: 'app.menu.promotion_flashSale',
           noCache: true
-        }
+        },
+        hidden: true
       },
       {
         path: 'coupon',
@@ -545,7 +567,8 @@ export const asyncRoutes = [
           perms: ['GET /admin/coupon/list', 'POST /admin/coupon/create', 'POST /admin/coupon/update', 'POST /admin/coupon/delete'],
           title: 'app.menu.promotion_coupon',
           noCache: true
-        }
+        },
+        hidden: true
       },
       {
         path: 'couponDetail',
@@ -622,6 +645,16 @@ export const asyncRoutes = [
         meta: {
           perms: ['GET /admin/stat/tracker/overview'],
           title: 'app.menu.stat_tracker',
+          noCache: true
+        }
+      },
+      {
+        path: 'revenue',
+        component: () => import('@/views/stat/revenue'),
+        name: 'statRevenue',
+        meta: {
+          perms: ['GET /admin/stat/order'],
+          title: 'app.menu.stat_revenue',
           noCache: true
         }
       }

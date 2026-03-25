@@ -158,4 +158,19 @@ public class AdminStatController {
         return ResponseUtil.ok(pages);
     }
 
+    // ==================== 活跃用户统计 API ====================
+
+    @RequiresPermissions("admin:stat:growth")
+    @RequiresPermissionsDesc(menu = {"统计管理", "增长统计"}, button = "活跃用户")
+    @GetMapping("/active-users")
+    public Object statActiveUsers() {
+        Map wau = statService.statWAU();
+        Map mau = statService.statMAU();
+
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        result.put("wau", wau != null ? wau.get("wau") : 0);
+        result.put("mau", mau != null ? mau.get("mau") : 0);
+        return ResponseUtil.ok(result);
+    }
+
 }

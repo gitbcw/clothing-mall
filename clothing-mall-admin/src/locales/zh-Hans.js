@@ -32,6 +32,7 @@ export default {
       goods_memberLevel: '会员等级',
       // 活动管理
       promotion: '营销管理',
+      promotion_index: '促销管理',
       promotion_ad: '广告管理',
       promotion_coupon: '优惠券管理',
       promotion_coupon_detail: '优惠券详情',
@@ -47,6 +48,7 @@ export default {
       stat_growth: '增长分析',
       stat_sales: '销售分析',
       stat_tracker: '行为分析',
+      stat_revenue: '营收分析报表',
       // 商城配置
       mall: '商城配置',
       mall_region: '行政区域',
@@ -60,6 +62,7 @@ export default {
       platform_store: '门店管理',
       platform_guide: '导购管理',
       platform_wework: '消息推送',
+      platform_push_group: '推送组管理',
       platform_config: '商城配置',
       platform_admin: '管理员',
       platform_notice: '通知管理',

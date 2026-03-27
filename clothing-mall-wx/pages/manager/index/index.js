@@ -8,23 +8,20 @@ Page({
     userInfo: {},
     isManager: false,
     userRole: 'user',
-    orderStats: {
-      unpaid: 0,
-      unship: 0,
-      unrecv: 0,
-      aftersale: 0
-    },
-    draftCount: 0
+    pendingOrderCount: 0,
+    aftersaleCount: 0,
+    pendingGoodsCount: 0,
+    recentOrders: []
   },
 
   onLoad() {
     this.checkManagerRole();
-    this.getOrderStats();
+    this.getManagerStats();
   },
 
   onShow() {
     this.checkManagerRole();
-    this.getOrderStats();
+    this.getManagerStats();
   },
 
   checkManagerRole() {
@@ -36,105 +33,67 @@ Page({
           userRole: res.data.role
         });
         if (!res.data.isManager) {
-          wx.showToast({
-            title: '无管理权限',
-            icon: 'none'
-          });
-          setTimeout(() => {
-            wx.switchTab({
-              url: '/pages/mine/mine'
-            });
+          wx.showToast({ title: '无管理权限', icon: 'none' });
+          setTimeout(function() {
+            wx.switchTab({ url: '/pages/mine/mine' });
           }, 1500);
         }
       }
     }).catch(function() {
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none'
-      });
-      setTimeout(() => {
-        wx.switchTab({
-          url: '/pages/mine/mine'
-        });
+      wx.showToast({ title: '请先登录', icon: 'none' });
+      setTimeout(function() {
+        wx.switchTab({ url: '/pages/mine/mine' });
       }, 1500);
     });
   },
 
-  getOrderStats() {
+  getManagerStats() {
     let that = this;
-    // 获取待付款订单数
-    util.request(api.OrderList, { showType: 1, page: 1, limit: 1 }).then(function(res) {
+    // 使用新的 stats 接口
+    util.request(api.ManagerStats).then(function(res) {
       if (res.errno === 0) {
+        const data = res.data;
         that.setData({
-          'orderStats.unpaid': res.data.total || 0
+          pendingOrderCount: data.pendingOrderCount || 0,
+          aftersaleCount: data.aftersaleCount || 0,
+          pendingGoodsCount: data.pendingGoodsCount || 0,
+          recentOrders: data.recentOrders || []
         });
       }
     });
-    // 获取待发货订单数
-    util.request(api.OrderList, { showType: 2, page: 1, limit: 1 }).then(function(res) {
-      if (res.errno === 0) {
-        that.setData({
-          'orderStats.unship': res.data.total || 0
-        });
-      }
-    });
-    // 获取待收货订单数
-    util.request(api.OrderList, { showType: 3, page: 1, limit: 1 }).then(function(res) {
-      if (res.errno === 0) {
-        that.setData({
-          'orderStats.unrecv': res.data.total || 0
-        });
-      }
-    });
-    // 获取售后订单数
-    util.request(api.AftersaleList, { status: 0, page: 1, limit: 1 }).then(function(res) {
-      if (res.errno === 0) {
-        that.setData({
-          'orderStats.aftersale': res.data.total || 0
-        });
-      }
-    });
+
+    // 兼容：如果 stats 接口不存在，仍从旧接口获取
+    const drafts = wx.getStorageSync('skuDrafts') || [];
+    that.setData({ draftCount: drafts.length });
   },
 
+  // 跳转订单列表
   goOrderList(e) {
-    const type = e.currentTarget.dataset.type;
+    const type = e.currentTarget.dataset.type || 'pending';
     wx.navigateTo({
       url: '/pages/manager/order/order?type=' + type
     });
   },
 
-  // 快速上架 - 拍照/选图
-  goQuickUpload() {
+  // 跳转商品列表
+  goGoodsList() {
     wx.navigateTo({
-      url: '/pages/manager/upload/upload'
+      url: '/pages/manager/goods/goods'
     });
   },
 
-  goAftersaleList() {
-    wx.navigateTo({
-      url: '/pages/manager/order/order?type=aftersale'
-    });
-  },
-
-  // SKU 列表
-  goSkuList() {
-    wx.navigateTo({
-      url: '/pages/manager/skuList/skuList'
-    });
-  },
-
-  // 草稿箱
+  // 跳转草稿箱
   goDraftList() {
     wx.navigateTo({
       url: '/pages/manager/draftList/draftList'
     });
   },
 
-  // 商品列表
-  goGoodsList() {
-    wx.showToast({
-      title: '请在 Web 端管理',
-      icon: 'none'
+  // 跳转订单详情
+  goOrderDetail(e) {
+    const id = e.currentTarget.dataset.id;
+    wx.navigateTo({
+      url: '/pages/manager/orderDetail/orderDetail?id=' + id
     });
   },
 
@@ -145,22 +104,22 @@ Page({
       content: '确定要下架全部商品吗？下架后顾客将无法看到任何商品。',
       confirmText: '确认下架',
       confirmColor: '#E6A23C',
-      success: (res) => {
+      success: function(res) {
         if (res.confirm) {
-          wx.showLoading({ title: '下架中...' })
-          util.request(api.ManagerGoodsUnpublishAll, {}, 'POST').then(res => {
+          wx.showLoading({ title: '下架中...' });
+          util.request(api.ManagerGoodsUnpublishAll, {}, 'POST').then(function(res) {
+            wx.hideLoading();
             if (res.errno === 0) {
-              wx.showToast({ title: '下架成功', icon: 'success' })
+              wx.showToast({ title: '下架成功', icon: 'success' });
             } else {
-              wx.showToast({ title: res.errmsg || '下架失败', icon: 'none' })
+              wx.showToast({ title: res.errmsg || '下架失败', icon: 'none' });
             }
-          }).catch(() => {
-            wx.showToast({ title: '网络错误', icon: 'none' })
-          }).finally(() => {
-            wx.hideLoading()
-          })
+          }).catch(function() {
+            wx.hideLoading();
+            wx.showToast({ title: '网络错误', icon: 'none' });
+          });
         }
       }
-    })
+    });
   }
-})
+});

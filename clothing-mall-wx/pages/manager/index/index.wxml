@@ -5,56 +5,63 @@
     <text class="subtitle">{{userRole === 'owner' ? '店主' : '导购'}}</text>
   </view>
 
-  <!-- 功能模块 -->
-  <view class="section">
-    <!-- 订单管理 -->
-    <view class="section-title">订单管理</view>
-    <view class="menu-grid">
-      <view class="menu-item" bindtap="goOrderList" data-type="unpaid">
-        <view class="menu-icon icon-unpaid"></view>
-        <text class="menu-text">待付款</text>
-        <view class="badge" wx:if="{{orderStats.unpaid > 0}}">{{orderStats.unpaid}}</view>
-      </view>
-      <view class="menu-item" bindtap="goOrderList" data-type="unship">
-        <view class="menu-icon icon-unship"></view>
-        <text class="menu-text">待发货</text>
-        <view class="badge" wx:if="{{orderStats.unship > 0}}">{{orderStats.unship}}</view>
-      </view>
-      <view class="menu-item" bindtap="goOrderList" data-type="unrecv">
-        <view class="menu-icon icon-unrecv"></view>
-        <text class="menu-text">待收货</text>
-        <view class="badge" wx:if="{{orderStats.unrecv > 0}}">{{orderStats.unrecv}}</view>
-      </view>
-      <view class="menu-item" bindtap="goAftersaleList">
-        <view class="menu-icon icon-aftersale"></view>
-        <text class="menu-text">售后</text>
-        <view class="badge" wx:if="{{orderStats.aftersale > 0}}">{{orderStats.aftersale}}</view>
-      </view>
+  <!-- 数据概览卡片 -->
+  <view class="stats-cards">
+    <view class="stat-card" bindtap="goOrderList" data-type="pending">
+      <view class="stat-number">{{pendingOrderCount}}</view>
+      <view class="stat-label">待处理订单</view>
+      <view class="stat-icon icon-pending"></view>
     </view>
+    <view class="stat-card" bindtap="goOrderList" data-type="aftersale">
+      <view class="stat-number">{{aftersaleCount}}</view>
+      <view class="stat-label">售后中</view>
+      <view class="stat-icon icon-aftersale"></view>
+    </view>
+    <view class="stat-card" bindtap="goGoodsList">
+      <view class="stat-number">{{pendingGoodsCount}}</view>
+      <view class="stat-label">待上架</view>
+      <view class="stat-icon icon-goods"></view>
+    </view>
+  </view>
 
-    <!-- 商品管理 -->
-    <view class="section-title">商品管理</view>
+  <!-- 功能入口 -->
+  <view class="section">
+    <view class="section-title">功能管理</view>
     <view class="menu-grid">
-      <view class="menu-item" bindtap="goQuickUpload">
-        <view class="menu-icon icon-camera"></view>
-        <text class="menu-text">快速上架</text>
+      <view class="menu-item" bindtap="goOrderList" data-type="pending">
+        <view class="menu-icon icon-order"></view>
+        <text class="menu-text">订单管理</text>
       </view>
-      <view class="menu-item" bindtap="goSkuList">
-        <view class="menu-icon icon-sku"></view>
-        <text class="menu-text">SKU管理</text>
+      <view class="menu-item" bindtap="goGoodsList">
+        <view class="menu-icon icon-goods-manage"></view>
+        <text class="menu-text">商品管理</text>
       </view>
       <view class="menu-item" bindtap="goDraftList">
         <view class="menu-icon icon-draft"></view>
         <text class="menu-text">草稿箱</text>
         <view class="badge" wx:if="{{draftCount > 0}}">{{draftCount}}</view>
       </view>
-      <view class="menu-item" bindtap="goGoodsList">
-        <view class="menu-icon icon-goods"></view>
-        <text class="menu-text">商品列表</text>
-      </view>
       <view class="menu-item" bindtap="handleUnpublishAll">
         <view class="menu-icon icon-unpublish"></view>
         <text class="menu-text">换季下架</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 最近订单 -->
+  <view class="section" wx:if="{{recentOrders.length > 0}}">
+    <view class="section-title">
+      <text>最近待处理</text>
+      <view class="more-link" bindtap="goOrderList" data-type="pending">查看全部</view>
+    </view>
+    <view class="recent-order" wx:for="{{recentOrders}}" wx:key="id" bindtap="goOrderDetail" data-id="{{item.id}}">
+      <view class="order-info">
+        <text class="order-name">{{item.consignee || '未知'}}</text>
+        <text class="order-sn">{{item.orderSn}}</text>
+      </view>
+      <view class="order-meta">
+        <text class="order-status-text">{{item.orderStatusText}}</text>
+        <text class="order-price">¥{{item.actualPrice}}</text>
       </view>
     </view>
   </view>

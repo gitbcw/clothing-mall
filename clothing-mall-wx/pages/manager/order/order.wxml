@@ -1,25 +1,30 @@
 <view class="container">
   <!-- Tab 切换 -->
   <van-tabs active="{{ type }}" bind:change="onTabChange" color="#667eea">
-    <van-tab title="待付款" name="unpaid"></van-tab>
-    <van-tab title="待发货" name="unship"></van-tab>
-    <van-tab title="待收货" name="unrecv"></van-tab>
-    <van-tab title="售后" name="aftersale"></van-tab>
+    <van-tab title="待处理{{pendingCount > 0 ? '(' + pendingCount + ')' : ''}}" name="pending"></van-tab>
+    <van-tab title="售后中{{aftersaleCount > 0 ? '(' + aftersaleCount + ')' : ''}}" name="aftersale"></van-tab>
+    <van-tab title="已完成" name="completed"></van-tab>
   </van-tabs>
 
   <!-- 订单列表 -->
   <view class="order-list">
     <view class="order-item" wx:for="{{orderList}}" wx:key="id" bindtap="goOrderDetail" data-id="{{item.id}}">
       <view class="order-header">
-        <text class="order-sn">订单号: {{item.orderSn}}</text>
+        <text class="order-sn">{{item.orderSn}}</text>
         <text class="order-status">{{item.orderStatusText}}</text>
+      </view>
+      <view class="order-info">
+        <view class="info-row">
+          <text class="info-label">收货人</text>
+          <text class="info-value">{{item.consignee}} {{item.mobile}}</text>
+        </view>
       </view>
       <view class="order-content">
         <view class="goods-item" wx:for="{{item.goodsList}}" wx:for-item="goods" wx:key="id">
           <image class="goods-image" src="{{goods.picUrl}}" mode="aspectFill"></image>
           <view class="goods-info">
             <text class="goods-name">{{goods.goodsName}}</text>
-            <text class="goods-spec">{{goods.specifications}}</text>
+            <text class="goods-spec" wx:if="{{goods.specifications}}">{{goods.specifications}}</text>
             <view class="goods-price-num">
               <text class="goods-price">¥{{goods.price}}</text>
               <text class="goods-num">x{{goods.number}}</text>
@@ -29,6 +34,15 @@
       </view>
       <view class="order-footer">
         <text class="order-total">共{{item.goodsCount}}件 合计: ¥{{item.actualPrice}}</text>
+      </view>
+      <!-- 操作按钮 -->
+      <view class="order-actions" catchtap="">
+        <view class="action-btn btn-cancel" wx:if="{{item.orderStatus === 201 || item.orderStatus === 150}}" catchtap="onCancel" data-id="{{item.id}}">取消</view>
+        <view class="action-btn btn-primary" wx:if="{{item.orderStatus === 201}}" catchtap="onShip" data-id="{{item.id}}">发货</view>
+        <view class="action-btn btn-primary" wx:if="{{item.orderStatus === 150}}" catchtap="onConfirm" data-id="{{item.id}}">确认</view>
+        <view class="action-btn btn-primary" wx:if="{{item.orderStatus === 501}}" catchtap="onVerify" data-id="{{item.id}}">核销</view>
+        <view class="action-btn btn-danger" wx:if="{{item.orderStatus === 202}}" catchtap="onRefundReject" data-id="{{item.id}}">拒绝</view>
+        <view class="action-btn btn-warning" wx:if="{{item.orderStatus === 202}}" catchtap="onRefundAgree" data-id="{{item.id}}">同意退款</view>
       </view>
     </view>
   </view>

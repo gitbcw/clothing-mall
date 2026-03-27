@@ -15,11 +15,11 @@
 
   <!-- 商品列表 -->
   <view class="goods-section">
-    <view class="goods-item" wx:for="{{order.goodsList}}" wx:key="id">
+    <view class="goods-item" wx:for="{{goodsList}}" wx:key="id">
       <image class="goods-image" src="{{item.picUrl}}" mode="aspectFill"></image>
       <view class="goods-info">
         <text class="goods-name">{{item.goodsName}}</text>
-        <text class="goods-spec">{{item.specifications}}</text>
+        <text class="goods-spec" wx:if="{{item.specifications}}">{{item.specifications}}</text>
         <view class="goods-price-num">
           <text class="goods-price">¥{{item.price}}</text>
           <text class="goods-num">x{{item.number}}</text>
@@ -42,6 +42,28 @@
     <view class="info-item">
       <text class="label">发货时间</text>
       <text class="value">{{order.shipTime}}</text>
+    </view>
+  </view>
+
+  <!-- 退款信息（退款中时显示） -->
+  <view class="info-section" wx:if="{{order.orderStatus === 202}}">
+    <view class="section-title">退款信息</view>
+    <view class="info-item">
+      <text class="label">退款金额</text>
+      <text class="value price">¥{{order.actualPrice}}</text>
+    </view>
+    <view class="info-item" wx:if="{{order.refundContent}}">
+      <text class="label">退款原因</text>
+      <text class="value">{{order.refundContent}}</text>
+    </view>
+  </view>
+
+  <!-- 核销信息（待核销时显示） -->
+  <view class="info-section" wx:if="{{order.orderStatus === 501}}">
+    <view class="section-title">核销信息</view>
+    <view class="info-item">
+      <text class="label">取货码</text>
+      <text class="value pickup-code">{{order.pickupCode}}</text>
     </view>
   </view>
 
@@ -76,14 +98,33 @@
 
   <!-- 操作按钮 -->
   <view class="action-section">
-    <view class="action-btn ship" wx:if="{{order.handleOption.ship}}" bindtap="handleShip">发货</view>
-    <view class="action-btn confirm" wx:if="{{order.handleOption.confirm}}" bindtap="handleConfirm">确认收货</view>
-    <view class="action-btn refund" wx:if="{{order.handleOption.refund}}" bindtap="handleRefund">退款</view>
+    <!-- 201 已付款：发货、取消 -->
+    <block wx:if="{{order.orderStatus === 201}}">
+      <view class="action-btn btn-cancel" bindtap="handleCancel">取消订单</view>
+      <view class="action-btn btn-primary" bindtap="handleShip">发货</view>
+    </block>
+
+    <!-- 150 待确认：确认、取消 -->
+    <block wx:if="{{order.orderStatus === 150}}">
+      <view class="action-btn btn-cancel" bindtap="handleCancel">取消订单</view>
+      <view class="action-btn btn-primary" bindtap="handleConfirm">确认付款</view>
+    </block>
+
+    <!-- 501 待核销：核销 -->
+    <block wx:if="{{order.orderStatus === 501}}">
+      <view class="action-btn btn-primary" bindtap="handleVerify">确认核销</view>
+    </block>
+
+    <!-- 202 退款中：拒绝退款、同意退款 -->
+    <block wx:if="{{order.orderStatus === 202}}">
+      <view class="action-btn btn-danger" bindtap="handleRefundReject">拒绝退款</view>
+      <view class="action-btn btn-warning" bindtap="handleRefundAgree">同意退款</view>
+    </block>
   </view>
 
   <!-- 发货弹窗 -->
-  <view class="ship-dialog-mask" wx:if="{{showShipDialog}}" bindtap="closeShipDialog"></view>
-  <view class="ship-dialog" wx:if="{{showShipDialog}}">
+  <view class="dialog-mask" wx:if="{{showShipDialog}}" bindtap="closeShipDialog"></view>
+  <view class="dialog" wx:if="{{showShipDialog}}">
     <view class="dialog-title">发货</view>
     <view class="dialog-content">
       <view class="form-item">
@@ -103,6 +144,38 @@
     <view class="dialog-actions">
       <view class="btn-cancel" bindtap="closeShipDialog">取消</view>
       <view class="btn-confirm" bindtap="confirmShip">确认发货</view>
+    </view>
+  </view>
+
+  <!-- 核销弹窗 -->
+  <view class="dialog-mask" wx:if="{{showVerifyDialog}}" bindtap="closeVerifyDialog"></view>
+  <view class="dialog" wx:if="{{showVerifyDialog}}">
+    <view class="dialog-title">核销确认</view>
+    <view class="dialog-content">
+      <view class="form-item">
+        <text class="form-label">取货码</text>
+        <input class="form-input" placeholder="请输入取货码" value="{{inputPickupCode}}" bindinput="onPickupCodeInput" />
+      </view>
+    </view>
+    <view class="dialog-actions">
+      <view class="btn-cancel" bindtap="closeVerifyDialog">取消</view>
+      <view class="btn-confirm" bindtap="confirmVerify">确认核销</view>
+    </view>
+  </view>
+
+  <!-- 拒绝退款弹窗 -->
+  <view class="dialog-mask" wx:if="{{showRejectDialog}}" bindtap="closeRejectDialog"></view>
+  <view class="dialog" wx:if="{{showRejectDialog}}">
+    <view class="dialog-title">拒绝退款</view>
+    <view class="dialog-content">
+      <view class="form-item">
+        <text class="form-label">拒绝原因</text>
+        <textarea class="form-textarea" placeholder="请输入拒绝原因" value="{{rejectReason}}" bindinput="onRejectReasonInput" />
+      </view>
+    </view>
+    <view class="dialog-actions">
+      <view class="btn-cancel" bindtap="closeRejectDialog">取消</view>
+      <view class="btn-confirm btn-danger-text" bindtap="confirmReject">确认拒绝</view>
     </view>
   </view>
 </view>

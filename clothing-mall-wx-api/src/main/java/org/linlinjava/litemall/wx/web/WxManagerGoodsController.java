@@ -1,5 +1,6 @@
 package org.linlinjava.litemall.wx.web;
 
+import com.github.pagehelper.PageInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.util.ResponseUtil;
@@ -15,14 +16,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * 小程序管理端商品控制器
- * 提供给店主/导购使用的商品管理接口
+ * 提供给店主使用的商品管理接口
  */
 @RestController
 @RequestMapping("/wx/manager/goods")
@@ -39,8 +43,10 @@ public class WxManagerGoodsController {
     @Autowired
     private ClothingGoodsSkuService clothingGoodsSkuService;
 
+    // ========== 权限校验 ==========
+
     /**
-     * 检查用户是否有管理权限
+     * 检查用户是否有管理权限（仅店主）
      */
     private Object checkManager(Integer userId) {
         if (userId == null) {
@@ -54,16 +60,255 @@ public class WxManagerGoodsController {
         if (role == null) {
             role = "user";
         }
-        if (!"owner".equals(role) && !"guide".equals(role)) {
+        if (!"owner".equals(role)) {
             return ResponseUtil.fail(403, "无管理权限");
         }
         return null;
     }
 
+    // ========== API 接口 ==========
+
+    /**
+     * 商品列表（管理端）
+     *
+     * @param userId 用户ID
+     * @param status all/draft/pending/on_sale
+     * @param page   页码
+     * @param limit  每页数量
+     * @return 分页商品列表 + 各 tab 数量统计
+     */
+    @GetMapping("list")
+    public Object list(@LoginUser Integer userId,
+                       @RequestParam(defaultValue = "all") String status,
+                       @RequestParam(defaultValue = "1") Integer page,
+                       @RequestParam(defaultValue = "20") Integer limit) {
+        Object error = checkManager(userId);
+        if (error != null) {
+            return error;
+        }
+
+        // status → 查询条件映射
+        String queryStatus = null;
+        Boolean queryOnSale = null;
+        switch (status) {
+            case "draft":
+                queryStatus = LitemallGoods.STATUS_DRAFT;
+                break;
+            case "pending":
+                queryStatus = LitemallGoods.STATUS_PENDING;
+                break;
+            case "on_sale":
+                queryStatus = LitemallGoods.STATUS_PUBLISHED;
+                queryOnSale = true;
+                break;
+            case "all":
+                // 不过滤
+                break;
+            default:
+                return ResponseUtil.badArgumentValue();
+        }
+
+        List<LitemallGoods> goodsList = goodsService.querySelectiveForManager(
+                queryStatus, queryOnSale, page, limit, "update_time", "desc");
+        long total = PageInfo.of(goodsList).getTotal();
+
+        // 各 tab 数量
+        Map<String, Object> data = new HashMap<>();
+        data.put("list", goodsList);
+        data.put("total", total);
+        data.put("pages", (total + limit - 1) / limit);
+        data.put("allCount", goodsService.countByCondition(null, null));
+        data.put("draftCount", goodsService.countByCondition(LitemallGoods.STATUS_DRAFT, null));
+        data.put("pendingCount", goodsService.countByCondition(LitemallGoods.STATUS_PENDING, null));
+        data.put("onSaleCount", goodsService.countByCondition(LitemallGoods.STATUS_PUBLISHED, true));
+
+        return ResponseUtil.ok(data);
+    }
+
+    /**
+     * 商品详情（管理端）
+     *
+     * @param userId  用户ID
+     * @param goodsId 商品ID
+     * @return 商品详情 + SKU 列表
+     */
+    @GetMapping("detail")
+    public Object detail(@LoginUser Integer userId, @NotNull Integer goodsId) {
+        Object error = checkManager(userId);
+        if (error != null) {
+            return error;
+        }
+
+        LitemallGoods goods = goodsService.findById(goodsId);
+        if (goods == null) {
+            return ResponseUtil.badArgumentValue();
+        }
+
+        List<ClothingGoodsSku> skuList = clothingGoodsSkuService.queryByGoodsId(goodsId);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("goods", goods);
+        data.put("skuList", skuList);
+        return ResponseUtil.ok(data);
+    }
+
+    /**
+     * 编辑商品
+     *
+     * @param userId 用户ID
+     * @param body   商品信息
+     */
+    @Transactional
+    @PostMapping("edit")
+    public Object edit(@LoginUser Integer userId, @RequestBody Map<String, Object> body) {
+        Object error = checkManager(userId);
+        if (error != null) {
+            return error;
+        }
+
+        Object idObj = body.get("id");
+        if (idObj == null) {
+            return ResponseUtil.badArgument();
+        }
+        Integer goodsId = ((Number) idObj).intValue();
+
+        LitemallGoods goods = goodsService.findById(goodsId);
+        if (goods == null) {
+            return ResponseUtil.badArgumentValue();
+        }
+
+        // 更新基本信息
+        if (body.containsKey("name")) {
+            String name = (String) body.get("name");
+            if (name != null && !name.trim().isEmpty()) {
+                goods.setName(name.trim());
+            }
+        }
+        if (body.containsKey("brief")) {
+            goods.setBrief((String) body.get("brief"));
+        }
+        if (body.containsKey("categoryId")) {
+            Object catId = body.get("categoryId");
+            if (catId != null) {
+                goods.setCategoryId(((Number) catId).intValue());
+            }
+        }
+        if (body.containsKey("brandId")) {
+            Object brandId = body.get("brandId");
+            if (brandId != null) {
+                goods.setBrandId(((Number) brandId).intValue());
+            }
+        }
+        if (body.containsKey("counterPrice")) {
+            Object price = body.get("counterPrice");
+            if (price != null) {
+                goods.setCounterPrice(new BigDecimal(price.toString()));
+            }
+        }
+        if (body.containsKey("retailPrice")) {
+            Object price = body.get("retailPrice");
+            if (price != null) {
+                goods.setRetailPrice(new BigDecimal(price.toString()));
+            }
+        }
+        if (body.containsKey("picUrl")) {
+            goods.setPicUrl((String) body.get("picUrl"));
+        }
+        if (body.containsKey("gallery")) {
+            Object galleryObj = body.get("gallery");
+            if (galleryObj instanceof List) {
+                @SuppressWarnings("unchecked")
+                List<String> galleryList = (List<String>) galleryObj;
+                goods.setGallery(galleryList.toArray(new String[0]));
+            }
+        }
+
+        goodsService.updateById(goods);
+
+        // 更新 SKU 列表（可选）
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> skus = (List<Map<String, Object>>) body.get("skus");
+        if (skus != null) {
+            updateSkus(goodsId, skus);
+        }
+
+        return ResponseUtil.ok();
+    }
+
+    /**
+     * 上架商品（支持批量）
+     *
+     * @param userId 用户ID
+     * @param body   { id: 123 } 或 { ids: [1,2,3] }
+     */
+    @PostMapping("publish")
+    public Object publish(@LoginUser Integer userId, @RequestBody Map<String, Object> body) {
+        Object error = checkManager(userId);
+        if (error != null) {
+            return error;
+        }
+
+        List<Integer> ids = extractIds(body);
+        if (ids.isEmpty()) {
+            return ResponseUtil.badArgument();
+        }
+
+        goodsService.updateStatusBatch(ids, LitemallGoods.STATUS_PUBLISHED);
+        return ResponseUtil.ok();
+    }
+
+    /**
+     * 下架商品（支持批量，只改 isOnSale 不改 status）
+     *
+     * @param userId 用户ID
+     * @param body   { id: 123 } 或 { ids: [1,2,3] }
+     */
+    @PostMapping("unpublish")
+    public Object unpublish(@LoginUser Integer userId, @RequestBody Map<String, Object> body) {
+        Object error = checkManager(userId);
+        if (error != null) {
+            return error;
+        }
+
+        List<Integer> ids = extractIds(body);
+        if (ids.isEmpty()) {
+            return ResponseUtil.badArgument();
+        }
+
+        for (Integer id : ids) {
+            goodsService.setOnSale(id, false);
+        }
+        return ResponseUtil.ok();
+    }
+
+    /**
+     * 批量软删除商品
+     *
+     * @param userId 用户ID
+     * @param body   { ids: [1,2,3] }
+     */
+    @PostMapping("batchDelete")
+    public Object batchDelete(@LoginUser Integer userId, @RequestBody Map<String, Object> body) {
+        Object error = checkManager(userId);
+        if (error != null) {
+            return error;
+        }
+
+        List<Integer> ids = extractIds(body);
+        if (ids.isEmpty()) {
+            return ResponseUtil.badArgument();
+        }
+
+        for (Integer id : ids) {
+            goodsService.deleteById(id);
+        }
+        return ResponseUtil.ok();
+    }
+
     /**
      * 一键下架全部商品（换季下架）
      */
-    @PostMapping("/unpublishAll")
+    @PostMapping("unpublishAll")
     public Object unpublishAll(@LoginUser Integer userId) {
         Object error = checkManager(userId);
         if (error != null) {
@@ -77,7 +322,7 @@ public class WxManagerGoodsController {
      * 快速创建商品草稿（手机端拍照录入）
      */
     @Transactional
-    @PostMapping("/create")
+    @PostMapping("create")
     public Object create(@LoginUser Integer userId, @RequestBody Map<String, Object> body) {
         Object error = checkManager(userId);
         if (error != null) {
@@ -89,18 +334,16 @@ public class WxManagerGoodsController {
             return ResponseUtil.badArgument();
         }
 
-        // 创建商品
         LitemallGoods goods = new LitemallGoods();
         goods.setName(name.trim());
 
         Object categoryIdObj = body.get("categoryId");
         if (categoryIdObj != null) {
-            goods.setCategoryId((Integer) categoryIdObj);
+            goods.setCategoryId(((Number) categoryIdObj).intValue());
         }
 
         goods.setBrief((String) body.get("brief"));
 
-        // 图片：优先用 picUrl，没有则用 sourceImage
         String picUrl = (String) body.get("picUrl");
         String sourceImage = (String) body.get("sourceImage");
         if (picUrl != null && !picUrl.isEmpty()) {
@@ -111,14 +354,15 @@ public class WxManagerGoodsController {
 
         Object galleryObj = body.get("gallery");
         if (galleryObj instanceof List) {
-            goods.setGallery(((List<String>) galleryObj).toArray(new String[0]));
+            @SuppressWarnings("unchecked")
+            List<String> galleryList = (List<String>) galleryObj;
+            goods.setGallery(galleryList.toArray(new String[0]));
         }
         goods.setStatus(LitemallGoods.STATUS_DRAFT);
         goods.setIsOnSale(false);
         goods.setDeleted(false);
         goodsService.add(goods);
 
-        // 创建附属 SKU（可选）
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> skus = (List<Map<String, Object>>) body.get("skus");
         if (skus != null && !skus.isEmpty()) {
@@ -148,7 +392,6 @@ public class WxManagerGoodsController {
                 clothingGoodsSkuService.add(sku);
             }
 
-            // 更新商品最低零售价
             if (minPrice != null) {
                 goods.setRetailPrice(minPrice);
                 goodsService.updateById(goods);
@@ -156,5 +399,91 @@ public class WxManagerGoodsController {
         }
 
         return ResponseUtil.ok(goods.getId());
+    }
+
+    // ========== 私有方法 ==========
+
+    /**
+     * 从请求体提取商品 ID 列表
+     * 支持 { id: 123 } 和 { ids: [1,2,3] } 两种格式
+     */
+    @SuppressWarnings("unchecked")
+    private List<Integer> extractIds(Map<String, Object> body) {
+        List<Integer> ids = new ArrayList<>();
+        Object idsObj = body.get("ids");
+        if (idsObj instanceof List) {
+            for (Object id : (List<Object>) idsObj) {
+                ids.add(((Number) id).intValue());
+            }
+        } else {
+            Object idObj = body.get("id");
+            if (idObj != null) {
+                ids.add(((Number) idObj).intValue());
+            }
+        }
+        return ids;
+    }
+
+    /**
+     * 更新商品 SKU 列表（全量覆盖）
+     * 提交的 SKU 无 id → 新增，有 id → 更新，已有但未提交 → 删除
+     */
+    private void updateSkus(Integer goodsId, List<Map<String, Object>> skus) {
+        // 获取现有 SKU
+        List<ClothingGoodsSku> existingSkus = clothingGoodsSkuService.queryByGoodsId(goodsId);
+
+        // 提交的 SKU ID 集合
+        java.util.Set<Integer> submittedIds = new java.util.HashSet<>();
+
+        BigDecimal minPrice = null;
+        for (Map<String, Object> skuMap : skus) {
+            ClothingGoodsSku sku = new ClothingGoodsSku();
+            sku.setGoodsId(goodsId);
+            sku.setColor((String) skuMap.get("color"));
+            sku.setSize((String) skuMap.get("size"));
+
+            Object priceObj = skuMap.get("price");
+            if (priceObj != null) {
+                BigDecimal price = new BigDecimal(priceObj.toString());
+                sku.setPrice(price);
+                if (minPrice == null || minPrice.compareTo(price) > 0) {
+                    minPrice = price;
+                }
+            }
+
+            Object stockObj = skuMap.get("stock");
+            if (stockObj != null) {
+                sku.setStock(((Number) stockObj).intValue());
+            }
+
+            sku.setStatus(ClothingGoodsSku.STATUS_ACTIVE);
+            sku.setDeleted(false);
+
+            Object skuIdObj = skuMap.get("id");
+            if (skuIdObj != null) {
+                // 更新已有 SKU
+                sku.setId(((Number) skuIdObj).intValue());
+                clothingGoodsSkuService.update(sku);
+                submittedIds.add(sku.getId());
+            } else {
+                // 新增 SKU
+                clothingGoodsSkuService.add(sku);
+            }
+        }
+
+        // 删除未提交的已有 SKU
+        for (ClothingGoodsSku existing : existingSkus) {
+            if (!submittedIds.contains(existing.getId())) {
+                clothingGoodsSkuService.delete(existing.getId());
+            }
+        }
+
+        // 更新商品最低零售价
+        if (minPrice != null) {
+            LitemallGoods goods = new LitemallGoods();
+            goods.setId(goodsId);
+            goods.setRetailPrice(minPrice);
+            goodsService.updateById(goods);
+        }
     }
 }

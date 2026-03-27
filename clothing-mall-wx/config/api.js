@@ -123,12 +123,23 @@ module.exports = {
   AiStatus: WxApiRoot + 'ai/status', // AI 服务状态
 
   // 管理端订单接口
+  ManagerOrderList: WxApiRoot + 'manager/order/list', // 订单列表（分页+tab统计）
   ManagerOrderDetail: WxApiRoot + 'manager/order/detail', // 管理端订单详情
   ManagerOrderShip: WxApiRoot + 'manager/order/ship', // 发货
-  ManagerOrderConfirm: WxApiRoot + 'manager/order/confirm', // 确认收货
+  ManagerOrderConfirm: WxApiRoot + 'manager/order/confirm', // 确认付款
   ManagerOrderCancel: WxApiRoot + 'manager/order/cancel', // 取消订单
+  ManagerOrderRefundAgree: WxApiRoot + 'manager/order/refundAgree', // 同意退款
+  ManagerOrderRefundReject: WxApiRoot + 'manager/order/refundReject', // 拒绝退款
+  ManagerOrderVerify: WxApiRoot + 'manager/order/verify', // 核销自提订单
+  ManagerStats: WxApiRoot + 'manager/stats', // 管理后台统计数据
 
   // 管理端商品接口
+  ManagerGoodsList: WxApiRoot + 'manager/goods/list', // 商品列表（分页+tab统计）
+  ManagerGoodsDetail: WxApiRoot + 'manager/goods/detail', // 商品详情
+  ManagerGoodsEdit: WxApiRoot + 'manager/goods/edit', // 编辑商品
+  ManagerGoodsPublish: WxApiRoot + 'manager/goods/publish', // 上架商品
+  ManagerGoodsUnpublish: WxApiRoot + 'manager/goods/unpublish', // 下架商品
+  ManagerGoodsBatchDelete: WxApiRoot + 'manager/goods/batchDelete', // 批量删除
   ManagerGoodsUnpublishAll: WxApiRoot + 'manager/goods/unpublishAll', // 一键下架全部商品
   ManagerGoodsCreate: WxApiRoot + 'manager/goods/create', // 快速创建商品草稿
 };

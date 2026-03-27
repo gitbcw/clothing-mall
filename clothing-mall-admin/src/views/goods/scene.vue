@@ -8,17 +8,6 @@
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" element-loading-text="正在查询中。。。" border fit highlight-current-row>
       <el-table-column align="center" label="ID" prop="id" width="80" />
-      <el-table-column align="center" label="图标" width="80">
-        <template slot-scope="scope">
-          <el-image
-            v-if="scope.row.icon"
-            :src="scope.row.icon"
-            style="width: 40px; height: 40px;"
-            fit="contain"
-          />
-          <span v-else style="color: #ccc;">-</span>
-        </template>
-      </el-table-column>
       <el-table-column align="center" label="海报图" width="100">
         <template slot-scope="scope">
           <el-image v-if="scope.row.posterUrl" :src="scope.row.posterUrl" style="width: 60px; height: 40px;" fit="cover" :preview-src-list="[scope.row.posterUrl]" />
@@ -35,7 +24,7 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" width="280" class-name="small-padding fixed-width">
+      <el-table-column align="center" label="操作" width="300" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="info" size="mini" @click="handleGoods(scope.row)">关联商品</el-button>
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
@@ -57,25 +46,13 @@
         <el-form-item label="名称" prop="name">
           <el-input v-model="dataForm.name" placeholder="场景名称" />
         </el-form-item>
-        <el-form-item label="图标" prop="icon">
-          <el-upload
-            :headers="headers"
-            :action="uploadPath"
-            :show-file-list="false"
-            :on-success="uploadSuccess"
-            class="avatar-uploader"
-            accept=".jpg,.jpeg,.png,.gif"
-          >
-            <img v-if="dataForm.icon" :src="dataForm.icon" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon" />
-          </el-upload>
-        </el-form-item>
         <el-form-item label="海报图" prop="posterUrl">
           <el-upload
             :headers="headers"
             :action="uploadPath"
             :show-file-list="false"
             :on-success="posterUploadSuccess"
+            :on-error="posterUploadError"
             class="avatar-uploader"
             accept=".jpg,.jpeg,.png,.gif"
           >
@@ -177,7 +154,6 @@ export default {
       dataForm: {
         id: undefined,
         name: '',
-        icon: '',
         posterUrl: '',
         description: '',
         sortOrder: 0,
@@ -222,7 +198,6 @@ export default {
       this.dataForm = {
         id: undefined,
         name: '',
-        icon: '',
         posterUrl: '',
         description: '',
         sortOrder: 0,
@@ -324,15 +299,13 @@ export default {
         })
       }).catch(() => {})
     },
-    uploadSuccess(response) {
-      if (response.errno === 0) {
-        this.dataForm.icon = response.data.url
-      }
-    },
     posterUploadSuccess(response) {
       if (response.errno === 0) {
         this.dataForm.posterUrl = response.data.url
       }
+    },
+    posterUploadError() {
+      this.$notify.error({ title: '失败', message: '海报图上传失败，请重试' })
     },
     handleGoods(row) {
       this.currentSceneId = row.id

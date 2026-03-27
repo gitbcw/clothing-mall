@@ -385,4 +385,51 @@ public class LitemallGoodsService {
         setPresale(goodsId, allOutOfStock);
     }
 
+    /**
+     * 设置商品上架/下架状态（不改 status 字段）
+     */
+    public void setOnSale(Integer id, boolean isOnSale) {
+        LitemallGoods goods = new LitemallGoods();
+        goods.setId(id);
+        goods.setIsOnSale(isOnSale);
+        goods.setUpdateTime(LocalDateTime.now());
+        goodsMapper.updateByPrimaryKeySelective(goods);
+    }
+
+    /**
+     * 按 status 和 isOnSale 条件统计商品数量
+     */
+    public int countByCondition(String status, Boolean isOnSale) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        LitemallGoodsExample.Criteria criteria = example.createCriteria();
+        if (status != null && !status.isEmpty()) {
+            criteria.andStatusEqualTo(status);
+        }
+        if (isOnSale != null) {
+            criteria.andIsOnSaleEqualTo(isOnSale);
+        }
+        criteria.andDeletedEqualTo(false);
+        return (int) goodsMapper.countByExample(example);
+    }
+
+    /**
+     * 查询商品列表（支持 isOnSale 过滤，用于管理端）
+     */
+    public List<LitemallGoods> querySelectiveForManager(String status, Boolean isOnSale, Integer page, Integer size, String sort, String order) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        LitemallGoodsExample.Criteria criteria = example.createCriteria();
+        if (status != null && !status.isEmpty()) {
+            criteria.andStatusEqualTo(status);
+        }
+        if (isOnSale != null) {
+            criteria.andIsOnSaleEqualTo(isOnSale);
+        }
+        criteria.andDeletedEqualTo(false);
+        if (sort != null && !sort.isEmpty() && order != null && !order.isEmpty()) {
+            example.setOrderByClause(sort + " " + order);
+        }
+        PageHelper.startPage(page, size);
+        return goodsMapper.selectByExampleWithBLOBs(example);
+    }
+
 }

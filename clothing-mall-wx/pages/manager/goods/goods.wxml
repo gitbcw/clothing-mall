@@ -1,0 +1,68 @@
+<view class="container">
+  <!-- Tab 切换 -->
+  <view class="tabs">
+    <view class="tab-item {{currentTab === 'all' ? 'active' : ''}}" bindtap="onTabChange" data-tab="all">
+      全部{{tabCounts.allCount > 0 ? '(' + tabCounts.allCount + ')' : ''}}
+    </view>
+    <view class="tab-item {{currentTab === 'draft' ? 'active' : ''}}" bindtap="onTabChange" data-tab="draft">
+      草稿{{tabCounts.draftCount > 0 ? '(' + tabCounts.draftCount + ')' : ''}}
+    </view>
+    <view class="tab-item {{currentTab === 'pending' ? 'active' : ''}}" bindtap="onTabChange" data-tab="pending">
+      待上架{{tabCounts.pendingCount > 0 ? '(' + tabCounts.pendingCount + ')' : ''}}
+    </view>
+    <view class="tab-item {{currentTab === 'on_sale' ? 'active' : ''}}" bindtap="onTabChange" data-tab="on_sale">
+      已上架{{tabCounts.onSaleCount > 0 ? '(' + tabCounts.onSaleCount + ')' : ''}}
+    </view>
+  </view>
+
+  <!-- 多选模式操作栏 -->
+  <view class="batch-bar" wx:if="{{multiSelectMode}}">
+    <text class="batch-info">已选 {{selectedIds.length}} 件</text>
+    <view class="batch-actions">
+      <view class="batch-btn" bindtap="onBatchPublish" wx:if="{{currentTab !== 'on_sale'}}">上架</view>
+      <view class="batch-btn" bindtap="onBatchUnpublish" wx:if="{{currentTab === 'on_sale'}}">下架</view>
+      <view class="batch-btn btn-delete" bindtap="onBatchDelete">删除</view>
+      <view class="batch-btn btn-cancel" bindtap="onExitMultiSelect">取消</view>
+    </view>
+  </view>
+
+  <!-- 商品列表 -->
+  <view class="goods-list">
+    <view class="goods-card {{multiSelectMode && selectedIds.indexOf(item.id) > -1 ? 'selected' : ''}}"
+          wx:for="{{goodsList}}" wx:key="id"
+          bindlongpress="onLongPress" data-id="{{item.id}}"
+          bindtap="onGoodsTap" data-id="{{item.id}}">
+      <!-- 多选框 -->
+      <view class="checkbox" wx:if="{{multiSelectMode}}" catchtap="onSelectItem" data-id="{{item.id}}">
+        <view class="checkbox-inner {{selectedIds.indexOf(item.id) > -1 ? 'checked' : ''}}"></view>
+      </view>
+      <image class="goods-image" src="{{item.picUrl}}" mode="aspectFill"></image>
+      <view class="goods-info">
+        <text class="goods-name">{{item.name}}</text>
+        <view class="goods-tags">
+          <text class="status-tag status-{{item.status}}">{{statusText(item.status, item.isOnSale)}}</text>
+        </view>
+        <view class="goods-price">
+          <text class="retail-price">¥{{item.retailPrice}}</text>
+          <text class="counter-price" wx:if="{{item.counterPrice}}">¥{{item.counterPrice}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{!loading && goodsList.length === 0}}">
+    <text>暂无商品</text>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 底部添加按钮 -->
+  <view class="fab-btn" bindtap="goUpload" wx:if="{{!multiSelectMode}}">
+    <text class="fab-icon">+</text>
+    <text class="fab-text">添加商品</text>
+  </view>
+</view>

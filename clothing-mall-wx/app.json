@@ -31,7 +31,9 @@
     "pages/manager/upload/upload",
     "pages/manager/confirmUpload/confirmUpload",
     "pages/manager/skuList/skuList",
-    "pages/manager/draftList/draftList"
+    "pages/manager/draftList/draftList",
+    "pages/manager/goods/goods",
+    "pages/manager/goodsEdit/goodsEdit"
   ],
   "window": {
     "backgroundTextStyle": "light",

@@ -1,0 +1,86 @@
+<view class="container">
+  <view class="form-section" wx:if="{{!loading}}">
+    <!-- 商品图片 -->
+    <view class="section">
+      <view class="section-title">商品图片</view>
+      <view class="image-upload">
+        <view class="main-image" bindtap="chooseMainImage">
+          <image wx:if="{{goods.picUrl}}" src="{{goods.picUrl}}" mode="aspectFill" class="preview-image"></image>
+          <view wx:else class="upload-placeholder">
+            <text class="upload-icon">+</text>
+            <text class="upload-text">主图</text>
+          </view>
+        </view>
+      </view>
+      <view class="gallery-images">
+        <view class="gallery-item" wx:for="{{galleryList}}" wx:key="index">
+          <image src="{{item}}" mode="aspectFill" class="gallery-image"></image>
+          <view class="gallery-delete" catchtap="removeGallery" data-index="{{index}}">×</view>
+        </view>
+        <view class="gallery-add" bindtap="chooseGalleryImage" wx:if="{{galleryList.length < 9}}">
+          <text class="upload-icon">+</text>
+          <text class="upload-text">详情图</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 基本信息 -->
+    <view class="section">
+      <view class="section-title">基本信息</view>
+      <view class="form-item">
+        <text class="form-label">商品名称</text>
+        <input class="form-input" placeholder="请输入商品名称" value="{{goods.name}}" bindinput="onNameInput" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">商品简介</text>
+        <textarea class="form-textarea" placeholder="请输入商品简介" value="{{goods.brief}}" bindinput="onBriefInput" maxlength="200"></textarea>
+      </view>
+      <view class="form-item">
+        <text class="form-label">专柜价</text>
+        <input class="form-input" type="digit" placeholder="请输入专柜价" value="{{goods.counterPrice}}" bindinput="onCounterPriceInput" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">零售价</text>
+        <input class="form-input" type="digit" placeholder="请输入零售价" value="{{goods.retailPrice}}" bindinput="onRetailPriceInput" />
+      </view>
+    </view>
+
+    <!-- SKU 管理 -->
+    <view class="section">
+      <view class="section-title">
+        <text>SKU 规格</text>
+        <view class="add-sku-btn" bindtap="addSku">+ 添加规格</view>
+      </view>
+      <view class="sku-list" wx:if="{{skuList.length > 0}}">
+        <view class="sku-header">
+          <text class="sku-col">颜色</text>
+          <text class="sku-col">尺码</text>
+          <text class="sku-col">价格</text>
+          <text class="sku-col">库存</text>
+          <text class="sku-col sku-col-action">操作</text>
+        </view>
+        <view class="sku-row" wx:for="{{skuList}}" wx:key="index">
+          <input class="sku-input" placeholder="颜色" value="{{item.color}}" bindinput="onSkuInput" data-index="{{index}}" data-field="color" />
+          <input class="sku-input" placeholder="尺码" value="{{item.size}}" bindinput="onSkuInput" data-index="{{index}}" data-field="size" />
+          <input class="sku-input" type="digit" placeholder="价格" value="{{item.price}}" bindinput="onSkuInput" data-index="{{index}}" data-field="price" />
+          <input class="sku-input" type="number" placeholder="库存" value="{{item.stock}}" bindinput="onSkuInput" data-index="{{index}}" data-field="stock" />
+          <view class="sku-delete" catchtap="removeSku" data-index="{{index}}">×</view>
+        </view>
+      </view>
+      <view class="sku-empty" wx:else>
+        <text>暂无规格，点击上方按钮添加</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="action-bar" wx:if="{{!loading}}">
+    <view class="action-btn btn-save" bindtap="onSaveDraft">保存草稿</view>
+    <view class="action-btn btn-publish" bindtap="onPublish" wx:if="{{goods.status !== 'published'}}">保存并上架</view>
+    <view class="action-btn btn-unpublish" bindtap="onUnpublish" wx:if="{{goods.status === 'published' && goods.isOnSale}}">下架</view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

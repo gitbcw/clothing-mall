@@ -1,17 +1,18 @@
 <template>
   <div class="app-container">
 
-    <el-card class="box-card">
-      <h3>{{ $t('goods_edit.section.goods') }}</h3>
+    <!-- 商品信息卡片 -->
+    <el-card v-if="goods.id" class="box-card">
+      <h3>商品详情</h3>
       <el-form ref="goods" :rules="rules" :model="goods" label-width="150px">
-        <el-form-item :label="$t('goods_edit.form.id')" prop="id">
-          <el-input v-model="goods.id" disabled />
+        <el-form-item label="商品ID" prop="id">
+          <el-input v-model="goods.id" disabled style="width: 150px" />
+        </el-form-item>
+        <el-form-item label="商品款号" prop="goodsSn">
+          <el-input v-model="goods.goodsSn" style="width: 300px" disabled />
         </el-form-item>
         <el-form-item :label="$t('goods_edit.form.name')" prop="name">
           <el-input v-model="goods.name" style="width: 300px" />
-        </el-form-item>
-        <el-form-item :label="$t('goods_edit.form.goods_sn')" prop="goodsSn">
-          <el-input v-model="goods.goodsSn" style="width: 300px" />
         </el-form-item>
         <el-form-item :label="$t('goods_edit.form.counter_price')" prop="counterPrice">
           <el-input v-model="goods.counterPrice" placeholder="0.00" style="width: 300px">
@@ -29,12 +30,6 @@
           <el-radio-group v-model="goods.isHot">
             <el-radio :label="false">{{ $t('goods_edit.value.is_hot_false') }}</el-radio>
             <el-radio :label="true">{{ $t('goods_edit.value.is_hot_true') }}</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item :label="$t('goods_edit.form.is_on_sale')" prop="isOnSale">
-          <el-radio-group v-model="goods.isOnSale">
-            <el-radio :label="true">{{ $t('goods_edit.value.is_on_sale_true') }}</el-radio>
-            <el-radio :label="false">{{ $t('goods_edit.value.is_on_sale_false') }}</el-radio>
           </el-radio-group>
         </el-form-item>
 
@@ -71,10 +66,6 @@
           </el-upload>
         </el-form-item>
 
-        <el-form-item :label="$t('goods_edit.form.unit')">
-          <el-input v-model="goods.unit" :placeholder="$t('goods_edit.placeholder.unit')" />
-        </el-form-item>
-
         <el-form-item :label="$t('goods_edit.form.keywords')">
           <el-tag v-for="tag in keywords" :key="tag" closable type="primary" @close="handleClose(tag)">
             {{ tag }}
@@ -89,9 +80,17 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item :label="$t('goods_edit.form.brand_id')">
-          <el-select v-model="goods.brandId" clearable>
-            <el-option v-for="item in brandList" :key="item.value" :label="item.label" :value="item.value" />
+        <!-- 场景标签（多选） -->
+        <el-form-item label="场景标签">
+          <el-select
+            v-model="selectedSceneIds"
+            multiple
+            collapse-tags
+            clearable
+            placeholder="请选择场景（可多选）"
+            style="width: 300px;"
+          >
+            <el-option v-for="item in sceneList" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
 
@@ -105,20 +104,26 @@
       </el-form>
     </el-card>
 
-    <el-card class="box-card">
-      <h3>SKU 信息</h3>
-      <el-row :gutter="20" type="flex" align="middle" style="padding:20px 0;">
-        <el-col :span="12">
-          <el-input v-model="skuQueryGoodsSn" placeholder="输入商品款号查询已有SKU" style="width: 250px;" />
-          <el-button type="primary" style="margin-left: 10px;" @click="loadSkuByGoodsSn">查询SKU</el-button>
-          <span class="form-tip" style="margin-left: 10px;">SKU在【服装管理-SKU管理】中维护</span>
-        </el-col>
-      </el-row>
-      <el-table v-if="skuList.length > 0" :data="skuList" border>
+    <!-- SKU 选择卡片 -->
+    <el-card v-if="skuList.length > 0" class="box-card">
+      <h3>SKU 选择</h3>
+      <el-checkbox v-model="selectAllSku" @change="handleSelectAll">全选</el-checkbox>
+      <el-table
+        ref="skuTable"
+        :data="skuList"
+        border
+        style="margin-top: 10px;"
+        @selection-change="handleSkuSelectionChange"
+      >
+        <el-table-column type="selection" width="55" align="center" />
         <el-table-column align="center" label="SKU编码" prop="skuCode" width="120" />
         <el-table-column align="center" label="颜色" prop="color" width="100" />
         <el-table-column align="center" label="尺码" prop="size" width="80" />
-        <el-table-column align="center" label="价格" prop="price" width="100" />
+        <el-table-column align="center" label="价格" prop="price" width="100">
+          <template slot-scope="scope">
+            ¥{{ scope.row.price }}
+          </template>
+        </el-table-column>
         <el-table-column align="center" label="库存" prop="stock" width="80" />
         <el-table-column align="center" label="条形码" prop="barCode" width="120" />
         <el-table-column align="center" label="默认" prop="isDefault" width="80">
@@ -129,14 +134,15 @@
           </template>
         </el-table-column>
       </el-table>
-      <div v-else-if="skuQueryGoodsSn && !skuLoading" style="padding: 20px; text-align: center; color: #909399;">
-        该款号下暂无SKU，请到【服装管理-SKU管理】中添加
+      <div v-if="selectedSkuIds.length > 0" style="margin-top: 10px; color: #67C23A;">
+        已选择 {{ selectedSkuIds.length }} 个SKU
       </div>
     </el-card>
 
-    <el-card class="box-card">
+    <!-- 商品参数卡片 -->
+    <el-card v-if="goods.id" class="box-card">
       <h3>{{ $t('goods_edit.section.attributes') }}</h3>
-      <el-button type="primary" @click="handleAttributeShow">{{ $t('app.button.create') }}</el-button>
+      <el-button type="primary" @click="handleAttributeShow(null)">{{ $t('app.button.create') }}</el-button>
       <el-table :data="attributesData">
         <el-table-column property="attribute" :label="$t('goods_edit.table.attribute_name')" />
         <el-table-column property="value" :label="$t('goods_edit.table.attribute_value')" />
@@ -165,9 +171,11 @@
       </el-dialog>
     </el-card>
 
-    <div class="op-container">
+    <!-- 操作按钮 -->
+    <div v-if="goods.id" class="op-container">
       <el-button @click="handleCancel">{{ $t('app.button.cancel') }}</el-button>
-      <el-button type="primary" @click="handleEdit">{{ $t('goods_edit.button.edit') }}</el-button>
+      <el-button type="success" @click="handleSaveDraft">暂存草稿</el-button>
+      <el-button type="primary" @click="handlePublish">上架</el-button>
     </div>
 
   </div>
@@ -223,6 +231,7 @@
 <script>
 import { detailGoods, editGoods, listCatAndBrand } from '@/api/goods'
 import { listSku } from '@/api/sku'
+import { listScene } from '@/api/scene'
 import { createStorage, uploadPath } from '@/api/storage'
 import Editor from '@tinymce/tinymce-vue'
 import { MessageBox } from 'element-ui'
@@ -234,22 +243,29 @@ export default {
   data() {
     return {
       uploadPath,
+      // 商品数据
+      goods: { gallery: [] },
+      picFile: null,
+      galleryFileList: [],
+      keywords: [],
       newKeywordVisible: false,
       newKeyword: '',
-      keywords: [],
-      galleryFileList: [],
-      picFile: null, // 待上传的商品图片文件
+      // SKU 相关
+      skuList: [],
+      selectedSkuIds: [],
+      selectAllSku: true,
+      // 场景标签相关
+      sceneList: [],
+      selectedSceneIds: [],
+      // 分类和品牌
       categoryList: [],
       brandList: [],
-      goods: { gallery: [] },
-      // SKU 查询相关
-      skuQueryGoodsSn: '',
-      skuList: [],
-      skuLoading: false,
+      // 商品属性
+      attributes: [],
       attributeVisiable: false,
       attributeAdd: true,
       attributeForm: { attribute: '', value: '' },
-      attributes: [],
+      // 表单验证
       rules: {
         name: [{ required: true, message: '商品名称不能为空', trigger: 'blur' }]
       },
@@ -285,14 +301,7 @@ export default {
       }
     },
     attributesData() {
-      var attributesData = []
-      for (var i = 0; i < this.attributes.length; i++) {
-        if (this.attributes[i].deleted) {
-          continue
-        }
-        attributesData.push(this.attributes[i])
-      }
-      return attributesData
+      return this.attributes.filter(attr => !attr.deleted)
     }
   },
   created() {
@@ -300,45 +309,114 @@ export default {
   },
   methods: {
     init: function() {
-      if (this.$route.query.id == null) {
-        return
-      }
+      // 加载分类和品牌
+      listCatAndBrand().then(response => {
+        this.categoryList = response.data.data.categoryList
+        this.brandList = response.data.data.brandList
+      })
 
-      const goodsId = this.$route.query.id
-      detailGoods(goodsId).then(response => {
+      // 加载场景列表
+      listScene({ page: 1, limit: 100 }).then(response => {
+        const list = response.data.data.list || response.data.data || []
+        this.sceneList = list.map(item => ({
+          value: item.id,
+          label: item.name
+        }))
+      }).catch(() => {
+        console.warn('加载场景列表失败')
+      })
+
+      // 如果有 id 参数，直接加载商品详情
+      if (this.$route.query.id) {
+        this.loadGoodsById(this.$route.query.id)
+      }
+    },
+
+    // 通过 ID 加载商品
+    loadGoodsById(id) {
+      detailGoods(id).then(response => {
         this.goods = response.data.data.goods
-        // 稍微调整一下前后端不一致
         if (this.goods.brandId === 0) {
           this.goods.brandId = null
         }
         if (this.goods.keywords === '') {
           this.goods.keywords = null
         }
-        this.specifications = response.data.data.specifications
-        this.products = response.data.data.products
-        this.attributes = response.data.data.attributes
+        this.attributes = response.data.data.attributes || []
+
+        // 处理图片
         this.galleryFileList = []
         for (var i = 0; i < this.goods.gallery.length; i++) {
           this.galleryFileList.push({
-            url: this.goods.gallery[i]
+            url: this.goods.gallery[i],
+            name: this.goods.gallery[i]
           })
         }
-        const keywords = response.data.data.goods.keywords
-        if (keywords !== null) {
-          this.keywords = keywords.split(',')
+
+        // 处理关键字
+        if (this.goods.keywords) {
+          this.keywords = this.goods.keywords.split(',')
+        }
+
+        // 加载 SKU
+        this.loadSkuList()
+      })
+    },
+
+    // 加载 SKU 列表
+    loadSkuList() {
+      listSku({ goodsId: this.goods.id }).then(res => {
+        this.skuList = res.data.data || []
+        this.selectedSkuIds = this.skuList.map(s => s.id)
+        this.selectAllSku = true
+        this.$nextTick(() => {
+          if (this.$refs.skuTable) {
+            this.skuList.forEach(row => {
+              this.$refs.skuTable.toggleRowSelection(row, true)
+            })
+          }
+        })
+      })
+    },
+
+    // 全选/取消全选
+    handleSelectAll(val) {
+      if (val) {
+        this.selectedSkuIds = this.skuList.map(s => s.id)
+      } else {
+        this.selectedSkuIds = []
+      }
+      this.$nextTick(() => {
+        if (this.$refs.skuTable) {
+          this.skuList.forEach(row => {
+            this.$refs.skuTable.toggleRowSelection(row, val)
+          })
         }
       })
+    },
 
-      listCatAndBrand().then(response => {
-        this.categoryList = response.data.data.categoryList
-        this.brandList = response.data.data.brandList
-      })
+    // SKU 选择变更
+    handleSkuSelectionChange(selection) {
+      this.selectedSkuIds = selection.map(item => item.id)
+      this.selectAllSku = this.selectedSkuIds.length === this.skuList.length
     },
-    handleCancel: function() {
-      this.$store.dispatch('tagsView/delView', this.$route)
-      this.$router.push({ path: '/goods/list' })
+
+    // 暂存草稿
+    async handleSaveDraft() {
+      await this.updateGoods('draft', '草稿保存成功')
     },
-    handleEdit: async function() {
+
+    // 上架
+    async handlePublish() {
+      if (this.selectedSkuIds.length === 0) {
+        this.$message.warning('请至少选择一个 SKU')
+        return
+      }
+      await this.updateGoods('published', '上架成功')
+    },
+
+    // 更新商品
+    async updateGoods(status, successMsg) {
       // 如果有待上传的商品图片，先上传
       if (this.picFile) {
         try {
@@ -347,38 +425,40 @@ export default {
           const uploadRes = await createStorage(formData)
           if (uploadRes.data.errno === 0) {
             this.goods.picUrl = uploadRes.data.data.url
-          } else {
-            this.$message.error('商品图片上传失败')
-            return
           }
         } catch (e) {
-          this.$message.error('商品图片上传失败')
-          return
+          console.warn('图片上传失败:', e)
         }
       }
 
-      const finalGoods = {
-        goods: this.goods,
+      const data = {
+        goods: {
+          ...this.goods,
+          status: status
+        },
         specifications: [],
-        products: this.products,
-        attributes: this.attributes
+        products: [],
+        attributes: this.attributes,
+        skuIds: this.selectedSkuIds,
+        sceneIds: this.selectedSceneIds
       }
-      editGoods(finalGoods)
-        .then(response => {
-          this.$notify.success({
-            title: '成功',
-            message: '编辑成功'
-          })
-          this.$store.dispatch('tagsView/delView', this.$route)
-          this.$router.push({ path: '/goods/list' })
+
+      editGoods(data).then(() => {
+        this.$notify.success({ title: '成功', message: successMsg })
+        this.$store.dispatch('tagsView/delView', this.$route)
+        this.$router.push('/goods/list')
+      }).catch(error => {
+        const errMsg = error?.response?.data?.errmsg || error?.message || '未知错误'
+        MessageBox.alert('操作失败：' + errMsg, '警告', {
+          confirmButtonText: '确定',
+          type: 'error'
         })
-        .catch(error => {
-          const errMsg = error?.response?.data?.errmsg || error?.message || '未知错误'
-          MessageBox.alert('业务错误：' + errMsg, '警告', {
-            confirmButtonText: '确定',
-            type: 'error'
-          })
-        })
+      })
+    },
+
+    handleCancel: function() {
+      this.$store.dispatch('tagsView/delView', this.$route)
+      this.$router.push({ path: '/goods/list' })
     },
     handleClose(tag) {
       this.keywords.splice(this.keywords.indexOf(tag), 1)
@@ -400,14 +480,12 @@ export default {
       this.newKeyword = ''
     },
     handlePicChange: function(file) {
-      // 选择文件时生成本地预览 URL
       if (file.raw) {
         this.picFile = file.raw
         this.goods.picUrl = URL.createObjectURL(file.raw)
       }
     },
     uploadPicUrl: function(response) {
-      // 手动上传时的回调
       if (response.errno === 0) {
         this.goods.picUrl = response.data.url
       }
@@ -425,10 +503,6 @@ export default {
     },
     handleRemove: function(file, fileList) {
       for (var i = 0; i < this.goods.gallery.length; i++) {
-        // 这里存在两种情况
-        // 1. 如果所删除图片是刚刚上传的图片，那么图片地址是file.response.data.url
-        //    此时的file.url虽然存在，但是是本机地址，而不是远程地址。
-        // 2. 如果所删除图片是后台返回的已有图片，那么图片地址是file.url
         var url
         if (file.response === undefined) {
           url = file.url
@@ -441,31 +515,12 @@ export default {
         }
       }
     },
-    // 根据款号加载SKU列表
-    loadSkuByGoodsSn() {
-      if (!this.skuQueryGoodsSn || !this.skuQueryGoodsSn.trim()) {
-        this.$message.warning('请输入商品款号')
-        return
-      }
-      this.skuLoading = true
-      listSku({ goodsSn: this.skuQueryGoodsSn.trim() }).then(response => {
-        this.skuList = response.data.data || []
-        if (this.skuList.length === 0) {
-          this.$message.info('该款号下暂无SKU')
-        }
-      }).catch(() => {
-        this.$message.error('查询失败')
-        this.skuList = []
-      }).finally(() => {
-        this.skuLoading = false
-      })
-    },
     handleAttributeShow(row) {
-      if (row.id) {
+      if (row && row.id) {
         this.attributeForm = Object.assign({}, row)
         this.attributeAdd = false
       } else {
-        this.attributeForm = {}
+        this.attributeForm = { attribute: '', value: '' }
         this.attributeAdd = true
       }
       this.attributeVisiable = true
@@ -475,7 +530,6 @@ export default {
       this.attributeVisiable = false
     },
     handleAttributeEdit() {
-      // 这是一个trick，设置updateTime的值为空，告诉后端这个记录已编辑需要更新。
       this.attributeForm.updateTime = ''
       for (var i = 0; i < this.attributes.length; i++) {
         const v = this.attributes[i]

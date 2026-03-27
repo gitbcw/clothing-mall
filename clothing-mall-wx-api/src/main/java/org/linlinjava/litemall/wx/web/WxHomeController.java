@@ -7,6 +7,8 @@ import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallCategory;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.linlinjava.litemall.db.domain.LitemallOutfit;
+import org.linlinjava.litemall.db.domain.ClothingActivityTop;
+import org.linlinjava.litemall.db.domain.ClothingScene;
 import org.linlinjava.litemall.db.service.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,10 +52,16 @@ public class WxHomeController {
     private LitemallCouponService couponService;
 
     @Autowired
-    private LitemallSystemConfigService systemConfigService;
+    private LitemallOutfitService outfitService;
 
     @Autowired
-    private LitemallOutfitService outfitService;
+    private ClothingActivityTopService activityTopService;
+
+    @Autowired
+    private ClothingGoodsSceneService goodsSceneService;
+
+    @Autowired
+    private ClothingSceneService sceneService;
 
     private final static ArrayBlockingQueue<Runnable> WORK_QUEUE = new ArrayBlockingQueue<>(9);
 
@@ -144,8 +152,7 @@ public class WxHomeController {
             entity.put("outfitList", outfitListTask.get());
 
             // 添加活动位配置
-            Map<String, String> activityConfig = systemConfigService.listHomeActivity();
-            Map<String, Object> activity = buildHomeActivity(activityConfig, newGoodsListTask.get(), hotGoodsListTask.get());
+            Map<String, Object> activity = buildHomeActivity();
             if (activity != null) {
                 entity.put("homeActivity", activity);
             }
@@ -165,47 +172,83 @@ public class WxHomeController {
     /**
      * 构建首页活动位数据
      */
-    private Map<String, Object> buildHomeActivity(Map<String, String> config, List newGoodsList, List hotGoodsList) {
-        String enabled = config.get("litemall_home_activity_enabled");
-        if (!"true".equals(enabled)) {
-            return null;
+    private Map<String, Object> buildHomeActivity() {
+        List<Map<String, Object>> result = new ArrayList<>();
+        Set<Integer> addedIds = new HashSet<>();
+        int limit = 8;
+
+        // 1. 手动置顶商品
+        List<ClothingActivityTop> topList = activityTopService.queryAll();
+        for (ClothingActivityTop top : topList) {
+            if (addedIds.contains(top.getGoodsId())) continue;
+            LitemallGoods goods = goodsService.findById(top.getGoodsId());
+            if (goods != null && LitemallGoods.STATUS_PUBLISHED.equals(goods.getStatus())) {
+                result.add(goodsToMap(goods));
+                addedIds.add(top.getGoodsId());
+            }
         }
 
-        String name = config.get("litemall_home_activity_name");
-        String type = config.get("litemall_home_activity_type");
-        String moreUrl = config.get("litemall_home_activity_more_url");
-
-        if (name == null || type == null) {
-            return null;
-        }
-
-        // 根据类型获取商品
-        List goods;
-        switch (type) {
-            case "new":
-                goods = newGoodsList;
+        // 2. 节假日场景商品
+        List<ClothingScene> allScenes = sceneService.queryAll();
+        for (ClothingScene scene : allScenes) {
+            if (scene.getName() != null && scene.getName().contains("节假日")) {
+                List<Integer> goodsIds = goodsSceneService.queryGoodsIdsBySceneId(scene.getId());
+                int count = 0;
+                for (Integer goodsId : goodsIds) {
+                    if (addedIds.contains(goodsId) || count >= limit) continue;
+                    LitemallGoods goods = goodsService.findById(goodsId);
+                    if (goods != null && LitemallGoods.STATUS_PUBLISHED.equals(goods.getStatus())) {
+                        result.add(goodsToMap(goods));
+                        addedIds.add(goodsId);
+                        count++;
+                    }
+                }
                 break;
-            case "hot":
-                goods = hotGoodsList;
-                break;
-            default:
-                goods = hotGoodsList;
+            }
         }
 
-        // 取前5件商品
-        List activityGoods = goods.size() > 5 ? goods.subList(0, 5) : goods;
-        if (activityGoods.size() < 5) {
-            return null; // 不足5件不显示
+        // 3. 特价商品
+        List<LitemallGoods> specialGoods = goodsService.queryBySpecialPrice(0, limit);
+        int specialCount = 0;
+        for (LitemallGoods goods : specialGoods) {
+            if (addedIds.contains(goods.getId()) || specialCount >= limit) continue;
+            result.add(goodsToMap(goods));
+            addedIds.add(goods.getId());
+            specialCount++;
+        }
+
+        // 4. 本周上新
+        List<LitemallGoods> weeklyGoods = goodsService.queryByWeeklyNew(0, limit);
+        int weeklyCount = 0;
+        for (LitemallGoods goods : weeklyGoods) {
+            if (addedIds.contains(goods.getId()) || weeklyCount >= limit) continue;
+            result.add(goodsToMap(goods));
+            addedIds.add(goods.getId());
+            weeklyCount++;
+        }
+
+        // 限制总数 20
+        if (result.size() > 20) {
+            result = result.subList(0, 20);
+        }
+
+        if (result.isEmpty()) {
+            return null;
         }
 
         Map<String, Object> activity = new HashMap<>();
-        activity.put("id", "home_activity_" + type);
-        activity.put("name", name);
-        activity.put("type", type);
-        activity.put("moreUrl", moreUrl != null ? moreUrl : "/pages/index/index");
-        activity.put("goods", activityGoods);
-
+        activity.put("goods", result);
         return activity;
+    }
+
+    private Map<String, Object> goodsToMap(LitemallGoods goods) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", goods.getId());
+        map.put("name", goods.getName());
+        map.put("picUrl", goods.getPicUrl());
+        map.put("retailPrice", goods.getRetailPrice());
+        map.put("counterPrice", goods.getCounterPrice());
+        return map;
     }
 
     private List<Map> getCategoryList() {

@@ -6,6 +6,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.ClothingScene;
+import org.linlinjava.litemall.db.service.ClothingGoodsSceneService;
 import org.linlinjava.litemall.db.service.ClothingSceneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 场景标签管理接口
@@ -26,6 +28,9 @@ public class AdminClothingSceneController {
 
     @Autowired
     private ClothingSceneService sceneService;
+
+    @Autowired
+    private ClothingGoodsSceneService goodsSceneService;
 
     @RequiresPermissions("admin:clothing:scene:list")
     @RequiresPermissionsDesc(menu = {"服装管理", "场景管理"}, button = "查询")
@@ -132,5 +137,20 @@ public class AdminClothingSceneController {
             return ResponseUtil.updatedDataFailed();
         }
         return ResponseUtil.ok(existingScene);
+    }
+
+    @GetMapping("/goods")
+    public Object listSceneGoods(@RequestParam Integer sceneId) {
+        List<Integer> goodsIds = goodsSceneService.queryGoodsIdsBySceneId(sceneId);
+        return ResponseUtil.ok(goodsIds);
+    }
+
+    @PostMapping("/goods/update")
+    public Object updateSceneGoods(@RequestBody Map<String, Object> body) {
+        Integer sceneId = (Integer) body.get("sceneId");
+        @SuppressWarnings("unchecked")
+        List<Integer> goodsIds = (List<Integer>) body.get("goodsIds");
+        goodsSceneService.updateSceneGoods(sceneId, goodsIds);
+        return ResponseUtil.ok();
     }
 }

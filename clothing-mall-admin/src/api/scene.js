@@ -39,3 +39,19 @@ export function enableScene(data) {
     data
   })
 }
+
+export function listSceneGoods(sceneId) {
+  return request({
+    url: '/clothing/scene/goods',
+    method: 'get',
+    params: { sceneId }
+  })
+}
+
+export function updateSceneGoods(data) {
+  return request({
+    url: '/clothing/scene/goods/update',
+    method: 'post',
+    data
+  })
+}

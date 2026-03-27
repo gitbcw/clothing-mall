@@ -174,8 +174,14 @@
     <!-- 操作按钮 -->
     <div v-if="goods.id" class="op-container">
       <el-button @click="handleCancel">{{ $t('app.button.cancel') }}</el-button>
-      <el-button type="success" @click="handleSaveDraft">暂存草稿</el-button>
-      <el-button type="primary" @click="handlePublish">上架</el-button>
+      <!-- 已上架商品：仅保存修改 -->
+      <el-button v-if="goods.status === 'published'" type="primary" :loading="saving" @click="handleSave">保存修改</el-button>
+      <!-- 草稿/待上架商品：三种操作 -->
+      <template v-else>
+        <el-button type="info" :loading="saving" @click="handleSaveDraft">暂存草稿</el-button>
+        <el-button type="success" :loading="saving" @click="handleSavePending">转为待上架</el-button>
+        <el-button type="primary" :loading="saving" @click="handlePublish">直接上架</el-button>
+      </template>
     </div>
 
   </div>
@@ -246,6 +252,7 @@ export default {
       // 商品数据
       goods: { gallery: [] },
       picFile: null,
+      saving: false,
       galleryFileList: [],
       keywords: [],
       newKeywordVisible: false,
@@ -406,6 +413,16 @@ export default {
       await this.updateGoods('draft', '草稿保存成功')
     },
 
+    // 转为待上架
+    async handleSavePending() {
+      await this.updateGoods('pending', '已转为待上架')
+    },
+
+    // 保存修改（已上架商品）
+    async handleSave() {
+      await this.updateGoods('published', '保存成功')
+    },
+
     // 上架
     async handlePublish() {
       if (this.selectedSkuIds.length === 0) {
@@ -417,43 +434,48 @@ export default {
 
     // 更新商品
     async updateGoods(status, successMsg) {
-      // 如果有待上传的商品图片，先上传
-      if (this.picFile) {
-        try {
-          const formData = new FormData()
-          formData.append('file', this.picFile)
-          const uploadRes = await createStorage(formData)
-          if (uploadRes.data.errno === 0) {
-            this.goods.picUrl = uploadRes.data.data.url
+      this.saving = true
+      try {
+        // 如果有待上传的商品图片，先上传
+        if (this.picFile) {
+          try {
+            const formData = new FormData()
+            formData.append('file', this.picFile)
+            const uploadRes = await createStorage(formData)
+            if (uploadRes.data.errno === 0) {
+              this.goods.picUrl = uploadRes.data.data.url
+            }
+          } catch (e) {
+            console.warn('图片上传失败:', e)
           }
-        } catch (e) {
-          console.warn('图片上传失败:', e)
         }
-      }
 
-      const data = {
-        goods: {
-          ...this.goods,
-          status: status
-        },
-        specifications: [],
-        products: [],
-        attributes: this.attributes,
-        skuIds: this.selectedSkuIds,
-        sceneIds: this.selectedSceneIds
-      }
+        const data = {
+          goods: {
+            ...this.goods,
+            status: status,
+            isOnSale: status === 'published'
+          },
+          specifications: [],
+          products: [],
+          attributes: this.attributes,
+          skuIds: this.selectedSkuIds,
+          sceneIds: this.selectedSceneIds
+        }
 
-      editGoods(data).then(() => {
+        await editGoods(data)
         this.$notify.success({ title: '成功', message: successMsg })
         this.$store.dispatch('tagsView/delView', this.$route)
         this.$router.push('/goods/list')
-      }).catch(error => {
+      } catch (error) {
         const errMsg = error?.response?.data?.errmsg || error?.message || '未知错误'
         MessageBox.alert('操作失败：' + errMsg, '警告', {
           confirmButtonText: '确定',
           type: 'error'
         })
-      })
+      } finally {
+        this.saving = false
+      }
     },
 
     handleCancel: function() {

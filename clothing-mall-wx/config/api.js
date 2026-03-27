@@ -49,10 +49,6 @@ module.exports = {
   CollectList: WxApiRoot + 'collect/list', //收藏列表
   CollectAddOrDelete: WxApiRoot + 'collect/addordelete', //添加或取消收藏
 
-  TopicList: WxApiRoot + 'topic/list', //专题列表
-  TopicDetail: WxApiRoot + 'topic/detail', //专题详情
-  TopicRelated: WxApiRoot + 'topic/related', //相关专题
-
   SearchIndex: WxApiRoot + 'search/index', //搜索关键字
   SearchResult: WxApiRoot + 'search/result', //搜索结果
   SearchHelper: WxApiRoot + 'search/helper', //搜索帮助
@@ -113,9 +109,6 @@ module.exports = {
   ClothingUserInfo: WxApiRoot + 'clothing/user/info', // 会员信息
   ClothingUserBindGuide: WxApiRoot + 'clothing/user/bindGuide', // 绑定导购
 
-  // 限时特卖相关接口
-  FlashSaleList: WxApiRoot + 'flashSale/list', // 特卖列表
-  FlashSaleDetail: WxApiRoot + 'flashSale/detail', // 特卖详情
   FlashSaleGoods: WxApiRoot + 'flashSale/goods', // 商品特卖信息
 
   // 埋点上报接口

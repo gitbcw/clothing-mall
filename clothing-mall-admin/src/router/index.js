@@ -543,49 +543,6 @@ export const asyncRoutes = [
         }
       },
       {
-        path: 'ad',
-        component: () => import('@/views/promotion/ad'),
-        name: 'ad',
-        meta: {
-          perms: ['GET /admin/ad/list', 'POST /admin/ad/create', 'GET /admin/ad/read', 'POST /admin/ad/update', 'POST /admin/ad/delete'],
-          title: 'app.menu.promotion_ad',
-          noCache: true
-        },
-        hidden: true
-      },
-      {
-        path: 'topic',
-        component: () => import('@/views/promotion/topic'),
-        name: 'topic',
-        meta: {
-          perms: ['GET /admin/topic/list', 'POST /admin/topic/create', 'GET /admin/topic/read', 'POST /admin/topic/update', 'POST /admin/topic/delete'],
-          title: 'app.menu.promotion_topic',
-          noCache: true
-        }
-      },
-      {
-        path: 'topic-create',
-        component: () => import('@/views/promotion/topicCreate'),
-        name: 'topicCreate',
-        meta: {
-          perms: ['POST /admin/topic/create'],
-          title: 'app.menu.promotion_topic_create',
-          noCache: true
-        },
-        hidden: true
-      },
-      {
-        path: 'topic-edit',
-        component: () => import('@/views/promotion/topicEdit'),
-        name: 'topicEdit',
-        meta: {
-          perms: ['GET /admin/topic/read', 'POST /admin/topic/update'],
-          title: 'app.menu.promotion_topic_edit',
-          noCache: true
-        },
-        hidden: true
-      },
-      {
         path: 'outfit',
         component: () => import('@/views/promotion/outfit'),
         name: 'outfit',

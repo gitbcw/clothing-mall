@@ -4,7 +4,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.system.SystemConfig;
 import org.linlinjava.litemall.core.util.ResponseUtil;
-import org.linlinjava.litemall.db.domain.LitemallCategory;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.linlinjava.litemall.db.domain.LitemallOutfit;
 import org.linlinjava.litemall.db.domain.ClothingActivityTop;
@@ -34,22 +33,7 @@ public class WxHomeController {
     private final Log logger = LogFactory.getLog(WxHomeController.class);
 
     @Autowired
-    private LitemallAdService adService;
-
-    @Autowired
     private LitemallGoodsService goodsService;
-
-    @Autowired
-    private LitemallBrandService brandService;
-
-    @Autowired
-    private LitemallTopicService topicService;
-
-    @Autowired
-    private LitemallCategoryService categoryService;
-
-    @Autowired
-    private LitemallCouponService couponService;
 
     @Autowired
     private LitemallOutfitService outfitService;
@@ -63,11 +47,11 @@ public class WxHomeController {
     @Autowired
     private ClothingSceneService sceneService;
 
-    private final static ArrayBlockingQueue<Runnable> WORK_QUEUE = new ArrayBlockingQueue<>(9);
+    private final static ArrayBlockingQueue<Runnable> WORK_QUEUE = new ArrayBlockingQueue<>(3);
 
     private final static RejectedExecutionHandler HANDLER = new ThreadPoolExecutor.CallerRunsPolicy();
 
-    private static ThreadPoolExecutor executorService = new ThreadPoolExecutor(9, 9, 1000, TimeUnit.MILLISECONDS, WORK_QUEUE, HANDLER);
+    private static ThreadPoolExecutor executorService = new ThreadPoolExecutor(3, 3, 1000, TimeUnit.MILLISECONDS, WORK_QUEUE, HANDLER);
 
     @GetMapping("/cache")
     public Object cache(@NotNull String key) {
@@ -94,61 +78,24 @@ public class WxHomeController {
         //相当于每次都是new的线程池 没意义
         //ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-        Callable<List> bannerListCallable = () -> adService.queryIndex();
-
-        Callable<List> channelListCallable = () -> categoryService.queryChannel();
-
-        Callable<List> couponListCallable;
-        if(userId == null){
-            couponListCallable = () -> couponService.queryList(0, 3);
-        } else {
-            couponListCallable = () -> couponService.queryAvailableList(userId,0, 3);
-        }
-
-
         Callable<List> newGoodsListCallable = () -> goodsService.queryByNew(0, SystemConfig.getNewLimit());
 
         Callable<List> hotGoodsListCallable = () -> goodsService.queryByHot(0, SystemConfig.getHotLimit());
 
-        Callable<List> brandListCallable = () -> brandService.query(0, SystemConfig.getBrandLimit());
-
-        Callable<List> topicListCallable = () -> topicService.queryList(0, SystemConfig.getTopicLimit());
-
-        Callable<List> floorGoodsListCallable = this::getCategoryList;
-
         Callable<List> outfitListCallable = this::getOutfitList;
 
-        FutureTask<List> bannerTask = new FutureTask<>(bannerListCallable);
-        FutureTask<List> channelTask = new FutureTask<>(channelListCallable);
-        FutureTask<List> couponListTask = new FutureTask<>(couponListCallable);
         FutureTask<List> newGoodsListTask = new FutureTask<>(newGoodsListCallable);
         FutureTask<List> hotGoodsListTask = new FutureTask<>(hotGoodsListCallable);
-        FutureTask<List> brandListTask = new FutureTask<>(brandListCallable);
-        FutureTask<List> topicListTask = new FutureTask<>(topicListCallable);
-        FutureTask<List> floorGoodsListTask = new FutureTask<>(floorGoodsListCallable);
         FutureTask<List> outfitListTask = new FutureTask<>(outfitListCallable);
 
-        executorService.submit(bannerTask);
-        executorService.submit(channelTask);
-        executorService.submit(couponListTask);
         executorService.submit(newGoodsListTask);
         executorService.submit(hotGoodsListTask);
-        executorService.submit(brandListTask);
-        executorService.submit(topicListTask);
-        executorService.submit(floorGoodsListTask);
         executorService.submit(outfitListTask);
 
         Map<String, Object> entity = new HashMap<>();
         try {
-            entity.put("banner", bannerTask.get());
-            entity.put("channel", channelTask.get());
-            entity.put("couponList", couponListTask.get());
             entity.put("newGoodsList", newGoodsListTask.get());
             entity.put("hotGoodsList", hotGoodsListTask.get());
-            entity.put("brandList", brandListTask.get());
-            entity.put("topicList", topicListTask.get());
-            entity.put("grouponList", new ArrayList<>());
-            entity.put("floorGoodsList", floorGoodsListTask.get());
             entity.put("outfitList", outfitListTask.get());
 
             // 添加活动位配置
@@ -249,32 +196,6 @@ public class WxHomeController {
         map.put("retailPrice", goods.getRetailPrice());
         map.put("counterPrice", goods.getCounterPrice());
         return map;
-    }
-
-    private List<Map> getCategoryList() {
-        List<Map> categoryList = new ArrayList<>();
-        List<LitemallCategory> catL1List = categoryService.queryL1WithoutRecommend(0, SystemConfig.getCatlogListLimit());
-        for (LitemallCategory catL1 : catL1List) {
-            List<LitemallCategory> catL2List = categoryService.queryByPid(catL1.getId());
-            List<Integer> l2List = new ArrayList<>();
-            for (LitemallCategory catL2 : catL2List) {
-                l2List.add(catL2.getId());
-            }
-
-            List<LitemallGoods> categoryGoods;
-            if (l2List.size() == 0) {
-                categoryGoods = new ArrayList<>();
-            } else {
-                categoryGoods = goodsService.queryByCategory(l2List, 0, SystemConfig.getCatlogMoreLimit());
-            }
-
-            Map<String, Object> catGoods = new HashMap<>();
-            catGoods.put("id", catL1.getId());
-            catGoods.put("name", catL1.getName());
-            catGoods.put("goodsList", categoryGoods);
-            categoryList.add(catGoods);
-        }
-        return categoryList;
     }
 
     /**

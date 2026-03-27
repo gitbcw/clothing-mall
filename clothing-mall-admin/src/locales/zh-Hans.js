@@ -33,12 +33,8 @@ export default {
       // 活动管理
       promotion: '营销管理',
       promotion_index: '促销管理',
-      promotion_ad: '广告管理',
       promotion_coupon: '优惠券管理',
       promotion_coupon_detail: '优惠券详情',
-      promotion_topic: '专题管理',
-      promotion_topic_create: '专题创建',
-      promotion_topic_edit: '专题编辑',
       promotion_groupon_rule: '团购规则',
       promotion_groupon_activity: '团购活动',
       promotion_flashSale: '限时特卖',
@@ -668,40 +664,6 @@ export default {
       filter_value_id: '请输入商品ID'
     }
   },
-  promotion_ad: {
-    table: {
-      id: '广告ID',
-      name: '广告标题',
-      content: '广告内容',
-      url: '广告图片',
-      position: '广告位置',
-      link: '活动链接',
-      enabled: '是否启用',
-      actions: '操作'
-    },
-    form: {
-      name: '广告标题',
-      content: '广告内容',
-      url: '广告图片',
-      position: '广告位置',
-      link: '活动链接',
-      enabled: '是否启用'
-    },
-    value: {
-      position_1: '首页',
-      enabled_true: '启用',
-      enabled_false: '不启用'
-    },
-    placeholder: {
-      filter_name: '请输入广告标题',
-      filter_content: '请输入广告内容',
-      position: '请选择',
-      enabled: '请选择'
-    },
-    help: {
-      url: '只能上传jpg/png文件，且不超过1024kb'
-    }
-  },
   promotion_coupon: {
     text: {
       days: '天',
@@ -788,56 +750,6 @@ export default {
     placeholder: {
       filter_user_id: '请输入用户ID',
       filter_status: '请选择使用状态'
-    }
-  },
-  promotion_topic: {
-    table: {
-      title: '专题标题',
-      subtitle: '专题子标题',
-      pic_url: '图片',
-      content: '专题详情',
-      price: '底价',
-      read_count: '阅读数量',
-      actions: '操作'
-    },
-    dialog: {
-      content_detail: '专题详情'
-    },
-    placeholder: {
-      filter_title: '请输入专题标题',
-      filter_subtitle: '请输入专题子标题',
-      filter_sort: '请选择排序字段'
-    }
-  },
-  promotion_topic_edit: {
-    table: {
-      goods_id: '商品ID',
-      goods_pic_url: '图片',
-      goods_name: '商品名称',
-      goods_brief: '商品介绍',
-      goods_actions: '操作',
-      search_goods_id: '商品ID',
-      search_goods_pic_url: '图片',
-      search_goods_name: '商品名称'
-    },
-    dialog: {
-      add_goods: '添加商品'
-    },
-    form: {
-      title: '专题标题',
-      subtitle: '专题子标题',
-      pic_url: '专题图片',
-      content: '专题内容',
-      price: '商品低价',
-      read_count: '阅读量',
-      goods: '专题商品'
-    },
-    placeholder: {
-      search_goods_sn: '请输入商品款号',
-      search_name: '请输入商品名称'
-    },
-    button: {
-      goods_create: '创建商品'
     }
   },
   promotion_groupon_rule: {

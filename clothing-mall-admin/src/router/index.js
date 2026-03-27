@@ -137,7 +137,8 @@ export const asyncRoutes = [
           perms: ['POST /admin/goods/create'],
           title: 'app.menu.goods_create',
           noCache: true
-        }
+        },
+        hidden: true
       },
       {
         path: 'edit',
@@ -157,16 +158,6 @@ export const asyncRoutes = [
         meta: {
           perms: ['GET /admin/clothing/sku/list', 'POST /admin/clothing/sku/create', 'POST /admin/clothing/sku/update', 'POST /admin/clothing/sku/delete'],
           title: 'app.menu.goods_sku',
-          noCache: true
-        }
-      },
-      {
-        path: 'scene',
-        component: () => import('@/views/goods/scene'),
-        name: 'goodsScene',
-        meta: {
-          perms: ['admin:clothing:scene:list', 'admin:clothing:scene:create', 'admin:clothing:scene:update', 'admin:clothing:scene:delete'],
-          title: 'app.menu.goods_scene',
           noCache: true
         }
       },
@@ -228,7 +219,7 @@ export const asyncRoutes = [
     ]
   },
 
-  // ==================== 3. 平台设置（合并会员管理、运营管理、系统管理、小程序设置） ====================
+  // ==================== 3. 平台设置（消息推送、推送组管理、会员管理、店铺设置） ====================
   {
     path: '/platform',
     component: Layout,
@@ -240,6 +231,28 @@ export const asyncRoutes = [
       icon: 'chart'
     },
     children: [
+      // 消息推送（企业微信）
+      {
+        path: 'wework-push',
+        component: () => import('@/views/wework/push'),
+        name: 'platformWeworkPush',
+        meta: {
+          perms: ['POST /admin/wework/uploadMedia', 'POST /admin/wework/sendCard', 'POST /admin/wework/sendCardByTag'],
+          title: 'app.menu.platform_wework',
+          noCache: true
+        }
+      },
+      // 推送组管理
+      {
+        path: 'push-group',
+        component: () => import('@/views/platform/pushGroup'),
+        name: 'platformPushGroup',
+        meta: {
+          perms: ['admin:push:group:list', 'admin:push:group:create', 'admin:push:group:update', 'admin:push:group:delete'],
+          title: 'app.menu.platform_push_group',
+          noCache: true
+        }
+      },
       // 会员管理
       {
         path: 'user',
@@ -306,80 +319,85 @@ export const asyncRoutes = [
         },
         hidden: true
       },
-      // 门店管理
+      // 店铺设置（门店列表）
       {
-        path: 'store',
-        component: () => import('@/views/mall/store'),
-        name: 'platformStore',
+        path: 'shop',
+        component: () => import('@/views/mall/shop'),
+        name: 'platformShop',
         meta: {
           perms: ['GET /admin/clothing/store/list', 'POST /admin/clothing/store/create', 'POST /admin/clothing/store/update', 'POST /admin/clothing/store/delete'],
-          title: 'app.menu.platform_store',
+          title: 'app.menu.platform_shop',
           noCache: true
         }
       },
-      // 导购管理
+      // 门店人员（子页面）
       {
-        path: 'guide',
-        component: () => import('@/views/mall/guide'),
-        name: 'platformGuide',
+        path: 'shop-guide',
+        component: () => import('@/views/mall/shopGuide'),
+        name: 'platformShopGuide',
         meta: {
           perms: ['GET /admin/clothing/guide/list', 'POST /admin/clothing/guide/create', 'POST /admin/clothing/guide/update', 'POST /admin/clothing/guide/delete'],
-          title: 'app.menu.platform_guide',
+          title: '门店人员',
+          noCache: true
+        },
+        hidden: true
+      }
+    ]
+  },
+
+  // ==================== 系统设置 ====================
+  {
+    path: '/system',
+    component: Layout,
+    redirect: 'noredirect',
+    alwaysShow: true,
+    name: 'systemManage',
+    meta: {
+      title: 'app.menu.system',
+      icon: 'chart'
+    },
+    children: [
+      // 场景管理
+      {
+        path: 'scene',
+        component: () => import('@/views/goods/scene'),
+        name: 'systemScene',
+        meta: {
+          perms: ['admin:clothing:scene:list', 'admin:clothing:scene:create', 'admin:clothing:scene:update', 'admin:clothing:scene:delete'],
+          title: 'app.menu.goods_scene',
           noCache: true
         }
       },
-      // 消息推送（企业微信）
+      // 平台规则（合并订单配置+运费配置）
       {
-        path: 'wework-push',
-        component: () => import('@/views/wework/push'),
-        name: 'platformWeworkPush',
+        path: 'rule',
+        component: () => import('@/views/config/rule'),
+        name: 'systemRule',
         meta: {
-          perms: ['POST /admin/wework/uploadMedia', 'POST /admin/wework/sendCard', 'POST /admin/wework/sendCardByTag'],
-          title: 'app.menu.platform_wework',
+          perms: ['GET /admin/config/order', 'POST /admin/config/order', 'GET /admin/config/express', 'POST /admin/config/express'],
+          title: 'app.menu.platform_rule',
           noCache: true
         }
       },
-      // 推送组管理
+      // 搜索关键词
       {
-        path: 'push-group',
-        component: () => import('@/views/platform/pushGroup'),
-        name: 'platformPushGroup',
+        path: 'keyword',
+        component: () => import('@/views/mall/keyword'),
+        name: 'systemKeyword',
         meta: {
-          perms: ['admin:push:group:list', 'admin:push:group:create', 'admin:push:group:update', 'admin:push:group:delete'],
-          title: 'app.menu.platform_push_group',
+          perms: ['GET /admin/keyword/list', 'POST /admin/keyword/create', 'GET /admin/keyword/read', 'POST /admin/keyword/update', 'POST /admin/keyword/delete'],
+          title: 'app.menu.mall_keyword',
           noCache: true
         }
       },
-      // 商城配置
+      // 权限管理（合并管理员+角色管理）
       {
-        path: 'config-mall',
-        component: () => import('@/views/config/mall'),
-        name: 'platformConfigMall',
+        path: 'permission',
+        component: () => import('@/views/sys/permission'),
+        name: 'systemPermission',
         meta: {
-          perms: ['GET /admin/config/mall', 'POST /admin/config/mall'],
-          title: 'app.menu.config_mall',
-          noCache: true
-        }
-      },
-      // 运费配置
-      {
-        path: 'config-express',
-        component: () => import('@/views/config/express'),
-        name: 'platformConfigExpress',
-        meta: {
-          perms: ['GET /admin/config/express', 'POST /admin/config/express'],
-          title: 'app.menu.config_express',
-          noCache: true
-        }
-      },
-      // 订单配置
-      {
-        path: 'config-order',
-        component: () => import('@/views/config/order'),
-        name: 'platformConfigOrder',
-        meta: {
-          perms: ['GET /admin/config/order', 'POST /admin/config/order'],
-          title: 'app.menu.config_order',
+          perms: ['GET /admin/admin/list', 'GET /admin/role/list'],
+          title: 'app.menu.platform_permission',
           noCache: true
         }
       },
@@ -387,65 +405,33 @@ export const asyncRoutes = [
       {
         path: 'issue',
         component: () => import('@/views/mall/issue'),
-        name: 'platformIssue',
+        name: 'systemIssue',
         meta: {
           perms: ['GET /admin/issue/list', 'POST /admin/issue/create', 'GET /admin/issue/read', 'POST /admin/issue/update', 'POST /admin/issue/delete'],
           title: 'app.menu.mall_issue',
           noCache: true
         }
       },
-      // 关键词
-      {
-        path: 'keyword',
-        component: () => import('@/views/mall/keyword'),
-        name: 'platformKeyword',
-        meta: {
-          perms: ['GET /admin/keyword/list', 'POST /admin/keyword/create', 'GET /admin/keyword/read', 'POST /admin/keyword/update', 'POST /admin/keyword/delete'],
-          title: 'app.menu.mall_keyword',
-          noCache: true
-        }
-      },
-      // 管理员
-      {
-        path: 'admin',
-        component: () => import('@/views/sys/admin'),
-        name: 'platformAdmin',
-        meta: {
-          perms: ['GET /admin/admin/list', 'POST /admin/admin/create', 'POST /admin/admin/update', 'POST /admin/admin/delete'],
-          title: 'app.menu.platform_admin',
-          noCache: true
-        }
-      },
-      // 通知管理
+      // 通知管理（隐藏）
       {
         path: 'notice',
         component: () => import('@/views/sys/notice'),
-        name: 'platformNotice',
+        name: 'systemNotice',
         meta: {
           perms: ['GET /admin/notice/list', 'POST /admin/notice/create', 'POST /admin/notice/update', 'POST /admin/notice/delete'],
           title: 'app.menu.platform_notice',
           noCache: true
-        }
+        },
+        hidden: true
       },
       // 操作日志
       {
         path: 'log',
         component: () => import('@/views/sys/log'),
-        name: 'platformLog',
+        name: 'systemLog',
         meta: {
           perms: ['GET /admin/log/list'],
           title: 'app.menu.platform_log',
-          noCache: true
-        }
-      },
-      // 角色管理
-      {
-        path: 'role',
-        component: () => import('@/views/sys/role'),
-        name: 'platformRole',
-        meta: {
-          perms: ['GET /admin/role/list', 'POST /admin/role/create', 'POST /admin/role/update', 'POST /admin/role/delete', 'GET /admin/role/permissions', 'POST /admin/role/permissions'],
-          title: 'app.menu.platform_role',
           noCache: true
         }
       },
@@ -453,7 +439,7 @@ export const asyncRoutes = [
       {
         path: 'storage',
         component: () => import('@/views/sys/os'),
-        name: 'platformStorage',
+        name: 'systemStorage',
         meta: {
           perms: ['GET /admin/storage/list', 'POST /admin/storage/create', 'POST /admin/storage/update', 'POST /admin/storage/delete'],
           title: 'app.menu.platform_storage',
@@ -464,12 +450,72 @@ export const asyncRoutes = [
       {
         path: 'wx',
         component: () => import('@/views/config/wx'),
-        name: 'platformWx',
+        name: 'systemWx',
         meta: {
           perms: ['GET /admin/config/wx', 'POST /admin/config/wx'],
           title: 'app.menu.platform_wx',
           noCache: true
         }
+      },
+      // 隐藏的原商城配置（保留路由兼容）
+      {
+        path: 'config-mall',
+        component: () => import('@/views/config/mall'),
+        name: 'systemConfigMall',
+        meta: {
+          perms: ['GET /admin/config/mall', 'POST /admin/config/mall'],
+          title: 'app.menu.config_mall',
+          noCache: true
+        },
+        hidden: true
+      },
+      // 隐藏的原运费配置（保留路由兼容）
+      {
+        path: 'config-express',
+        component: () => import('@/views/config/express'),
+        name: 'systemConfigExpress',
+        meta: {
+          perms: ['GET /admin/config/express', 'POST /admin/config/express'],
+          title: 'app.menu.config_express',
+          noCache: true
+        },
+        hidden: true
+      },
+      // 隐藏的原订单配置（保留路由兼容）
+      {
+        path: 'config-order',
+        component: () => import('@/views/config/order'),
+        name: 'systemConfigOrder',
+        meta: {
+          perms: ['GET /admin/config/order', 'POST /admin/config/order'],
+          title: 'app.menu.config_order',
+          noCache: true
+        },
+        hidden: true
+      },
+      // 隐藏的原管理员（保留路由兼容）
+      {
+        path: 'admin',
+        component: () => import('@/views/sys/admin'),
+        name: 'systemAdmin',
+        meta: {
+          perms: ['GET /admin/admin/list', 'POST /admin/admin/create', 'POST /admin/admin/update', 'POST /admin/admin/delete'],
+          title: 'app.menu.platform_admin',
+          noCache: true
+        },
+        hidden: true
+      },
+      // 隐藏的原角色管理（保留路由兼容）
+      {
+        path: 'role',
+        component: () => import('@/views/sys/role'),
+        name: 'systemRole',
+        meta: {
+          perms: ['GET /admin/role/list', 'POST /admin/role/create', 'POST /admin/role/update', 'POST /admin/role/delete', 'GET /admin/role/permissions', 'POST /admin/role/permissions'],
+          title: 'app.menu.platform_role',
+          noCache: true
+        },
+        hidden: true
       }
     ]
   },
@@ -504,7 +550,8 @@ export const asyncRoutes = [
           perms: ['GET /admin/ad/list', 'POST /admin/ad/create', 'GET /admin/ad/read', 'POST /admin/ad/update', 'POST /admin/ad/delete'],
           title: 'app.menu.promotion_ad',
           noCache: true
-        }
+        },
+        hidden: true
       },
       {
         path: 'topic',
@@ -597,11 +644,10 @@ export const asyncRoutes = [
         component: () => import('@/views/promotion/activity'),
         name: 'activity',
         meta: {
-          perms: ['GET /admin/activity/list', 'POST /admin/activity/create', 'POST /admin/activity/update', 'POST /admin/activity/delete'],
+          perms: ['GET /admin/activity/top/list', 'POST /admin/activity/top/add', 'POST /admin/activity/top/update', 'POST /admin/activity/top/delete'],
           title: 'app.menu.promotion_activity',
           noCache: true
-        },
-        hidden: true
+        }
       }
     ]
   },
@@ -610,7 +656,7 @@ export const asyncRoutes = [
   {
     path: '/stat',
     component: Layout,
-    redirect: '/stat/growth',
+    redirect: '/stat/overview',
     alwaysShow: true,
     name: 'statManage',
     meta: {
@@ -618,6 +664,7 @@ export const asyncRoutes = [
       icon: 'chart'
     },
     children: [
+      // 隐藏的增长分析（保留路由但不在菜单显示）
       {
         path: 'growth',
         component: () => import('@/views/stat/growth'),
@@ -626,15 +673,36 @@ export const asyncRoutes = [
           perms: ['GET /admin/stat/growth'],
           title: 'app.menu.stat_growth',
           noCache: true
+        },
+        hidden: true
+      },
+      {
+        path: 'overview',
+        component: () => import('@/views/stat/overview'),
+        name: 'statOverview',
+        meta: {
+          perms: ['GET /admin/stat/order'],
+          title: 'app.menu.stat_overview',
+          noCache: true
         }
       },
       {
-        path: 'sales',
-        component: () => import('@/views/stat/sales'),
-        name: 'statSales',
+        path: 'category',
+        component: () => import('@/views/stat/category'),
+        name: 'statCategory',
         meta: {
           perms: ['GET /admin/stat/order'],
-          title: 'app.menu.stat_sales',
+          title: 'app.menu.stat_category',
+          noCache: true
+        }
+      },
+      {
+        path: 'season',
+        component: () => import('@/views/stat/season'),
+        name: 'statSeason',
+        meta: {
+          perms: ['GET /admin/stat/order'],
+          title: 'app.menu.stat_season',
           noCache: true
         }
       },
@@ -645,16 +713,6 @@ export const asyncRoutes = [
         meta: {
           perms: ['GET /admin/stat/tracker/overview'],
           title: 'app.menu.stat_tracker',
-          noCache: true
-        }
-      },
-      {
-        path: 'revenue',
-        component: () => import('@/views/stat/revenue'),
-        name: 'statRevenue',
-        meta: {
-          perms: ['GET /admin/stat/order'],
-          title: 'app.menu.stat_revenue',
           noCache: true
         }
       }

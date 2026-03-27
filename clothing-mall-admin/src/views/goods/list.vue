@@ -10,7 +10,18 @@
       <el-button class="filter-item" type="primary" icon="el-icon-edit" @click="handleCreate">{{ $t('app.button.create') }}</el-button>
       <el-button :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">{{ $t('app.button.download') }}</el-button>
       <el-button class="filter-item" type="danger" icon="el-icon-delete" :disabled="batchDeleteArr.length === 0" @click="handleDeleteRows">{{ $t('app.button.batch_delete') }}</el-button>
+      <el-button v-if="batchDeleteArr.length > 0" class="filter-item" type="success" size="small" @click="handleBatchPublish">批量上架 ({{ batchDeleteArr.length }})</el-button>
+      <el-button v-if="batchDeleteArr.length > 0" class="filter-item" type="warning" size="small" @click="handleBatchUnpublish">批量下架 ({{ batchDeleteArr.length }})</el-button>
+      <el-button class="filter-item" type="danger" plain @click="handleUnpublishAll">一键下架全部</el-button>
     </div>
+
+    <!-- 状态标签页 -->
+    <el-tabs v-model="activeTab" @tab-click="handleTabClick">
+      <el-tab-pane label="全部" name="all" />
+      <el-tab-pane label="草稿" name="draft" />
+      <el-tab-pane label="待上架" name="pending" />
+      <el-tab-pane label="已上架" name="published" />
+    </el-tabs>
 
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" :element-loading-text="$t('app.message.list_loading')" border fit highlight-current-row @selection-change="handleSelectionChange">
@@ -85,14 +96,26 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" :label="$t('goods_list.table.is_on_sale')" prop="isOnSale">
+      <el-table-column align="center" label="特价" prop="isSpecialPrice" width="80">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.isOnSale ? 'success' : 'error' ">{{ $t(scope.row.isOnSale ? 'goods_list.value.is_on_sale_true' : 'goods_list.value.is_on_sale_false') }}</el-tag>
+          <el-tag :type="scope.row.isSpecialPrice ? 'warning' : 'info'" size="mini">
+            {{ scope.row.isSpecialPrice ? '特价' : '普通' }}
+          </el-tag>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" :label="$t('goods_list.table.actions')" width="200" class-name="small-padding fixed-width">
+      <el-table-column align="center" label="状态" prop="status" width="100">
         <template slot-scope="scope">
+          <el-tag :type="statusTagType(scope.row.status)">
+            {{ statusText(scope.row.status) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" :label="$t('goods_list.table.actions')" width="320" class-name="small-padding fixed-width">
+        <template slot-scope="scope">
+          <el-button v-if="scope.row.status !== 'published'" type="success" size="mini" @click="handlePublish(scope.row)">上架</el-button>
+          <el-button v-if="scope.row.status === 'published'" type="warning" size="mini" @click="handleUnpublish(scope.row)">下架</el-button>
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ $t('app.button.edit') }}</el-button>
           <el-button type="danger" size="mini" @click="handleDelete(scope.row)">{{ $t('app.button.delete') }}</el-button>
         </template>
@@ -131,7 +154,7 @@
 </style>
 
 <script>
-import { listGoods, deleteGoods, generateShareImage } from '@/api/goods'
+import { listGoods, deleteGoods, generateShareImage, publishGoodsBatch, unpublishGoodsBatch, unpublishAllGoods } from '@/api/goods'
 import BackToTop from '@/components/BackToTop'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import { thumbnail, toPreview } from '@/utils/index'
@@ -142,6 +165,7 @@ export default {
   data() {
     return {
       batchDeleteArr: [],
+      activeTab: 'all',
       thumbnail,
       toPreview,
       list: [],
@@ -149,7 +173,7 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 20,
+        limit: 10,
         goodsSn: undefined,
         name: undefined,
         sort: 'add_time',
@@ -166,7 +190,11 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      listGoods(this.listQuery).then(response => {
+      const query = { ...this.listQuery }
+      if (this.activeTab !== 'all') {
+        query.status = this.activeTab
+      }
+      listGoods(query).then(response => {
         this.list = response.data.data.list
         this.total = response.data.data.total
         this.listLoading = false
@@ -177,6 +205,10 @@ export default {
       })
     },
     handleFilter() {
+      this.listQuery.page = 1
+      this.getList()
+    },
+    handleTabClick() {
       this.listQuery.page = 1
       this.getList()
     },
@@ -255,6 +287,62 @@ export default {
         excel.export_json_to_excel2(tHeader, this.list, filterVal, '商品信息')
         this.downloadLoading = false
       })
+    },
+    statusText(status) {
+      const map = { draft: '草稿', pending: '待上架', published: '已上架' }
+      return map[status || 'draft'] || '未知'
+    },
+    statusTagType(status) {
+      const map = { draft: 'info', pending: 'warning', published: 'success' }
+      return map[status || 'draft'] || 'info'
+    },
+    handlePublish(row) {
+      publishGoodsBatch({ ids: [row.id] }).then(() => {
+        this.$notify.success({ title: '成功', message: '上架成功' })
+        this.getList()
+      }).catch(error => {
+        this.$notify.error({ title: '失败', message: error?.response?.data?.errmsg || error?.message || '上架失败' })
+      })
+    },
+    handleUnpublish(row) {
+      unpublishGoodsBatch({ ids: [row.id] }).then(() => {
+        this.$notify.success({ title: '成功', message: '下架成功' })
+        this.getList()
+      }).catch(error => {
+        this.$notify.error({ title: '失败', message: error?.response?.data?.errmsg || error?.message || '下架失败' })
+      })
+    },
+    handleBatchPublish() {
+      const ids = this.batchDeleteArr.map(r => r.id)
+      publishGoodsBatch({ ids }).then(() => {
+        this.$notify.success({ title: '成功', message: '批量上架成功' })
+        this.getList()
+      }).catch(error => {
+        this.$notify.error({ title: '失败', message: error?.response?.data?.errmsg || error?.message || '批量上架失败' })
+      })
+    },
+    handleBatchUnpublish() {
+      const ids = this.batchDeleteArr.map(r => r.id)
+      unpublishGoodsBatch({ ids }).then(() => {
+        this.$notify.success({ title: '成功', message: '批量下架成功' })
+        this.getList()
+      }).catch(error => {
+        this.$notify.error({ title: '失败', message: error?.response?.data?.errmsg || error?.message || '批量下架失败' })
+      })
+    },
+    handleUnpublishAll() {
+      this.$confirm('确定要下架全部商品吗？此操作不可撤销。', '危险操作', {
+        confirmButtonText: '确认下架全部',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        unpublishAllGoods().then(() => {
+          this.$notify.success({ title: '成功', message: '全部商品已下架' })
+          this.getList()
+        }).catch(error => {
+          this.$notify.error({ title: '失败', message: error?.response?.data?.errmsg || error?.message || '下架失败' })
+        })
+      }).catch(() => {})
     }
   }
 }

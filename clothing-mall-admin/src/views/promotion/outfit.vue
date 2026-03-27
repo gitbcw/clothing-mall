@@ -3,7 +3,7 @@
 
     <!-- 查询和其他操作 -->
     <div class="filter-container">
-      <el-input v-model="listQuery.name" clearable class="filter-item" style="width: 200px;" placeholder="请输入穿搭名称" />
+      <el-input v-model="listQuery.title" clearable class="filter-item" style="width: 200px;" placeholder="请输入穿搭名称" />
       <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
       <el-button class="filter-item" type="primary" icon="el-icon-edit" @click="handleCreate">创建</el-button>
     </div>
@@ -13,30 +13,28 @@
 
       <el-table-column align="center" label="ID" prop="id" sortable width="80" />
 
-      <el-table-column align="center" label="海报图" prop="posterUrl">
+      <el-table-column align="center" label="封面图" prop="coverPic">
         <template slot-scope="scope">
-          <el-image :src="scope.row.posterUrl" style="width: 80px; height: 80px" fit="cover" />
+          <el-image :src="scope.row.coverPic" style="width: 80px; height: 80px" fit="cover" />
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="穿搭名称" prop="name" />
+      <el-table-column align="center" label="穿搭名称" prop="title" />
 
-      <el-table-column align="center" label="关联商品" prop="goodsList">
+      <el-table-column align="center" label="关联商品" prop="goodsIds">
         <template slot-scope="scope">
-          <el-tag v-for="goods in scope.row.goodsList.slice(0, 3)" :key="goods.id" size="small" style="margin-right: 5px;">
+          <el-tag v-for="goods in scope.row.goodsList" :key="goods.id" size="small" style="margin-right: 5px;">
             {{ goods.name }}
           </el-tag>
-          <el-tag v-if="scope.row.goodsList.length > 3" size="small" type="info">
-            +{{ scope.row.goodsList.length - 3 }}
-          </el-tag>
+          <span v-if="!scope.row.goodsList || scope.row.goodsList.length === 0">-</span>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="排序" prop="sortOrder" width="80" />
 
-      <el-table-column align="center" label="状态" prop="enabled" width="80">
+      <el-table-column align="center" label="状态" prop="status" width="80">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.enabled ? 'success' : 'error'">{{ scope.row.enabled ? '启用' : '禁用' }}</el-tag>
+          <el-tag :type="scope.row.status === 1 ? 'success' : 'error'">{{ scope.row.status === 1 ? '启用' : '禁用' }}</el-tag>
         </template>
       </el-table-column>
 
@@ -53,23 +51,23 @@
     <!-- 添加或修改对话框 -->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="600px">
       <el-form ref="dataForm" :rules="rules" :model="dataForm" status-icon label-position="left" label-width="100px" style="width: 500px; margin-left:30px;">
-        <el-form-item label="海报图" prop="posterUrl">
+        <el-form-item label="封面图" prop="coverPic">
           <el-upload
             :headers="headers"
             :action="uploadPath"
             :show-file-list="false"
-            :on-success="uploadPosterUrl"
+            :on-success="posterUploadSuccess"
             :before-upload="checkFileSize"
             class="avatar-uploader"
             accept=".jpg,.jpeg,.png,.gif"
           >
-            <img v-if="dataForm.posterUrl" :src="dataForm.posterUrl" class="avatar">
+            <img v-if="dataForm.coverPic" :src="dataForm.coverPic" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
             <div slot="tip" class="el-upload__tip">支持 jpg/png/gif 格式，不超过 1MB</div>
           </el-upload>
         </el-form-item>
-        <el-form-item label="穿搭名称" prop="name">
-          <el-input v-model="dataForm.name" placeholder="请输入穿搭名称" />
+        <el-form-item label="穿搭名称" prop="title">
+          <el-input v-model="dataForm.title" placeholder="请输入穿搭名称" />
         </el-form-item>
         <el-form-item label="关联商品" prop="goodsIds">
           <div style="display: flex; flex-wrap: wrap; gap: 5px;">
@@ -88,8 +86,8 @@
         <el-form-item label="排序" prop="sortOrder">
           <el-input-number v-model="dataForm.sortOrder" :min="0" :max="100" />
         </el-form-item>
-        <el-form-item label="是否启用" prop="enabled">
-          <el-switch v-model="dataForm.enabled" />
+        <el-form-item label="是否启用" prop="status">
+          <el-switch v-model="dataForm.status" :active-value="1" :inactive-value="0" active-text="启用" inactive-text="禁用" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -204,6 +202,7 @@
 <script>
 import { uploadPath } from '@/api/storage'
 import { listGoods, listCatAndBrand } from '@/api/goods'
+import { listOutfit, createOutfit, updateOutfit, deleteOutfit } from '@/api/outfit'
 import { getToken } from '@/utils/auth'
 import Pagination from '@/components/Pagination'
 
@@ -219,17 +218,19 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
-        name: undefined,
+        title: undefined,
         sort: 'sort_order',
         order: 'asc'
       },
       dataForm: {
         id: undefined,
-        posterUrl: undefined,
-        name: undefined,
+        coverPic: '',
+        title: '',
+        description: '',
         goodsIds: [],
+        tags: '',
         sortOrder: 0,
-        enabled: true
+        status: 1
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -238,8 +239,8 @@ export default {
         create: '创建'
       },
       rules: {
-        name: [{ required: true, message: '穿搭名称不能为空', trigger: 'blur' }],
-        posterUrl: [{ required: true, message: '海报图不能为空', trigger: 'blur' }],
+        title: [{ required: true, message: '穿搭名称不能为空', trigger: 'blur' }],
+        coverPic: [{ required: true, message: '封面图不能为空', trigger: 'blur' }],
         goodsIds: [{ required: true, message: '请选择至少一个商品', trigger: 'change', type: 'array', min: 1 }]
       },
       // 商品选择器相关数据
@@ -274,45 +275,20 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      // TODO: 替换为真实 API
-      // listOutfit(this.listQuery).then(response => {
-      //   this.list = response.data.data.list
-      //   this.total = response.data.data.total
-      //   this.listLoading = false
-      // })
-
-      // Mock 数据
-      setTimeout(() => {
-        this.list = [
-          {
-            id: 1,
-            posterUrl: 'https://example.com/outfit1.jpg',
-            name: '春日清新穿搭',
-            goodsList: [
-              { id: 101, name: '白色T恤' },
-              { id: 102, name: '牛仔裤' },
-              { id: 103, name: '帆布鞋' }
-            ],
-            sortOrder: 1,
-            enabled: true
-          },
-          {
-            id: 2,
-            posterUrl: 'https://example.com/outfit2.jpg',
-            name: '职场优雅风',
-            goodsList: [
-              { id: 201, name: '衬衫' },
-              { id: 202, name: '西装裤' },
-              { id: 203, name: '高跟鞋' },
-              { id: 204, name: '手提包' }
-            ],
-            sortOrder: 2,
-            enabled: true
-          }
-        ]
-        this.total = 2
+      listOutfit(this.listQuery).then(response => {
+        const list = response.data.data.list || []
+        // Convert goodsIds string to array
+        list.forEach(item => {
+          item.goodsIds = item.goodsIds ? item.goodsIds.split(',').map(Number) : []
+        })
+        this.list = list
+        this.total = response.data.data.total || 0
         this.listLoading = false
-      }, 500)
+      }).catch(() => {
+        this.list = []
+        this.total = 0
+        this.listLoading = false
+      })
     },
     getCategoryList() {
       listCatAndBrand().then(response => {
@@ -328,11 +304,13 @@ export default {
     resetForm() {
       this.dataForm = {
         id: undefined,
-        posterUrl: undefined,
-        name: undefined,
+        title: '',
+        coverPic: '',
+        description: '',
         goodsIds: [],
+        tags: '',
         sortOrder: 0,
-        enabled: true
+        status: 1
       }
       this.selectedGoodsList = []
     },
@@ -344,8 +322,8 @@ export default {
         this.$refs['dataForm'].clearValidate()
       })
     },
-    uploadPosterUrl(response) {
-      this.dataForm.posterUrl = response.data.url
+    posterUploadSuccess(response) {
+      this.dataForm.coverPic = response.data.url
     },
     checkFileSize(file) {
       if (file.size > 1048576) {
@@ -357,15 +335,13 @@ export default {
     createData() {
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
-          // TODO: 替换为真实 API
-          // createOutfit(this.dataForm).then(response => {
-          //   this.list.unshift(response.data.data)
-          //   this.dialogFormVisible = false
-          //   this.$notify.success({ title: '成功', message: '创建成功' })
-          // })
-          this.$notify.warning({
-            title: '提示',
-            message: '后端 API 尚未实现，功能待开发'
+          const submitData = { ...this.dataForm, goodsIds: this.dataForm.goodsIds.join(',') }
+          createOutfit(submitData).then(() => {
+            this.dialogFormVisible = false
+            this.$notify.success({ title: '成功', message: '添加穿搭推荐成功' })
+            this.getList()
+          }).catch(response => {
+            this.$notify.error({ title: '失败', message: response.data.errmsg || '操作失败' })
           })
         }
       })
@@ -373,13 +349,13 @@ export default {
     handleUpdate(row) {
       this.dataForm = {
         id: row.id,
-        posterUrl: row.posterUrl,
-        name: row.name,
-        goodsIds: row.goodsList.map(g => g.id),
+        coverPic: row.coverPic,
+        title: row.title,
+        goodsIds: row.goodsIds || [],
         sortOrder: row.sortOrder,
-        enabled: row.enabled
+        status: row.status
       }
-      this.selectedGoodsList = [...row.goodsList]
+      this.selectedGoodsList = row.goodsList ? [...row.goodsList] : []
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -389,29 +365,30 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
-          // TODO: 替换为真实 API
-          // updateOutfit(this.dataForm).then(() => {
-          //   this.getList()
-          //   this.dialogFormVisible = false
-          //   this.$notify.success({ title: '成功', message: '更新成功' })
-          // })
-          this.$notify.warning({
-            title: '提示',
-            message: '后端 API 尚未实现，功能待开发'
+          const submitData = { ...this.dataForm, goodsIds: this.dataForm.goodsIds.join(',') }
+          updateOutfit(submitData).then(() => {
+            this.dialogFormVisible = false
+            this.$notify.success({ title: '成功', message: '更新穿搭推荐成功' })
+            this.getList()
+          }).catch(response => {
+            this.$notify.error({ title: '失败', message: response.data.errmsg || '操作失败' })
           })
         }
       })
     },
     handleDelete(row) {
-      // TODO: 替换为真实 API
-      // deleteOutfit(row).then(() => {
-      //   this.$notify.success({ title: '成功', message: '删除成功' })
-      //   this.getList()
-      // })
-      this.$notify.warning({
-        title: '提示',
-        message: '后端 API 尚未实现，功能待开发'
-      })
+      this.$confirm('确定删除该穿搭推荐?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteOutfit({ id: row.id }).then(() => {
+          this.$notify.success({ title: '成功', message: '删除成功' })
+          this.getList()
+        }).catch(response => {
+          this.$notify.error({ title: '失败', message: response.data.errmsg || '删除失败' })
+        })
+      }).catch(() => {})
     },
     // ========== 商品选择器相关方法 ==========
     openGoodsSelector() {

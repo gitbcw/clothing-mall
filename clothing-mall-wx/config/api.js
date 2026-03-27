@@ -20,6 +20,7 @@ module.exports = {
   CatalogCurrent: WxApiRoot + 'catalog/current', //分类目录当前分类数据接口
 
   AuthLoginByWeixin: WxApiRoot + 'auth/login_by_weixin', //微信登录
+  AuthLoginByPhone: WxApiRoot + 'auth/login_by_phone', //手机号一键登录
   AuthLoginByAccount: WxApiRoot + 'auth/login', //账号登录
   AuthLogout: WxApiRoot + 'auth/logout', //账号登出
   AuthRegister: WxApiRoot + 'auth/register', //账号注册
@@ -131,4 +132,8 @@ module.exports = {
   ManagerOrderShip: WxApiRoot + 'manager/order/ship', // 发货
   ManagerOrderConfirm: WxApiRoot + 'manager/order/confirm', // 确认收货
   ManagerOrderCancel: WxApiRoot + 'manager/order/cancel', // 取消订单
+
+  // 管理端商品接口
+  ManagerGoodsUnpublishAll: WxApiRoot + 'manager/goods/unpublishAll', // 一键下架全部商品
+  ManagerGoodsCreate: WxApiRoot + 'manager/goods/create', // 快速创建商品草稿
 };

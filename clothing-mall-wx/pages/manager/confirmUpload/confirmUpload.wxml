@@ -76,9 +76,31 @@
     </view>
   </view>
 
+  <!-- SKU 快速添加（可选） -->
+  <view class="form-section" style="margin-top: 20rpx;">
+    <view class="section-header">
+      <text class="section-title">规格（可选，可跳过）</text>
+      <text class="add-btn" bindtap="addSku">+ 添加</text>
+    </view>
+    <view class="sku-list" wx:if="{{skuList.length > 0}}">
+      <view class="sku-item" wx:for="{{skuList}}" wx:key="index">
+        <view class="sku-row">
+          <input class="sku-input" placeholder="颜色" value="{{item.color}}" data-index="{{index}}" data-field="color" bindinput="onSkuInput" />
+          <input class="sku-input" placeholder="尺码" value="{{item.size}}" data-index="{{index}}" data-field="size" bindinput="onSkuInput" />
+          <input class="sku-input sku-small" type="digit" placeholder="价格" value="{{item.price}}" data-index="{{index}}" data-field="price" bindinput="onSkuInput" />
+          <input class="sku-input sku-small" type="number" placeholder="库存" value="{{item.stock}}" data-index="{{index}}" data-field="stock" bindinput="onSkuInput" />
+          <text class="sku-delete" data-index="{{index}}" bindtap="removeSku">×</text>
+        </view>
+      </view>
+    </view>
+    <view class="sku-empty" wx:else>
+      <text class="sku-empty-text">不添加规格，后续在管理后台补全</text>
+    </view>
+  </view>
+
   <!-- 底部按钮 -->
   <view class="bottom-actions">
     <button class="btn-draft" bindtap="saveDraft">暂存草稿</button>
-    <button class="btn-submit" type="primary" bindtap="submitSku" loading="{{submitting}}" disabled="{{submitting}}">确认创建</button>
+    <button class="btn-submit" type="primary" bindtap="submitGoods" loading="{{submitting}}" disabled="{{submitting}}">创建商品</button>
   </view>
 </view>

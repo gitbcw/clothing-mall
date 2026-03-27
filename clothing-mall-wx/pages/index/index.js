@@ -120,7 +120,9 @@ Page({
   // 加载场景轮播图
   loadSceneBanners() {
     util.request(api.SceneBanners).then(res => {
-      this.setData({ banners: res.data.data || [] })
+      if (res.errno === 0) {
+        this.setData({ banners: res.data || [] })
+      }
     }).catch(() => {
       this.setData({ banners: [] })
     })

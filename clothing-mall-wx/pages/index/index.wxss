@@ -136,7 +136,7 @@ page {
   height: 750rpx; /* 大图banner */
 }
 
-.banner-img {
+.banner-image {
   width: 100%;
   height: 100%;
 }

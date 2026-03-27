@@ -1,6 +1,6 @@
 <view class="container">
   <!-- Tab 切换 -->
-  <van-tabs active="{{ type }}" bind:change="onTabChange" color="#667eea">
+  <van-tabs active="{{ type }}" bind:change="onTabChange" color="#BA8D59">
     <van-tab title="待处理{{pendingCount > 0 ? '(' + pendingCount + ')' : ''}}" name="pending"></van-tab>
     <van-tab title="售后中{{aftersaleCount > 0 ? '(' + aftersaleCount + ')' : ''}}" name="aftersale"></van-tab>
     <van-tab title="已完成" name="completed"></van-tab>

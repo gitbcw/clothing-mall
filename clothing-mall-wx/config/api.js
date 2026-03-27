@@ -131,7 +131,7 @@ module.exports = {
   ManagerOrderRefundAgree: WxApiRoot + 'manager/order/refundAgree', // 同意退款
   ManagerOrderRefundReject: WxApiRoot + 'manager/order/refundReject', // 拒绝退款
   ManagerOrderVerify: WxApiRoot + 'manager/order/verify', // 核销自提订单
-  ManagerStats: WxApiRoot + 'manager/stats', // 管理后台统计数据
+  ManagerStats: WxApiRoot + 'manager/order/stats', // 管理后台统计数据
 
   // 管理端商品接口
   ManagerGoodsList: WxApiRoot + 'manager/goods/list', // 商品列表（分页+tab统计）

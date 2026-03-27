@@ -1,10 +1,11 @@
 .container {
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: #F7F8FA;
 }
 
+/* 订单列表 */
 .order-list {
-  padding: 20rpx;
+  padding: 20rpx 24rpx;
 }
 
 .order-item {
@@ -12,33 +13,35 @@
   border-radius: 16rpx;
   margin-bottom: 20rpx;
   overflow: hidden;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
 .order-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20rpx 30rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  padding: 24rpx 28rpx;
+  border-bottom: 1rpx solid #F5F5F5;
 }
 
 .order-sn {
   font-size: 26rpx;
   color: #666;
+  font-family: monospace;
 }
 
 .order-status {
   font-size: 24rpx;
-  color: #667eea;
+  color: #BA8D59;
   font-weight: 500;
-  background: rgba(102, 126, 234, 0.1);
-  padding: 4rpx 16rpx;
+  background: rgba(186, 141, 89, 0.1);
+  padding: 6rpx 16rpx;
   border-radius: 20rpx;
 }
 
 .order-info {
-  padding: 16rpx 30rpx;
-  background: #fafafa;
+  padding: 16rpx 28rpx;
+  background: #FDFCFB;
 }
 
 .info-row {
@@ -50,6 +53,7 @@
   font-size: 24rpx;
   color: #999;
   margin-right: 16rpx;
+  flex-shrink: 0;
 }
 
 .info-value {
@@ -58,12 +62,12 @@
 }
 
 .order-content {
-  padding: 20rpx 30rpx;
+  padding: 20rpx 28rpx;
 }
 
 .goods-item {
   display: flex;
-  margin-bottom: 20rpx;
+  margin-bottom: 16rpx;
 }
 
 .goods-item:last-child {
@@ -73,8 +77,9 @@
 .goods-image {
   width: 120rpx;
   height: 120rpx;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
   flex-shrink: 0;
+  background: #F5F5F5;
 }
 
 .goods-info {
@@ -108,7 +113,7 @@
 
 .goods-price {
   font-size: 26rpx;
-  color: #ff4d4f;
+  color: #E8494A;
   font-weight: 500;
 }
 
@@ -118,8 +123,8 @@
 }
 
 .order-footer {
-  padding: 16rpx 30rpx;
-  border-top: 1rpx solid #f0f0f0;
+  padding: 16rpx 28rpx;
+  border-top: 1rpx solid #F5F5F5;
   text-align: right;
 }
 
@@ -129,13 +134,13 @@
 }
 
 .order-total .price {
-  color: #ff4d4f;
+  color: #E8494A;
   font-weight: 600;
 }
 
 .order-actions {
-  padding: 16rpx 30rpx;
-  border-top: 1rpx solid #f0f0f0;
+  padding: 16rpx 28rpx;
+  border-top: 1rpx solid #F5F5F5;
   display: flex;
   justify-content: flex-end;
   gap: 16rpx;
@@ -143,29 +148,29 @@
 
 .action-btn {
   font-size: 24rpx;
-  padding: 8rpx 24rpx;
-  border-radius: 24rpx;
+  padding: 10rpx 28rpx;
+  border-radius: 28rpx;
   border: 1rpx solid #ddd;
   color: #666;
   background: #fff;
 }
 
 .action-btn.btn-primary {
-  color: #667eea;
-  border-color: #667eea;
-  background: rgba(102, 126, 234, 0.05);
+  color: #BA8D59;
+  border-color: #BA8D59;
+  background: rgba(186, 141, 89, 0.08);
 }
 
 .action-btn.btn-danger {
-  color: #ff4d4f;
-  border-color: #ff4d4f;
-  background: rgba(255, 77, 79, 0.05);
+  color: #E8494A;
+  border-color: #E8494A;
+  background: rgba(232, 73, 74, 0.06);
 }
 
 .action-btn.btn-warning {
-  color: #ff9800;
-  border-color: #ff9800;
-  background: rgba(255, 152, 0, 0.05);
+  color: #E6A23C;
+  border-color: #E6A23C;
+  background: rgba(230, 162, 60, 0.06);
 }
 
 .action-btn.btn-cancel {
@@ -175,7 +180,7 @@
 
 .empty {
   text-align: center;
-  padding: 100rpx 0;
+  padding: 120rpx 0;
   color: #999;
   font-size: 28rpx;
 }

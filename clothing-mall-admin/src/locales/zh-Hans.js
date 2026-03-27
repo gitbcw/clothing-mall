@@ -48,21 +48,26 @@ export default {
       stat_growth: '增长分析',
       stat_sales: '销售分析',
       stat_tracker: '行为分析',
-      stat_revenue: '营收分析报表',
+      stat_overview: '总报表',
+      stat_category: '分类报表',
+      stat_season: '季节分析',
       // 商城配置
       mall: '商城配置',
       mall_region: '行政区域',
       mall_brand: '品牌制造商',
       mall_category: '商品分类',
       mall_issue: '通用问题',
-      mall_keyword: '关键词',
+      mall_keyword: '搜索关键词',
       // 平台设置（合并系统管理、会员管理、运营管理等）
       platform: '平台设置',
       platform_user: '会员管理',
-      platform_store: '门店管理',
-      platform_guide: '导购管理',
+      platform_shop: '店铺设置',
       platform_wework: '消息推送',
       platform_push_group: '推送组管理',
+      // 系统设置
+      system: '系统设置',
+      platform_rule: '平台规则',
+      platform_permission: '权限管理',
       platform_config: '商城配置',
       platform_admin: '管理员',
       platform_notice: '通知管理',
@@ -294,6 +299,8 @@ export default {
       pic_url: '分类图片',
       keywords: '关键字',
       desc: '简介',
+      season_switch: '适用季节',
+      level: '级别',
       actions: '操作'
     },
     form: {
@@ -301,10 +308,38 @@ export default {
       keywords: '关键字',
       icon_url: '分类图标',
       pic_url: '分类图片',
-      desc: '分类简介'
+      desc: '分类简介',
+      level: '级别',
+      pid: '父级分类',
+      season_switch: '适用季节'
+    },
+    value: {
+      level_L1: '一级分类',
+      level_L2: '二级分类'
     }
   },
   mall_order: {
+    business_view: {
+      all: '全部订单',
+      pending: '待处理',
+      completed: '已完结'
+    },
+    pending_tab: {
+      all: '全部待处理',
+      unpaid: '待付款',
+      to_confirm: '待确认',
+      to_ship: '待发货',
+      to_pickup: '到店自提'
+    },
+    completed_tab: {
+      all: '全部已完结',
+      user_cancel: '用户取消',
+      system_cancel: '系统取消',
+      refunded: '已退款',
+      user_received: '用户收货',
+      system_received: '系统收货',
+      verified: '已核销'
+    },
     text: {
       date_range_separator: '至',
       expand_goods_name: '商品名称：{goods_name}',
@@ -391,6 +426,7 @@ export default {
       pay: '收款',
       ship: '发货',
       refund: '退款',
+      confirm: '确认订单',
       detail_cancel: '取 消',
       detail_print: '打 印'
     }
@@ -510,7 +546,7 @@ export default {
       retail_price: '当前价格',
       is_new: '是否新品',
       is_hot: '是否热品',
-      is_on_sale: '是否在售',
+      is_on_sale: '是否上架',
       actions: '操作',
       goods_sn: '商品款号',
       gallery: '宣传画廊',
@@ -574,7 +610,7 @@ export default {
       counter_price: '市场售价',
       is_new: '是否新品',
       is_hot: '是否热卖',
-      is_on_sale: '是否在售',
+      is_on_sale: '是否上架',
       pic_url: '商品图片',
       gallery: '宣传画廊',
       unit: '商品单位',
@@ -598,8 +634,8 @@ export default {
       is_new_false: '非新品',
       is_hot_true: '热卖',
       is_hot_false: '普通',
-      is_on_sale_true: '在售',
-      is_on_sale_false: '未售',
+      is_on_sale_true: '已上架',
+      is_on_sale_false: '未上架',
       multiple_spec_true: '多规格支持',
       multiple_spec_false: '默认标准规格'
     },

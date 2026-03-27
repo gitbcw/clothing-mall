@@ -84,4 +84,10 @@ public class LitemallRoleService {
         example.or().andDeletedEqualTo(false);
         return roleMapper.selectByExample(example);
     }
+
+    public List<LitemallRole> queryByType(String type) {
+        LitemallRoleExample example = new LitemallRoleExample();
+        example.or().andTypeEqualTo(type).andDeletedEqualTo(false);
+        return roleMapper.selectByExample(example);
+    }
 }

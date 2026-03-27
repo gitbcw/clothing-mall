@@ -6,6 +6,9 @@
         <result column="push_type" jdbcType="VARCHAR" property="pushType" />
         <result column="title" jdbcType="VARCHAR" property="title" />
         <result column="content" jdbcType="VARCHAR" property="content" />
+        <result column="content_type" jdbcType="VARCHAR" property="contentType" />
+        <result column="media_id" jdbcType="VARCHAR" property="mediaId" />
+        <result column="page" jdbcType="VARCHAR" property="page" />
         <result column="target_type" jdbcType="VARCHAR" property="targetType" />
         <result column="target_group_id" jdbcType="INTEGER" property="targetGroupId" />
         <result column="target_tag_id" jdbcType="VARCHAR" property="targetTagId" />
@@ -22,7 +25,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, push_type, title, content, target_type, target_group_id, target_tag_id,
+        id, push_type, title, content, content_type, media_id, page, target_type, target_group_id, target_tag_id,
         total_count, success_count, fail_count, scheduled_at, sent_at, status, error_msg,
         add_time, update_time, deleted
     </sql>
@@ -80,6 +83,9 @@
             <if test="pushType != null">push_type,</if>
             <if test="title != null">title,</if>
             <if test="content != null">content,</if>
+            <if test="contentType != null">content_type,</if>
+            <if test="mediaId != null">media_id,</if>
+            <if test="page != null">page,</if>
             <if test="targetType != null">target_type,</if>
             <if test="targetGroupId != null">target_group_id,</if>
             <if test="targetTagId != null">target_tag_id,</if>
@@ -98,6 +104,9 @@
             <if test="pushType != null">#{pushType,jdbcType=VARCHAR},</if>
             <if test="title != null">#{title,jdbcType=VARCHAR},</if>
             <if test="content != null">#{content,jdbcType=VARCHAR},</if>
+            <if test="contentType != null">#{contentType,jdbcType=VARCHAR},</if>
+            <if test="mediaId != null">#{mediaId,jdbcType=VARCHAR},</if>
+            <if test="page != null">#{page,jdbcType=VARCHAR},</if>
             <if test="targetType != null">#{targetType,jdbcType=VARCHAR},</if>
             <if test="targetGroupId != null">#{targetGroupId,jdbcType=INTEGER},</if>
             <if test="targetTagId != null">#{targetTagId,jdbcType=VARCHAR},</if>
@@ -120,6 +129,9 @@
             <if test="pushType != null">push_type = #{pushType,jdbcType=VARCHAR},</if>
             <if test="title != null">title = #{title,jdbcType=VARCHAR},</if>
             <if test="content != null">content = #{content,jdbcType=VARCHAR},</if>
+            <if test="contentType != null">content_type = #{contentType,jdbcType=VARCHAR},</if>
+            <if test="mediaId != null">media_id = #{mediaId,jdbcType=VARCHAR},</if>
+            <if test="page != null">page = #{page,jdbcType=VARCHAR},</if>
             <if test="targetType != null">target_type = #{targetType,jdbcType=VARCHAR},</if>
             <if test="targetGroupId != null">target_group_id = #{targetGroupId,jdbcType=INTEGER},</if>
             <if test="targetTagId != null">target_tag_id = #{targetTagId,jdbcType=VARCHAR},</if>

@@ -1,6 +1,15 @@
 <template>
   <div class="app-container">
 
+    <!-- 业务视图切换 -->
+    <div style="margin-bottom: 15px;">
+      <el-radio-group v-model="businessView" @change="handleBusinessViewChange">
+        <el-radio-button label="pending">待处理</el-radio-button>
+        <el-radio-button label="completed">已完结</el-radio-button>
+      </el-radio-group>
+      <el-link v-if="businessView === 'pending'" type="info" style="margin-left: 20px;" @click="showAllOrders">查看全部订单</el-link>
+    </div>
+
     <el-tabs v-model="activeTab" type="border-card" @tab-click="handleTabClick">
       <el-tab-pane v-for="tab in tabList" :key="tab.name" :name="tab.name">
         <span slot="label">
@@ -95,13 +104,13 @@
 
             <el-table-column align="center" :label="$t('mall_order.table.ship_channel')" prop="shipChannel" />
 
-            <el-table-column align="center" :label="$t('mall_order.table.actions')" width="250" class-name="oper">
+            <el-table-column align="center" :label="$t('mall_order.table.actions')" width="280" class-name="oper">
               <template slot-scope="scope">
                 <el-button type="primary" size="mini" @click="handleDetail(scope.row)">{{ $t('app.button.detail') }}</el-button>
-                <el-button type="danger" size="mini" @click="handleDelete(scope.row)">{{ $t('app.button.delete') }}</el-button>
-                <!-- <el-button type="warning" size="mini" @click="handlePay(scope.row)">{{ $t('mall_order.button.pay') }}</el-button> -->
-                <el-button type="primary" size="mini" @click="handleShip(scope.row)">{{ $t('mall_order.button.ship') }}</el-button>
-                <el-button type="danger" size="mini" @click="handleRefund(scope.row)">{{ $t('mall_order.button.refund') }}</el-button>
+                <el-button v-if="scope.row.orderStatus === 150" type="success" size="mini" @click="handleConfirm(scope.row)">确认</el-button>
+                <el-button v-if="canDelete(scope.row)" type="danger" size="mini" @click="handleDelete(scope.row)">{{ $t('app.button.delete') }}</el-button>
+                <el-button v-if="canShip(scope.row)" type="primary" size="mini" @click="handleShip(scope.row)">{{ $t('mall_order.button.ship') }}</el-button>
+                <el-button v-if="canRefund(scope.row)" type="danger" size="mini" @click="handleRefund(scope.row)">{{ $t('mall_order.button.refund') }}</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -315,7 +324,7 @@
 </style>
 
 <script>
-import { detailOrder, listOrder, listChannel, refundOrder, payOrder, deleteOrder, shipOrder, listOrderCount } from '@/api/order'
+import { detailOrder, listOrder, listChannel, refundOrder, payOrder, deleteOrder, shipOrder, listOrderCount, confirmOrder } from '@/api/order'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import checkPermission from '@/utils/permission' // 权限判断函数
 
@@ -323,12 +332,17 @@ const statusMap = {
   101: '未付款',
   102: '用户取消',
   103: '系统取消',
+  150: '待确认',
   201: '已付款',
   202: '申请退款',
   203: '已退款',
   301: '已发货',
   401: '用户收货',
-  402: '系统收货'
+  402: '系统收货',
+  501: '待核销',
+  502: '已核销',
+  503: '核销过期',
+  504: '核销退款'
 }
 
 export default {
@@ -344,6 +358,7 @@ export default {
       list: [],
       total: 0,
       listLoading: true,
+      businessView: 'pending', // 业务视图：pending, completed, all（隐藏）
       listQuery: {
         page: 1,
         limit: 20,
@@ -352,6 +367,7 @@ export default {
         orderSn: undefined,
         timeArray: [],
         orderStatusArray: [],
+        deliveryType: undefined,
         sort: 'add_time',
         order: 'desc'
       },
@@ -416,6 +432,26 @@ export default {
   },
   computed: {
     tabList() {
+      if (this.businessView === 'pending') {
+        return [
+          { name: 'pending_all', label: '全部待处理' },
+          { name: '101', label: '待付款' },
+          { name: '150', label: '待确认' },
+          { name: '201', label: '待发货' },
+          { name: 'pickup', label: '到店自提' }
+        ]
+      } else if (this.businessView === 'completed') {
+        return [
+          { name: 'completed_all', label: '全部已完结' },
+          { name: '102', label: '用户取消' },
+          { name: '103', label: '系统取消' },
+          { name: '203', label: '已退款' },
+          { name: '401', label: '用户收货' },
+          { name: '402', label: '系统收货' },
+          { name: '502', label: '已核销' }
+        ]
+      }
+      // 全部订单
       const tabs = [{ name: 'all', label: '全部' }]
       for (const key in this.statusMap) {
         tabs.push({ name: key, label: this.statusMap[key] })
@@ -424,15 +460,17 @@ export default {
     }
   },
   created() {
-    this.getList()
+    // 设置初始 Tab 和筛选条件
+    this.activeTab = this.tabList[0].name
+    this.handleTabClick({ name: this.activeTab })
     this.getChannel()
     this.getOrderCounts()
   },
   methods: {
     checkPermission,
     getBadgeType(status) {
-      // 红色: 201(已付款), 202(申请退款) - 需要紧急处理
-      if (String(status) === '201' || String(status) === '202') {
+      // 红色: 150(待确认), 201(已付款), 202(申请退款), 501(待核销) - 需要紧急处理
+      if (['150', '201', '202', '501', 'pending_all', 'pickup'].includes(String(status))) {
         return 'danger'
       }
       // 蓝色: 301(已发货), all(全部) - 进行中或总览
@@ -443,12 +481,62 @@ export default {
       if (String(status) === '101') {
         return 'warning'
       }
-      // 绿色: 401, 402(已收货) - 成功完成
-      if (String(status) === '401' || String(status) === '402') {
+      // 绿色: 401, 402, 502(已收货/已核销) - 成功完成
+      if (['401', '402', '502', 'completed_all'].includes(String(status))) {
         return 'success'
       }
       // 灰色: 其他(取消、退款完成等)
       return 'info'
+    },
+    // 业务视图切换
+    handleBusinessViewChange() {
+      this.activeTab = this.tabList[0].name
+      this.listQuery.page = 1
+      this.listQuery.orderStatusArray = []
+      this.listQuery.deliveryType = undefined
+      this.handleTabClick({ name: this.activeTab })
+    },
+    // 显示全部订单（隐藏入口）
+    showAllOrders() {
+      this.businessView = 'all'
+      this.activeTab = 'all'
+      this.listQuery.page = 1
+      this.listQuery.orderStatusArray = []
+      this.listQuery.deliveryType = undefined
+      this.getList()
+      this.getOrderCounts()
+    },
+    // 按钮显示条件
+    canDelete(row) {
+      return [102, 103, 203, 401, 402, 502, 503, 504].includes(row.orderStatus)
+    },
+    canShip(row) {
+      return row.orderStatus === 201 && row.deliveryType !== 'pickup'
+    },
+    canRefund(row) {
+      return [150, 201, 501].includes(row.orderStatus)
+    },
+    // 确认订单
+    handleConfirm(row) {
+      this.$confirm('确认该订单？确认后将根据配送方式进入相应状态', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        confirmOrder({ orderId: row.id }).then(response => {
+          this.$notify.success({
+            title: '成功',
+            message: '订单确认成功'
+          })
+          this.getList()
+          this.getOrderCounts()
+        }).catch(response => {
+          this.$notify.error({
+            title: '失败',
+            message: response.data.errmsg
+          })
+        })
+      }).catch(() => {})
     },
     getOrderCounts() {
       listOrderCount().then(response => {
@@ -498,10 +586,27 @@ export default {
     },
     handleTabClick(tab) {
       this.listQuery.page = 1
-      if (tab.name === 'all') {
-        this.listQuery.orderStatusArray = []
+      const tabName = tab.name || this.activeTab
+
+      // 重置筛选条件
+      this.listQuery.orderStatusArray = []
+      this.listQuery.deliveryType = undefined
+
+      if (tabName === 'all') {
+        // 全部订单 - 不筛选
+      } else if (tabName === 'pending_all') {
+        // 全部待处理
+        this.listQuery.orderStatusArray = [101, 150, 201, 501]
+      } else if (tabName === 'pickup') {
+        // 到店自提（已付款 + 待核销）
+        this.listQuery.orderStatusArray = [201, 501]
+        this.listQuery.deliveryType = 'pickup'
+      } else if (tabName === 'completed_all') {
+        // 全部已完结
+        this.listQuery.orderStatusArray = [102, 103, 203, 401, 402, 502, 503, 504]
       } else {
-        this.listQuery.orderStatusArray = [tab.name]
+        // 单个状态
+        this.listQuery.orderStatusArray = [parseInt(tabName)]
       }
       this.getList()
     },

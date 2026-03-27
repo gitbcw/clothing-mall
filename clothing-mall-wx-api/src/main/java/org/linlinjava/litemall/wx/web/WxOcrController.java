@@ -76,7 +76,7 @@ public class WxOcrController {
                 map.put("quantity", item.getQuantity());
 
                 // 通过款号匹配商品
-                List<LitemallGoods> goodsList = goodsService.querySelective(null, item.getGoodsSn(), null, 1, 10, null, null);
+                List<LitemallGoods> goodsList = goodsService.querySelective(null, item.getGoodsSn(), null, null, 1, 10, null, null);
 
                 if (goodsList.isEmpty()) {
                     map.put("matched", false);

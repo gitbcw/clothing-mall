@@ -45,6 +45,7 @@ public class AdminCategoryController {
             categoryVO.setName(category.getName());
             categoryVO.setLevel(category.getLevel());
             categoryVO.setPid(category.getPid());
+            categoryVO.setSeasonSwitch(category.getSeasonSwitch());
             categoryVoList.add(categoryVO);
         }
 

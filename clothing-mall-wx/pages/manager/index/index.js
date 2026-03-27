@@ -136,5 +136,31 @@ Page({
       title: '请在 Web 端管理',
       icon: 'none'
     });
+  },
+
+  // 换季下架
+  handleUnpublishAll() {
+    wx.showModal({
+      title: '换季下架',
+      content: '确定要下架全部商品吗？下架后顾客将无法看到任何商品。',
+      confirmText: '确认下架',
+      confirmColor: '#E6A23C',
+      success: (res) => {
+        if (res.confirm) {
+          wx.showLoading({ title: '下架中...' })
+          util.request(api.ManagerGoodsUnpublishAll, {}, 'POST').then(res => {
+            if (res.errno === 0) {
+              wx.showToast({ title: '下架成功', icon: 'success' })
+            } else {
+              wx.showToast({ title: res.errmsg || '下架失败', icon: 'none' })
+            }
+          }).catch(() => {
+            wx.showToast({ title: '网络错误', icon: 'none' })
+          }).finally(() => {
+            wx.hideLoading()
+          })
+        }
+      }
+    })
   }
 })

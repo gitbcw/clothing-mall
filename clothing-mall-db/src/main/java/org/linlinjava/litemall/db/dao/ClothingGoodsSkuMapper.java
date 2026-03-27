@@ -68,4 +68,9 @@ public interface ClothingGoodsSkuMapper {
      * 批量关联商品
      */
     int bindGoodsBatch(@Param("skuIds") List<Integer> skuIds, @Param("goodsId") Integer goodsId);
+
+    /**
+     * 解除商品关联
+     */
+    int unbindByGoodsId(@Param("goodsId") Integer goodsId);
 }

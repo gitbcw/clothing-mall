@@ -1,10 +1,14 @@
 import request from '@/utils/request'
+import Qs from 'qs'
 
 export function listAftersale(query) {
   return request({
     url: '/aftersale/list',
     method: 'get',
-    params: query
+    params: query,
+    paramsSerializer: {
+      serialize: (params) => Qs.stringify(params, { arrayFormat: 'repeat' })
+    }
   })
 }
 

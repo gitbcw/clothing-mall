@@ -242,7 +242,7 @@ public class LitemallOrderService {
     }
 
     public Map<String, Object> queryVoSelective(String nickname, String consignee, String orderSn, LocalDateTime start,
-            LocalDateTime end, List<Short> orderStatusArray, Integer page, Integer limit, String sort, String order) {
+            LocalDateTime end, List<Short> orderStatusArray, String deliveryType, Integer page, Integer limit, String sort, String order) {
         List<String> querys = new ArrayList<>(4);
         if (!StringUtils.isEmpty(nickname)) {
             querys.add(" u.nickname like '%" + nickname + "%' ");
@@ -262,6 +262,10 @@ public class LitemallOrderService {
         }
         if (orderStatusArray != null && orderStatusArray.size() > 0) {
             querys.add(" o.order_status in (" + StringUtils.collectionToDelimitedString(orderStatusArray, ",") + ") ");
+        }
+        // 配送方式筛选
+        if (!StringUtils.isEmpty(deliveryType)) {
+            querys.add(" o.delivery_type = '" + deliveryType + "' ");
         }
         querys.add(" o.deleted = 0 and og.deleted = 0 ");
         String query = StringUtils.collectionToDelimitedString(querys, "and");

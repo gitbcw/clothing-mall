@@ -13,28 +13,9 @@
 
       <el-table-column align="center" :label="$t('mall_category.table.name')" prop="name" />
 
-      <el-table-column align="center" property="iconUrl" :label="$t('mall_category.table.icon_url')">
-        <template slot-scope="scope">
-          <img v-if="scope.row.iconUrl" :src="scope.row.iconUrl" width="40">
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" property="picUrl" :label="$t('mall_category.table.pic_url')">
-        <template slot-scope="scope">
-          <el-image :src="thumbnail(scope.row.picUrl)" :preview-src-list="toPreview(scope.row, scope.row.picUrl)" style="width: 80px; height: 40px" />
-        </template>
-      </el-table-column>
-
       <el-table-column align="center" :label="$t('mall_category.table.keywords')" prop="keywords" />
 
       <el-table-column align="center" min-width="100" :label="$t('mall_category.table.desc')" prop="desc" />
-
-      <el-table-column align="center" :label="$t('mall_category.table.season_switch')" prop="seasonSwitch">
-        <template slot-scope="scope">
-          <el-tag v-if="scope.row.seasonSwitch" size="small">{{ formatSeasonSwitch(scope.row.seasonSwitch) }}</el-tag>
-          <span v-else>-</span>
-        </template>
-      </el-table-column>
 
       <el-table-column align="center" :label="$t('mall_category.table.level')" prop="level">
         <template slot-scope="scope">
@@ -42,7 +23,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" :label="$t('mall_category.table.actions')" width="200" class-name="small-padding fixed-width">
+      <el-table-column align="center" :label="$t('mall_category.table.actions')" width="150" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button v-permission="['POST /admin/category/update']" type="primary" size="mini" @click="handleUpdate(scope.row)">{{ $t('app.button.edit') }}</el-button>
           <el-button v-permission="['POST /admin/category/delete']" type="danger" size="mini" @click="handleDelete(scope.row)">{{ $t('app.button.delete') }}</el-button>
@@ -99,15 +80,6 @@
         <el-form-item :label="$t('mall_category.form.desc')" prop="desc">
           <el-input v-model="dataForm.desc" />
         </el-form-item>
-        <el-form-item :label="$t('mall_category.form.season_switch')" prop="seasonSwitch">
-          <el-select v-model="dataForm.seasonSwitch" multiple placeholder="选择适用季节" style="width: 100%">
-            <el-option label="春季" value="spring" />
-            <el-option label="夏季" value="summer" />
-            <el-option label="秋季" value="autumn" />
-            <el-option label="冬季" value="winter" />
-            <el-option label="四季通用" value="all" />
-          </el-select>
-        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">{{ $t('app.button.cancel') }}</el-button>
@@ -152,14 +124,11 @@
 import { listCategory, listCatL1, createCategory, updateCategory, deleteCategory } from '@/api/category'
 import { uploadPath } from '@/api/storage'
 import { getToken } from '@/utils/auth'
-import { thumbnail, toPreview } from '@/utils/index'
 
 export default {
   name: 'Category',
   data() {
     return {
-      thumbnail,
-      toPreview,
       uploadPath,
       list: [],
       listLoading: true,
@@ -171,7 +140,6 @@ export default {
         level: 'L2',
         pid: 0,
         desc: '',
-        seasonSwitch: ['all'],
         iconUrl: '',
         picUrl: ''
       },
@@ -223,7 +191,6 @@ export default {
         level: 'L2',
         pid: 0,
         desc: '',
-        seasonSwitch: ['all'],
         iconUrl: '',
         picUrl: ''
       }
@@ -232,27 +199,6 @@ export default {
       if (value === 'L1') {
         this.dataForm.pid = 0
       }
-    },
-    formatSeasonSwitch(seasonSwitch) {
-      if (!seasonSwitch) return ''
-      const seasonMap = {
-        'spring': '春',
-        'summer': '夏',
-        'autumn': '秋',
-        'winter': '冬',
-        'all': '四季'
-      }
-      const seasons = seasonSwitch.split(',').filter(s => s)
-      return seasons.map(s => seasonMap[s] || s).join('/')
-    },
-    parseSeasonSwitch(seasonSwitch) {
-      if (Array.isArray(seasonSwitch)) {
-        return seasonSwitch
-      }
-      if (typeof seasonSwitch === 'string' && seasonSwitch) {
-        return seasonSwitch.split(',').filter(s => s)
-      }
-      return ['all']
     },
     handleCreate() {
       this.resetForm()
@@ -271,12 +217,7 @@ export default {
     createData() {
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
-          // 处理季节开关：数组转字符串
-          const data = Object.assign({}, this.dataForm)
-          if (Array.isArray(data.seasonSwitch)) {
-            data.seasonSwitch = data.seasonSwitch.join(',')
-          }
-          createCategory(data)
+          createCategory(this.dataForm)
             .then(response => {
               this.getList()
               // 更新L1目录
@@ -298,8 +239,6 @@ export default {
     },
     handleUpdate(row) {
       this.dataForm = Object.assign({}, row)
-      // 处理季节开关：字符串转数组
-      this.dataForm.seasonSwitch = this.parseSeasonSwitch(row.seasonSwitch)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {

@@ -139,7 +139,7 @@ public class AdminClothingSkuController {
             sku.setIsDefault(false);
         }
         if (sku.getStatus() == null) {
-            sku.setStatus(ClothingGoodsSku.STATUS_DRAFT);
+            sku.setStatus(ClothingGoodsSku.STATUS_ACTIVE);
         }
         if (sku.getAiRecognized() == null) {
             sku.setAiRecognized(false);
@@ -222,10 +222,10 @@ public class AdminClothingSkuController {
         return ResponseUtil.ok(sku);
     }
 
-    @RequiresPermissions("admin:clothing:sku:publish")
-    @RequiresPermissionsDesc(menu = {"服装管理", "SKU管理"}, button = "上架")
-    @PostMapping("/publish")
-    public Object publish(@RequestBody Map<String, Object> params) {
+    @RequiresPermissions("admin:clothing:sku:bind")
+    @RequiresPermissionsDesc(menu = {"服装管理", "SKU管理"}, button = "关联商品")
+    @PostMapping("/bindGoods")
+    public Object bindGoods(@RequestBody Map<String, Object> params) {
         List<Integer> ids = (List<Integer>) params.get("ids");
         Integer goodsId = (Integer) params.get("goodsId");
 
@@ -233,18 +233,38 @@ public class AdminClothingSkuController {
             return ResponseUtil.badArgument();
         }
 
-        // 如果提供了 goodsId，绑定商品并设置状态为 published
-        if (goodsId != null) {
-            LitemallGoods goods = goodsService.findById(goodsId);
-            if (goods == null) {
-                return ResponseUtil.fail(401, "商品不存在");
-            }
-            skuService.bindGoodsBatch(ids, goodsId);
-        } else {
-            // 仅更新状态
-            skuService.updateStatusBatch(ids, ClothingGoodsSku.STATUS_PUBLISHED);
+        if (goodsId == null) {
+            return ResponseUtil.fail(401, "商品ID不能为空");
         }
 
+        LitemallGoods goods = goodsService.findById(goodsId);
+        if (goods == null) {
+            return ResponseUtil.fail(401, "商品不存在");
+        }
+
+        // 批量绑定商品（SKU 状态保持不变，上架/下架由商品控制）
+        skuService.bindGoodsBatch(ids, goodsId);
+
+        return ResponseUtil.ok();
+    }
+
+    @RequiresPermissions("admin:clothing:sku:status")
+    @RequiresPermissionsDesc(menu = {"服装管理", "SKU管理"}, button = "更新状态")
+    @PostMapping("/status")
+    public Object updateStatus(@RequestBody Map<String, Object> params) {
+        List<Integer> ids = (List<Integer>) params.get("ids");
+        String status = (String) params.get("status");
+
+        if (ids == null || ids.isEmpty()) {
+            return ResponseUtil.badArgument();
+        }
+
+        if (StringUtils.isEmpty(status) ||
+            (!status.equals(ClothingGoodsSku.STATUS_ACTIVE) && !status.equals(ClothingGoodsSku.STATUS_INACTIVE))) {
+            return ResponseUtil.fail(401, "状态参数无效");
+        }
+
+        skuService.updateStatusBatch(ids, status);
         return ResponseUtil.ok();
     }
 }

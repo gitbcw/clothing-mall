@@ -55,10 +55,10 @@ public class AdminOrderService {
     private LitemallCouponUserService couponUserService;
 
     public Object list(String nickname, String consignee, String orderSn, LocalDateTime start, LocalDateTime end,
-            List<Short> orderStatusArray,
+            List<Short> orderStatusArray, String deliveryType,
             Integer page, Integer limit, String sort, String order) {
         Map<String, Object> data = (Map) orderService.queryVoSelective(nickname, consignee, orderSn, start, end,
-                orderStatusArray, page, limit, sort, order);
+                orderStatusArray, deliveryType, page, limit, sort, order);
         return ResponseUtil.ok(data);
     }
 
@@ -311,6 +311,47 @@ public class AdminOrderService {
             return WxPayNotifyResponse.fail("更新数据已失效");
         }
 
+        return ResponseUtil.ok();
+    }
+
+    /**
+     * 确认订单
+     * 将订单状态从 150（待确认）改为 201（待发货）或 501（待核销）
+     *
+     * @param body 订单信息，{ orderId：xxx }
+     * @return 订单操作结果
+     */
+    public Object confirm(String body) {
+        Integer orderId = JacksonUtil.parseInteger(body, "orderId");
+
+        if (orderId == null) {
+            return ResponseUtil.badArgument();
+        }
+
+        LitemallOrder order = orderService.findById(orderId);
+        if (order == null) {
+            return ResponseUtil.badArgument();
+        }
+
+        // 只有待确认状态才能确认
+        if (!order.getOrderStatus().equals(OrderUtil.STATUS_ADMIN_CONFIRM)) {
+            return ResponseUtil.fail(ORDER_CONFIRM_NOT_ALLOWED, "当前订单状态不支持确认");
+        }
+
+        // 根据配送方式设置不同状态
+        // pickup: 到店自提 -> 501 待核销
+        // express/null: 快递配送 -> 201 已付款/待发货
+        if ("pickup".equals(order.getDeliveryType())) {
+            order.setOrderStatus(OrderUtil.STATUS_VERIFY_PENDING);
+        } else {
+            order.setOrderStatus(OrderUtil.STATUS_PAY);
+        }
+
+        if (orderService.updateWithOptimisticLocker(order) == 0) {
+            return ResponseUtil.updatedDateExpired();
+        }
+
+        logHelper.logOrderSucceed("确认", "订单编号 " + order.getOrderSn());
         return ResponseUtil.ok();
     }
 

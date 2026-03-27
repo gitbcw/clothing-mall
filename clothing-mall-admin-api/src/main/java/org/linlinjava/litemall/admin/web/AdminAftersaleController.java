@@ -54,11 +54,12 @@ public class AdminAftersaleController {
     @RequiresPermissionsDesc(menu = {"商城管理", "售后管理"}, button = "查询")
     @GetMapping("/list")
     public Object list(Integer orderId, String aftersaleSn, Short status,
+                       @RequestParam(required = false) List<Short> statusArray,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        List<LitemallAftersale> aftersaleList = aftersaleService.querySelective(orderId, aftersaleSn, status, page, limit, sort, order);
+        List<LitemallAftersale> aftersaleList = aftersaleService.querySelective(orderId, aftersaleSn, status, statusArray, page, limit, sort, order);
         return ResponseUtil.okList(aftersaleList);
     }
 

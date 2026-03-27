@@ -1,6 +1,15 @@
 <template>
   <div class="app-container">
 
+    <!-- 业务视图切换 -->
+    <div style="margin-bottom: 15px;">
+      <el-radio-group v-model="businessView" @change="handleBusinessViewChange">
+        <el-radio-button label="pending">待处理</el-radio-button>
+        <el-radio-button label="completed">已完结</el-radio-button>
+      </el-radio-group>
+      <el-link v-if="businessView === 'pending'" type="info" style="margin-left: 20px;" @click="showAllAftersales">查看全部售后订单</el-link>
+    </div>
+
     <el-tabs v-model="tab" type="border-card" @tab-click="handleClick">
       <el-tab-pane v-for="item in tabList" :key="item.name" :name="item.name">
         <span slot="label">
@@ -131,7 +140,8 @@ export default {
       list: [],
       total: 0,
       listLoading: true,
-      tab: 'all',
+      businessView: 'pending', // 业务视图：pending, completed, all（隐藏）
+      tab: 'pending_all',
       statusCounts: {},
       listQuery: {
         page: 1,
@@ -139,6 +149,7 @@ export default {
         aftersaleSn: undefined,
         orderId: undefined,
         status: '',
+        statusArray: [],
         sort: 'add_time',
         order: 'desc'
       },
@@ -160,15 +171,37 @@ export default {
   },
   computed: {
     tabList() {
+      if (this.businessView === 'pending') {
+        return [
+          { name: 'pending_all', label: '全部待处理', code: 'pending_all' },
+          { name: '1', label: '待审核', code: '1' },
+          { name: '2', label: '待发货', code: '2' },
+          { name: '3', label: '待完成', code: '3' }
+        ]
+      } else if (this.businessView === 'completed') {
+        return [
+          { name: 'completed_all', label: '全部已完结', code: 'completed_all' },
+          { name: '4', label: '已拒绝', code: '4' },
+          { name: '5', label: '已取消', code: '5' },
+          { name: '6', label: '已完成', code: '6' }
+        ]
+      }
+      // 全部售后订单（隐藏入口）
       return [
         { name: 'all', label: this.$t('mall_aftersale.section.all'), code: 'all' },
-        { name: 'uncheck', label: this.$t('mall_aftersale.section.uncheck'), code: '1' },
-        { name: 'unship', label: '待发货', code: '2' }
+        { name: '1', label: '待审核', code: '1' },
+        { name: '2', label: '待发货', code: '2' },
+        { name: '3', label: '待完成', code: '3' },
+        { name: '4', label: '已拒绝', code: '4' },
+        { name: '5', label: '已取消', code: '5' },
+        { name: '6', label: '已完成', code: '6' }
       ]
     }
   },
   created() {
-    this.getList()
+    // 设置初始 Tab 和筛选条件
+    this.tab = this.tabList[0].name
+    this.handleClick({ name: this.tab })
     this.getAftersaleCounts()
   },
   methods: {
@@ -178,13 +211,34 @@ export default {
       })
     },
     getBadgeType(status) {
-      if (status === '1') {
+      // 红色: 需要紧急处理
+      if (['1', '2', '3', 'pending_all'].includes(String(status))) {
         return 'danger'
       }
-      if (status === '2') {
-        return 'warning'
+      // 绿色: 成功完成
+      if (['6', 'completed_all'].includes(String(status))) {
+        return 'success'
       }
-      return 'primary'
+      // 灰色: 其他
+      return 'info'
+    },
+    // 业务视图切换
+    handleBusinessViewChange() {
+      this.tab = this.tabList[0].name
+      this.listQuery.page = 1
+      this.listQuery.status = ''
+      this.listQuery.statusArray = []
+      this.handleClick({ name: this.tab })
+    },
+    // 显示全部售后订单（隐藏入口）
+    showAllAftersales() {
+      this.businessView = 'all'
+      this.tab = 'all'
+      this.listQuery.page = 1
+      this.listQuery.status = ''
+      this.listQuery.statusArray = []
+      this.getList()
+      this.getAftersaleCounts()
     },
     getList() {
       this.listLoading = true
@@ -207,13 +261,25 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val
     },
-    handleClick() {
-      if (this.tab === 'all') {
-        this.listQuery.status = ''
-      } else if (this.tab === 'uncheck') {
-        this.listQuery.status = '1'
-      } else if (this.tab === 'unship') {
-        this.listQuery.status = '2'
+    handleClick(tab) {
+      this.listQuery.page = 1
+      const tabName = tab.name || this.tab
+
+      // 重置筛选条件
+      this.listQuery.status = ''
+      this.listQuery.statusArray = []
+
+      if (tabName === 'all') {
+        // 全部售后订单 - 不筛选
+      } else if (tabName === 'pending_all') {
+        // 全部待处理
+        this.listQuery.statusArray = [1, 2, 3]
+      } else if (tabName === 'completed_all') {
+        // 全部已完结
+        this.listQuery.statusArray = [4, 5, 6]
+      } else {
+        // 单个状态
+        this.listQuery.status = tabName
       }
       this.getList()
     },

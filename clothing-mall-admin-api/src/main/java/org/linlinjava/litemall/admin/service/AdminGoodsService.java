@@ -46,9 +46,9 @@ public class AdminGoodsService {
     @Autowired
     private ClothingGoodsSkuService clothingGoodsSkuService;
 
-    public Object list(Integer goodsId, String goodsSn, String name,
+    public Object list(Integer goodsId, String goodsSn, String name, String status,
                        Integer page, Integer limit, String sort, String order) {
-        List<LitemallGoods> goodsList = goodsService.querySelective(goodsId, goodsSn, name, page, limit, sort, order);
+        List<LitemallGoods> goodsList = goodsService.querySelective(goodsId, goodsSn, name, status, page, limit, sort, order);
         return ResponseUtil.okList(goodsList);
     }
 
@@ -207,6 +207,15 @@ public class AdminGoodsService {
             }
         }
 
+        // 更新 SKU 关联（服装店扩展功能）
+        List<Integer> skuIds = goodsAllinone.getSkuIds();
+        if (skuIds != null) {
+            clothingGoodsSkuService.unbindByGoodsId(gid);
+            if (!skuIds.isEmpty()) {
+                clothingGoodsSkuService.bindGoodsBatch(skuIds, gid);
+            }
+        }
+
         // 这里需要注意的是购物车litemall_cart有些字段是拷贝商品的一些字段，因此需要及时更新
         // 目前这些字段是goods_sn, goods_name, price, pic_url
         for (LitemallGoodsProduct product : products) {
@@ -293,8 +302,7 @@ public class AdminGoodsService {
         if (skuIds != null && !skuIds.isEmpty()) {
             // 批量关联商品
             clothingGoodsSkuService.bindGoodsBatch(skuIds, goods.getId());
-            // 批量更新状态为已上架
-            clothingGoodsSkuService.updateStatusBatch(skuIds, "published");
+            // 注意：SKU 的 active/inactive 状态是独立的，不随商品上架而改变
         }
 
         return ResponseUtil.ok();
@@ -354,6 +362,26 @@ public class AdminGoodsService {
     }
 
     /**
+     * 根据款号查询商品
+     *
+     * @param goodsSn 商品款号
+     * @return 商品详情（复用 detail 方法的返回格式）
+     */
+    public Object findBySn(String goodsSn) {
+        if (StringUtils.isEmpty(goodsSn)) {
+            return ResponseUtil.badArgument();
+        }
+
+        LitemallGoods goods = goodsService.findByGoodsSn(goodsSn);
+        if (goods == null) {
+            return ResponseUtil.fail(404, "商品不存在");
+        }
+
+        // 复用 detail 方法的逻辑
+        return detail(goods.getId());
+    }
+
+    /**
      * 手动生成商品分享海报
      *
      * @param id 商品ID
@@ -380,6 +408,21 @@ public class AdminGoodsService {
         Map<String, Object> data = new HashMap<>();
         data.put("shareUrl", shareUrl);
         return ResponseUtil.ok(data);
+    }
+
+    public Object publish(List<Integer> ids) {
+        goodsService.updateStatusBatch(ids, LitemallGoods.STATUS_PUBLISHED);
+        return ResponseUtil.ok();
+    }
+
+    public Object unpublish(List<Integer> ids) {
+        goodsService.updateStatusBatch(ids, LitemallGoods.STATUS_PENDING);
+        return ResponseUtil.ok();
+    }
+
+    public Object unpublishAll() {
+        goodsService.updateAllStatus(LitemallGoods.STATUS_PENDING);
+        return ResponseUtil.ok();
     }
 
     /**

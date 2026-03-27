@@ -266,4 +266,11 @@
         </foreach>
     </update>
 
+    <!-- 解除商品关联（将 goods_id 置空，状态重置为 draft） -->
+    <update id="unbindByGoodsId">
+        UPDATE clothing_goods_sku
+        SET goods_id = NULL, status = 'draft', update_time = NOW()
+        WHERE goods_id = #{goodsId}
+    </update>
+
 </mapper>

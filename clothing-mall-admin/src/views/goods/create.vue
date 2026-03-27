@@ -1,11 +1,27 @@
 <template>
   <div class="app-container">
 
+    <!-- 商品查询卡片 -->
     <el-card class="box-card">
-      <h3>{{ $t('goods_edit.section.goods') }}</h3>
+      <h3>商品查询</h3>
+      <el-row :gutter="20" type="flex" align="middle">
+        <el-col :span="6">
+          <el-input v-model="searchGoodsSn" placeholder="输入商品款号" clearable @keyup.enter.native="handleSearch" />
+        </el-col>
+        <el-col :span="4">
+          <el-button type="primary" @click="handleSearch">查询</el-button>
+          <el-button @click="handleReset">重置</el-button>
+        </el-col>
+      </el-row>
+      <el-alert v-if="searchMsg" :title="searchMsg" :type="searchType" show-icon style="margin-top:15px" />
+    </el-card>
+
+    <!-- 商品信息卡片（查询成功后显示） -->
+    <el-card v-if="goods.id" class="box-card">
+      <h3>商品信息</h3>
       <el-form ref="goods" :rules="rules" :model="goods" label-width="150px">
-        <el-form-item :label="$t('goods_edit.form.goods_sn')" prop="goodsSn">
-          <el-input v-model="goods.goodsSn" style="width: 300px" />
+        <el-form-item label="商品款号" prop="goodsSn">
+          <el-input v-model="goods.goodsSn" style="width: 300px" disabled />
         </el-form-item>
         <el-form-item :label="$t('goods_edit.form.name')" prop="name">
           <el-input v-model="goods.name" style="width: 300px" />
@@ -26,12 +42,6 @@
           <el-radio-group v-model="goods.isHot">
             <el-radio :label="false">{{ $t('goods_edit.value.is_hot_false') }}</el-radio>
             <el-radio :label="true">{{ $t('goods_edit.value.is_hot_true') }}</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item :label="$t('goods_edit.form.is_on_sale')" prop="isOnSale">
-          <el-radio-group v-model="goods.isOnSale">
-            <el-radio :label="true">{{ $t('goods_edit.value.is_on_sale_true') }}</el-radio>
-            <el-radio :label="false">{{ $t('goods_edit.value.is_on_sale_false') }}</el-radio>
           </el-radio-group>
         </el-form-item>
 
@@ -64,16 +74,13 @@
             :on-error="uploadError"
             :http-request="httpUpload"
             :on-remove="handleRemove"
+            :file-list="galleryFileList"
             multiple
             accept=".jpg,.jpeg,.png,.gif"
             list-type="picture-card"
           >
             <i class="el-icon-plus" />
           </el-upload>
-        </el-form-item>
-
-        <el-form-item :label="$t('goods_edit.form.unit')">
-          <el-input v-model="goods.unit" :placeholder="$t('goods_edit.placeholder.unit')" />
         </el-form-item>
 
         <el-form-item :label="$t('goods_edit.form.keywords')">
@@ -85,7 +92,6 @@
             ref="newKeywordInput"
             v-model="newKeyword"
             class="input-new-keyword"
-
             @keyup.enter.native="handleInputConfirm"
             @blur="handleInputConfirm"
           />
@@ -98,9 +104,17 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item :label="$t('goods_edit.form.brand_id')">
-          <el-select v-model="goods.brandId" clearable>
-            <el-option v-for="item in brandList" :key="item.value" :label="item.label" :value="item.value" />
+        <!-- 场景标签（多选） -->
+        <el-form-item label="场景标签">
+          <el-select
+            v-model="selectedSceneIds"
+            multiple
+            collapse-tags
+            clearable
+            placeholder="请选择场景（可多选）"
+            style="width: 300px;"
+          >
+            <el-option v-for="item in sceneList" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
 
@@ -114,25 +128,15 @@
       </el-form>
     </el-card>
 
-    <el-card class="box-card">
-      <h3>SKU 信息</h3>
-      <el-row :gutter="20" type="flex" align="middle" style="padding:20px 0;">
-        <el-col :span="14">
-          <el-input v-model="skuQueryGoodsSn" placeholder="输入商品款号查询已有SKU" style="width: 250px;" />
-          <el-button type="primary" style="margin-left: 10px;" @click="loadSkuByGoodsSn">查询SKU</el-button>
-          <span class="form-tip" style="margin-left: 10px;">SKU在【服装管理-SKU管理】中维护</span>
-        </el-col>
-        <el-col :span="10" style="text-align: right;">
-          <span v-if="selectedSkuIds.length > 0" class="form-tip" style="color: #67C23A;">
-            已选择 {{ selectedSkuIds.length }} 个SKU
-          </span>
-        </el-col>
-      </el-row>
+    <!-- SKU 选择卡片（查询成功后显示） -->
+    <el-card v-if="skuList.length > 0" class="box-card">
+      <h3>SKU 选择</h3>
+      <el-checkbox v-model="selectAllSku" @change="handleSelectAll">全选</el-checkbox>
       <el-table
-        v-if="skuList.length > 0"
         ref="skuTable"
         :data="skuList"
         border
+        style="margin-top: 10px;"
         @selection-change="handleSkuSelectionChange"
       >
         <el-table-column type="selection" width="55" align="center" />
@@ -154,12 +158,13 @@
           </template>
         </el-table-column>
       </el-table>
-      <div v-else-if="skuQueryGoodsSn && !skuLoading" style="padding: 20px; text-align: center; color: #909399;">
-        该款号下暂无SKU，请到【服装管理-SKU管理】中添加
+      <div v-if="selectedSkuIds.length > 0" style="margin-top: 10px; color: #67C23A;">
+        已选择 {{ selectedSkuIds.length }} 个SKU
       </div>
     </el-card>
 
-    <el-card class="box-card">
+    <!-- 商品参数卡片 -->
+    <el-card v-if="goods.id" class="box-card">
       <h3>{{ $t('goods_edit.section.attributes') }}</h3>
       <el-button type="primary" @click="handleAttributeShow">{{ $t('app.button.create') }}</el-button>
       <el-table :data="attributes">
@@ -195,10 +200,11 @@
       </el-dialog>
     </el-card>
 
-    <div class="op-container">
+    <!-- 操作按钮 -->
+    <div v-if="goods.id" class="op-container">
       <el-button @click="handleCancel">{{ $t('app.button.cancel') }}</el-button>
-      <el-button type="info" @click="handleSaveDraft">暂存草稿</el-button>
-      <el-button type="primary" @click="handlePublish">{{ $t('goods_edit.button.publish') }}</el-button>
+      <el-button type="success" @click="handleSaveDraft">暂存草稿</el-button>
+      <el-button type="primary" @click="handlePublish">上架</el-button>
     </div>
 
   </div>
@@ -257,8 +263,9 @@
 </style>
 
 <script>
-import { publishGoods, listCatAndBrand } from '@/api/goods'
+import { findByGoodsSn, editGoods, listCatAndBrand } from '@/api/goods'
 import { listSku } from '@/api/sku'
+import { listScene } from '@/api/scene'
 import { createStorage, uploadPath } from '@/api/storage'
 import Editor from '@tinymce/tinymce-vue'
 import { MessageBox } from 'element-ui'
@@ -271,23 +278,33 @@ export default {
   data() {
     return {
       uploadPath,
+      // 查询相关
+      searchGoodsSn: '',
+      searchMsg: '',
+      searchType: 'info',
+      // 商品数据
+      goods: {},
+      picFile: null,
+      galleryFileList: [],
+      keywords: [],
       newKeywordVisible: false,
       newKeyword: '',
-      keywords: [],
+      // SKU 相关
+      skuList: [],
+      selectedSkuIds: [],
+      selectAllSku: true,
+      // 场景标签相关
+      sceneList: [],
+      selectedSceneIds: [],
+      // 分类和品牌
       categoryList: [],
       brandList: [],
-      goods: { picUrl: '', gallery: [], isHot: false, isNew: true, isOnSale: true },
-      picFile: null, // 待上传的商品图片文件
-      // SKU 查询相关
-      skuQueryGoodsSn: '',
-      skuList: [],
-      skuLoading: false,
-      selectedSkuIds: [], // 选中的 SKU ID 列表
+      // 商品属性
+      attributes: [],
       attributeVisiable: false,
       attributeForm: { attribute: '', value: '' },
-      attributes: [],
+      // 表单验证
       rules: {
-        goodsSn: [{ required: true, message: '商品款号不能为空', trigger: 'blur' }],
         name: [{ required: true, message: '商品名称不能为空', trigger: 'blur' }]
       },
       editorInit: {
@@ -325,54 +342,100 @@ export default {
         this.categoryList = response.data.data.categoryList
         this.brandList = response.data.data.brandList
       })
-    },
-    handleCancel: function() {
-      this.$store.dispatch('tagsView/delView', this.$route)
-      this.$router.push({ path: '/goods/list' })
-    },
-    handlePublish: async function() {
-      // 如果有待上传的商品图片，先上传
-      if (this.picFile) {
-        try {
-          const formData = new FormData()
-          formData.append('file', this.picFile)
-          const uploadRes = await createStorage(formData)
-          if (uploadRes.data.errno === 0) {
-            this.goods.picUrl = uploadRes.data.data.url
-          } else {
-            this.$message.error('商品图片上传失败')
-            return
-          }
-        } catch (e) {
-          this.$message.error('商品图片上传失败')
-          return
-        }
-      }
-
-      const finalGoods = {
-        goods: this.goods,
-        specifications: [],
-        products: [],
-        attributes: this.attributes,
-        skuIds: this.selectedSkuIds // 关联选中的 SKU
-      }
-      publishGoods(finalGoods).then(response => {
-        this.$notify.success({
-          title: '成功',
-          message: '创建成功'
-        })
-        this.$store.dispatch('tagsView/delView', this.$route)
-        this.$router.push({ path: '/goods/list' })
-      }).catch(error => {
-        const errMsg = error?.response?.data?.errmsg || error?.message || '未知错误'
-        MessageBox.alert('业务错误：' + errMsg, '警告', {
-          confirmButtonText: '确定',
-          type: 'error'
-        })
+      // 加载场景列表
+      listScene({ page: 1, limit: 100 }).then(response => {
+        const list = response.data.data.list || response.data.data || []
+        this.sceneList = list.map(item => ({
+          value: item.id,
+          label: item.name
+        }))
+      }).catch(() => {
+        console.warn('加载场景列表失败')
       })
     },
+
+    // 查询商品
+    handleSearch() {
+      if (!this.searchGoodsSn.trim()) {
+        this.$message.warning('请输入商品款号')
+        return
+      }
+
+      findByGoodsSn(this.searchGoodsSn.trim()).then(res => {
+        const data = res.data.data
+        this.goods = data.goods
+        this.attributes = data.attributes || []
+
+        // 处理关键字
+        this.keywords = this.goods.keywords ? this.goods.keywords.split(',') : []
+
+        // 处理图片
+        this.galleryFileList = (this.goods.gallery || []).map(url => ({ url, name: url }))
+
+        // 加载 SKU
+        this.loadSkuList()
+
+        // 显示状态
+        const statusText = { draft: '草稿', pending: '待上架', published: '已上架' }
+        this.searchMsg = `已找到：${this.goods.name} - ${statusText[this.goods.status] || '未知'}`
+        this.searchType = 'success'
+      }).catch(() => {
+        this.searchMsg = '未找到该款号的商品'
+        this.searchType = 'warning'
+        this.goods = {}
+        this.skuList = []
+        this.selectedSkuIds = []
+      })
+    },
+
+    // 加载 SKU 列表
+    loadSkuList() {
+      listSku({ goodsId: this.goods.id }).then(res => {
+        this.skuList = res.data.data || []
+        this.selectedSkuIds = this.skuList.map(s => s.id)
+        this.selectAllSku = true
+      })
+    },
+
+    // 全选/取消全选
+    handleSelectAll(val) {
+      if (val) {
+        this.selectedSkuIds = this.skuList.map(s => s.id)
+      } else {
+        this.selectedSkuIds = []
+      }
+      // 手动更新表格选中状态
+      this.$nextTick(() => {
+        if (this.$refs.skuTable) {
+          this.skuList.forEach(row => {
+            this.$refs.skuTable.toggleRowSelection(row, val)
+          })
+        }
+      })
+    },
+
+    // SKU 选择变更
+    handleSkuSelectionChange(selection) {
+      this.selectedSkuIds = selection.map(item => item.id)
+      this.selectAllSku = this.selectedSkuIds.length === this.skuList.length
+    },
+
     // 暂存草稿
-    handleSaveDraft: async function() {
+    async handleSaveDraft() {
+      await this.updateGoods('draft', '草稿保存成功')
+    },
+
+    // 上架
+    async handlePublish() {
+      if (this.selectedSkuIds.length === 0) {
+        this.$message.warning('请至少选择一个 SKU')
+        return
+      }
+      await this.updateGoods('published', '上架成功')
+    },
+
+    // 更新商品
+    async updateGoods(status, successMsg) {
       // 如果有待上传的商品图片，先上传
       if (this.picFile) {
         try {
@@ -383,35 +446,52 @@ export default {
             this.goods.picUrl = uploadRes.data.data.url
           }
         } catch (e) {
-          // 草稿模式允许图片上传失败
-          console.warn('草稿保存时图片上传失败:', e)
+          console.warn('图片上传失败:', e)
         }
       }
 
-      const draftGoods = {
-        goods: { ...this.goods, isOnSale: false }, // 草稿默认不上架
+      const data = {
+        goods: {
+          ...this.goods,
+          status: status
+        },
         specifications: [],
         products: [],
         attributes: this.attributes,
         skuIds: this.selectedSkuIds,
-        isDraft: true // 标记为草稿
+        sceneIds: this.selectedSceneIds
       }
 
-      publishGoods(draftGoods).then(response => {
-        this.$notify.success({
-          title: '成功',
-          message: '草稿保存成功'
-        })
+      editGoods(data).then(() => {
+        this.$notify.success({ title: '成功', message: successMsg })
         this.$store.dispatch('tagsView/delView', this.$route)
-        this.$router.push({ path: '/goods/list' })
+        this.$router.push('/goods/list')
       }).catch(error => {
         const errMsg = error?.response?.data?.errmsg || error?.message || '未知错误'
-        MessageBox.alert('保存草稿失败：' + errMsg, '警告', {
+        MessageBox.alert('操作失败：' + errMsg, '警告', {
           confirmButtonText: '确定',
           type: 'error'
         })
       })
     },
+
+    // 重置
+    handleReset() {
+      this.searchGoodsSn = ''
+      this.searchMsg = ''
+      this.goods = {}
+      this.skuList = []
+      this.selectedSkuIds = []
+      this.galleryFileList = []
+      this.keywords = []
+      this.attributes = []
+    },
+
+    handleCancel: function() {
+      this.$store.dispatch('tagsView/delView', this.$route)
+      this.$router.push({ path: '/goods/list' })
+    },
+
     handleClose(tag) {
       this.keywords.splice(this.keywords.indexOf(tag), 1)
       this.goods.keywords = this.keywords.toString()
@@ -432,15 +512,12 @@ export default {
       this.newKeyword = ''
     },
     handlePicChange: function(file) {
-      // 选择文件时生成本地预览 URL，暂不上传
       if (file.raw) {
         this.picFile = file.raw
         this.goods.picUrl = URL.createObjectURL(file.raw)
       }
     },
     uploadPicUrl: function(response) {
-      // 由于使用 auto-upload=false，此方法不会自动调用
-      // 保留用于手动上传时的回调
       if (response && response.errno === 0 && response.data && response.data.url) {
         this.goods.picUrl = response.data.url
       } else {
@@ -461,7 +538,6 @@ export default {
       })
     },
     httpUpload: function() {
-      // 由于使用 auto-upload=false，此方法不会被调用
       // 保留空实现以避免 Vue 警告
     },
     handleGalleryUrl(response, file, fileList) {
@@ -474,10 +550,6 @@ export default {
     },
     handleRemove: function(file, fileList) {
       for (var i = 0; i < this.goods.gallery.length; i++) {
-        // 这里存在两种情况
-        // 1. 如果所删除图片是刚刚上传的图片，那么图片地址是file.response.data.url
-        //    此时的file.url虽然存在，但是是本机地址，而不是远程地址。
-        // 2. 如果所删除图片是后台返回的已有图片，那么图片地址是file.url
         var url
         if (file.response === undefined) {
           url = file.url
@@ -490,31 +562,8 @@ export default {
         }
       }
     },
-    // 根据款号加载SKU列表
-    loadSkuByGoodsSn() {
-      if (!this.skuQueryGoodsSn || !this.skuQueryGoodsSn.trim()) {
-        this.$message.warning('请输入商品款号')
-        return
-      }
-      this.skuLoading = true
-      listSku({ goodsSn: this.skuQueryGoodsSn.trim() }).then(response => {
-        this.skuList = response.data.data || []
-        if (this.skuList.length === 0) {
-          this.$message.info('该款号下暂无SKU')
-        }
-      }).catch(() => {
-        this.$message.error('查询失败')
-        this.skuList = []
-      }).finally(() => {
-        this.skuLoading = false
-      })
-    },
-    // SKU 选择变更
-    handleSkuSelectionChange(selection) {
-      this.selectedSkuIds = selection.map(item => item.id)
-    },
     handleAttributeShow() {
-      this.attributeForm = {}
+      this.attributeForm = { attribute: '', value: '' }
       this.attributeVisiable = true
     },
     handleAttributeAdd() {

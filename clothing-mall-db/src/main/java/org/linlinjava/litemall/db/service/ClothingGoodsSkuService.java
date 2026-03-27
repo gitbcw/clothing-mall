@@ -136,7 +136,7 @@ public class ClothingGoodsSkuService {
     }
 
     /**
-     * 批量关联商品（上架）
+     * 批量关联商品
      *
      * @param skuIds  SKU ID列表
      * @param goodsId 商品ID
@@ -150,16 +150,23 @@ public class ClothingGoodsSkuService {
     }
 
     /**
-     * 查询待上架的 SKU（未关联商品的）
+     * 解除商品关联
      */
-    public List<ClothingGoodsSku> queryPendingSku(Integer page, Integer limit) {
-        return querySkuList(ClothingGoodsSku.STATUS_PENDING, null, null, null, null, null, false, page, limit);
+    public int unbindByGoodsId(Integer goodsId) {
+        return skuMapper.unbindByGoodsId(goodsId);
     }
 
     /**
-     * 查询草稿 SKU
+     * 查询可用的 SKU（用于商品关联选择）
      */
-    public List<ClothingGoodsSku> queryDraftSku(Integer page, Integer limit) {
-        return querySkuList(ClothingGoodsSku.STATUS_DRAFT, null, null, null, null, null, null, page, limit);
+    public List<ClothingGoodsSku> queryActiveSku(Integer page, Integer limit) {
+        return querySkuList(ClothingGoodsSku.STATUS_ACTIVE, null, null, null, null, null, null, page, limit);
+    }
+
+    /**
+     * 查询停用的 SKU
+     */
+    public List<ClothingGoodsSku> queryInactiveSku(Integer page, Integer limit) {
+        return querySkuList(ClothingGoodsSku.STATUS_INACTIVE, null, null, null, null, null, null, page, limit);
     }
 }

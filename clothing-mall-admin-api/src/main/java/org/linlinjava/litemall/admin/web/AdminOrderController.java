@@ -54,11 +54,12 @@ public class AdminOrderController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
             @RequestParam(required = false) List<Short> orderStatusArray,
+            @RequestParam(required = false) String deliveryType,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer limit,
             @Sort @RequestParam(defaultValue = "add_time") String sort,
             @Order @RequestParam(defaultValue = "desc") String order) {
-        return adminOrderService.list(nickname, consignee, orderSn, start, end, orderStatusArray, page, limit, sort,
+        return adminOrderService.list(nickname, consignee, orderSn, start, end, orderStatusArray, deliveryType, page, limit, sort,
                 order);
     }
 
@@ -68,7 +69,7 @@ public class AdminOrderController {
      * @return
      */
     @RequiresPermissions("admin:order:list")
-    @RequiresPermissionsDesc(menu = { "商场管理", "订单管理" }, button = "查询")
+    @RequiresPermissionsDesc(menu = { "商场管理", "订单管理" }, button = "概览")
     @GetMapping("/overview")
     public Object overview() {
         return adminOrderService.statusOverview();
@@ -194,6 +195,20 @@ public class AdminOrderController {
     @PostMapping("/pay")
     public Object pay(@RequestBody String body) {
         return adminOrderService.pay(body);
+    }
+
+    /**
+     * 确认订单
+     * 将订单状态从 150（待确认）改为 201（待发货）或 501（待核销）
+     *
+     * @param body 订单信息，{ orderId：xxx }
+     * @return 订单操作结果
+     */
+    @RequiresPermissions("admin:order:ship")
+    @RequiresPermissionsDesc(menu = { "商场管理", "订单管理" }, button = "确认订单")
+    @PostMapping("/confirm")
+    public Object confirm(@RequestBody String body) {
+        return adminOrderService.confirm(body);
     }
 
     /**

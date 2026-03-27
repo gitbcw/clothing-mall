@@ -93,6 +93,21 @@ button::after {
   letter-spacing: 3rpx;
 }
 
+.phone-login-btn {
+  width: 90%;
+  margin: 0 auto 40rpx;
+  height: 96rpx;
+  line-height: 96rpx;
+  font-size: 30rpx;
+  color: #fff;
+  border-radius: 50rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  letter-spacing: 3rpx;
+  background: #07c160;
+}
+
 .account-login-btn {
   width: 90%;
   margin: 0 auto;

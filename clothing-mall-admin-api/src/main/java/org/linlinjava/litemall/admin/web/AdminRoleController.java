@@ -59,8 +59,13 @@ public class AdminRoleController {
     }
 
     @GetMapping("/options")
-    public Object options() {
-        List<LitemallRole> roleList = roleService.queryAll();
+    public Object options(@RequestParam(defaultValue = "admin") String type) {
+        List<LitemallRole> roleList;
+        if ("user".equals(type)) {
+            roleList = roleService.queryByType("user");
+        } else {
+            roleList = roleService.queryAll();
+        }
 
         List<Map<String, Object>> options = new ArrayList<>(roleList.size());
         for (LitemallRole role : roleList) {

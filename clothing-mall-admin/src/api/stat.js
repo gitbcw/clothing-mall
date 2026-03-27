@@ -76,3 +76,50 @@ export function statActiveUsers() {
     method: 'get'
   })
 }
+
+// ==================== 营收分析 API ====================
+
+// 营收总览
+export function statRevenueOverview(query) {
+  return request({
+    url: '/stat/revenue/overview',
+    method: 'get',
+    params: query
+  })
+}
+
+// 场景销售
+export function statRevenueScene(query) {
+  return request({
+    url: '/stat/revenue/scene',
+    method: 'get',
+    params: query
+  })
+}
+
+// 分类销售
+export function statRevenueCategory(query) {
+  return request({
+    url: '/stat/revenue/category',
+    method: 'get',
+    params: query
+  })
+}
+
+// 季节概览
+export function statRevenueSeasonOverview(query) {
+  return request({
+    url: '/stat/revenue/season/overview',
+    method: 'get',
+    params: query
+  })
+}
+
+// 季节热销商品
+export function statRevenueSeasonHotGoods(query) {
+  return request({
+    url: '/stat/revenue/season/hot-goods',
+    method: 'get',
+    params: query
+  })
+}

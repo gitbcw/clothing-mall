@@ -73,3 +73,11 @@ export function listChannel(id) {
     method: 'get'
   })
 }
+
+export function confirmOrder(data) {
+  return request({
+    url: '/order/confirm',
+    method: 'post',
+    data
+  })
+}

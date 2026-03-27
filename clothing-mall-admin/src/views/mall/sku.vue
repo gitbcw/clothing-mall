@@ -4,9 +4,8 @@
     <div class="filter-container">
       <el-select v-model="listQuery.status" clearable class="filter-item" style="width: 120px;" placeholder="状态">
         <el-option label="全部" value="" />
-        <el-option label="草稿" value="draft" />
-        <el-option label="待上架" value="pending" />
-        <el-option label="已上架" value="published" />
+        <el-option label="可用" value="active" />
+        <el-option label="停用" value="inactive" />
       </el-select>
       <el-cascader
         v-model="listQuery.categoryId"
@@ -34,9 +33,8 @@
     <!-- 状态标签页 -->
     <el-tabs v-model="activeTab" @tab-click="handleTabClick">
       <el-tab-pane label="全部" name="all" />
-      <el-tab-pane label="草稿" name="draft" />
-      <el-tab-pane label="待上架" name="pending" />
-      <el-tab-pane label="已上架" name="published" />
+      <el-tab-pane label="可用" name="active" />
+      <el-tab-pane label="停用" name="inactive" />
     </el-tabs>
 
     <!-- 查询结果 -->
@@ -84,17 +82,27 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="关联商品" width="80">
+      <el-table-column align="center" label="关联商品" width="100">
         <template slot-scope="scope">
           <span v-if="scope.row.goodsId">{{ scope.row.goodsName || scope.row.goodsId }}</span>
           <span v-else style="color: #909399;">-</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" width="220" class-name="small-padding fixed-width">
+      <el-table-column align="center" label="操作" width="240" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
-          <el-button v-if="scope.row.status !== 'published'" type="success" size="mini" @click="handlePublish(scope.row)">上架</el-button>
-          <el-button type="warning" size="mini" @click="handleStock(scope.row)">库存</el-button>
+          <el-button
+            v-if="scope.row.status === 'active'"
+            type="warning"
+            size="mini"
+            @click="handleToggleStatus(scope.row, 'inactive')"
+          >停用</el-button>
+          <el-button
+            v-else
+            type="success"
+            size="mini"
+            @click="handleToggleStatus(scope.row, 'active')"
+          >启用</el-button>
           <el-button type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
@@ -114,9 +122,8 @@
           <el-col :span="12">
             <el-form-item label="状态" prop="status">
               <el-select v-model="dataForm.status" style="width: 100%;">
-                <el-option label="草稿" value="draft" />
-                <el-option label="待上架" value="pending" />
-                <el-option label="已上架" value="published" />
+                <el-option label="可用" value="active" />
+                <el-option label="停用" value="inactive" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -221,32 +228,12 @@
         </el-form-item>
         <el-form-item label="是否默认" prop="isDefault">
           <el-switch v-model="dataForm.isDefault" />
+          <span class="form-tip">默认 SKU 会作为商品主图</span>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="info" @click="confirmData('draft')">保存草稿</el-button>
-        <el-button type="primary" @click="confirmData('pending')">保存并待上架</el-button>
-      </div>
-    </el-dialog>
-
-    <!-- 库存调整对话框 -->
-    <el-dialog :visible.sync="stockDialogVisible" title="库存调整" width="400">
-      <el-form ref="stockForm" :model="stockForm" label-position="left" label-width="80px">
-        <el-form-item label="当前库存">
-          <span>{{ stockForm.currentStock }}</span>
-        </el-form-item>
-        <el-form-item label="调整数量">
-          <el-input-number v-model="stockForm.adjustNum" :min="-stockForm.currentStock" />
-          <div style="color: #999; font-size: 12px;">正数增加库存，负数减少库存</div>
-        </el-form-item>
-        <el-form-item label="调整后">
-          <span style="font-weight: bold; color: #409EFF;">{{ stockForm.currentStock + stockForm.adjustNum }}</span>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="stockDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="confirmStock">确定</el-button>
+        <el-button type="primary" @click="confirmData">保存</el-button>
       </div>
     </el-dialog>
 
@@ -277,10 +264,15 @@
   height: 120px;
   display: block;
 }
+.form-tip {
+  margin-left: 10px;
+  color: #909399;
+  font-size: 12px;
+}
 </style>
 
 <script>
-import { listSku, createSku, updateSku, deleteSku, updateStock } from '@/api/sku'
+import { listSku, createSku, updateSku, deleteSku } from '@/api/sku'
 import { listCategory } from '@/api/category'
 import { uploadPath } from '@/api/storage'
 import { getToken } from '@/utils/auth'
@@ -314,7 +306,7 @@ export default {
       dataForm: {
         id: undefined,
         goodsId: undefined,
-        status: 'draft',
+        status: 'active',
         categoryId: undefined,
         brand: '',
         name: '',
@@ -336,12 +328,6 @@ export default {
         color: [{ required: true, message: '颜色不能为空', trigger: 'blur' }],
         size: [{ required: true, message: '尺码不能为空', trigger: 'change' }],
         price: [{ required: true, message: '价格不能为空', trigger: 'blur' }]
-      },
-      stockDialogVisible: false,
-      stockForm: {
-        id: undefined,
-        currentStock: 0,
-        adjustNum: 0
       }
     }
   },
@@ -403,18 +389,18 @@ export default {
       this.getList()
     },
     statusText(status) {
-      const map = { draft: '草稿', pending: '待上架', published: '已上架' }
+      const map = { active: '可用', inactive: '停用' }
       return map[status] || status
     },
     statusTagType(status) {
-      const map = { draft: 'info', pending: 'warning', published: 'success' }
+      const map = { active: 'success', inactive: 'info' }
       return map[status] || 'info'
     },
     resetForm() {
       this.dataForm = {
         id: undefined,
         goodsId: undefined,
-        status: 'draft',
+        status: 'active',
         categoryId: undefined,
         brand: '',
         name: '',
@@ -451,12 +437,9 @@ export default {
         this.$refs['dataForm'].clearValidate()
       })
     },
-    confirmData(saveStatus) {
+    confirmData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          if (saveStatus) {
-            this.dataForm.status = saveStatus
-          }
           if (this.dialogStatus === 'create') {
             createSku(this.dataForm).then(response => {
               this.dialogVisible = false
@@ -489,16 +472,17 @@ export default {
         }
       })
     },
-    handlePublish(row) {
-      this.$confirm('确定要将该SKU上架吗？', '提示', {
+    handleToggleStatus(row, newStatus) {
+      const action = newStatus === 'active' ? '启用' : '停用'
+      this.$confirm(`确定要${action}该SKU吗？`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        updateSku({ id: row.id, status: 'published' }).then(response => {
+        updateSku({ id: row.id, status: newStatus }).then(response => {
           this.$notify.success({
             title: '成功',
-            message: 'SKU已上架'
+            message: `SKU已${action}`
           })
           this.getList()
         }).catch(response => {
@@ -528,39 +512,6 @@ export default {
           })
         })
       }).catch(() => {})
-    },
-    handleStock(row) {
-      this.stockForm = {
-        id: row.id,
-        currentStock: row.stock,
-        adjustNum: 0
-      }
-      this.stockDialogVisible = true
-    },
-    confirmStock() {
-      if (this.stockForm.adjustNum === 0) {
-        this.$notify.warning({
-          title: '提示',
-          message: '请输入调整数量'
-        })
-        return
-      }
-      updateStock({
-        id: this.stockForm.id,
-        adjustNum: this.stockForm.adjustNum
-      }).then(response => {
-        this.stockDialogVisible = false
-        this.$notify.success({
-          title: '成功',
-          message: '库存调整成功'
-        })
-        this.getList()
-      }).catch(response => {
-        this.$notify.error({
-          title: '失败',
-          message: response.data.errmsg
-        })
-      })
     },
     uploadSuccess(response) {
       if (response.errno === 0) {

@@ -533,6 +533,105 @@ public class WxAuthController {
         return ResponseUtil.ok();
     }
 
+    /**
+     * 手机号一键登录
+     *
+     * @param body    请求内容，{ code: xxx, encryptedData: xxx, iv: xxx }
+     * @param request 请求对象
+     * @return 登录结果
+     */
+    @PostMapping("login_by_phone")
+    public Object loginByPhone(@RequestBody String body, HttpServletRequest request) {
+        String code = JacksonUtil.parseString(body, "code");
+        String encryptedData = JacksonUtil.parseString(body, "encryptedData");
+        String iv = JacksonUtil.parseString(body, "iv");
+
+        if (StringUtils.isEmpty(code) || StringUtils.isEmpty(encryptedData) || StringUtils.isEmpty(iv)) {
+            return ResponseUtil.badArgument();
+        }
+
+        String sessionKey = null;
+        String openId = null;
+        try {
+            WxMaJscode2SessionResult result = this.wxService.getUserService().getSessionInfo(code);
+            sessionKey = result.getSessionKey();
+            openId = result.getOpenid();
+        } catch (Exception e) {
+            logger.error("获取微信session失败", e);
+        }
+
+        if (StringUtils.isEmpty(sessionKey) || StringUtils.isEmpty(openId)) {
+            return ResponseUtil.fail(AUTH_OPENID_UNACCESS, "微信登录失败");
+        }
+
+        // 解密手机号
+        WxMaPhoneNumberInfo phoneNumberInfo = null;
+        try {
+            phoneNumberInfo = this.wxService.getUserService().getPhoneNoInfo(sessionKey, encryptedData, iv);
+        } catch (Exception e) {
+            logger.error("解密手机号失败", e);
+        }
+
+        if (phoneNumberInfo == null || StringUtils.isEmpty(phoneNumberInfo.getPhoneNumber())) {
+            return ResponseUtil.fail(AUTH_INVALID_MOBILE, "手机号获取失败");
+        }
+
+        String mobile = phoneNumberInfo.getPhoneNumber();
+
+        // 查找或创建用户
+        LitemallUser user = null;
+        List<LitemallUser> userList = userService.queryByMobile(mobile);
+
+        if (userList.size() > 1) {
+            return ResponseUtil.serious();
+        } else if (userList.size() == 1) {
+            // 用户已存在，更新登录信息
+            user = userList.get(0);
+            user.setLastLoginTime(LocalDateTime.now());
+            user.setLastLoginIp(IpUtil.getIpAddr(request));
+            user.setSessionKey(sessionKey);
+            // 如果用户没有绑定 openId，则绑定
+            if (StringUtils.isEmpty(user.getWeixinOpenid())) {
+                user.setWeixinOpenid(openId);
+            }
+            if (userService.updateById(user) == 0) {
+                return ResponseUtil.updatedDataFailed();
+            }
+        } else {
+            // 用户不存在，创建新用户
+            user = new LitemallUser();
+            user.setUsername(mobile);
+            user.setPassword(new BCryptPasswordEncoder().encode(mobile));
+            user.setMobile(mobile);
+            user.setWeixinOpenid(openId);
+            user.setAvatar("https://yanxuan.nosdn.127.net/80841d741d7fa3073e0ae27bf487339f.jpg?imageView&quality=90&thumbnail=64x64");
+            user.setNickname("用户" + mobile.substring(mobile.length() - 4));
+            user.setGender((byte) 0);
+            user.setUserLevel((byte) 0);
+            user.setStatus((byte) 0);
+            user.setLastLoginTime(LocalDateTime.now());
+            user.setLastLoginIp(IpUtil.getIpAddr(request));
+            user.setSessionKey(sessionKey);
+            userService.add(user);
+
+            // 给新用户发送注册优惠券
+            couponAssignService.assignForRegister(user.getId());
+        }
+
+        // userInfo
+        UserInfo userInfo = new UserInfo();
+        userInfo.setNickName(user.getNickname());
+        userInfo.setAvatarUrl(user.getAvatar());
+
+        // token
+        String token = UserTokenManager.generateToken(user.getId());
+
+        Map<Object, Object> result = new HashMap<Object, Object>();
+        result.put("token", token);
+        result.put("userInfo", userInfo);
+        return ResponseUtil.ok(result);
+    }
+
     @PostMapping("logout")
     public Object logout(@LoginUser Integer userId) {
         if (userId == null) {

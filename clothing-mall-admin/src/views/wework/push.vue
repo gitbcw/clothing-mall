@@ -2,75 +2,99 @@
   <div class="app-container">
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span>小程序卡片推送</span>
+        <span>消息推送</span>
       </div>
 
       <el-form ref="pushForm" :model="pushForm" :rules="rules" label-width="120px">
-        <!-- 选择标签 -->
-        <el-form-item label="发送给" prop="tagId">
-          <el-select v-model="pushForm.tagId" placeholder="请选择客户标签" class="input-width" :loading="tagsLoading" filterable>
-            <el-option-group
-              v-for="group in tagGroups"
-              :key="group.name"
-              :label="group.name"
-            >
-              <el-option
-                v-for="tag in group.tags"
-                :key="tag.id"
-                :label="tag.name"
-                :value="tag.id"
-              />
-            </el-option-group>
-          </el-select>
-          <el-button type="text" :loading="tagsLoading" style="margin-left: 10px;" @click="loadTags">
-            <i class="el-icon-refresh" /> 刷新
+        <!-- 推送目标 -->
+        <el-form-item label="推送目标" prop="targetGroupIds">
+          <el-checkbox-group v-model="pushForm.targetGroupIds" @change="onGroupChange">
+            <el-checkbox v-for="group in pushGroups" :key="group.id" :label="group.id">
+              {{ group.name }}
+              <el-tag size="mini" :type="getGroupTagType(group.type)" style="margin-left: 4px;">{{ group.memberCount }}人</el-tag>
+            </el-checkbox>
+          </el-checkbox-group>
+          <el-collapse-transition>
+            <div v-if="showAdvanced" style="margin-top: 10px;">
+              <el-select v-model="pushForm.targetTagId" placeholder="企微标签（可选）" clearable filterable class="input-width" :loading="tagsLoading">
+                <el-option-group v-for="group in tagGroups" :key="group.name" :label="group.name">
+                  <el-option v-for="tag in group.tags" :key="tag.id" :label="tag.name" :value="tag.id" />
+                </el-option-group>
+              </el-select>
+            </div>
+          </el-collapse-transition>
+          <el-button type="text" style="margin-top: 8px;" @click="showAdvanced = !showAdvanced">
+            {{ showAdvanced ? '收起高级选项' : '高级选项 > 企微标签' }}
           </el-button>
-          <div v-if="tagsError" class="error-tip">{{ tagsError }}</div>
         </el-form-item>
 
-        <!-- 卡片标题 -->
-        <el-form-item label="卡片标题" prop="title">
-          <el-input v-model="pushForm.title" placeholder="如：新品上市、限时特卖" class="input-width" maxlength="20" show-word-limit />
+        <!-- 推送内容 -->
+        <el-form-item label="推送内容" prop="contentType">
+          <el-radio-group v-model="pushForm.contentType" @change="onContentTypeChange">
+            <el-radio-button label="card">小程序卡片</el-radio-button>
+            <el-radio-button label="text">纯文本简文</el-radio-button>
+          </el-radio-group>
         </el-form-item>
 
-        <!-- 封面图片 -->
-        <el-form-item label="封面图片" prop="mediaId">
-          <el-upload
-            class="cover-uploader"
-            :action="uploadUrl"
-            :headers="uploadHeaders"
-            :show-file-list="false"
-            :on-success="handleUploadSuccess"
-            :on-error="handleUploadError"
-            :before-upload="beforeUpload"
-            accept="image/*"
-          >
-            <img v-if="pushForm.coverUrl" :src="pushForm.coverUrl" class="cover-image">
-            <i v-else class="el-icon-plus cover-uploader-icon" />
-          </el-upload>
-          <div v-if="pushForm.mediaId" class="upload-success">
-            <i class="el-icon-success" /> 封面已上传
-          </div>
-          <div class="form-tip">建议尺寸：520×416px，支持 JPG/PNG，不超过 20MB</div>
-        </el-form-item>
+        <!-- 小程序卡片内容 -->
+        <template v-if="pushForm.contentType === 'card'">
+          <el-form-item label="卡片标题" prop="title">
+            <el-input v-model="pushForm.title" placeholder="如：新品上市、限时特卖" class="input-width" maxlength="20" show-word-limit />
+          </el-form-item>
+          <el-form-item label="封面图片" prop="mediaId">
+            <el-upload
+              class="cover-uploader"
+              :action="uploadUrl"
+              :headers="uploadHeaders"
+              :show-file-list="false"
+              :on-success="handleUploadSuccess"
+              :on-error="handleUploadError"
+              :before-upload="beforeUpload"
+              accept="image/*"
+            >
+              <img v-if="pushForm.coverUrl" :src="pushForm.coverUrl" class="cover-image">
+              <i v-else class="el-icon-plus cover-uploader-icon" />
+            </el-upload>
+            <div v-if="pushForm.mediaId" class="upload-success">
+              <i class="el-icon-success" /> 封面已上传
+            </div>
+            <div class="form-tip">建议尺寸：520x416px，支持 JPG/PNG，不超过 20MB</div>
+          </el-form-item>
+          <el-form-item label="跳转页面" prop="page">
+            <el-select v-model="pushForm.page" placeholder="选择跳转页面" class="input-width" filterable allow-create>
+              <el-option v-for="item in pageList" :key="item.path" :label="item.name" :value="item.path" />
+            </el-select>
+            <div class="form-tip">客户点击卡片后跳转的小程序页面</div>
+          </el-form-item>
+        </template>
 
-        <!-- 跳转页面 -->
-        <el-form-item label="跳转页面" prop="page">
-          <el-select v-model="pushForm.page" placeholder="选择跳转页面" class="input-width" filterable allow-create>
-            <el-option
-              v-for="item in pageList"
-              :key="item.path"
-              :label="item.name"
-              :value="item.path"
-            />
-          </el-select>
-          <div class="form-tip">客户点击卡片后跳转的小程序页面，也可手动输入路径（如：pages/goods/goods?id=123）</div>
+        <!-- 纯文本内容 -->
+        <template v-if="pushForm.contentType === 'text'">
+          <el-form-item label="文本内容" prop="content">
+            <el-input v-model="pushForm.content" type="textarea" :rows="4" placeholder="请输入推送的文本内容" class="input-width" maxlength="500" show-word-limit />
+          </el-form-item>
+        </template>
+
+        <!-- 发送设置 -->
+        <el-form-item label="定时发送">
+          <el-date-picker
+            v-model="pushForm.scheduledAt"
+            type="datetime"
+            placeholder="留空则立即发送"
+            class="input-width"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            :picker-options="pickerOptions"
+          />
+          <div class="form-tip">设置后将按计划时间自动推送</div>
         </el-form-item>
 
         <!-- 操作按钮 -->
         <el-form-item>
+          <el-button type="warning" :loading="sending" @click="handleSendToTest">
+            发送给测试组
+          </el-button>
           <el-button type="primary" :loading="sending" @click="handleSend">
-            发送给客户
+            立即发送
           </el-button>
           <el-button @click="resetForm">重置</el-button>
         </el-form-item>
@@ -87,24 +111,15 @@
           <ol>
             <li>在「配置管理 → 促销配置」中配置企业微信企业ID、Secret、发送者账号</li>
             <li>将小程序关联到企业微信（小程序需已发布上线）</li>
-            <li>在企业微信管理后台创建客户标签</li>
           </ol>
         </el-collapse-item>
         <el-collapse-item title="推送流程" name="2">
           <ol>
-            <li>选择要发送的客户标签</li>
-            <li>填写卡片标题（显示在卡片上）</li>
-            <li>上传封面图片</li>
-            <li>选择客户点击后跳转的小程序页面</li>
-            <li>点击发送</li>
+            <li>选择要发送的推送组</li>
+            <li>选择内容类型：小程序卡片 或 纯文本</li>
+            <li>填写内容信息</li>
+            <li>选择立即发送或定时发送</li>
           </ol>
-        </el-collapse-item>
-        <el-collapse-item title="自定义跳转页面" name="3">
-          <p>如需跳转到指定商品或活动页面，可在下拉框中手动输入页面路径：</p>
-          <ul>
-            <li>商品详情：<code>pages/goods/goods?id=商品ID</code></li>
-            <li>专题页：<code>pages/topicDetail/topicDetail?id=专题ID</code></li>
-          </ul>
         </el-collapse-item>
       </el-collapse>
     </el-card>
@@ -112,7 +127,7 @@
 </template>
 
 <script>
-import { getTags, getPages, sendCard } from '@/api/wework'
+import { getTags, getPages, sendMessage, getPushGroups } from '@/api/wework'
 import { getToken } from '@/utils/auth'
 
 export default {
@@ -120,24 +135,36 @@ export default {
   data() {
     return {
       pushForm: {
-        tagId: '',
+        targetType: 'group',
+        targetGroupIds: [],
+        targetTagId: '',
+        contentType: 'card',
         title: '',
+        content: '',
         mediaId: '',
         coverUrl: '',
-        page: ''
+        page: '',
+        scheduledAt: ''
       },
       rules: {
-        tagId: [{ required: true, message: '请选择客户标签', trigger: 'change' }],
+        targetGroupIds: [{ required: true, type: 'array', min: 1, message: '请选择推送组', trigger: 'change' }],
         title: [{ required: true, message: '请输入卡片标题', trigger: 'blur' }],
         mediaId: [{ required: true, message: '请上传封面图片', trigger: 'change' }],
-        page: [{ required: true, message: '请选择跳转页面', trigger: 'change' }]
+        page: [{ required: true, message: '请选择跳转页面', trigger: 'change' }],
+        content: [{ required: true, message: '请输入文本内容', trigger: 'blur' }]
       },
+      pushGroups: [],
       tagGroups: [],
       pageList: [],
       tagsLoading: false,
-      tagsError: '',
       sending: false,
-      uploadUrl: process.env.VUE_APP_BASE_API + '/admin/wework/uploadMedia'
+      showAdvanced: false,
+      uploadUrl: process.env.VUE_APP_BASE_API + '/admin/wework/uploadMedia',
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() < Date.now() - 86400000
+        }
+      }
     }
   },
   computed: {
@@ -146,17 +173,23 @@ export default {
     }
   },
   created() {
+    this.loadPushGroups()
     this.loadTags()
     this.loadPages()
   },
   methods: {
+    loadPushGroups() {
+      getPushGroups().then(res => {
+        if (res.data.errno === 0) {
+          this.pushGroups = res.data.data.list || []
+        }
+      })
+    },
     async loadTags() {
       this.tagsLoading = true
-      this.tagsError = ''
       try {
         const res = await getTags()
         if (res.data.errno === 0) {
-          // 按分组名组织标签
           const groupMap = {}
           ;(res.data.data.list || []).forEach(tag => {
             const groupName = tag.groupName || '未分组'
@@ -166,14 +199,9 @@ export default {
             groupMap[groupName].tags.push(tag)
           })
           this.tagGroups = Object.values(groupMap)
-          if (this.tagGroups.length === 0) {
-            this.tagsError = '暂无客户标签，请先在企业微信管理后台创建标签'
-          }
-        } else {
-          this.tagsError = res.data.errmsg || '获取标签失败'
         }
       } catch (e) {
-        this.tagsError = '获取标签失败，请检查企业微信配置'
+        console.error('获取标签失败', e)
       } finally {
         this.tagsLoading = false
       }
@@ -187,6 +215,24 @@ export default {
       } catch (e) {
         console.error('获取页面列表失败', e)
       }
+    },
+    getGroupTagType(type) {
+      const map = { test: 'info', active: 'success', dormant: 'warning', salvage: 'danger' }
+      return map[type] || ''
+    },
+    onGroupChange() {
+      // 组变更时无需额外处理
+    },
+    onContentTypeChange() {
+      // 切换内容类型时清空相关字段
+      this.pushForm.title = ''
+      this.pushForm.mediaId = ''
+      this.pushForm.coverUrl = ''
+      this.pushForm.page = ''
+      this.pushForm.content = ''
+      this.$nextTick(() => {
+        this.$refs.pushForm.clearValidate()
+      })
     },
     beforeUpload(file) {
       const isImage = file.type.startsWith('image/')
@@ -213,23 +259,53 @@ export default {
     handleUploadError() {
       this.$message.error('上传失败，请重试')
     },
+    getFormData() {
+      return {
+        targetType: this.pushForm.targetType,
+        targetGroupIds: this.pushForm.targetGroupIds,
+        targetTagId: this.pushForm.targetTagId,
+        contentType: this.pushForm.contentType,
+        title: this.pushForm.title,
+        content: this.pushForm.content,
+        mediaId: this.pushForm.mediaId,
+        page: this.pushForm.page,
+        scheduledAt: this.pushForm.scheduledAt
+      }
+    },
     handleSend() {
       this.$refs.pushForm.validate(async valid => {
         if (!valid) return
-        this.doSend()
+        await this.doSend(this.getFormData())
       })
     },
-    async doSend() {
+    async handleSendToTest() {
+      // 找到测试组 ID
+      const testGroup = this.pushGroups.find(g => g.type === 'test')
+      if (!testGroup) {
+        this.$message.warning('未找到测试组')
+        return
+      }
+      // 快速校验内容
+      const contentType = this.pushForm.contentType
+      if (contentType === 'card' && (!this.pushForm.title || !this.pushForm.mediaId || !this.pushForm.page)) {
+        this.$message.warning('请先填写完整的卡片内容')
+        return
+      }
+      if (contentType === 'text' && !this.pushForm.content) {
+        this.$message.warning('请先填写文本内容')
+        return
+      }
+      const data = this.getFormData()
+      data.targetGroupIds = [testGroup.id]
+      data.scheduledAt = ''
+      await this.doSend(data)
+    },
+    async doSend(data) {
       this.sending = true
       try {
-        const res = await sendCard({
-          tagId: this.pushForm.tagId,
-          title: this.pushForm.title,
-          mediaId: this.pushForm.mediaId,
-          page: this.pushForm.page
-        })
+        const res = await sendMessage(data)
         if (res.data.errno === 0) {
-          this.$notify.success({ title: '成功', message: '小程序卡片已发送' })
+          this.$notify.success({ title: '成功', message: res.data.errmsg || '消息发送成功' })
         } else {
           this.$notify.error({ title: '失败', message: res.data.errmsg || '发送失败' })
         }
@@ -240,7 +316,18 @@ export default {
       }
     },
     resetForm() {
-      this.pushForm = { tagId: '', title: '', mediaId: '', coverUrl: '', page: '' }
+      this.pushForm = {
+        targetType: 'group',
+        targetGroupIds: [],
+        targetTagId: '',
+        contentType: 'card',
+        title: '',
+        content: '',
+        mediaId: '',
+        coverUrl: '',
+        page: '',
+        scheduledAt: ''
+      }
       this.$refs.pushForm.resetFields()
     }
   }
@@ -299,11 +386,5 @@ export default {
 .help-card ul {
   padding-left: 20px;
   line-height: 1.8;
-}
-.help-card code {
-  background: #f5f5f5;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-size: 12px;
 }
 </style>

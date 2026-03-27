@@ -88,6 +88,50 @@ Page({
       url: "/pages/auth/accountLogin/accountLogin"
     });
   },
+  phoneLogin: function(e) {
+    if (e.detail.errMsg !== 'getPhoneNumber:ok') {
+      util.showErrorToast('授权失败');
+      return;
+    }
+
+    const that = this;
+    wx.login({
+      success: function(loginRes) {
+        if (loginRes.code) {
+          const data = {
+            code: loginRes.code,
+            encryptedData: e.detail.encryptedData,
+            iv: e.detail.iv
+          };
+
+          util.request(api.AuthLoginByPhone, data, 'POST').then(res => {
+            if (res.errno === 0) {
+              app.globalData.hasLogin = true;
+              // 存储 token
+              wx.setStorageSync('token', res.data.token);
+              wx.setStorageSync('userInfo', res.data.userInfo);
+
+              util.showToast('登录成功');
+
+              // 检查是否需要显示生日弹窗
+              const userInfo = res.data.userInfo;
+              if (userInfo && !userInfo.birthday) {
+                that.setData({ showBirthdayPopup: true });
+              } else {
+                wx.navigateBack({ delta: 1 });
+              }
+            } else {
+              util.showErrorToast(res.errmsg || '登录失败');
+            }
+          }).catch(err => {
+            util.showErrorToast('登录失败');
+          });
+        } else {
+          util.showErrorToast('微信登录失败');
+        }
+      }
+    });
+  },
   handleBack: function() {
     wx.navigateBack({ delta: 1 })
   },

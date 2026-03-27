@@ -48,3 +48,25 @@ export function sendCard(data) {
     data
   })
 }
+
+/**
+ * 统一消息发送
+ * @param {Object} data { targetType, targetGroupIds, targetTagId, contentType, title, content, mediaId, page, scheduledAt }
+ */
+export function sendMessage(data) {
+  return request({
+    url: '/wework/sendMessage',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 获取推送组列表
+ */
+export function getPushGroups() {
+  return request({
+    url: '/wework/pushGroups',
+    method: 'get'
+  })
+}

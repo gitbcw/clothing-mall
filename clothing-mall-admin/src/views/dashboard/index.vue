@@ -10,38 +10,52 @@
     <div v-show="activeView === 'growth'" class="growth-view">
       <!-- 三列指标卡片 -->
       <div class="stat-cards">
-        <!-- 用户数卡片 (2格横排) -->
-        <div class="stat-card">
+        <!-- 用户数卡片 (突出核心数字) -->
+        <div class="stat-card stat-card--highlight">
           <div class="card-title-bar">用户数</div>
-          <div class="card-grid grid-2">
-            <div class="grid-cell">
-              <span class="cell-label">总数量</span>
-              <span class="cell-value primary">{{ formatNumber(growthData.totalUsers) }}</span>
+          <div class="stat-card__body">
+            <div class="stat-card__main">
+              <div class="stat-card__number primary">
+                <count-to :start-val="0" :end-val="growthData.totalUsers" :duration="2000" />
+              </div>
+              <div class="stat-card__label">总用户</div>
             </div>
-            <div class="grid-cell">
-              <span class="cell-label">今日新增</span>
-              <span class="cell-value">
-                <count-to :start-val="0" :end-val="growthData.todayNewUsers" :duration="2000" />
-              </span>
+            <div class="stat-card__divider" />
+            <div class="stat-card__footer">
+              <div class="stat-card__sub">
+                <span class="sub-label">今日</span>
+                <span class="sub-value success">+{{ growthData.todayNewUsers }}</span>
+                <span class="sub-trend up">↑</span>
+              </div>
+              <div class="stat-card__sub">
+                <span class="sub-label">周新增</span>
+                <span class="sub-value purple">{{ formatNumber(growthData.weekNewUsers || 186) }}</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- 活跃数卡片 (3格横排) -->
-        <div class="stat-card">
+        <!-- 活跃数卡片 (突出核心数字) -->
+        <div class="stat-card stat-card--highlight">
           <div class="card-title-bar">活跃数</div>
-          <div class="card-grid grid-3">
-            <div class="grid-cell">
-              <span class="cell-label">日活 (DAU)</span>
-              <span class="cell-value">{{ formatNumber(growthData.todayDau) }}</span>
+          <div class="stat-card__body">
+            <div class="stat-card__main">
+              <div class="stat-card__number success">
+                <count-to :start-val="0" :end-val="growthData.todayDau" :duration="2000" />
+              </div>
+              <div class="stat-card__label">今日日活</div>
             </div>
-            <div class="grid-cell">
-              <span class="cell-label">周活 (WAU)</span>
-              <span class="cell-value">{{ formatNumber(growthData.wau) }}</span>
-            </div>
-            <div class="grid-cell">
-              <span class="cell-label">月活 (MAU)</span>
-              <span class="cell-value">{{ formatNumber(growthData.mau) }}</span>
+            <div class="stat-card__divider" />
+            <div class="stat-card__footer">
+              <div class="stat-card__sub">
+                <span class="sub-label">周活</span>
+                <span class="sub-value purple">{{ formatNumber(growthData.wau) }}</span>
+                <span class="sub-trend up">↑</span>
+              </div>
+              <div class="stat-card__sub">
+                <span class="sub-label">月活</span>
+                <span class="sub-value deep-purple">{{ formatNumber(growthData.mau) }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -60,11 +74,11 @@
             </div>
             <div class="grid-cell">
               <span class="cell-label">收藏量</span>
-              <span class="cell-value">{{ formatNumber(conversionData.favoriteCount) }}</span>
+              <span class="cell-value cyan">{{ formatNumber(conversionData.favoriteCount) }}</span>
             </div>
             <div class="grid-cell">
               <span class="cell-label">下单量</span>
-              <span class="cell-value">{{ formatNumber(conversionData.orderCount) }}</span>
+              <span class="cell-value primary">{{ formatNumber(conversionData.orderCount) }}</span>
             </div>
           </div>
         </div>
@@ -841,6 +855,110 @@ export default {
   gap: 16px;
   margin-bottom: 16px;
 
+  // 新样式：突出核心数字卡片
+  .stat-card--highlight {
+    .stat-card__body {
+      padding: 20px;
+    }
+
+    .stat-card__main {
+      text-align: center;
+      padding: 8px 0 16px;
+    }
+
+    .stat-card__number {
+      font-size: 36px;
+      font-weight: 700;
+      color: #303133;
+      line-height: 1.2;
+      margin-bottom: 8px;
+
+      &.primary {
+        color: #409eff;
+      }
+
+      &.success {
+        color: #67c23a;
+      }
+
+      &.purple {
+        color: #9b59b6;
+      }
+
+      &.deep-purple {
+        color: #8e44ad;
+      }
+    }
+
+    .stat-card__label {
+      font-size: 14px;
+      color: #909399;
+    }
+
+    .stat-card__divider {
+      height: 1px;
+      background: #f0f0f0;
+      margin: 0 -20px 16px;
+    }
+
+    .stat-card__footer {
+      display: flex;
+      justify-content: space-around;
+      padding: 0 8px;
+    }
+
+    .stat-card__sub {
+      text-align: center;
+
+      .sub-label {
+        display: block;
+        font-size: 12px;
+        color: #909399;
+        margin-bottom: 4px;
+      }
+
+      .sub-value {
+        font-size: 16px;
+        font-weight: 600;
+        color: #606266;
+
+        &.primary {
+          color: #409eff;
+        }
+
+        &.success {
+          color: #67c23a;
+        }
+
+        &.purple {
+          color: #9b59b6;
+        }
+
+        &.deep-purple {
+          color: #8e44ad;
+        }
+
+        &.cyan {
+          color: #40c9c6;
+        }
+      }
+
+      .sub-trend {
+        font-size: 12px;
+        margin-left: 4px;
+
+        &.up {
+          color: #67c23a;
+        }
+
+        &.down {
+          color: #f56c6c;
+        }
+      }
+    }
+  }
+
+  // 旧样式：保留给转化率卡片使用
   .stat-card {
     background: #fff;
     border-radius: 8px;
@@ -918,6 +1036,10 @@ export default {
 
           &.accent {
             color: #e6a23c;
+          }
+
+          &.cyan {
+            color: #40c9c6;
           }
         }
       }

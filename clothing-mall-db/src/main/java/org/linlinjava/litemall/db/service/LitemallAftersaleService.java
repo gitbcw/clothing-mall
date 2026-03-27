@@ -71,7 +71,7 @@ public class LitemallAftersaleService {
         return litemallAftersaleMapper.selectByExample(example);
     }
 
-    public List<LitemallAftersale> querySelective(Integer orderId, String aftersaleSn, Short status, Integer page,
+    public List<LitemallAftersale> querySelective(Integer orderId, String aftersaleSn, Short status, List<Short> statusArray, Integer page,
             Integer limit, String sort, String order) {
         LitemallAftersaleExample example = new LitemallAftersaleExample();
         LitemallAftersaleExample.Criteria criteria = example.or();
@@ -83,6 +83,9 @@ public class LitemallAftersaleService {
         }
         if (status != null) {
             criteria.andStatusEqualTo(status);
+        }
+        if (statusArray != null && !statusArray.isEmpty()) {
+            criteria.andStatusIn(statusArray);
         }
         criteria.andDeletedEqualTo(false);
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {

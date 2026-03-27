@@ -173,4 +173,135 @@ public class AdminStatController {
         return ResponseUtil.ok(result);
     }
 
+    // ==================== 营收分析 API ====================
+
+    @RequiresPermissions("admin:stat:order")
+    @RequiresPermissionsDesc(menu = {"统计管理", "营收分析"}, button = "总览")
+    @GetMapping("/revenue/overview")
+    public Object statRevenueOverview(
+            @RequestParam(required = false) String startMonth,
+            @RequestParam(required = false) String endMonth) {
+        // 核心指标
+        Map overview = statService.statRevenueOverview(startMonth, endMonth);
+        // 月度趋势
+        List<Map> trend = statService.statRevenueTrend(startMonth, endMonth);
+        // 月度明细
+        List<Map> detail = statService.statRevenueDetail(startMonth, endMonth);
+
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        result.put("overview", overview);
+        result.put("trend", trend);
+        result.put("detail", detail);
+        return ResponseUtil.ok(result);
+    }
+
+    @RequiresPermissions("admin:stat:order")
+    @RequiresPermissionsDesc(menu = {"统计管理", "营收分析"}, button = "场景销售")
+    @GetMapping("/revenue/scene")
+    public Object statRevenueScene(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        List<Map> sceneSales = statService.statSceneSales(startDate, endDate);
+
+        // 计算总金额用于计算占比
+        double totalAmount = 0;
+        for (Map item : sceneSales) {
+            Object amount = item.get("amount");
+            if (amount != null) {
+                totalAmount += ((Number) amount).doubleValue();
+            }
+        }
+
+        // 为每个场景添加占比
+        for (Map item : sceneSales) {
+            Object amount = item.get("amount");
+            double amt = amount != null ? ((Number) amount).doubleValue() : 0;
+            double percent = totalAmount > 0 ? (amt / totalAmount) * 100 : 0;
+            item.put("percent", Math.round(percent * 10) / 10.0);
+        }
+
+        return ResponseUtil.ok(sceneSales);
+    }
+
+    @RequiresPermissions("admin:stat:order")
+    @RequiresPermissionsDesc(menu = {"统计管理", "营收分析"}, button = "分类销售")
+    @GetMapping("/revenue/category")
+    public Object statRevenueCategory(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        List<Map> categorySales = statService.statCategorySales(startDate, endDate);
+        return ResponseUtil.ok(categorySales);
+    }
+
+    @RequiresPermissions("admin:stat:order")
+    @RequiresPermissionsDesc(menu = {"统计管理", "营收分析"}, button = "季节概览")
+    @GetMapping("/revenue/season/overview")
+    public Object statRevenueSeasonOverview(
+            @RequestParam(defaultValue = "2026") int year) {
+        List<Map> seasonData = statService.statSeasonOverview(year);
+
+        // 转换为 Map 便于前端使用
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        for (Map item : seasonData) {
+            String season = (String) item.get("season");
+            if (season != null) {
+                java.util.Map<String, Object> seasonInfo = new java.util.HashMap<>();
+                seasonInfo.put("amount", item.get("amount"));
+                seasonInfo.put("orders", item.get("orders"));
+                seasonInfo.put("growth", 0); // 同比增长需要历史数据计算
+                result.put(season, seasonInfo);
+            }
+        }
+
+        // 确保返回完整的季节数据
+        if (!result.containsKey("spring")) {
+            java.util.Map<String, Object> spring = new java.util.HashMap<>();
+            spring.put("amount", 0);
+            spring.put("orders", 0);
+            spring.put("growth", 0);
+            result.put("spring", spring);
+        }
+        if (!result.containsKey("winter")) {
+            java.util.Map<String, Object> winter = new java.util.HashMap<>();
+            winter.put("amount", 0);
+            winter.put("orders", 0);
+            winter.put("growth", 0);
+            result.put("winter", winter);
+        }
+
+        // 添加图表数据
+        result.put("chartData", seasonData);
+
+        return ResponseUtil.ok(result);
+    }
+
+    @RequiresPermissions("admin:stat:order")
+    @RequiresPermissionsDesc(menu = {"统计管理", "营收分析"}, button = "季节热销商品")
+    @GetMapping("/revenue/season/hot-goods")
+    public Object statRevenueSeasonHotGoods(
+            @RequestParam(defaultValue = "2026") int year,
+            @RequestParam(defaultValue = "spring") String season,
+            @RequestParam(defaultValue = "10") int limit) {
+        List<Map> hotGoods = statService.statSeasonHotGoods(year, season, limit);
+
+        // 计算季节总销售额用于计算占比
+        double totalAmount = 0;
+        for (Map item : hotGoods) {
+            Object amount = item.get("amount");
+            if (amount != null) {
+                totalAmount += ((Number) amount).doubleValue();
+            }
+        }
+
+        // 为每个商品添加占比
+        for (Map item : hotGoods) {
+            Object amount = item.get("amount");
+            double amt = amount != null ? ((Number) amount).doubleValue() : 0;
+            double percent = totalAmount > 0 ? (amt / totalAmount) * 100 : 0;
+            item.put("percent", Math.round(percent * 10) / 10.0);
+        }
+
+        return ResponseUtil.ok(hotGoods);
+    }
+
 }

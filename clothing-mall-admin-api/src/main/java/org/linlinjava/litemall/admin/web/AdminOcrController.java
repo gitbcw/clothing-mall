@@ -66,7 +66,7 @@ public class AdminOcrController {
                 map.put("quantity", item.getQuantity());
 
                 // 尝试匹配SKU
-                List<LitemallGoods> goodsList = goodsService.querySelective(null, item.getGoodsSn(), null, 1, 10, null, null);
+                List<LitemallGoods> goodsList = goodsService.querySelective(null, item.getGoodsSn(), null, null, 1, 10, null, null);
                 if (!goodsList.isEmpty()) {
                     LitemallGoods goods = goodsList.get(0);
                     map.put("goodsId", goods.getId());

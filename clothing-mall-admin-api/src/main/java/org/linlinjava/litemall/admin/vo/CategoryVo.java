@@ -11,6 +11,7 @@ public class CategoryVo {
     private String picUrl;
     private String level;
     private Integer pid;
+    private String seasonSwitch;
     private List<CategoryVo> children;
 
     public List<CategoryVo> getChildren() {
@@ -83,5 +84,13 @@ public class CategoryVo {
 
     public void setPid(Integer pid) {
         this.pid = pid;
+    }
+
+    public String getSeasonSwitch() {
+        return seasonSwitch;
+    }
+
+    public void setSeasonSwitch(String seasonSwitch) {
+        this.seasonSwitch = seasonSwitch;
     }
 }

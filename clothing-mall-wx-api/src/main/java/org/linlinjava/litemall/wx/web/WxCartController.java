@@ -68,7 +68,7 @@ public class WxCartController {
         // 更好的效果应该是告知用户商品失效，允许用户点击按钮来清除失效商品。
         for (LitemallCart cart : list) {
             LitemallGoods goods = goodsService.findById(cart.getGoodsId());
-            if (goods == null || !goods.getIsOnSale()) {
+            if (goods == null || !LitemallGoods.STATUS_PUBLISHED.equals(goods.getStatus())) {
                 cartService.deleteById(cart.getId());
                 logger.debug("系统自动删除失效购物车商品 goodsId=" + cart.getGoodsId() + " productId=" + cart.getProductId());
             }

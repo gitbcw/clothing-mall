@@ -425,10 +425,6 @@ export default {
 
     // 上架
     async handlePublish() {
-      if (this.selectedSkuIds.length === 0) {
-        this.$message.warning('请至少选择一个 SKU')
-        return
-      }
       await this.updateGoods('published', '上架成功')
     },
 

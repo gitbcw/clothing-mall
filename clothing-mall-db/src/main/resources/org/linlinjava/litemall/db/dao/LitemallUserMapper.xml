@@ -22,6 +22,7 @@
     <result column="guide_id" jdbcType="INTEGER" property="guideId" />
     <result column="store_id" jdbcType="INTEGER" property="storeId" />
     <result column="role" jdbcType="VARCHAR" property="role" />
+    <result column="role_ids" jdbcType="VARCHAR" property="roleIds" />
     <result column="avatar" jdbcType="VARCHAR" property="avatar" />
     <result column="weixin_openid" jdbcType="VARCHAR" property="weixinOpenid" />
     <result column="session_key" jdbcType="VARCHAR" property="sessionKey" />
@@ -103,7 +104,7 @@
     -->
     id, username, `password`, gender, birthday, last_login_time, last_login_ip, user_level,
     nickname, mobile, level_id, total_points, available_points, guide_id, store_id, role,
-    avatar, weixin_openid, session_key, `status`, add_time, update_time,
+    role_ids, avatar, weixin_openid, session_key, `status`, add_time, update_time,
     deleted
   </sql>
   <select id="selectByExample" parameterType="org.linlinjava.litemall.db.domain.LitemallUserExample" resultMap="BaseResultMap">
@@ -230,7 +231,7 @@
       user_level, nickname, mobile,
       level_id, total_points, available_points,
       guide_id, store_id, role,
-      avatar, weixin_openid, session_key,
+      role_ids, avatar, weixin_openid, session_key,
       `status`, add_time, update_time,
       deleted)
     values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{gender,jdbcType=TINYINT},
@@ -238,7 +239,7 @@
       #{userLevel,jdbcType=TINYINT}, #{nickname,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR},
       #{levelId,jdbcType=INTEGER}, #{totalPoints,jdbcType=INTEGER}, #{availablePoints,jdbcType=INTEGER},
       #{guideId,jdbcType=INTEGER}, #{storeId,jdbcType=INTEGER}, #{role,jdbcType=VARCHAR},
-      #{avatar,jdbcType=VARCHAR}, #{weixinOpenid,jdbcType=VARCHAR}, #{sessionKey,jdbcType=VARCHAR},
+      #{roleIds,jdbcType=VARCHAR}, #{avatar,jdbcType=VARCHAR}, #{weixinOpenid,jdbcType=VARCHAR}, #{sessionKey,jdbcType=VARCHAR},
       #{status,jdbcType=TINYINT}, #{addTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
       #{deleted,jdbcType=BIT})
   </insert>
@@ -296,6 +297,9 @@
       </if>
       <if test="role != null">
         role,
+      </if>
+      <if test="roleIds != null">
+        role_ids,
       </if>
       <if test="avatar != null">
         avatar,
@@ -364,6 +368,9 @@
       </if>
       <if test="role != null">
         #{role,jdbcType=VARCHAR},
+      </if>
+      <if test="roleIds != null">
+        #{roleIds,jdbcType=VARCHAR},
       </if>
       <if test="avatar != null">
         #{avatar,jdbcType=VARCHAR},
@@ -452,6 +459,9 @@
       </if>
       <if test="record.role != null">
         role = #{record.role,jdbcType=VARCHAR},
+      </if>
+      <if test="record.roleIds != null">
+        role_ids = #{record.roleIds,jdbcType=VARCHAR},
       </if>
       <if test="record.avatar != null">
         avatar = #{record.avatar,jdbcType=VARCHAR},
@@ -558,6 +568,9 @@
       <if test="role != null">
         role = #{role,jdbcType=VARCHAR},
       </if>
+      <if test="roleIds != null">
+        role_ids = #{roleIds,jdbcType=VARCHAR},
+      </if>
       <if test="avatar != null">
         avatar = #{avatar,jdbcType=VARCHAR},
       </if>
@@ -603,6 +616,7 @@
       guide_id = #{guideId,jdbcType=INTEGER},
       store_id = #{storeId,jdbcType=INTEGER},
       role = #{role,jdbcType=VARCHAR},
+      role_ids = #{roleIds,jdbcType=VARCHAR},
       avatar = #{avatar,jdbcType=VARCHAR},
       weixin_openid = #{weixinOpenid,jdbcType=VARCHAR},
       session_key = #{sessionKey,jdbcType=VARCHAR},

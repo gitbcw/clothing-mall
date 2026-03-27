@@ -178,4 +178,174 @@
             AND DATE(send_time) &lt;= #{endDate}
         </if>
     </select>
+
+    <!-- ==================== 营收分析统计 ==================== -->
+
+    <!-- 营收总览：核心指标 -->
+    <select id="statRevenueOverview" resultType="map">
+        SELECT
+            COALESCE(SUM(actual_price), 0) as totalRevenue,
+            COUNT(id) as totalOrders,
+            ROUND(COALESCE(AVG(actual_price), 0), 0) as avgOrderPrice,
+            COUNT(DISTINCT user_id) as totalCustomers
+        FROM litemall_order
+        WHERE deleted = 0
+        AND order_status IN (401, 402)
+        <if test="startMonth != null and startMonth != ''">
+            AND DATE_FORMAT(pay_time, '%Y-%m') &gt;= #{startMonth}
+        </if>
+        <if test="endMonth != null and endMonth != ''">
+            AND DATE_FORMAT(pay_time, '%Y-%m') &lt;= #{endMonth}
+        </if>
+    </select>
+
+    <!-- 营收总览：月度趋势 -->
+    <select id="statRevenueTrend" resultType="map">
+        SELECT
+            DATE_FORMAT(pay_time, '%Y-%m') as month,
+            COALESCE(SUM(actual_price), 0) as revenue,
+            COUNT(id) as orders
+        FROM litemall_order
+        WHERE deleted = 0
+        AND order_status IN (401, 402)
+        <if test="startMonth != null and startMonth != ''">
+            AND DATE_FORMAT(pay_time, '%Y-%m') &gt;= #{startMonth}
+        </if>
+        <if test="endMonth != null and endMonth != ''">
+            AND DATE_FORMAT(pay_time, '%Y-%m') &lt;= #{endMonth}
+        </if>
+        GROUP BY DATE_FORMAT(pay_time, '%Y-%m')
+        ORDER BY month
+    </select>
+
+    <!-- 营收总览：月度明细（含退款） - 使用 LEFT JOIN 避免 only_full_group_by 问题 -->
+    <select id="statRevenueDetail" resultType="map">
+        SELECT
+            m.month,
+            m.orders,
+            m.revenue,
+            COALESCE(r.refund, 0) as refund
+        FROM (
+            SELECT
+                DATE_FORMAT(o.pay_time, '%Y-%m') as month,
+                COUNT(o.id) as orders,
+                SUM(o.actual_price) as revenue
+            FROM litemall_order o
+            WHERE o.deleted = 0
+            AND o.order_status IN (401, 402)
+            <if test="startMonth != null and startMonth != ''">
+                AND DATE_FORMAT(o.pay_time, '%Y-%m') &gt;= #{startMonth}
+            </if>
+            <if test="endMonth != null and endMonth != ''">
+                AND DATE_FORMAT(o.pay_time, '%Y-%m') &lt;= #{endMonth}
+            </if>
+            GROUP BY DATE_FORMAT(o.pay_time, '%Y-%m')
+        ) m
+        LEFT JOIN (
+            SELECT
+                DATE_FORMAT(a.update_time, '%Y-%m') as refund_month,
+                SUM(a.amount) as refund
+            FROM litemall_aftersale a
+            WHERE a.deleted = 0
+            AND a.status = 2
+            GROUP BY DATE_FORMAT(a.update_time, '%Y-%m')
+        ) r ON m.month = r.refund_month
+        ORDER BY m.month
+    </select>
+
+    <!-- 分类报表：场景销售 -->
+    <select id="statSceneSales" resultType="map">
+        SELECT
+            cs.id as sceneId,
+            cs.name,
+            COUNT(DISTINCT o.id) as orders,
+            COALESCE(SUM(og.number * og.price), 0) as amount
+        FROM clothing_scene cs
+        LEFT JOIN clothing_goods_scene cgs ON cs.id = cgs.scene_id
+        LEFT JOIN litemall_goods g ON cgs.goods_id = g.id AND g.deleted = 0
+        LEFT JOIN litemall_order_goods og ON g.id = og.goods_id
+        LEFT JOIN litemall_order o ON og.order_id = o.id
+            AND o.deleted = 0 AND o.order_status IN (401, 402)
+            <if test="startDate != null and startDate != ''">
+                AND DATE(o.pay_time) &gt;= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND DATE(o.pay_time) &lt;= #{endDate}
+            </if>
+        WHERE cs.deleted = 0
+        GROUP BY cs.id, cs.name
+        ORDER BY amount DESC
+    </select>
+
+    <!-- 分类报表：分类销售 -->
+    <select id="statCategorySales" resultType="map">
+        SELECT
+            c.id as categoryId,
+            c.name,
+            COUNT(DISTINCT g.id) as goodsCount,
+            COUNT(DISTINCT o.id) as orders,
+            COALESCE(SUM(og.number * og.price), 0) as amount
+        FROM litemall_category c
+        LEFT JOIN litemall_goods g ON c.id = g.category_id AND g.deleted = 0
+        LEFT JOIN litemall_order_goods og ON g.id = og.goods_id
+        LEFT JOIN litemall_order o ON og.order_id = o.id
+            AND o.deleted = 0 AND o.order_status IN (401, 402)
+            <if test="startDate != null and startDate != ''">
+                AND DATE(o.pay_time) &gt;= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND DATE(o.pay_time) &lt;= #{endDate}
+            </if>
+        WHERE c.deleted = 0
+        AND c.level = 'L2'
+        GROUP BY c.id, c.name
+        HAVING amount > 0
+        ORDER BY amount DESC
+        LIMIT 10
+    </select>
+
+    <!-- 季节分析：季节概览 -->
+    <select id="statSeasonOverview" resultType="map">
+        SELECT
+            CASE
+                WHEN MONTH(pay_time) IN (3, 4, 5) THEN 'spring'
+                WHEN MONTH(pay_time) IN (12, 1, 2) THEN 'winter'
+            END as season,
+            COUNT(id) as orders,
+            COALESCE(SUM(actual_price), 0) as amount
+        FROM litemall_order
+        WHERE deleted = 0
+        AND order_status IN (401, 402)
+        AND YEAR(pay_time) = #{year}
+        AND MONTH(pay_time) IN (1, 2, 3, 4, 5, 12)
+        GROUP BY
+            CASE
+                WHEN MONTH(pay_time) IN (3, 4, 5) THEN 'spring'
+                WHEN MONTH(pay_time) IN (12, 1, 2) THEN 'winter'
+            END
+    </select>
+
+    <!-- 季节分析：季节热销商品 -->
+    <select id="statSeasonHotGoods" resultType="map">
+        SELECT
+            g.id as goodsId,
+            g.name,
+            c.name as category,
+            SUM(og.number) as sales,
+            SUM(og.number * og.price) as amount
+        FROM litemall_goods g
+        JOIN litemall_order_goods og ON g.id = og.goods_id
+        JOIN litemall_order o ON og.order_id = o.id
+            AND o.deleted = 0 AND o.order_status IN (401, 402)
+        JOIN litemall_category c ON g.category_id = c.id
+        WHERE g.deleted = 0
+        AND YEAR(o.pay_time) = #{year}
+        AND (
+            (#{season} = 'spring' AND MONTH(o.pay_time) IN (3, 4, 5))
+            OR (#{season} = 'winter' AND MONTH(o.pay_time) IN (12, 1, 2))
+        )
+        GROUP BY g.id, g.name, c.name
+        ORDER BY amount DESC
+        LIMIT #{limit}
+    </select>
 </mapper>

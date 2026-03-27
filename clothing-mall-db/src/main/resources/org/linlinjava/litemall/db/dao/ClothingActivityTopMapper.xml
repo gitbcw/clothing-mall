@@ -2,6 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.linlinjava.litemall.db.dao.ClothingActivityTopMapper">
 
+    <resultMap id="BaseResultMap" type="org.linlinjava.litemall.db.domain.ClothingActivityTop">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="goods_id" jdbcType="INTEGER" property="goodsId" />
+        <result column="sort_order" jdbcType="INTEGER" property="sortOrder" />
+        <result column="add_time" jdbcType="TIMESTAMP" property="addTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+
     <insert id="insert" parameterType="org.linlinjava.litemall.db.domain.ClothingActivityTop" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO clothing_activity_top (goods_id, sort_order, add_time, update_time)
         VALUES (#{goodsId}, #{sortOrder}, NOW(), NOW())
@@ -19,11 +27,11 @@
         UPDATE clothing_activity_top SET sort_order = #{sortOrder}, update_time = NOW() WHERE id = #{id}
     </update>
 
-    <select id="selectByGoodsId" resultType="org.linlinjava.litemall.db.domain.ClothingActivityTop">
+    <select id="selectByGoodsId" resultMap="BaseResultMap">
         SELECT id, goods_id, sort_order, add_time, update_time FROM clothing_activity_top WHERE goods_id = #{goodsId}
     </select>
 
-    <select id="selectAll" resultType="org.linlinjava.litemall.db.domain.ClothingActivityTop">
+    <select id="selectAll" resultMap="BaseResultMap">
         SELECT id, goods_id, sort_order, add_time, update_time FROM clothing_activity_top ORDER BY sort_order ASC, id ASC
     </select>
 

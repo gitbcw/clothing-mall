@@ -2,7 +2,10 @@ package org.linlinjava.litemall.core.task;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.core.system.WeWorkService;
+import org.linlinjava.litemall.db.domain.LitemallPushGroup;
 import org.linlinjava.litemall.db.domain.LitemallPushLog;
+import org.linlinjava.litemall.db.service.LitemallPushGroupService;
 import org.linlinjava.litemall.db.service.LitemallPushLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,12 +18,6 @@ import java.util.List;
  * 定时推送任务
  * 每分钟检查一次待发送的定时推送
  * 使用乐观锁确保多实例部署时不会重复执行
- *
- * TODO: 重试机制需要数据库支持 retry_count 字段
- * 建议在后续迭代中添加：
- * 1. litemall_push_log 表添加 retry_count 字段
- * 2. 失败时检查 retry_count < MAX_RETRY，改回 pending 状态并推迟 scheduled_at
- * 3. 超过最大重试次数后标记为 failed
  */
 @Component
 public class ScheduledPushTask {
@@ -31,13 +28,18 @@ public class ScheduledPushTask {
     @Autowired
     private LitemallPushLogService pushLogService;
 
+    @Autowired
+    private LitemallPushGroupService pushGroupService;
+
+    @Autowired
+    private WeWorkService weWorkService;
+
     /**
      * 每分钟执行一次，检查待发送的定时推送
      */
     @Scheduled(cron = "0 * * * * ?")
     public void checkScheduledPush() {
         try {
-            // 查询状态为 pending 且 scheduled_at <= 当前时间的推送
             List<LitemallPushLog> pendingPushList = pushLogService.findPendingScheduled();
 
             if (pendingPushList.isEmpty()) {
@@ -48,31 +50,15 @@ public class ScheduledPushTask {
 
             for (LitemallPushLog pushLog : pendingPushList) {
                 try {
-                    // 使用乐观锁尝试获取执行权，只有成功锁定的才执行
                     if (!pushLogService.tryLockForSending(pushLog.getId())) {
                         logger.debug("推送任务已被其他实例锁定: " + pushLog.getTitle());
                         continue;
                     }
 
-                    // TODO: 实际推送逻辑需要集成企业微信服务
-                    // 这里暂时标记为已发送
-                    int successCount = 1;
-                    int failCount = 0;
-
-                    // 更新推送结果
-                    pushLog.setStatus("sent");
-                    pushLog.setSuccessCount(successCount);
-                    pushLog.setFailCount(failCount);
-                    pushLog.setTotalCount(successCount + failCount);
-                    pushLog.setSentAt(LocalDateTime.now());
-                    pushLog.setUpdateTime(LocalDateTime.now());
-                    pushLogService.updateById(pushLog);
-
-                    logger.info("定时推送发送成功: " + pushLog.getTitle());
+                    executePush(pushLog);
 
                 } catch (Exception e) {
                     logger.error("定时推送发送失败: " + pushLog.getTitle(), e);
-                    // 更新失败状态
                     pushLog.setStatus("failed");
                     pushLog.setErrorMsg(e.getMessage());
                     pushLog.setUpdateTime(LocalDateTime.now());
@@ -82,5 +68,96 @@ public class ScheduledPushTask {
         } catch (Exception e) {
             logger.error("定时推送任务执行失败", e);
         }
+    }
+
+    /**
+     * 执行实际推送逻辑
+     */
+    private void executePush(LitemallPushLog pushLog) {
+        int successCount = 0;
+        int failCount = 0;
+        String errorMsg = null;
+
+        // 获取目标推送组信息
+        if ("group".equals(pushLog.getTargetType()) && pushLog.getTargetGroupId() != null) {
+            LitemallPushGroup group = pushGroupService.findById(pushLog.getTargetGroupId());
+            if (group != null && group.getUserIds() != null) {
+                try {
+                    boolean success;
+                    if ("card".equals(pushLog.getContentType())) {
+                        // 小程序卡片推送
+                        success = weWorkService.sendMiniProgramCardByTag(
+                                pushLog.getTargetTagId() != null ? pushLog.getTargetTagId() : "",
+                                pushLog.getTitle(),
+                                pushLog.getMediaId(),
+                                null,
+                                pushLog.getPage()
+                        );
+                    } else {
+                        // 纯文本推送
+                        success = weWorkService.sendPromotionByTag(
+                                pushLog.getTargetTagId() != null ? pushLog.getTargetTagId() : "",
+                                pushLog.getContent()
+                        );
+                    }
+
+                    if (success) {
+                        successCount = pushLog.getTotalCount() != null ? pushLog.getTotalCount() : 0;
+                    } else {
+                        failCount = pushLog.getTotalCount() != null ? pushLog.getTotalCount() : 0;
+                        errorMsg = "企微推送接口返回失败";
+                    }
+                } catch (Exception e) {
+                    failCount = pushLog.getTotalCount() != null ? pushLog.getTotalCount() : 0;
+                    errorMsg = e.getMessage();
+                    logger.error("推送执行异常", e);
+                }
+            } else {
+                // 推送组不存在或无用户
+                successCount = 0;
+                failCount = 0;
+            }
+        } else {
+            // 非组目标，直接按标签推送
+            try {
+                boolean success;
+                if ("card".equals(pushLog.getContentType())) {
+                    success = weWorkService.sendMiniProgramCardByTag(
+                            pushLog.getTargetTagId() != null ? pushLog.getTargetTagId() : "",
+                            pushLog.getTitle(),
+                            pushLog.getMediaId(),
+                            null,
+                            pushLog.getPage()
+                    );
+                } else {
+                    success = weWorkService.sendPromotionByTag(
+                            pushLog.getTargetTagId() != null ? pushLog.getTargetTagId() : "",
+                            pushLog.getContent()
+                    );
+                }
+
+                if (success) {
+                    successCount = pushLog.getTotalCount() != null ? pushLog.getTotalCount() : 1;
+                } else {
+                    failCount = pushLog.getTotalCount() != null ? pushLog.getTotalCount() : 1;
+                    errorMsg = "企微推送接口返回失败";
+                }
+            } catch (Exception e) {
+                failCount = pushLog.getTotalCount() != null ? pushLog.getTotalCount() : 1;
+                errorMsg = e.getMessage();
+                logger.error("推送执行异常", e);
+            }
+        }
+
+        // 更新推送结果
+        pushLog.setStatus(failCount > 0 && successCount == 0 ? "failed" : "sent");
+        pushLog.setSuccessCount(successCount);
+        pushLog.setFailCount(failCount);
+        pushLog.setErrorMsg(errorMsg);
+        pushLog.setSentAt(LocalDateTime.now());
+        pushLog.setUpdateTime(LocalDateTime.now());
+        pushLogService.updateById(pushLog);
+
+        logger.info("定时推送执行完成: " + pushLog.getTitle() + ", 成功=" + successCount + ", 失败=" + failCount);
     }
 }

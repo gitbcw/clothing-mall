@@ -68,4 +68,41 @@ public interface StatMapper {
      * 推送转化统计
      */
     Map statPushConversion(@Param("startDate") String startDate, @Param("endDate") String endDate);
+
+    // ==================== 营收分析统计 ====================
+
+    /**
+     * 营收总览：核心指标
+     */
+    Map statRevenueOverview(@Param("startMonth") String startMonth, @Param("endMonth") String endMonth);
+
+    /**
+     * 营收总览：月度趋势
+     */
+    List<Map> statRevenueTrend(@Param("startMonth") String startMonth, @Param("endMonth") String endMonth);
+
+    /**
+     * 营收总览：月度明细
+     */
+    List<Map> statRevenueDetail(@Param("startMonth") String startMonth, @Param("endMonth") String endMonth);
+
+    /**
+     * 分类报表：场景销售
+     */
+    List<Map> statSceneSales(@Param("startDate") String startDate, @Param("endDate") String endDate);
+
+    /**
+     * 分类报表：分类销售
+     */
+    List<Map> statCategorySales(@Param("startDate") String startDate, @Param("endDate") String endDate);
+
+    /**
+     * 季节分析：季节概览
+     */
+    List<Map> statSeasonOverview(@Param("year") int year);
+
+    /**
+     * 季节分析：季节热销商品
+     */
+    List<Map> statSeasonHotGoods(@Param("year") int year, @Param("season") String season, @Param("limit") int limit);
 }

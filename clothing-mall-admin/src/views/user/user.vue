@@ -43,6 +43,13 @@
           <el-tag>{{ statusDic[scope.row.status] }}</el-tag>
         </template>
       </el-table-column>
+
+      <el-table-column align="center" label="角色" prop="roleIds">
+        <template slot-scope="scope">
+          <span>{{ getRoleNames(scope.row.roleIds) }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column align="center" :label="$t('user_user.table.actions')" width="250" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleDetail(scope.row)">{{ $t('app.button.detail') }}</el-button>
@@ -72,6 +79,11 @@
         <el-form-item :label="$t('user_user.form.status')" prop="status">
           <el-select v-model="userDetail.status" :placeholder="$t('user_user.placeholder.status')"><el-option v-for="(item, index) in statusDic" :key="index" :label="item" :value="index" /></el-select>
         </el-form-item>
+        <el-form-item label="角色" prop="roleIdsList">
+          <el-select v-model="userDetail.roleIdsList" multiple placeholder="请选择角色" style="width: 100%;">
+            <el-option v-for="item in roleOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="userDialogVisible = false">{{ $t('app.button.cancel') }}</el-button>
@@ -83,6 +95,7 @@
 
 <script>
 import { fetchList, userDetail, updateUser } from '@/api/user'
+import { userRoleOptions } from '@/api/role'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
 export default {
@@ -106,6 +119,7 @@ export default {
       genderDic: ['未知', '男', '女'],
       levelDic: ['普通用户', 'VIP用户', '高级VIP用户'],
       statusDic: ['可用', '禁用', '注销'],
+      roleOptions: [],
       userDialogVisible: false,
       userDetail: {
       }
@@ -113,8 +127,30 @@ export default {
   },
   created() {
     this.getList()
+    this.getRoleOptions()
   },
   methods: {
+    getRoleOptions() {
+      userRoleOptions().then(response => {
+        this.roleOptions = response.data.data || []
+      })
+    },
+    parseRoleIds(roleIds) {
+      if (!roleIds) return []
+      try {
+        return JSON.parse(roleIds)
+      } catch (e) {
+        return []
+      }
+    },
+    getRoleNames(roleIds) {
+      const ids = this.parseRoleIds(roleIds)
+      if (ids.length === 0) return '-'
+      return ids.map(id => {
+        const role = this.roleOptions.find(r => r.value === id)
+        return role ? role.label : id
+      }).join(', ')
+    },
     getList() {
       this.listLoading = true
       if (this.listQuery.userId) {
@@ -160,11 +196,19 @@ export default {
       })
     },
     handleDetail(row) {
-      this.userDetail = row
+      // 深拷贝避免直接修改原数据
+      this.userDetail = { ...row }
+      // 解析 roleIds 为数组供多选使用
+      this.userDetail.roleIdsList = this.parseRoleIds(row.roleIds)
       this.userDialogVisible = true
     },
     handleUserUpdate() {
-      updateUser(this.userDetail)
+      // 序列化 roleIdsList 为 JSON 字符串
+      const data = { ...this.userDetail }
+      if (data.roleIdsList) {
+        data.roleIds = JSON.stringify(data.roleIdsList)
+      }
+      updateUser(data)
         .then((response) => {
           this.userDialogVisible = false
           this.$notify.success({

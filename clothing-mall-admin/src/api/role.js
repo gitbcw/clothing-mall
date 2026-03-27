@@ -63,3 +63,11 @@ export function roleOptions(query) {
     params: query
   })
 }
+
+export function userRoleOptions() {
+  return request({
+    url: '/role/options',
+    method: 'get',
+    params: { type: 'user' }
+  })
+}

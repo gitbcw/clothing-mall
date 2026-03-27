@@ -6,6 +6,8 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.dto.GoodsAllinone;
 import org.linlinjava.litemall.admin.service.AdminGoodsService;
+import org.linlinjava.litemall.core.util.JacksonUtil;
+import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
@@ -14,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @RestController
 @RequestMapping("/admin/goods")
@@ -39,12 +42,12 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:list")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "查询")
     @GetMapping("/list")
-    public Object list(Integer goodsId, String goodsSn, String name,
+    public Object list(Integer goodsId, String goodsSn, String name, String status,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return adminGoodsService.list(goodsId, goodsSn, name, page, limit, sort, order);
+        return adminGoodsService.list(goodsId, goodsSn, name, status, page, limit, sort, order);
     }
 
     @GetMapping("/catAndBrand")
@@ -106,6 +109,19 @@ public class AdminGoodsController {
     }
 
     /**
+     * 根据款号查询商品
+     *
+     * @param goodsSn 商品款号
+     * @return 商品详情
+     */
+    @RequiresPermissions("admin:goods:read")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "查询")
+    @GetMapping("/findBySn")
+    public Object findBySn(@RequestParam String goodsSn) {
+        return adminGoodsService.findBySn(goodsSn);
+    }
+
+    /**
      * 生成商品分享海报
      *
      * @param id 商品ID
@@ -116,6 +132,44 @@ public class AdminGoodsController {
     @PostMapping("/generate-share-image")
     public Object generateShareImage(@NotNull Integer id) {
         return adminGoodsService.generateShareImage(id);
+    }
+
+    /**
+     * 批量上架商品
+     */
+    @RequiresPermissions("admin:goods:update")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "上架")
+    @PostMapping("/publish")
+    public Object publish(@RequestBody String body) {
+        List<Integer> ids = JacksonUtil.parseIntegerList(body, "ids");
+        if (ids == null || ids.isEmpty()) {
+            return ResponseUtil.badArgument();
+        }
+        return adminGoodsService.publish(ids);
+    }
+
+    /**
+     * 批量下架商品
+     */
+    @RequiresPermissions("admin:goods:update")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "下架")
+    @PostMapping("/unpublish")
+    public Object unpublish(@RequestBody String body) {
+        List<Integer> ids = JacksonUtil.parseIntegerList(body, "ids");
+        if (ids == null || ids.isEmpty()) {
+            return ResponseUtil.badArgument();
+        }
+        return adminGoodsService.unpublish(ids);
+    }
+
+    /**
+     * 一键下架全部商品
+     */
+    @RequiresPermissions("admin:goods:update")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "一键下架")
+    @PostMapping("/unpublishAll")
+    public Object unpublishAll() {
+        return adminGoodsService.unpublishAll();
     }
 
 }

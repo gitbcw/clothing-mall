@@ -54,3 +54,34 @@ export function generateShareImage(id) {
     params: { id }
   })
 }
+
+export function findByGoodsSn(goodsSn) {
+  return request({
+    url: '/goods/findBySn',
+    method: 'get',
+    params: { goodsSn }
+  })
+}
+
+export function publishGoodsBatch(data) {
+  return request({
+    url: '/goods/publish',
+    method: 'post',
+    data
+  })
+}
+
+export function unpublishGoodsBatch(data) {
+  return request({
+    url: '/goods/unpublish',
+    method: 'post',
+    data
+  })
+}
+
+export function unpublishAllGoods() {
+  return request({
+    url: '/goods/unpublishAll',
+    method: 'post'
+  })
+}

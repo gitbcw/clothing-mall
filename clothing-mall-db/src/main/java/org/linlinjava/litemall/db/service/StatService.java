@@ -100,4 +100,55 @@ public class StatService {
     public Map statPushConversion(String startDate, String endDate) {
         return statMapper.statPushConversion(startDate, endDate);
     }
+
+    // ==================== 营收分析统计 ====================
+
+    /**
+     * 营收总览：核心指标
+     */
+    public Map statRevenueOverview(String startMonth, String endMonth) {
+        return statMapper.statRevenueOverview(startMonth, endMonth);
+    }
+
+    /**
+     * 营收总览：月度趋势
+     */
+    public List<Map> statRevenueTrend(String startMonth, String endMonth) {
+        return statMapper.statRevenueTrend(startMonth, endMonth);
+    }
+
+    /**
+     * 营收总览：月度明细
+     */
+    public List<Map> statRevenueDetail(String startMonth, String endMonth) {
+        return statMapper.statRevenueDetail(startMonth, endMonth);
+    }
+
+    /**
+     * 分类报表：场景销售
+     */
+    public List<Map> statSceneSales(String startDate, String endDate) {
+        return statMapper.statSceneSales(startDate, endDate);
+    }
+
+    /**
+     * 分类报表：分类销售
+     */
+    public List<Map> statCategorySales(String startDate, String endDate) {
+        return statMapper.statCategorySales(startDate, endDate);
+    }
+
+    /**
+     * 季节分析：季节概览
+     */
+    public List<Map> statSeasonOverview(int year) {
+        return statMapper.statSeasonOverview(year);
+    }
+
+    /**
+     * 季节分析：季节热销商品
+     */
+    public List<Map> statSeasonHotGoods(int year, String season, int limit) {
+        return statMapper.statSeasonHotGoods(year, season, limit);
+    }
 }

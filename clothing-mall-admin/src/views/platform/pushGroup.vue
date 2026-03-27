@@ -1,14 +1,15 @@
 <template>
   <div class="app-container">
-    <!-- 查询和其他操作 -->
+    <!-- 筛选和其他操作 -->
     <div class="filter-container">
-      <el-input v-model="listQuery.name" clearable class="filter-item" style="width: 200px;" placeholder="请输入分组名称" />
-      <el-select v-model="listQuery.type" clearable class="filter-item" style="width: 150px;" placeholder="选择类型">
-        <el-option label="测试组" value="test" />
-        <el-option label="活跃组" value="active" />
-        <el-option label="潜水组" value="dormant" />
-        <el-option label="打捞组" value="salvage" />
-      </el-select>
+      <el-tabs v-model="activeTab" style="margin-bottom: -12px;" @tab-click="handleTabChange">
+        <el-tab-pane label="全部" name="" />
+        <el-tab-pane label="测试组" name="test" />
+        <el-tab-pane label="活跃组" name="active" />
+        <el-tab-pane label="潜水组" name="dormant" />
+        <el-tab-pane label="打捞组" name="salvage" />
+      </el-tabs>
+      <el-input v-model="listQuery.name" clearable class="filter-item" style="width: 200px; margin-left: 10px;" placeholder="请输入分组名称" @keyup.enter.native="handleFilter" />
       <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查找</el-button>
       <el-button class="filter-item" type="primary" icon="el-icon-edit" @click="handleCreate">添加</el-button>
     </div>
@@ -80,6 +81,7 @@ export default {
       list: [],
       total: 0,
       listLoading: true,
+      activeTab: '',
       listQuery: {
         page: 1,
         limit: 20,
@@ -120,6 +122,11 @@ export default {
       })
     },
     handleFilter() {
+      this.listQuery.page = 1
+      this.getList()
+    },
+    handleTabChange(tab) {
+      this.listQuery.type = tab.name
       this.listQuery.page = 1
       this.getList()
     },

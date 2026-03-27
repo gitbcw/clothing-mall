@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.linlinjava.litemall.db.dao.ClothingActivityTopMapper">
+
+    <insert id="insert" parameterType="org.linlinjava.litemall.db.domain.ClothingActivityTop" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO clothing_activity_top (goods_id, sort_order, add_time, update_time)
+        VALUES (#{goodsId}, #{sortOrder}, NOW(), NOW())
+    </insert>
+
+    <delete id="deleteByPrimaryKey">
+        DELETE FROM clothing_activity_top WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByGoodsId">
+        DELETE FROM clothing_activity_top WHERE goods_id = #{goodsId}
+    </delete>
+
+    <update id="updateSortOrder">
+        UPDATE clothing_activity_top SET sort_order = #{sortOrder}, update_time = NOW() WHERE id = #{id}
+    </update>
+
+    <select id="selectByGoodsId" resultType="org.linlinjava.litemall.db.domain.ClothingActivityTop">
+        SELECT id, goods_id, sort_order, add_time, update_time FROM clothing_activity_top WHERE goods_id = #{goodsId}
+    </select>
+
+    <select id="selectAll" resultType="org.linlinjava.litemall.db.domain.ClothingActivityTop">
+        SELECT id, goods_id, sort_order, add_time, update_time FROM clothing_activity_top ORDER BY sort_order ASC, id ASC
+    </select>
+
+</mapper>

@@ -30,10 +30,46 @@ public class LitemallGoodsService {
      */
     public List<LitemallGoods> queryByHot(int offset, int limit) {
         LitemallGoodsExample example = new LitemallGoodsExample();
-        example.or().andIsHotEqualTo(true).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
+        example.or().andIsHotEqualTo(true).andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED).andDeletedEqualTo(false);
         example.setOrderByClause("add_time desc");
         PageHelper.startPage(offset, limit);
 
+        return goodsMapper.selectByExampleSelective(example, columns);
+    }
+
+    /**
+     * 查询特价商品
+     */
+    public List<LitemallGoods> queryBySpecialPrice(int offset, int limit) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        example.or().andIsSpecialPriceEqualTo(true).andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED).andDeletedEqualTo(false);
+        example.setOrderByClause("add_time desc");
+        PageHelper.startPage(offset, limit);
+        return goodsMapper.selectByExampleSelective(example, columns);
+    }
+
+    /**
+     * 查询本周上新商品（7天内创建的新品）
+     */
+    public List<LitemallGoods> queryByWeeklyNew(int offset, int limit) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        example.or().andIsNewEqualTo(true).andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED).andDeletedEqualTo(false)
+                .andAddTimeGreaterThanOrEqualTo(java.time.LocalDateTime.now().minusDays(7));
+        example.setOrderByClause("add_time desc");
+        PageHelper.startPage(offset, limit);
+        return goodsMapper.selectByExampleSelective(example, columns);
+    }
+
+    /**
+     * 根据ID列表查询商品
+     */
+    public List<LitemallGoods> queryByIds(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        example.or().andIdIn(ids).andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED).andDeletedEqualTo(false);
+        example.setOrderByClause("add_time desc");
         return goodsMapper.selectByExampleSelective(example, columns);
     }
 
@@ -46,7 +82,7 @@ public class LitemallGoodsService {
      */
     public List<LitemallGoods> queryByNew(int offset, int limit) {
         LitemallGoodsExample example = new LitemallGoodsExample();
-        example.or().andIsNewEqualTo(true).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
+        example.or().andIsNewEqualTo(true).andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED).andDeletedEqualTo(false);
         example.setOrderByClause("add_time desc");
         PageHelper.startPage(offset, limit);
 
@@ -63,7 +99,7 @@ public class LitemallGoodsService {
      */
     public List<LitemallGoods> queryByCategory(List<Integer> catList, int offset, int limit) {
         LitemallGoodsExample example = new LitemallGoodsExample();
-        example.or().andCategoryIdIn(catList).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
+        example.or().andCategoryIdIn(catList).andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED).andDeletedEqualTo(false);
         example.setOrderByClause("add_time  desc");
         PageHelper.startPage(offset, limit);
 
@@ -81,7 +117,7 @@ public class LitemallGoodsService {
      */
     public List<LitemallGoods> queryByCategory(Integer catId, int offset, int limit) {
         LitemallGoodsExample example = new LitemallGoodsExample();
-        example.or().andCategoryIdEqualTo(catId).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
+        example.or().andCategoryIdEqualTo(catId).andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED).andDeletedEqualTo(false);
         example.setOrderByClause("add_time desc");
         PageHelper.startPage(offset, limit);
 
@@ -114,8 +150,8 @@ public class LitemallGoodsService {
             criteria1.andKeywordsLike("%" + keywords + "%");
             criteria2.andNameLike("%" + keywords + "%");
         }
-        criteria1.andIsOnSaleEqualTo(true);
-        criteria2.andIsOnSaleEqualTo(true);
+        criteria1.andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED);
+        criteria2.andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED);
         criteria1.andDeletedEqualTo(false);
         criteria2.andDeletedEqualTo(false);
 
@@ -128,7 +164,7 @@ public class LitemallGoodsService {
         return goodsMapper.selectByExampleSelective(example, columns);
     }
 
-    public List<LitemallGoods> querySelective(Integer goodsId, String goodsSn, String name, Integer page, Integer size, String sort, String order) {
+    public List<LitemallGoods> querySelective(Integer goodsId, String goodsSn, String name, String status, Integer page, Integer size, String sort, String order) {
         LitemallGoodsExample example = new LitemallGoodsExample();
         LitemallGoodsExample.Criteria criteria = example.createCriteria();
 
@@ -140,6 +176,9 @@ public class LitemallGoodsService {
         }
         if (!StringUtils.isEmpty(name)) {
             criteria.andNameLike("%" + name + "%");
+        }
+        if (!StringUtils.isEmpty(status)) {
+            criteria.andStatusEqualTo(status);
         }
         criteria.andDeletedEqualTo(false);
 
@@ -171,7 +210,7 @@ public class LitemallGoodsService {
      */
     public LitemallGoods findByIdVO(Integer id) {
         LitemallGoodsExample example = new LitemallGoodsExample();
-        example.or().andIdEqualTo(id).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
+        example.or().andIdEqualTo(id).andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED).andDeletedEqualTo(false);
         return goodsMapper.selectOneByExampleSelective(example, columns);
     }
 
@@ -183,7 +222,7 @@ public class LitemallGoodsService {
      */
     public Integer queryOnSale() {
         LitemallGoodsExample example = new LitemallGoodsExample();
-        example.or().andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
+        example.or().andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED).andDeletedEqualTo(false);
         return (int) goodsMapper.countByExample(example);
     }
 
@@ -234,8 +273,8 @@ public class LitemallGoodsService {
             criteria1.andKeywordsLike("%" + keywords + "%");
             criteria2.andNameLike("%" + keywords + "%");
         }
-        criteria1.andIsOnSaleEqualTo(true);
-        criteria2.andIsOnSaleEqualTo(true);
+        criteria1.andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED);
+        criteria2.andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED);
         criteria1.andDeletedEqualTo(false);
         criteria2.andDeletedEqualTo(false);
 
@@ -249,13 +288,13 @@ public class LitemallGoodsService {
 
     public boolean checkExistByName(String name) {
         LitemallGoodsExample example = new LitemallGoodsExample();
-        example.or().andNameEqualTo(name).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
+        example.or().andNameEqualTo(name).andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED).andDeletedEqualTo(false);
         return goodsMapper.countByExample(example) != 0;
     }
 
     public List<LitemallGoods> queryByIds(Integer[] ids) {
         LitemallGoodsExample example = new LitemallGoodsExample();
-        example.or().andIdIn(Arrays.asList(ids)).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
+        example.or().andIdIn(Arrays.asList(ids)).andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED).andDeletedEqualTo(false);
         return goodsMapper.selectByExampleSelective(example, columns);
     }
 
@@ -272,6 +311,39 @@ public class LitemallGoodsService {
         LitemallGoodsExample example = new LitemallGoodsExample();
         example.or().andGoodsSnEqualTo(goodsSn).andDeletedEqualTo(false);
         return goodsMapper.selectOneByExampleWithBLOBs(example);
+    }
+
+    /**
+     * 更新商品状态
+     *
+     * @param id 商品ID
+     * @param status 状态值
+     */
+    public void updateStatus(Integer id, String status) {
+        LitemallGoods goods = new LitemallGoods();
+        goods.setId(id);
+        goods.setStatus(status);
+        goods.setIsOnSale(LitemallGoods.STATUS_PUBLISHED.equals(status));
+        goods.setUpdateTime(LocalDateTime.now());
+        goodsMapper.updateByPrimaryKeySelective(goods);
+    }
+
+    public void updateStatusBatch(List<Integer> ids, String status) {
+        for (Integer id : ids) {
+            updateStatus(id, status);
+        }
+    }
+
+    public void updateAllStatus(String status) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        example.createCriteria()
+            .andStatusNotEqualTo(status)
+            .andDeletedEqualTo(false);
+        LitemallGoods goods = new LitemallGoods();
+        goods.setStatus(status);
+        goods.setIsOnSale(LitemallGoods.STATUS_PUBLISHED.equals(status));
+        goods.setUpdateTime(LocalDateTime.now());
+        goodsMapper.updateByExampleSelective(goods, example);
     }
 
     /**

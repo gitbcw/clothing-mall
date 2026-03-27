@@ -1880,6 +1880,16 @@ public class LitemallGoodsExample {
             return (Criteria) this;
         }
 
+        public Criteria andStatusEqualTo(String value) {
+            addCriterion("status =", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotEqualTo(String value) {
+            addCriterion("status <>", value, "status");
+            return (Criteria) this;
+        }
+
         public Criteria andIsNewIsNull() {
             addCriterion("is_new is null");
             return (Criteria) this;
@@ -2129,6 +2139,11 @@ public class LitemallGoodsExample {
 
         public Criteria andIsHotNotBetween(Boolean value1, Boolean value2) {
             addCriterion("is_hot not between", value1, value2, "isHot");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsSpecialPriceEqualTo(Boolean value) {
+            addCriterion("is_special_price =", value, "isSpecialPrice");
             return (Criteria) this;
         }
 
@@ -2779,6 +2794,36 @@ public class LitemallGoodsExample {
 
         public Criteria andDeletedIsNotNull() {
             addCriterion("deleted is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusIsNull() {
+            addCriterion("status is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusIsNotNull() {
+            addCriterion("status is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusEqualTo(Integer value) {
+            addCriterion("status =", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotEqualTo(Integer value) {
+            addCriterion("status <>", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusIn(List<Integer> values) {
+            addCriterion("status in", values, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotIn(List<Integer> values) {
+            addCriterion("status not in", values, "status");
             return (Criteria) this;
         }
 

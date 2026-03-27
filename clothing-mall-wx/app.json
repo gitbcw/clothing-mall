@@ -2,6 +2,7 @@
   "pages": [
     "pages/index/index",
     "pages/category/category",
+    "pages/scene/scene",
     "pages/cart/cart",
     "pages/mine/mine",
     "pages/goods_detail/goods_detail",

@@ -10,10 +10,27 @@
   <scroll-view class="page-scroll" scroll-y="true" bindscroll="onPageScroll">
     <!-- Banner -->
     <swiper class="banner-swiper" indicator-dots="true" autoplay="true" circular="true" indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#ffffff">
-      <swiper-item wx:for="{{banners}}" wx:key="id">
-        <image src="{{item.url || defaultImage}}" class="banner-img" mode="aspectFill" binderror="onHomeImageError" data-source="banners" data-index="{{index}}"></image>
+      <swiper-item wx:for="{{banners}}" wx:key="id" bindtap="goToScene" data-scene-id="{{item.id}}">
+        <image src="{{item.posterUrl}}" mode="aspectFill" class="banner-image" binderror="onHomeImageError" data-source="banner" data-index="{{index}}" />
       </swiper-item>
     </swiper>
+
+    <!-- 活动位 -->
+    <view class="activity-section" wx:if="{{activityGoods.length > 0}}">
+      <view class="section-header-weekly">
+        <text class="section-title-cn">精选活动</text>
+        <text class="section-title-en">FEATURED</text>
+      </view>
+      <scroll-view class="activity-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="activity-item" wx:for="{{activityGoods}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+          <image src="{{item.picUrl}}" mode="aspectFill" class="activity-img" binderror="onHomeImageError" data-source="activityGoods" data-index="{{index}}" />
+          <view class="activity-info">
+            <text class="activity-name">{{item.name}}</text>
+            <text class="activity-price">¥{{item.retailPrice}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
 
     <!-- 每周上新 (叠在Banner下方) -->
     <view class="weekly-new-section">
@@ -68,30 +85,21 @@
       </scroll-view>
     </view>
 
-    <!-- 搭配推荐 -->
-    <view class="grid-section">
+    <!-- 穿搭推荐 -->
+    <view class="grid-section" wx:if="{{matchRecommends.length > 0}}">
       <view class="section-title-center">
-        <view class="line"></view>
-        <text>搭配推荐</text>
-        <view class="line"></view>
+        <view class="title-line"></view>
+        <text class="title-text">穿搭推荐</text>
+        <view class="title-line"></view>
       </view>
       <view class="grid-list">
-        <view class="grid-item" wx:for="{{matchRecommends}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
-          <image class="grid-img" src="{{item.picUrl || defaultImage}}" mode="aspectFill" binderror="onHomeImageError" data-source="matchRecommends" data-index="{{index}}"></image>
+        <view class="grid-item" wx:for="{{matchRecommends}}" wx:key="id" bindtap="goToOutfit" data-id="{{item.id}}">
+          <image src="{{item.coverPic}}" mode="aspectFill" class="grid-img" binderror="onHomeImageError" data-source="matchRecommends" data-index="{{index}}" />
           <view class="grid-info">
-            <view class="grid-title">{{item.name}}</view>
-            <view class="grid-bottom">
-              <view class="grid-price-wrap">
-                <text class="price-symbol theme-color">￥</text>
-                <text class="price-num theme-color">{{item.retailPrice}}</text>
-                <text class="original-price" wx:if="{{item.counterPrice > item.retailPrice}}">￥{{item.counterPrice}}</text>
-              </view>
-              <view class="cart-icon-small" catchtap="addToCart" data-id="{{item.id}}"></view>
-            </view>
+            <text class="grid-name">{{item.title}}</text>
           </view>
         </view>
       </view>
-      <view class="btn-more-center">查看更多</view>
     </view>
 
     <!-- 饰饰如意 -->

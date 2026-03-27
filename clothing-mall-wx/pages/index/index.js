@@ -22,6 +22,9 @@ Page({
     // 搭配推荐
     matchRecommends: [],
 
+    // 活动位
+    activityGoods: [],
+
     // 饰饰如意
     accessories: [],
     defaultImage: '/static/images/fallback-image.svg'
@@ -37,6 +40,7 @@ Page({
 
   onPullDownRefresh() {
     this.loadData()
+    this.loadSceneBanners()
     wx.stopPullDownRefresh()
   },
 
@@ -50,6 +54,7 @@ Page({
     })
 
     this.loadData()
+    this.loadSceneBanners()
   },
 
   onShow() {
@@ -72,17 +77,22 @@ Page({
   loadData() {
     util.request(api.IndexUrl).then(res => {
       if (res.errno === 0) {
-        const { banner = [], hotGoodsList = [], newGoodsList = [] } = res.data
-
-        // 搭配推荐：从热销商品中排除饰品分类
-        const matchRecommends = hotGoodsList.filter(item => item.categoryId !== 1022001).slice(0, 4)
+        const { hotGoodsList = [], newGoodsList = [] } = res.data
 
         this.setData({
-          banners: banner,
           weeklyNews: newGoodsList.filter(item => item.categoryId !== 1022001).slice(0, 5),
-          hotSales: hotGoodsList.filter(item => item.categoryId !== 1022001).slice(0, 6),
-          matchRecommends: matchRecommends.length > 0 ? matchRecommends : hotGoodsList.slice(0, 4)
+          hotSales: hotGoodsList.filter(item => item.categoryId !== 1022001).slice(0, 6)
         })
+
+        // 活动位数据
+        const homeActivity = res.data.homeActivity
+        if (homeActivity && homeActivity.goods) {
+          this.setData({ activityGoods: homeActivity.goods })
+        }
+
+        // 穿搭推荐（替换原来的搭配推荐数据源）
+        const outfitList = res.data.outfitList || []
+        this.setData({ matchRecommends: outfitList })
       }
     }).catch(() => {
         wx.showToast({ title: '网络错误', icon: 'none' })
@@ -105,6 +115,30 @@ Page({
         })
       }
     }).catch(() => {})
+  },
+
+  // 加载场景轮播图
+  loadSceneBanners() {
+    util.request(api.SceneBanners).then(res => {
+      this.setData({ banners: res.data.data || [] })
+    }).catch(() => {
+      this.setData({ banners: [] })
+    })
+  },
+
+  // 跳转场景商品页
+  goToScene(e) {
+    const sceneId = e.currentTarget.dataset.sceneId
+    wx.navigateTo({ url: `/pages/scene/scene?id=${sceneId}` })
+  },
+
+  // 跳转穿搭推荐详情
+  goToOutfit(e) {
+    const id = e.currentTarget.dataset.id
+    const outfit = this.data.matchRecommends.find(o => o.id === id)
+    if (outfit && outfit.goods && outfit.goods.length > 0) {
+      wx.navigateTo({ url: `/pages/goods_detail/goods_detail?id=${outfit.goods[0].id}` })
+    }
   },
 
   // 跳转商品详情

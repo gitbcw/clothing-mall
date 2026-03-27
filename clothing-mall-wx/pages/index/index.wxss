@@ -540,3 +540,56 @@ page {
 .tab-text.active {
   color: #BA8D59;
 }
+
+/* 活动位 */
+.activity-section {
+  background: #fff;
+  padding: 30rpx 0;
+  margin-bottom: 20rpx;
+}
+
+.activity-scroll {
+  white-space: nowrap;
+  padding: 0 30rpx;
+}
+
+.activity-item {
+  display: inline-block;
+  width: 280rpx;
+  margin-right: 20rpx;
+  vertical-align: top;
+  background: #F7F8FA;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.activity-item:last-child {
+  margin-right: 30rpx;
+}
+
+.activity-img {
+  width: 280rpx;
+  height: 280rpx;
+  display: block;
+}
+
+.activity-info {
+  padding: 16rpx;
+}
+
+.activity-name {
+  font-size: 26rpx;
+  color: #333;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-price {
+  font-size: 30rpx;
+  color: #BA8D59;
+  font-weight: 500;
+  display: block;
+  margin-top: 8rpx;
+}

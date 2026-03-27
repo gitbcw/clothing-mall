@@ -35,7 +35,8 @@ Page({
     // 季节选项
     seasonOptions: ['春季', '夏季', '秋季', '冬季', '四季'],
     seasonIndex: 4,
-    submitting: false
+    submitting: false,
+    skuList: []
   },
 
   onLoad(options) {
@@ -123,33 +124,35 @@ Page({
     });
   },
 
-  // 提交创建 SKU
-  submitSku() {
+  // 提交创建商品
+  submitGoods() {
     const data = this.data;
     if (!data.recognizeResult.name) {
       wx.showToast({ title: '请输入商品名称', icon: 'none' });
       return;
     }
-    
+
     this.setData({ submitting: true });
-    
-    const skuData = {
+
+    const requestData = {
       name: data.recognizeResult.name,
-      category: data.recognizeResult.category,
-      color: data.recognizeResult.color,
-      size: data.recognizeResult.size,
-      material: data.recognizeResult.material,
-      style: data.recognizeResult.style,
-      season: data.recognizeResult.season,
       brief: data.recognizeResult.brief,
-      sourceImage: data.imageUrl,
-      aiRecognized: !data.manual,
-      aiConfidence: data.recognizeResult.confidence
+      sourceImage: data.imageUrl
     };
 
-    util.request(api.ClothingSkuCreate, skuData, 'POST').then(res => {
+    // 如果有 SKU 列表，附带提交
+    if (data.skuList && data.skuList.length > 0) {
+      requestData.skus = data.skuList.filter(s => s.color || s.size).map(s => ({
+        color: s.color || '',
+        size: s.size || '',
+        price: s.price || 0,
+        stock: s.stock || 0
+      }));
+    }
+
+    util.request(api.ManagerGoodsCreate, requestData, 'POST').then(res => {
       if (res.errno === 0) {
-        wx.showToast({ title: '创建成功', icon: 'success' });
+        wx.showToast({ title: '商品创建成功', icon: 'success' });
         setTimeout(() => {
           wx.navigateBack();
         }, 1500);
@@ -160,6 +163,30 @@ Page({
     }).catch(() => {
       wx.showToast({ title: '创建失败', icon: 'none' });
       this.setData({ submitting: false });
+    });
+  },
+
+  // 添加 SKU 行
+  addSku() {
+    const skuList = this.data.skuList;
+    skuList.push({ color: '', size: '', price: '', stock: '' });
+    this.setData({ skuList });
+  },
+
+  // 删除 SKU 行
+  removeSku(e) {
+    const index = e.currentTarget.dataset.index;
+    const skuList = this.data.skuList;
+    skuList.splice(index, 1);
+    this.setData({ skuList });
+  },
+
+  // SKU 字段输入
+  onSkuInput(e) {
+    const { index, field } = e.currentTarget.dataset;
+    const value = e.detail.value;
+    this.setData({
+      ['skuList[' + index + '].' + field]: value
     });
   },
 

@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -108,7 +109,10 @@ public class WxManagerGoodsController {
             goods.setPicUrl(sourceImage);
         }
 
-        goods.setGallery((String[]) body.get("gallery"));
+        Object galleryObj = body.get("gallery");
+        if (galleryObj instanceof List) {
+            goods.setGallery(((List<String>) galleryObj).toArray(new String[0]));
+        }
         goods.setStatus(LitemallGoods.STATUS_DRAFT);
         goods.setIsOnSale(false);
         goods.setDeleted(false);

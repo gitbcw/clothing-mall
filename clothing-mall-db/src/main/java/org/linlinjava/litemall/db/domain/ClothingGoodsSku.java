@@ -5,24 +5,22 @@ import java.time.LocalDateTime;
 
 /**
  * 商品 SKU 实体类（颜色+尺码组合）
- * 支持独立 SKU 库、AI 识别、草稿状态
+ * 支持独立 SKU 库、AI 识别
+ *
+ * 注意：SKU 的 status 仅表示「可用/不可用」
+ * 上架/下架是「商品」的行为，不是 SKU 的
  */
 public class ClothingGoodsSku {
     public static final Boolean IS_DELETED = true;
     public static final Boolean NOT_DELETED = false;
 
-    // SKU 状态常量
-    public static final String STATUS_DRAFT = "draft";        // 草稿
-    public static final String STATUS_PENDING = "pending";    // 待上架
-    public static final String STATUS_PUBLISHED = "published"; // 已上架
-
-    // 用于 Service 层查询
-    public static final String STATUS_DRAFT_ = STATUS_DRAFT;
-    public static final String STATUS_PENDING_ = STATUS_PENDING;
+    // SKU 状态常量（可用性，非上架状态）
+    public static final String STATUS_ACTIVE = "active";     // 可用
+    public static final String STATUS_INACTIVE = "inactive"; // 停用（尺码停产、质量问题等）
 
     private Integer id;
-    private Integer goodsId;          // 商品ID（未上架时为空）
-    private String status;            // 状态：draft/pending/published
+    private Integer goodsId;          // 商品ID（必填，SKU 必须关联商品）
+    private String status;            // 状态：active(可用)/inactive(停用)
     private Integer categoryId;       // 分类ID
     private String brand;             // 品牌
     private String name;              // SKU名称（AI识别结果）

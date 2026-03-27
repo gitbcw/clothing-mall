@@ -24,4 +24,6 @@ public interface ClothingSceneMapper {
     List<ClothingScene> selectByEnabled(@Param("enabled") Boolean enabled);
 
     ClothingScene selectByName(@Param("name") String name);
+
+    List<ClothingScene> selectBannerScenes();
 }

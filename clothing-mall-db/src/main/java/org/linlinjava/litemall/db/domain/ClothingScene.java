@@ -12,6 +12,7 @@ public class ClothingScene {
     private Integer id;
     private String name;
     private String icon;
+    private String posterUrl;
     private String description;
     private Integer sortOrder;
     private Boolean enabled;
@@ -42,6 +43,9 @@ public class ClothingScene {
     public void setIcon(String icon) {
         this.icon = icon;
     }
+
+    public String getPosterUrl() { return posterUrl; }
+    public void setPosterUrl(String posterUrl) { this.posterUrl = posterUrl; }
 
     public String getDescription() {
         return description;

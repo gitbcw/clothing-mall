@@ -42,6 +42,13 @@ public class ClothingSceneService {
     }
 
     /**
+     * 查询可用于轮播图展示的场景（有海报图且启用）
+     */
+    public List<ClothingScene> queryBannerScenes() {
+        return sceneMapper.selectBannerScenes();
+    }
+
+    /**
      * 添加场景
      */
     public int add(ClothingScene scene) {

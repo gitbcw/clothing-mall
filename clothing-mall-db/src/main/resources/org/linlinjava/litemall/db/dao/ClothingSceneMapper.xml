@@ -6,6 +6,7 @@
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="icon" property="icon"/>
+        <result column="poster_url" property="posterUrl"/>
         <result column="description" property="description"/>
         <result column="sort_order" property="sortOrder"/>
         <result column="enabled" property="enabled"/>
@@ -15,7 +16,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, name, icon, description, sort_order, enabled, add_time, update_time, deleted
+        id, name, icon, poster_url, description, sort_order, enabled, add_time, update_time, deleted
     </sql>
 
     <select id="selectByPrimaryKey" resultMap="BaseResultMap">
@@ -54,6 +55,7 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null">name,</if>
             <if test="icon != null">icon,</if>
+            <if test="posterUrl != null">poster_url,</if>
             <if test="description != null">description,</if>
             <if test="sortOrder != null">sort_order,</if>
             <if test="enabled != null">enabled,</if>
@@ -62,6 +64,7 @@
         <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
             <if test="name != null">#{name},</if>
             <if test="icon != null">#{icon},</if>
+            <if test="posterUrl != null">#{posterUrl},</if>
             <if test="description != null">#{description},</if>
             <if test="sortOrder != null">#{sortOrder},</if>
             <if test="enabled != null">#{enabled},</if>
@@ -74,6 +77,7 @@
         <set>
             <if test="name != null">name = #{name},</if>
             <if test="icon != null">icon = #{icon},</if>
+            <if test="posterUrl != null">poster_url = #{posterUrl},</if>
             <if test="description != null">description = #{description},</if>
             <if test="sortOrder != null">sort_order = #{sortOrder},</if>
             <if test="enabled != null">enabled = #{enabled},</if>
@@ -85,5 +89,13 @@
     <update id="deleteByPrimaryKey">
         UPDATE clothing_scene SET deleted = 1 WHERE id = #{id}
     </update>
+
+
+    <select id="selectBannerScenes" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM clothing_scene
+        WHERE enabled = 1 AND poster_url IS NOT NULL AND poster_url != '' AND deleted = 0
+        ORDER BY sort_order ASC, id ASC
+    </select>
 
 </mapper>

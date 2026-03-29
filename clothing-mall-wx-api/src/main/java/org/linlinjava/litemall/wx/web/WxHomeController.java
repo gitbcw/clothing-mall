@@ -6,7 +6,7 @@ import org.linlinjava.litemall.core.system.SystemConfig;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.linlinjava.litemall.db.domain.LitemallOutfit;
-import org.linlinjava.litemall.db.domain.ClothingActivityTop;
+import org.linlinjava.litemall.db.domain.ClothingHoliday;
 import org.linlinjava.litemall.db.domain.ClothingScene;
 import org.linlinjava.litemall.db.service.*;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -39,7 +39,10 @@ public class WxHomeController {
     private LitemallOutfitService outfitService;
 
     @Autowired
-    private ClothingActivityTopService activityTopService;
+    private ClothingHolidayService holidayService;
+
+    @Autowired
+    private ClothingHolidayGoodsService holidayGoodsService;
 
     @Autowired
     private ClothingGoodsSceneService goodsSceneService;
@@ -124,37 +127,23 @@ public class WxHomeController {
         Set<Integer> addedIds = new HashSet<>();
         int limit = 8;
 
-        // 1. 手动置顶商品
-        List<ClothingActivityTop> topList = activityTopService.queryAll();
-        for (ClothingActivityTop top : topList) {
-            if (addedIds.contains(top.getGoodsId())) continue;
-            LitemallGoods goods = goodsService.findById(top.getGoodsId());
-            if (goods != null && LitemallGoods.STATUS_PUBLISHED.equals(goods.getStatus())) {
-                result.add(goodsToMap(goods));
-                addedIds.add(top.getGoodsId());
-            }
-        }
-
-        // 2. 节假日场景商品
-        List<ClothingScene> allScenes = sceneService.queryAll();
-        for (ClothingScene scene : allScenes) {
-            if (scene.getName() != null && scene.getName().contains("节假日")) {
-                List<Integer> goodsIds = goodsSceneService.queryGoodsIdsBySceneId(scene.getId());
-                int count = 0;
-                for (Integer goodsId : goodsIds) {
-                    if (addedIds.contains(goodsId) || count >= limit) continue;
-                    LitemallGoods goods = goodsService.findById(goodsId);
-                    if (goods != null && LitemallGoods.STATUS_PUBLISHED.equals(goods.getStatus())) {
-                        result.add(goodsToMap(goods));
-                        addedIds.add(goodsId);
-                        count++;
-                    }
+        // 1. 节日商品（替换原来的手动置顶 + 节假日场景商品）
+        List<ClothingHoliday> activeHolidays = holidayService.queryActive();
+        for (ClothingHoliday holiday : activeHolidays) {
+            List<Integer> goodsIds = holidayGoodsService.queryGoodsIdsByHolidayId(holiday.getId());
+            int count = 0;
+            for (Integer goodsId : goodsIds) {
+                if (addedIds.contains(goodsId) || count >= limit) continue;
+                LitemallGoods goods = goodsService.findById(goodsId);
+                if (goods != null && LitemallGoods.STATUS_PUBLISHED.equals(goods.getStatus())) {
+                    result.add(goodsToMap(goods));
+                    addedIds.add(goodsId);
+                    count++;
                 }
-                break;
             }
         }
 
-        // 3. 特价商品
+        // 2. 特价商品
         List<LitemallGoods> specialGoods = goodsService.queryBySpecialPrice(0, limit);
         int specialCount = 0;
         for (LitemallGoods goods : specialGoods) {
@@ -164,7 +153,7 @@ public class WxHomeController {
             specialCount++;
         }
 
-        // 4. 本周上新
+        // 3. 本周上新
         List<LitemallGoods> weeklyGoods = goodsService.queryByWeeklyNew(0, limit);
         int weeklyCount = 0;
         for (LitemallGoods goods : weeklyGoods) {
@@ -174,7 +163,6 @@ public class WxHomeController {
             weeklyCount++;
         }
 
-        // 限制总数 20
         if (result.size() > 20) {
             result = result.subList(0, 20);
         }
@@ -195,6 +183,7 @@ public class WxHomeController {
         map.put("picUrl", goods.getPicUrl());
         map.put("retailPrice", goods.getRetailPrice());
         map.put("counterPrice", goods.getCounterPrice());
+        map.put("specialPrice", goods.getSpecialPrice());
         return map;
     }
 

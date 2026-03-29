@@ -161,6 +161,39 @@ export const asyncRoutes = [
           noCache: true
         }
       },
+      // 场景管理（从系统设置移入）
+      {
+        path: 'scene',
+        component: () => import('@/views/goods/scene'),
+        name: 'goodsScene',
+        meta: {
+          perms: ['admin:clothing:scene:list', 'admin:clothing:scene:create', 'admin:clothing:scene:update', 'admin:clothing:scene:delete'],
+          title: 'app.menu.goods_scene',
+          noCache: true
+        }
+      },
+      // 穿搭推荐（从营销管理移入）
+      {
+        path: 'outfit',
+        component: () => import('@/views/promotion/outfit'),
+        name: 'goodsOutfit',
+        meta: {
+          perms: ['GET /admin/outfit/list', 'POST /admin/outfit/create', 'POST /admin/outfit/update', 'POST /admin/outfit/delete'],
+          title: 'app.menu.goods_outfit',
+          noCache: true
+        }
+      },
+      // 节日商品管理
+      {
+        path: 'holiday',
+        component: () => import('@/views/goods/holiday'),
+        name: 'goodsHoliday',
+        meta: {
+          perms: ['admin:clothing:holiday:list', 'admin:clothing:holiday:create', 'admin:clothing:holiday:update', 'admin:clothing:holiday:delete'],
+          title: 'app.menu.goods_holiday',
+          noCache: true
+        }
+      },
       // 隐藏的品牌管理（保留路由但不在菜单显示）
       {
         path: 'brand',
@@ -320,6 +353,24 @@ export const asyncRoutes = [
           noCache: true
         },
         hidden: true
+      },
+      // 平台配置（Tab 整合页）
+      {
+        path: 'config',
+        component: () => import('@/views/platform/config'),
+        name: 'platformConfig',
+        meta: {
+          perms: [
+            'GET /admin/config/order', 'POST /admin/config/order',
+            'GET /admin/config/express', 'POST /admin/config/express',
+            'GET /admin/flashSale/list', 'GET /admin/coupon/list', 'GET /admin/fullReduction/list',
+            'GET /admin/config/wx', 'POST /admin/config/wx',
+            'GET /admin/issue/list',
+            'GET /admin/keyword/list'
+          ],
+          title: 'app.menu.platform_config_tab',
+          noCache: true
+        }
       }
     ]
   },
@@ -336,7 +387,7 @@ export const asyncRoutes = [
       icon: 'chart'
     },
     children: [
-      // 场景管理
+      // 场景管理（已移至 /goods，保留路由兼容）
       {
         path: 'scene',
         component: () => import('@/views/goods/scene'),
@@ -345,9 +396,10 @@ export const asyncRoutes = [
           perms: ['admin:clothing:scene:list', 'admin:clothing:scene:create', 'admin:clothing:scene:update', 'admin:clothing:scene:delete'],
           title: 'app.menu.goods_scene',
           noCache: true
-        }
+        },
+        hidden: true
       },
-      // 平台规则（合并订单配置+运费配置）
+      // 平台规则（已移至 /platform/config，保留路由兼容）
       {
         path: 'rule',
         component: () => import('@/views/config/rule'),
@@ -356,9 +408,10 @@ export const asyncRoutes = [
           perms: ['GET /admin/config/order', 'POST /admin/config/order', 'GET /admin/config/express', 'POST /admin/config/express'],
           title: 'app.menu.platform_rule',
           noCache: true
-        }
+        },
+        hidden: true
       },
-      // 搜索关键词
+      // 搜索关键词（已移至 /platform/config，保留路由兼容）
       {
         path: 'keyword',
         component: () => import('@/views/mall/keyword'),
@@ -367,7 +420,8 @@ export const asyncRoutes = [
           perms: ['GET /admin/keyword/list', 'POST /admin/keyword/create', 'GET /admin/keyword/read', 'POST /admin/keyword/update', 'POST /admin/keyword/delete'],
           title: 'app.menu.mall_keyword',
           noCache: true
-        }
+        },
+        hidden: true
       },
       // 权限管理（合并管理员+角色管理）
       {
@@ -380,7 +434,7 @@ export const asyncRoutes = [
           noCache: true
         }
       },
-      // 通用问题
+      // 通用问题（已移至 /platform/config，保留路由兼容）
       {
         path: 'issue',
         component: () => import('@/views/mall/issue'),
@@ -389,7 +443,8 @@ export const asyncRoutes = [
           perms: ['GET /admin/issue/list', 'POST /admin/issue/create', 'GET /admin/issue/read', 'POST /admin/issue/update', 'POST /admin/issue/delete'],
           title: 'app.menu.mall_issue',
           noCache: true
-        }
+        },
+        hidden: true
       },
       // 通知管理（隐藏）
       {
@@ -425,7 +480,7 @@ export const asyncRoutes = [
           noCache: true
         }
       },
-      // 小程序设置
+      // 小程序设置（已移至 /platform/config，保留路由兼容）
       {
         path: 'wx',
         component: () => import('@/views/config/wx'),
@@ -434,7 +489,8 @@ export const asyncRoutes = [
           perms: ['GET /admin/config/wx', 'POST /admin/config/wx'],
           title: 'app.menu.platform_wx',
           noCache: true
-        }
+        },
+        hidden: true
       },
       // 隐藏的原商城配置（保留路由兼容）
       {
@@ -499,12 +555,13 @@ export const asyncRoutes = [
     ]
   },
 
-  // ==================== 4. 营销管理 ====================
+  // ==================== 4. 营销管理（已隐藏，功能移至商品管理和平台配置） ====================
   {
     path: '/promotion',
     component: Layout,
     redirect: 'noredirect',
     alwaysShow: true,
+    hidden: true,
     name: 'promotionManage',
     meta: {
       title: 'app.menu.promotion',
@@ -574,16 +631,6 @@ export const asyncRoutes = [
           noCache: true
         },
         hidden: true
-      },
-      {
-        path: 'activity',
-        component: () => import('@/views/promotion/activity'),
-        name: 'activity',
-        meta: {
-          perms: ['GET /admin/activity/top/list', 'POST /admin/activity/top/add', 'POST /admin/activity/top/update', 'POST /admin/activity/top/delete'],
-          title: 'app.menu.promotion_activity',
-          noCache: true
-        }
       }
     ]
   },

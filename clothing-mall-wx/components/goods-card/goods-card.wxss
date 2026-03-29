@@ -27,12 +27,16 @@
   padding: 4rpx 12rpx;
   font-size: 20rpx;
   color: #fff;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #BA8D59 0%, #96745A 100%);
   border-radius: 4rpx;
 }
 
 .goods-tag.hot {
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.goods-tag.special {
+  background: linear-gradient(135deg, #E74C3C 0%, #ff6b6b 100%);
 }
 
 .goods-info {

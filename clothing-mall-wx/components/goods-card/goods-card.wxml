@@ -10,7 +10,8 @@
       bindload="onImageLoad"
     />
     <!-- 标签 -->
-    <view class="goods-tag" wx:if="{{goods.isNew}}">新品</view>
+    <view class="goods-tag special" wx:if="{{goods.isSpecialPrice}}">特价</view>
+    <view class="goods-tag" wx:elif="{{goods.isNew}}">新品</view>
     <view class="goods-tag hot" wx:elif="{{goods.isHot}}">热销</view>
   </view>
 
@@ -19,11 +20,18 @@
     <view class="goods-name">{{goods.name}}</view>
     <view class="goods-brief" wx:if="{{goods.brief}}">{{goods.brief}}</view>
     <view class="goods-price-row">
-      <view class="goods-price">
+      <view class="goods-price" wx:if="{{goods.specialPrice}}">
+        <text class="price-symbol">¥</text>
+        <text class="price-value">{{goods.specialPrice}}</text>
+      </view>
+      <view class="goods-price" wx:else>
         <text class="price-symbol">¥</text>
         <text class="price-value">{{goods.retailPrice}}</text>
       </view>
-      <view class="goods-origin-price" wx:if="{{showOriginPrice && goods.counterPrice > goods.retailPrice}}">
+      <view class="goods-origin-price" wx:if="{{goods.specialPrice && goods.counterPrice}}">
+        ¥{{goods.counterPrice}}
+      </view>
+      <view class="goods-origin-price" wx:elif="{{showOriginPrice && goods.counterPrice > goods.retailPrice}}">
         ¥{{goods.counterPrice}}
       </view>
     </view>

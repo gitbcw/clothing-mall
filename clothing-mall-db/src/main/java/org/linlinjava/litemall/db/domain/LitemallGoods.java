@@ -584,6 +584,11 @@ public class LitemallGoods {
     public Boolean getIsSpecialPrice() { return isSpecialPrice; }
     public void setIsSpecialPrice(Boolean isSpecialPrice) { this.isSpecialPrice = isSpecialPrice; }
 
+    private BigDecimal specialPrice;
+
+    public BigDecimal getSpecialPrice() { return specialPrice; }
+    public void setSpecialPrice(BigDecimal specialPrice) { this.specialPrice = specialPrice; }
+
     /**
      * 获取预售状态
      * @return 是否预售
@@ -986,6 +991,7 @@ public class LitemallGoods {
         isNew("is_new", "isNew", "BIT", false),
         isHot("is_hot", "isHot", "BIT", false),
         isSpecialPrice("is_special_price", "isSpecialPrice", "BIT", false),
+        specialPrice("special_price", "specialPrice", "DECIMAL", false),
         isPresale("is_presale", "isPresale", "BIT", false),
         unit("unit", "unit", "VARCHAR", false),
         counterPrice("counter_price", "counterPrice", "DECIMAL", false),

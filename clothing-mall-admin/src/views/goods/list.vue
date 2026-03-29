@@ -13,6 +13,7 @@
       <el-button v-if="batchDeleteArr.length > 0" class="filter-item" type="success" size="small" @click="handleBatchPublish">批量上架 ({{ batchDeleteArr.length }})</el-button>
       <el-button v-if="batchDeleteArr.length > 0" class="filter-item" type="warning" size="small" @click="handleBatchUnpublish">批量下架 ({{ batchDeleteArr.length }})</el-button>
       <el-button class="filter-item" type="danger" plain @click="handleUnpublishAll">一键下架全部</el-button>
+      <el-switch v-model="listQuery.isSpecialPrice" class="filter-item" active-text="仅看特价" @change="handleFilter" />
     </div>
 
     <!-- 状态标签页 -->
@@ -84,23 +85,17 @@
 
       <el-table-column align="center" :label="$t('goods_list.table.retail_price')" prop="retailPrice" />
 
-      <el-table-column align="center" :label="$t('goods_list.table.is_new')" prop="isNew">
+      <el-table-column align="center" label="特价" prop="isSpecialPrice" width="120">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.isNew ? 'success' : 'error' ">{{ $t(scope.row.isNew ? 'goods_list.value.is_new_true' : 'goods_list.value.is_new_false') }}</el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" :label="$t('goods_list.table.is_hot')" prop="isHot">
-        <template slot-scope="scope">
-          <el-tag :type="scope.row.isHot ? 'success' : 'error' ">{{ $t(scope.row.isHot ? 'goods_list.value.is_hot_true' : 'goods_list.value.is_hot_false') }}</el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" label="特价" prop="isSpecialPrice" width="80">
-        <template slot-scope="scope">
-          <el-tag :type="scope.row.isSpecialPrice ? 'warning' : 'info'" size="mini">
-            {{ scope.row.isSpecialPrice ? '特价' : '普通' }}
-          </el-tag>
+          <span v-if="scope.row.isSpecialPrice && scope.row.specialPrice">
+            <el-tag type="warning" size="mini">¥{{ scope.row.specialPrice }}</el-tag>
+          </span>
+          <span v-else-if="scope.row.isSpecialPrice">
+            <el-tag type="warning" size="mini">特价</el-tag>
+          </span>
+          <span v-else>
+            <el-tag type="info" size="mini">普通</el-tag>
+          </span>
         </template>
       </el-table-column>
 
@@ -176,6 +171,7 @@ export default {
         limit: 10,
         goodsSn: undefined,
         name: undefined,
+        isSpecialPrice: false,
         sort: 'add_time',
         order: 'desc'
       },

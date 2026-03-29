@@ -593,3 +593,22 @@ page {
   display: block;
   margin-top: 8rpx;
 }
+
+.activity-price-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  margin-top: 8rpx;
+}
+
+.activity-price.price-special {
+  color: #E74C3C;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.activity-original-price {
+  color: #999;
+  font-size: 22rpx;
+  text-decoration: line-through;
+}

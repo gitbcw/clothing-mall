@@ -20,17 +20,14 @@
           </el-input>
           <span class="form-tip">（小程序显示为划线原价，非实际售价）</span>
         </el-form-item>
-        <el-form-item :label="$t('goods_edit.form.is_new')" prop="isNew">
-          <el-radio-group v-model="goods.isNew">
-            <el-radio :label="true">{{ $t('goods_edit.value.is_new_true') }}</el-radio>
-            <el-radio :label="false">{{ $t('goods_edit.value.is_new_false') }}</el-radio>
-          </el-radio-group>
+        <!-- 特价设置 -->
+        <el-form-item label="设置特价">
+          <el-switch v-model="goods.isSpecialPrice" active-text="特价" inactive-text="普通" />
         </el-form-item>
-        <el-form-item :label="$t('goods_edit.form.is_hot')" prop="isHot">
-          <el-radio-group v-model="goods.isHot">
-            <el-radio :label="false">{{ $t('goods_edit.value.is_hot_false') }}</el-radio>
-            <el-radio :label="true">{{ $t('goods_edit.value.is_hot_true') }}</el-radio>
-          </el-radio-group>
+        <el-form-item v-if="goods.isSpecialPrice" label="特价金额">
+          <el-input v-model="goods.specialPrice" placeholder="0.00" style="width: 300px">
+            <template slot="append">元</template>
+          </el-input>
         </el-form-item>
 
         <el-form-item :label="$t('goods_edit.form.pic_url')">
@@ -309,6 +306,10 @@ export default {
         if (this.goods.keywords === '') {
           this.goods.keywords = null
         }
+        // 自动展开特价开关
+        if (this.goods.specialPrice) {
+          this.goods.isSpecialPrice = true
+        }
         this.attributes = response.data.data.attributes || []
 
         // 处理图片
@@ -349,6 +350,11 @@ export default {
 
     // 更新商品
     async updateGoods(status, successMsg) {
+      // 特价未开启时清空特价金额
+      if (!this.goods.isSpecialPrice) {
+        this.goods.specialPrice = null
+      }
+
       this.saving = true
       try {
         // 如果有待上传的商品图片，先上传

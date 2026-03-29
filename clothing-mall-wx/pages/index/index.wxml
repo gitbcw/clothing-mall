@@ -26,7 +26,11 @@
           <image src="{{item.picUrl}}" mode="aspectFill" class="activity-img" binderror="onHomeImageError" data-source="activityGoods" data-index="{{index}}" />
           <view class="activity-info">
             <text class="activity-name">{{item.name}}</text>
-            <text class="activity-price">¥{{item.retailPrice}}</text>
+            <view class="activity-price-wrap" wx:if="{{item.specialPrice}}">
+              <text class="activity-price price-special">¥{{item.specialPrice}}</text>
+              <text class="activity-original-price">¥{{item.retailPrice}}</text>
+            </view>
+            <text class="activity-price" wx:else>¥{{item.retailPrice}}</text>
           </view>
         </view>
       </scroll-view>

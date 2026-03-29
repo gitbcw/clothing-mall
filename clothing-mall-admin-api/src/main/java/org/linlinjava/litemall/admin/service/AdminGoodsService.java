@@ -43,8 +43,6 @@ public class AdminGoodsService {
     private LitemallCartService cartService;
     @Autowired
     private QCodeService qCodeService;
-    @Autowired
-    private ClothingGoodsSkuService clothingGoodsSkuService;
 
     public Object list(Integer goodsId, String goodsSn, String name, String status,
                        Integer page, Integer limit, String sort, String order) {
@@ -207,15 +205,6 @@ public class AdminGoodsService {
             }
         }
 
-        // 更新 SKU 关联（服装店扩展功能）
-        List<Integer> skuIds = goodsAllinone.getSkuIds();
-        if (skuIds != null) {
-            clothingGoodsSkuService.unbindByGoodsId(gid);
-            if (!skuIds.isEmpty()) {
-                clothingGoodsSkuService.bindGoodsBatch(skuIds, gid);
-            }
-        }
-
         // 这里需要注意的是购物车litemall_cart有些字段是拷贝商品的一些字段，因此需要及时更新
         // 目前这些字段是goods_sn, goods_name, price, pic_url
         for (LitemallGoodsProduct product : products) {
@@ -295,14 +284,6 @@ public class AdminGoodsService {
         for (LitemallGoodsProduct product : products) {
             product.setGoodsId(goods.getId());
             productService.add(product);
-        }
-
-        // 关联 SKU（服装店扩展功能）
-        List<Integer> skuIds = goodsAllinone.getSkuIds();
-        if (skuIds != null && !skuIds.isEmpty()) {
-            // 批量关联商品
-            clothingGoodsSkuService.bindGoodsBatch(skuIds, goods.getId());
-            // 注意：SKU 的 active/inactive 状态是独立的，不随商品上架而改变
         }
 
         return ResponseUtil.ok();

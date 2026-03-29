@@ -152,16 +152,6 @@ export const asyncRoutes = [
         hidden: true
       },
       {
-        path: 'sku',
-        component: () => import('@/views/mall/sku'),
-        name: 'goodsSku',
-        meta: {
-          perms: ['GET /admin/clothing/sku/list', 'POST /admin/clothing/sku/create', 'POST /admin/clothing/sku/update', 'POST /admin/clothing/sku/delete'],
-          title: 'app.menu.goods_sku',
-          noCache: true
-        }
-      },
-      {
         path: 'category',
         component: () => import('@/views/mall/category'),
         name: 'category',
@@ -170,17 +160,6 @@ export const asyncRoutes = [
           title: 'app.menu.mall_category',
           noCache: true
         }
-      },
-      {
-        path: 'ocr',
-        component: () => import('@/views/goods/ocr'),
-        name: 'goodsOcr',
-        meta: {
-          perms: ['POST /admin/ocr/recognize', 'POST /admin/ocr/updateStock'],
-          title: 'app.menu.goods_ocr',
-          noCache: true
-        },
-        hidden: true
       },
       // 隐藏的品牌管理（保留路由但不在菜单显示）
       {

@@ -1,45 +1,5 @@
 import request from '@/utils/request'
 
-export function listSku(query) {
-  return request({
-    url: '/clothing/sku/list',
-    method: 'get',
-    params: query
-  })
-}
-
-export function createSku(data) {
-  return request({
-    url: '/clothing/sku/create',
-    method: 'post',
-    data
-  })
-}
-
-export function updateSku(data) {
-  return request({
-    url: '/clothing/sku/update',
-    method: 'post',
-    data
-  })
-}
-
-export function deleteSku(data) {
-  return request({
-    url: '/clothing/sku/delete',
-    method: 'post',
-    data
-  })
-}
-
-export function updateStock(data) {
-  return request({
-    url: '/clothing/sku/stock',
-    method: 'post',
-    data
-  })
-}
-
 export function listStore(query) {
   return request({
     url: '/clothing/store/list',

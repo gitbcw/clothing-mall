@@ -24,8 +24,6 @@ export default {
       goods_create: '商品上架',
       goods_edit: '商品编辑',
       goods_comment: '商品评论',
-      goods_ocr: 'OCR识别',
-      goods_sku: 'SKU管理',
       goods_scene: '场景管理',
       goods_store: '门店管理',
       goods_guide: '导购管理',

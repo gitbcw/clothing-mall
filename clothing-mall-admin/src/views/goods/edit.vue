@@ -104,41 +104,6 @@
       </el-form>
     </el-card>
 
-    <!-- SKU 选择卡片 -->
-    <el-card v-if="skuList.length > 0" class="box-card">
-      <h3>SKU 选择</h3>
-      <el-checkbox v-model="selectAllSku" @change="handleSelectAll">全选</el-checkbox>
-      <el-table
-        ref="skuTable"
-        :data="skuList"
-        border
-        style="margin-top: 10px;"
-        @selection-change="handleSkuSelectionChange"
-      >
-        <el-table-column type="selection" width="55" align="center" />
-        <el-table-column align="center" label="SKU编码" prop="skuCode" width="120" />
-        <el-table-column align="center" label="颜色" prop="color" width="100" />
-        <el-table-column align="center" label="尺码" prop="size" width="80" />
-        <el-table-column align="center" label="价格" prop="price" width="100">
-          <template slot-scope="scope">
-            ¥{{ scope.row.price }}
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="库存" prop="stock" width="80" />
-        <el-table-column align="center" label="条形码" prop="barCode" width="120" />
-        <el-table-column align="center" label="默认" prop="isDefault" width="80">
-          <template slot-scope="scope">
-            <el-tag :type="scope.row.isDefault ? 'success' : 'info'">
-              {{ scope.row.isDefault ? '是' : '否' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-      </el-table>
-      <div v-if="selectedSkuIds.length > 0" style="margin-top: 10px; color: #67C23A;">
-        已选择 {{ selectedSkuIds.length }} 个SKU
-      </div>
-    </el-card>
-
     <!-- 商品参数卡片 -->
     <el-card v-if="goods.id" class="box-card">
       <h3>{{ $t('goods_edit.section.attributes') }}</h3>
@@ -236,7 +201,6 @@
 
 <script>
 import { detailGoods, editGoods, listCatAndBrand } from '@/api/goods'
-import { listSku } from '@/api/sku'
 import { listScene } from '@/api/scene'
 import { createStorage, uploadPath } from '@/api/storage'
 import Editor from '@tinymce/tinymce-vue'
@@ -257,10 +221,6 @@ export default {
       keywords: [],
       newKeywordVisible: false,
       newKeyword: '',
-      // SKU 相关
-      skuList: [],
-      selectedSkuIds: [],
-      selectAllSku: true,
       // 场景标签相关
       sceneList: [],
       selectedSceneIds: [],
@@ -364,48 +324,7 @@ export default {
         if (this.goods.keywords) {
           this.keywords = this.goods.keywords.split(',')
         }
-
-        // 加载 SKU
-        this.loadSkuList()
       })
-    },
-
-    // 加载 SKU 列表
-    loadSkuList() {
-      listSku({ goodsId: this.goods.id }).then(res => {
-        this.skuList = res.data.data || []
-        this.selectedSkuIds = this.skuList.map(s => s.id)
-        this.selectAllSku = true
-        this.$nextTick(() => {
-          if (this.$refs.skuTable) {
-            this.skuList.forEach(row => {
-              this.$refs.skuTable.toggleRowSelection(row, true)
-            })
-          }
-        })
-      })
-    },
-
-    // 全选/取消全选
-    handleSelectAll(val) {
-      if (val) {
-        this.selectedSkuIds = this.skuList.map(s => s.id)
-      } else {
-        this.selectedSkuIds = []
-      }
-      this.$nextTick(() => {
-        if (this.$refs.skuTable) {
-          this.skuList.forEach(row => {
-            this.$refs.skuTable.toggleRowSelection(row, val)
-          })
-        }
-      })
-    },
-
-    // SKU 选择变更
-    handleSkuSelectionChange(selection) {
-      this.selectedSkuIds = selection.map(item => item.id)
-      this.selectAllSku = this.selectedSkuIds.length === this.skuList.length
     },
 
     // 暂存草稿
@@ -455,7 +374,6 @@ export default {
           specifications: [],
           products: [],
           attributes: this.attributes,
-          skuIds: this.selectedSkuIds,
           sceneIds: this.selectedSceneIds
         }
 

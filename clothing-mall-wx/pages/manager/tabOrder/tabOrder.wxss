@@ -1,6 +1,46 @@
+@import "../../../styles/manager-common.wxss";
+
 .container {
   min-height: 100vh;
   background-color: #F7F8FA;
+  padding-bottom: calc(100rpx + env(safe-area-inset-bottom));
+}
+
+/* 子 Tab */
+.sub-tabs {
+  display: flex;
+  background: #fff;
+  padding: 0 24rpx;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.sub-tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  position: relative;
+}
+
+.sub-tab-item.active {
+  color: #BA8D59;
+  font-weight: 600;
+}
+
+.sub-tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48rpx;
+  height: 6rpx;
+  background: #BA8D59;
+  border-radius: 3rpx;
 }
 
 /* 订单列表 */
@@ -131,11 +171,6 @@
 .order-total {
   font-size: 26rpx;
   color: #333;
-}
-
-.order-total .price {
-  color: #E8494A;
-  font-weight: 600;
 }
 
 .order-actions {

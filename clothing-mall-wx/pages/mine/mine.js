@@ -244,7 +244,7 @@ Page({
   goManager() {
     if (this.data.isManager) {
       wx.navigateTo({
-        url: '/pages/manager/index/index'
+        url: '/pages/manager/tabOrder/tabOrder'
       })
     }
   }

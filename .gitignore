@@ -99,3 +99,4 @@ docker/litemall/storage/
 docker/admin-dist/
 docker/.env
 .claude/
+.superpowers/

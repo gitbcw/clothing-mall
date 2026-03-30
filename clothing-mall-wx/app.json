@@ -1,6 +1,8 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/manager/tabOrder/tabOrder",
+    "pages/manager/tabShelf/tabShelf",
     "pages/category/category",
     "pages/scene/scene",
     "pages/cart/cart",
@@ -25,14 +27,7 @@
     "pages/ucenter/aftersaleList/aftersaleList",
     "pages/search/search",
     "pages/payResult/payResult",
-    "pages/manager/index/index",
-    "pages/manager/order/order",
     "pages/manager/orderDetail/orderDetail",
-    "pages/manager/upload/upload",
-    "pages/manager/confirmUpload/confirmUpload",
-    "pages/manager/skuList/skuList",
-    "pages/manager/draftList/draftList",
-    "pages/manager/goods/goods",
     "pages/manager/goodsEdit/goodsEdit"
   ],
   "window": {

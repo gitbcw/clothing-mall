@@ -1,0 +1,8 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "van-popup": "../../../lib/vant-weapp/popup/index",
+    "van-picker": "../../../lib/vant-weapp/picker/index",
+    "manager-tab-bar": "/components/manager-tab-bar/index"
+  }
+}

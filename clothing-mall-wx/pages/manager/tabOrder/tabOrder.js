@@ -3,23 +3,30 @@ const api = require('../../../config/api.js');
 
 Page({
   data: {
-    type: 'pending',
+    activeSubTab: 'order',  // 'order' | 'aftersale'
     orderList: [],
     page: 1,
     limit: 10,
     total: 0,
-    loading: false,
     pendingCount: 0,
     aftersaleCount: 0,
-    completedCount: 0
+    loading: false
   },
 
-  onLoad(options) {
-    this.setData({ type: options.type || 'pending' });
+  onLoad() {
+    this.getOrderList();
   },
 
   onShow() {
-    this.refreshList();
+    // 更新管理端 TabBar
+    const tabBar = this.selectComponent('#managerTabBar');
+    if (tabBar) {
+      tabBar.setData({ active: 0 });
+    }
+    // 刷新数据
+    if (this.data.orderList.length > 0) {
+      this.refreshList();
+    }
   },
 
   onPullDownRefresh() {
@@ -34,6 +41,18 @@ Page({
     }
   },
 
+  // 子 Tab 切换
+  onSubTabChange(e) {
+    const tab = e.currentTarget.dataset.tab;
+    if (tab === this.data.activeSubTab) return;
+    this.setData({
+      activeSubTab: tab,
+      page: 1,
+      orderList: []
+    });
+    this.getOrderList();
+  },
+
   refreshList() {
     this.setData({ page: 1, orderList: [] });
     this.getOrderList();
@@ -44,8 +63,11 @@ Page({
     let that = this;
     this.setData({ loading: true });
 
+    // 根据子 Tab 选择状态
+    const status = this.data.activeSubTab === 'order' ? 'pending' : 'aftersale';
+
     util.request(api.ManagerOrderList, {
-      status: this.data.type,
+      status: status,
       page: this.data.page,
       limit: this.data.limit
     }).then(function(res) {
@@ -69,7 +91,6 @@ Page({
           total: data.total || 0,
           pendingCount: data.pendingCount || 0,
           aftersaleCount: data.aftersaleCount || 0,
-          completedCount: data.completedCount || 0,
           loading: false
         });
       } else {
@@ -78,15 +99,6 @@ Page({
     }).catch(function() {
       that.setData({ loading: false });
     });
-  },
-
-  onTabChange(e) {
-    this.setData({
-      type: e.detail.name,
-      page: 1,
-      orderList: []
-    });
-    this.getOrderList();
   },
 
   goOrderDetail(e) {

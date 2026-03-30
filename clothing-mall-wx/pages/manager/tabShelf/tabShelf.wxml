@@ -1,0 +1,267 @@
+<view class="container">
+  <!-- 子 Tab 切换 -->
+  <view class="sub-tabs">
+    <view class="sub-tab-item {{activeSubTab === 'upload' ? 'active' : ''}}" bindtap="onSubTabChange" data-tab="upload">
+      上架商品
+    </view>
+    <view class="sub-tab-item {{activeSubTab === 'list' ? 'active' : ''}}" bindtap="onSubTabChange" data-tab="list">
+      商品列表
+    </view>
+  </view>
+
+  <!-- ========== 上架表单 ========== -->
+  <view class="upload-section" wx:if="{{activeSubTab === 'upload'}}">
+    <!-- 商品图片 -->
+    <view class="section">
+      <view class="section-title">
+        <text>商品图片</text>
+        <text class="ai-hint" wx:if="{{aiRecognized}}">AI 识别置信度 {{aiConfidence}}%</text>
+      </view>
+      <view class="image-upload">
+        <view class="main-image" bindtap="chooseMainImage">
+          <image wx:if="{{form.picUrl}}" src="{{form.picUrl}}" mode="aspectFill" class="preview-image"></image>
+          <view wx:else class="upload-placeholder">
+            <text class="upload-icon">+</text>
+            <text class="upload-text">主图</text>
+          </view>
+          <!-- AI 识别中遮罩 -->
+          <view class="ai-overlay" wx:if="{{aiRecognizing}}">
+            <text class="ai-loading">AI 识别中...</text>
+          </view>
+          <!-- AI 识别标签 -->
+          <view class="ai-badge" wx:if="{{aiRecognized && !aiRecognizing}}">
+            <text>AI {{aiConfidence}}%</text>
+          </view>
+        </view>
+      </view>
+      <view class="gallery-images">
+        <view class="gallery-item" wx:for="{{form.gallery}}" wx:key="index">
+          <image src="{{item}}" mode="aspectFill" class="gallery-image"></image>
+          <view class="gallery-delete" catchtap="removeGallery" data-index="{{index}}">×</view>
+        </view>
+        <view class="gallery-add" bindtap="chooseGalleryImage" wx:if="{{form.gallery.length < 9}}">
+          <text class="upload-icon">+</text>
+          <text class="upload-text">详情图</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 基本信息 -->
+    <view class="section">
+      <view class="section-title">基本信息</view>
+      <view class="form-item">
+        <text class="form-label">商品名称 <text class="required">*</text></text>
+        <view class="input-wrapper">
+          <input class="form-input" placeholder="请输入商品名称" placeholder-style="font-size:28rpx;color:#999;" value="{{form.name}}" bindinput="onNameInput" />
+        </view>
+      </view>
+      <view class="form-row">
+        <view class="form-item third">
+          <text class="form-label">专柜价</text>
+          <view class="input-wrapper">
+            <input class="form-input" type="digit" placeholder="专柜价" placeholder-style="font-size:28rpx;color:#999;" value="{{form.counterPrice}}" bindinput="onCounterPriceInput" />
+          </view>
+        </view>
+        <view class="form-item third">
+          <text class="form-label">零售价 <text class="required">*</text></text>
+          <view class="input-wrapper">
+            <input class="form-input" type="digit" placeholder="零售价" placeholder-style="font-size:28rpx;color:#999;" value="{{form.retailPrice}}" bindinput="onRetailPriceInput" />
+          </view>
+        </view>
+        <view class="form-item third">
+          <text class="form-label">特价</text>
+          <view class="input-wrapper">
+            <input class="form-input" type="digit" placeholder="特价（可选）" placeholder-style="font-size:28rpx;color:#999;" value="{{form.specialPrice}}" bindinput="onSpecialPriceInput" />
+          </view>
+        </view>
+      </view>
+      <view class="form-item" bindtap="showCategoryPicker">
+        <text class="form-label">商品分类</text>
+        <view class="form-picker">
+          <text class="picker-value {{form.categoryName ? '' : 'placeholder'}}">{{form.categoryName || '请选择分类'}}</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 场景标签 -->
+    <view class="section">
+      <view class="section-title">场景标签</view>
+      <view class="scene-chips">
+        <view class="scene-chip {{form.scenes.indexOf(item) > -1 ? 'active' : ''}}"
+              wx:for="{{presetScenes}}" wx:key="*this" bindtap="onSceneToggle" data-scene="{{item}}">
+          {{item}}
+        </view>
+        <!-- 已添加的自定义场景 -->
+        <view class="scene-chip active" wx:for="{{form.scenes}}" wx:for-item="scene" wx:key="*this"
+              wx:if="{{presetScenes.indexOf(scene) === -1}}">
+          {{scene}}
+          <text class="chip-remove" catchtap="removeScene" data-scene="{{scene}}">×</text>
+        </view>
+        <!-- 自定义输入入口 -->
+        <view class="scene-chip add-btn" wx:if="{{!showCustomSceneInput}}" bindtap="showCustomSceneInput">
+          <text class="add-icon">+</text>
+          <text>自定义</text>
+        </view>
+      </view>
+      <!-- 自定义场景输入框 -->
+      <view class="custom-scene-input" wx:if="{{showCustomSceneInput}}">
+        <input class="scene-input" placeholder="输入场景名称" value="{{customSceneInput}}" bindinput="onCustomSceneInput" />
+        <view class="scene-input-actions">
+          <view class="scene-action-btn cancel" bindtap="hideCustomSceneInput">取消</view>
+          <view class="scene-action-btn confirm" bindtap="addCustomScene">添加</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 商品简介 -->
+    <view class="section">
+      <view class="section-title">商品简介</view>
+      <view class="form-item" style="margin-bottom: 0;">
+        <textarea class="form-textarea" placeholder="请输入商品简介（一句话描述，最多200字）" value="{{form.brief}}" bindinput="onBriefInput" maxlength="200"></textarea>
+      </view>
+    </view>
+
+    <!-- 商品详细介绍 -->
+    <view class="section">
+      <view class="section-title">商品详细介绍</view>
+      <view class="form-item" style="margin-bottom: 0;">
+        <textarea class="form-textarea detail-textarea" placeholder="请输入商品详细介绍（支持换行，最多500字）" value="{{form.detail}}" bindinput="onDetailInput" maxlength="500"></textarea>
+        <text class="char-count">{{form.detail.length || 0}}/500</text>
+      </view>
+    </view>
+
+    <!-- 商品参数 -->
+    <view class="section">
+      <view class="section-title">
+        <text>商品参数</text>
+        <view class="add-param-btn" bindtap="addParam">+ 添加参数</view>
+      </view>
+      <view class="params-list" wx:if="{{params.length > 0}}">
+        <view class="param-row" wx:for="{{params}}" wx:key="index">
+          <input class="param-input param-key" placeholder="参数名（如面料）" value="{{item.key}}" bindinput="onParamKeyInput" data-index="{{index}}" />
+          <input class="param-input param-value" placeholder="参数值（如棉麻混纺）" value="{{item.value}}" bindinput="onParamValueInput" data-index="{{index}}" />
+          <view class="param-delete" catchtap="removeParam" data-index="{{index}}">×</view>
+        </view>
+      </view>
+      <view class="params-empty" wx:else>
+        <text>暂无参数，点击上方按钮添加（如面料、产地、洗涤方式等）</text>
+      </view>
+    </view>
+
+    <!-- 底部操作栏 -->
+    <view class="action-bar">
+      <view class="action-btn btn-preview" bindtap="onPreview">预览</view>
+      <view class="action-btn btn-save" bindtap="onSaveDraft">保存草稿</view>
+      <view class="action-btn btn-publish" bindtap="onPublish">立即上架</view>
+    </view>
+
+    <!-- 预览弹窗 -->
+    <view class="preview-popup" wx:if="{{showPreview}}">
+      <view class="preview-mask" bindtap="hidePreview"></view>
+      <view class="preview-content">
+        <view class="preview-header">
+          <text class="preview-title">商品预览（买家视角）</text>
+          <text class="preview-close" bindtap="hidePreview">×</text>
+        </view>
+        <view class="preview-body">
+          <view class="preview-card">
+            <image class="preview-image" src="{{previewData.picUrl}}" mode="aspectFill"></image>
+            <view class="preview-info">
+              <text class="preview-name">{{previewData.name}}</text>
+              <text class="preview-brief" wx:if="{{previewData.brief}}">{{previewData.brief}}</text>
+              <view class="preview-tags" wx:if="{{previewData.scenes.length > 0}}">
+                <text class="preview-tag" wx:for="{{previewData.scenes}}" wx:key="*this">{{item}}</text>
+              </view>
+              <view class="preview-price">
+                <text class="price-current">¥{{previewData.retailPrice}}</text>
+                <text class="price-original" wx:if="{{previewData.counterPrice}}">¥{{previewData.counterPrice}}</text>
+                <text class="price-special" wx:if="{{previewData.isSpecial}}">特价 ¥{{previewData.specialPrice}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="preview-footer">
+          <view class="preview-btn btn-cancel" bindtap="hidePreview">继续编辑</view>
+          <view class="preview-btn btn-confirm" bindtap="onPublish">确认上架</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 草稿提示 -->
+    <view class="draft-tip" wx:if="{{hasDraft}}">
+      <text class="draft-icon">📋</text>
+      <text>有未提交的草稿</text>
+    </view>
+  </view>
+
+  <!-- ========== 商品列表 ========== -->
+  <view class="list-section" wx:if="{{activeSubTab === 'list'}}">
+    <!-- 列表 Tab -->
+    <view class="list-tabs">
+      <view class="list-tab-item {{listTab === 'on_sale' ? 'active' : ''}}" bindtap="onListTabChange" data-tab="on_sale">
+        在售{{tabCounts.onSaleCount > 0 ? '(' + tabCounts.onSaleCount + ')' : ''}}
+      </view>
+      <view class="list-tab-item {{listTab === 'pending' ? 'active' : ''}}" bindtap="onListTabChange" data-tab="pending">
+        待上架{{tabCounts.pendingCount > 0 ? '(' + tabCounts.pendingCount + ')' : ''}}
+      </view>
+    </view>
+
+    <!-- 搜索栏 -->
+    <view class="search-bar">
+      <input class="search-input" placeholder="搜索商品名称" value="{{searchKeyword}}" bindinput="onSearchInput" />
+    </view>
+
+    <!-- 顶部操作栏 -->
+    <view class="list-header" wx:if="{{listTab === 'on_sale' && tabCounts.onSaleCount > 0}}">
+      <text class="list-count">共 {{tabCounts.onSaleCount}} 件在售</text>
+      <view class="unpublish-all-btn" bindtap="onUnpublishAll">一键下架</view>
+    </view>
+
+    <!-- 商品列表 -->
+    <view class="goods-list">
+      <view class="goods-card" wx:for="{{goodsList}}" wx:key="id">
+        <image class="goods-image" src="{{item.picUrl}}" mode="aspectFill"></image>
+        <view class="goods-info">
+          <text class="goods-name">{{item.name}}</text>
+          <view class="goods-tags">
+            <text class="status-tag status-{{item.status}}">{{item.statusText}}</text>
+          </view>
+          <view class="goods-price">
+            <text class="retail-price">¥{{item.retailPrice}}</text>
+            <text class="counter-price" wx:if="{{item.counterPrice}}">¥{{item.counterPrice}}</text>
+            <text class="special-price" wx:if="{{item.specialPrice}}">特价 ¥{{item.specialPrice}}</text>
+          </view>
+        </view>
+        <view class="goods-actions">
+          <view class="goods-btn" catchtap="onEditGoods" data-id="{{item.id}}">编辑</view>
+          <view class="goods-btn btn-warning" wx:if="{{listTab === 'on_sale'}}" catchtap="onUnpublishGoods" data-id="{{item.id}}">下架</view>
+          <view class="goods-btn btn-primary" wx:if="{{listTab === 'pending'}}" catchtap="onPublishGoods" data-id="{{item.id}}">上架</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty" wx:if="{{!loading && goodsList.length === 0}}">
+      <text>暂无{{listTab === 'on_sale' ? '在售' : '待上架'}}商品</text>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+  </view>
+
+  <!-- 分类选择器 -->
+  <van-popup show="{{showCategoryPicker}}" position="bottom" round bind:close="onCategoryClose">
+    <view class="picker-header">
+      <text class="picker-cancel" bindtap="onCategoryClose">取消</text>
+      <text class="picker-title">选择分类</text>
+      <text class="picker-confirm"></text>
+    </view>
+    <van-picker columns="{{categoryList}}" value-key="name" bind:change="onCategoryChange" />
+  </van-popup>
+
+  <!-- 管理端 TabBar -->
+  <manager-tab-bar id="managerTabBar" />
+</view>

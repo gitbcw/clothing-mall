@@ -1,9 +1,0 @@
-{
-  "navigationBarTitleText": "商品管理",
-  "enablePullDownRefresh": true,
-  "usingComponents": {
-    "van-tabs": "/lib/vant-weapp/tabs/index",
-    "van-tab": "/lib/vant-weapp/tab/index",
-    "van-icon": "/lib/vant-weapp/icon/index"
-  }
-}

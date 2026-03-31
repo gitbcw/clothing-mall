@@ -14,6 +14,8 @@ function debounce(fn, delay) {
 
 Page({
   data: {
+    statusBarHeight: 20,
+    navBarHeight: 44,
     activeSubTab: 'upload',  // 'upload' | 'list'
     listTab: 'on_sale',      // 'on_sale' | 'pending'
     // 表单数据
@@ -64,6 +66,13 @@ Page({
   },
 
   onLoad() {
+    // 获取系统信息，设置状态栏高度
+    const sysInfo = wx.getSystemInfoSync();
+    const isIOS = sysInfo.system.indexOf('iOS') > -1;
+    this.setData({
+      statusBarHeight: sysInfo.statusBarHeight,
+      navBarHeight: isIOS ? 44 : 48
+    });
     this.loadDraft();
     this.getCategoryList();
     this.getGoodsList();
@@ -370,29 +379,10 @@ Page({
   },
 
   uploadImage(filePath, callback) {
-    wx.uploadFile({
-      url: api.StorageUpload,
-      filePath: filePath,
-      name: 'file',
-      header: { 'X-Litemall-Token': wx.getStorageSync('token') },
-      success(res) {
-        try {
-          const data = JSON.parse(res.data);
-          if (data.errno === 0) {
-            callback(data.data.url);
-          } else {
-            wx.showToast({ title: '上传失败', icon: 'none' });
-            callback(null);
-          }
-        } catch (e) {
-          wx.showToast({ title: '上传失败', icon: 'none' });
-          callback(null);
-        }
-      },
-      fail() {
-        wx.showToast({ title: '上传失败', icon: 'none' });
-        callback(null);
-      }
+    util.uploadFile(filePath).then(function(url) {
+      callback(url);
+    }).catch(function() {
+      callback(null);
     });
   },
 

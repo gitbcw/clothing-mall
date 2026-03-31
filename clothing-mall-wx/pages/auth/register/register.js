@@ -1,5 +1,6 @@
 var api = require('../../../config/api.js');
 var check = require('../../../utils/check.js');
+var util = require('../../../utils/util.js');
 
 var app = getApp();
 Page({
@@ -50,67 +51,46 @@ Page({
       return false;
     }
 
-    wx.request({
-      url: api.AuthRegisterCaptcha,
-      data: {
-        mobile: that.data.mobile
-      },
-      method: 'POST',
-      header: {
-        'content-type': 'application/json'
-      },
-      success: function(res) {
-        if (res.data.errno == 0) {
-          wx.showModal({
-            title: '发送成功',
-            content: '验证码已发送',
-            showCancel: false
-          });
-        } else {
-          wx.showModal({
-            title: '错误信息',
-            content: res.data.errmsg,
-            showCancel: false
-          });
-        }
+    util.request(api.AuthRegisterCaptcha, {
+      mobile: that.data.mobile
+    }, 'POST').then(function(res) {
+      if (res.errno == 0) {
+        wx.showModal({
+          title: '发送成功',
+          content: '验证码已发送',
+          showCancel: false
+        });
+      } else {
+        wx.showModal({
+          title: '错误信息',
+          content: res.errmsg,
+          showCancel: false
+        });
       }
     });
   },
   requestRegister: function(wxCode) {
     let that = this;
-    wx.request({
-      url: api.AuthRegister,
-      data: {
-        username: that.data.username,
-        password: that.data.password,
-        mobile: that.data.mobile,
-        code: that.data.code,
-        wxCode: wxCode
-      },
-      method: 'POST',
-      header: {
-        'content-type': 'application/json'
-      },
-      success: function(res) {
-        if (res.data.errno == 0) {
-          app.globalData.hasLogin = true;
-          wx.setStorageSync('userInfo', res.data.data.userInfo);
-          wx.setStorage({
-            key: "token",
-            data: res.data.data.token,
-            success: function() {
-              wx.switchTab({
-                url: '/pages/mine/mine'
-              });
-            }
-          });
-        } else {
-          wx.showModal({
-            title: '错误信息',
-            content: res.data.errmsg,
-            showCancel: false
-          });
-        }
+    util.request(api.AuthRegister, {
+      username: that.data.username,
+      password: that.data.password,
+      mobile: that.data.mobile,
+      code: that.data.code,
+      wxCode: wxCode
+    }, 'POST').then(function(res) {
+      if (res.errno == 0) {
+        app.globalData.hasLogin = true;
+        wx.setStorageSync('userInfo', res.data.userInfo);
+        wx.setStorageSync('token', res.data.token);
+        wx.switchTab({
+          url: '/pages/mine/mine'
+        });
+      } else {
+        wx.showModal({
+          title: '错误信息',
+          content: res.errmsg,
+          showCancel: false
+        });
       }
     });
   },

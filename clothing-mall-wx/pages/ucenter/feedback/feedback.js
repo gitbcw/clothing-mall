@@ -37,36 +37,13 @@ Page({
   },
   upload: function(res) {
     var that = this;
-    const uploadTask = wx.uploadFile({
-      url: api.StorageUpload,
-      filePath: res.tempFilePaths[0],
-      name: 'file',
-      success: function(res) {
-        var _res = JSON.parse(res.data);
-        if (_res.errno === 0) {
-          var url = _res.data.url
-          that.data.picUrls.push(url)
-          that.setData({
-            hasPicture: true,
-            picUrls: that.data.picUrls
-          })
-        }
-      },
-      fail: function(e) {
-        wx.showModal({
-          title: '错误',
-          content: '上传失败',
-          showCancel: false
-        })
-      },
-    })
-
-    uploadTask.onProgressUpdate((res) => {
-      console.log('上传进度', res.progress)
-      console.log('已经上传的数据长度', res.totalBytesSent)
-      console.log('预期需要上传的数据总长度', res.totalBytesExpectedToSend)
-    })
-
+    util.uploadFile(res.tempFilePaths[0]).then(function(url) {
+      that.data.picUrls.push(url);
+      that.setData({
+        hasPicture: true,
+        picUrls: that.data.picUrls
+      });
+    });
   },
   previewImage: function(e) {
     wx.previewImage({

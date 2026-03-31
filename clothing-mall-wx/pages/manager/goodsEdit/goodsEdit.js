@@ -99,24 +99,10 @@ Page({
   },
 
   uploadImage(filePath, callback) {
-    wx.uploadFile({
-      url: api.StorageUpload,
-      filePath: filePath,
-      name: 'file',
-      header: { 'X-Litemall-Token': wx.getStorageSync('token') },
-      success(res) {
-        const data = JSON.parse(res.data);
-        if (data.errno === 0) {
-          callback(data.data.url);
-        } else {
-          wx.showToast({ title: '上传失败', icon: 'none' });
-          callback(null);
-        }
-      },
-      fail() {
-        wx.showToast({ title: '上传失败', icon: 'none' });
-        callback(null);
-      }
+    util.uploadFile(filePath).then(function(url) {
+      callback(url);
+    }).catch(function() {
+      callback(null);
     });
   },
 

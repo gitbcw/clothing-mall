@@ -1,5 +1,5 @@
 var apiRootMap = {
-  develop: 'http://47.107.151.70:8088/wx/',
+  develop: 'http://127.0.0.1:8088/wx/',
   trial: 'http://47.107.151.70:8088/wx/',
   release: 'https://www.menethil.com.cn/wx/'
 };
@@ -50,7 +50,6 @@ module.exports = {
   CollectAddOrDelete: WxApiRoot + 'collect/addordelete', //添加或取消收藏
 
   SearchIndex: WxApiRoot + 'search/index', //搜索关键字
-  SearchResult: WxApiRoot + 'search/result', //搜索结果
   SearchHelper: WxApiRoot + 'search/helper', //搜索帮助
   SearchClearHistory: WxApiRoot + 'search/clearhistory', //搜索历史清楚
 
@@ -77,6 +76,7 @@ module.exports = {
   AftersaleSubmit: WxApiRoot + 'aftersale/submit', // 提交售后申请
   AftersaleList: WxApiRoot + 'aftersale/list', // 售后列表
   AftersaleDetail: WxApiRoot + 'aftersale/detail', // 售后详情
+  AftersaleCancel: WxApiRoot + 'aftersale/cancel', // 取消售后
 
   FeedbackAdd: WxApiRoot + 'feedback/submit', //添加反馈
   FootprintList: WxApiRoot + 'footprint/list', //足迹列表
@@ -91,9 +91,9 @@ module.exports = {
   StorageUpload: WxApiRoot + 'storage/upload', //图片上传,
   SceneBanners: WxApiRoot + 'scene/banners',
   SceneGoods: WxApiRoot + 'scene/goods',
+  FullReductionList: WxApiRoot + 'fullReduction/list', // 满减活动列表
 
   UserIndex: WxApiRoot + 'user/index', //个人页面用户相关信息
-  UserUpdate: WxApiRoot + 'user/update', //更新用户信息
   UserRole: WxApiRoot + 'user/role', // 获取用户角色
   UserIsManager: WxApiRoot + 'user/isManager', // 检查用户是否有管理权限
   IssueList: WxApiRoot + 'issue/list', //帮助信息
@@ -101,15 +101,19 @@ module.exports = {
   // 服装店 SKU 相关接口
   ClothingSkuList: WxApiRoot + 'clothing/sku/list', // 商品 SKU 列表
   ClothingSkuDetail: WxApiRoot + 'clothing/sku/detail', // SKU 详情
-  ClothingSkuCreate: WxApiRoot + 'clothing/sku/create', // 创建 SKU
-  ClothingSkuUpdate: WxApiRoot + 'clothing/sku/update', // 更新 SKU
   ClothingSkuCheckStock: WxApiRoot + 'clothing/sku/checkStock', // 检查库存
+  ClothingSkuSizes: WxApiRoot + 'clothing/sku/sizes', // 指定颜色下的尺码列表
+  ClothingSkuQuery: WxApiRoot + 'clothing/sku/query', // 按商品+颜色+尺码查 SKU
   ClothingStoreList: WxApiRoot + 'clothing/store/list', // 门店列表
   ClothingStoreDetail: WxApiRoot + 'clothing/store/detail', // 门店详情
+  ClothingStoreNearest: WxApiRoot + 'clothing/store/nearest', // 最近门店
+  ClothingUserLevels: WxApiRoot + 'clothing/user/levels', // 会员等级列表
   ClothingUserInfo: WxApiRoot + 'clothing/user/info', // 会员信息
   ClothingUserBindGuide: WxApiRoot + 'clothing/user/bindGuide', // 绑定导购
 
   FlashSaleGoods: WxApiRoot + 'flashSale/goods', // 商品特卖信息
+  FlashSaleList: WxApiRoot + 'flashSale/list', // 限时特卖列表
+  FlashSaleDetail: WxApiRoot + 'flashSale/detail', // 限时特卖详情
 
   // 埋点上报接口
   TrackerReport: WxApiRoot + 'tracker/report',

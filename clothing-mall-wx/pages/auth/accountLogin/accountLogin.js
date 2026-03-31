@@ -45,40 +45,32 @@ Page({
       return false;
     }
 
-    wx.request({
-      url: api.AuthLoginByAccount,
-      data: {
-        username: that.data.username,
-        password: that.data.password,
-      },
-      method: "POST",
-      header: {
-        "content-type": "application/json",
-      },
-      success: function (res) {
-        if (res.data.errno == 0) {
-          that.setData({
-            loginErrorCount: 0,
-          });
-          app.globalData.hasLogin = true;
-          wx.setStorageSync("userInfo", res.data.data.userInfo);
-          wx.setStorage({
-            key: "token",
-            data: res.data.data.token,
-            success: function () {
-              wx.switchTab({
-                url: "/pages/mine/mine",
-              });
-            },
-          });
-        } else {
-          that.setData({
-            loginErrorCount: that.data.loginErrorCount + 1,
-          });
-          app.globalData.hasLogin = false;
-          util.showErrorToast("账户登录失败");
-        }
-      },
+    util.request(api.AuthLoginByAccount, {
+      username: that.data.username,
+      password: that.data.password,
+    }, "POST").then(function (res) {
+      if (res.errno == 0) {
+        that.setData({
+          loginErrorCount: 0,
+        });
+        app.globalData.hasLogin = true;
+        wx.setStorageSync("userInfo", res.data.userInfo);
+        wx.setStorageSync("token", res.data.token);
+        wx.switchTab({
+          url: "/pages/mine/mine",
+        });
+      } else {
+        that.setData({
+          loginErrorCount: that.data.loginErrorCount + 1,
+        });
+        app.globalData.hasLogin = false;
+        util.showErrorToast("账户登录失败");
+      }
+    }).catch(function (err) {
+      that.setData({
+        loginErrorCount: that.data.loginErrorCount + 1,
+      });
+      util.showErrorToast("账户登录失败");
     });
   },
   bindUsernameInput: function (e) {

@@ -53,32 +53,16 @@ Page({
     })
   },
   afterRead(event) {
-    const { file } = event.detail
-    let that = this
-    const uploadTask = wx.uploadFile({
-      url: api.StorageUpload,
-      filePath: file.path,
-      name: 'file',
-      success: function (res) {
-        var _res = JSON.parse(res.data);
-        if (_res.errno === 0) {
-          var url = _res.data.url
-          that.data.aftersale.pictures.push(url)
-          const { fileList = [] } = that.data;
-          fileList.push({ ...file, url: url });
-          that.setData({
-            fileList: fileList
-          })
-        }
-      },
-      fail: function (e) {
-        wx.showModal({
-          title: '错误',
-          content: '上传失败',
-          showCancel: false
-        })
-      },
-    })
+    const { file } = event.detail;
+    let that = this;
+    util.uploadFile(file.path).then(function(url) {
+      that.data.aftersale.pictures.push(url);
+      const { fileList = [] } = that.data;
+      fileList.push({ ...file, url: url });
+      that.setData({
+        fileList: fileList
+      });
+    });
   },
   previewImage: function (e) {
     wx.previewImage({

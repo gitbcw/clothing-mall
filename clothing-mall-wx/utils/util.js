@@ -86,9 +86,45 @@ function showErrorToast(msg) {
   })
 }
 
+/**
+ * 封装微信图片上传
+ * 返回 Promise，resolve(url) 成功时返回文件 URL
+ */
+function uploadFile(filePath) {
+  return new Promise(function(resolve, reject) {
+    wx.uploadFile({
+      url: api.StorageUpload,
+      filePath: filePath,
+      name: 'file',
+      header: {
+        'X-Litemall-Token': wx.getStorageSync('token')
+      },
+      success: function(res) {
+        try {
+          var data = JSON.parse(res.data);
+          if (data.errno === 0) {
+            resolve(data.data.url);
+          } else {
+            wx.showToast({ title: '上传失败', icon: 'none' });
+            reject(data);
+          }
+        } catch (e) {
+          wx.showToast({ title: '上传失败', icon: 'none' });
+          reject(e);
+        }
+      },
+      fail: function(err) {
+        wx.showToast({ title: '上传失败', icon: 'none' });
+        reject(err);
+      }
+    });
+  });
+}
+
 module.exports = {
   formatTime,
   request,
+  uploadFile,
   redirect,
   showErrorToast
 }

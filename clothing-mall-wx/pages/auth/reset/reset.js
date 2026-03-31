@@ -1,5 +1,6 @@
 var api = require('../../../config/api.js');
 var check = require('../../../utils/check.js');
+var util = require('../../../utils/util.js');
 
 var app = getApp();
 Page({
@@ -96,27 +97,19 @@ Page({
       return false;
     }
 
-    wx.request({
-      url: api.AuthReset,
-      data: {
-        mobile: that.data.mobile,
-        code: that.data.code,
-        password: that.data.password
-      },
-      method: 'POST',
-      header: {
-        'content-type': 'application/json'
-      },
-      success: function(res) {
-        if (res.data.errno == 0) {
-          wx.navigateBack();
-        } else {
-          wx.showModal({
-            title: '密码重置失败',
-            content: res.data.errmsg,
-            showCancel: false
-          });
-        }
+    util.request(api.AuthReset, {
+      mobile: that.data.mobile,
+      code: that.data.code,
+      password: that.data.password
+    }, 'POST').then(function(res) {
+      if (res.errno == 0) {
+        wx.navigateBack();
+      } else {
+        wx.showModal({
+          title: '密码重置失败',
+          content: res.errmsg,
+          showCancel: false
+        });
       }
     });
   },

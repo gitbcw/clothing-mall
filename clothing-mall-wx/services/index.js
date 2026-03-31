@@ -7,6 +7,5 @@ module.exports = {
   cart: require('./cart.js'),
   order: require('./order.js'),
   coupon: require('./coupon.js'),
-  address: require('./address.js'),
-  activity: require('./activity.js')
+  address: require('./address.js')
 }

@@ -75,10 +75,10 @@ Page({
   checkedItem(e) {
     let itemIndex = e.currentTarget.dataset.itemIndex
     let that = this
-    let productIds = [that.data.cartGoods[itemIndex].productId]
+    let cartIds = [that.data.cartGoods[itemIndex].id]
 
     util.request(api.CartChecked, {
-      productIds: productIds,
+      productIds: cartIds,
       isChecked: that.data.cartGoods[itemIndex].checked ? 0 : 1
     }, 'POST').then(function(res) {
       if (res.errno === 0) {
@@ -96,12 +96,12 @@ Page({
   // 全选
   checkedAll() {
     let that = this
-    let productIds = this.data.cartGoods.map(function(v) {
-      return v.productId
+    let cartIds = this.data.cartGoods.map(function(v) {
+      return v.id
     })
 
     util.request(api.CartChecked, {
-      productIds: productIds,
+      productIds: cartIds,
       isChecked: that.isCheckedAll() ? 0 : 1
     }, 'POST').then(function(res) {
       if (res.errno === 0) {
@@ -163,13 +163,13 @@ Page({
   // 删除选中商品
   deleteCart() {
     let that = this
-    let productIds = this.data.cartGoods.filter(function(item) {
+    let cartIds = this.data.cartGoods.filter(function(item) {
       return item.checked === true
     }).map(function(item) {
-      return item.productId
+      return item.id
     })
 
-    if (productIds.length <= 0) {
+    if (cartIds.length <= 0) {
       wx.showToast({ title: '请选择要删除的商品', icon: 'none' })
       return
     }
@@ -180,7 +180,7 @@ Page({
       success: function(res) {
         if (res.confirm) {
           util.request(api.CartDelete, {
-            productIds: productIds
+            productIds: cartIds
           }, 'POST').then(function(res) {
             if (res.errno === 0) {
               that.setData({

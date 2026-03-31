@@ -81,23 +81,18 @@ public class WxHomeController {
         //相当于每次都是new的线程池 没意义
         //ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-        Callable<List> newGoodsListCallable = () -> goodsService.queryByNew(0, SystemConfig.getNewLimit());
-
-        Callable<List> hotGoodsListCallable = () -> goodsService.queryByHot(0, SystemConfig.getHotLimit());
+        Callable<List> hotGoodsListCallable = () -> goodsService.queryAllPublished(0, 50);
 
         Callable<List> outfitListCallable = this::getOutfitList;
 
-        FutureTask<List> newGoodsListTask = new FutureTask<>(newGoodsListCallable);
         FutureTask<List> hotGoodsListTask = new FutureTask<>(hotGoodsListCallable);
         FutureTask<List> outfitListTask = new FutureTask<>(outfitListCallable);
 
-        executorService.submit(newGoodsListTask);
         executorService.submit(hotGoodsListTask);
         executorService.submit(outfitListTask);
 
         Map<String, Object> entity = new HashMap<>();
         try {
-            entity.put("newGoodsList", newGoodsListTask.get());
             entity.put("hotGoodsList", hotGoodsListTask.get());
             entity.put("outfitList", outfitListTask.get());
 

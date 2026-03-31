@@ -27,7 +27,6 @@
     <result column="guide_id" jdbcType="INTEGER" property="guideId" />
     <result column="coupon_price" jdbcType="DECIMAL" property="couponPrice" />
     <result column="integral_price" jdbcType="DECIMAL" property="integralPrice" />
-    <result column="groupon_price" jdbcType="DECIMAL" property="grouponPrice" />
     <result column="order_price" jdbcType="DECIMAL" property="orderPrice" />
     <result column="actual_price" jdbcType="DECIMAL" property="actualPrice" />
     <result column="pay_id" jdbcType="VARCHAR" property="payId" />
@@ -40,7 +39,6 @@
     <result column="refund_content" jdbcType="VARCHAR" property="refundContent" />
     <result column="refund_time" jdbcType="TIMESTAMP" property="refundTime" />
     <result column="confirm_time" jdbcType="TIMESTAMP" property="confirmTime" />
-    <result column="comments" jdbcType="SMALLINT" property="comments" />
     <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
     <result column="add_time" jdbcType="TIMESTAMP" property="addTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
@@ -119,9 +117,9 @@
     -->
     id, user_id, order_sn, order_status, aftersale_status, consignee, mobile, address,
     message, goods_price, freight_price, delivery_type, pickup_store_id, pickup_contact,
-    pickup_phone, pickup_time, pickup_code, pickup_status, guide_id, coupon_price, integral_price, groupon_price,
+    pickup_phone, pickup_time, pickup_code, pickup_status, guide_id, coupon_price, integral_price,
     order_price, actual_price, pay_id, pay_time, ship_sn, ship_channel, ship_time, refund_amount,
-    refund_type, refund_content, refund_time, confirm_time, comments, end_time, add_time,
+    refund_type, refund_content, refund_time, confirm_time, end_time, add_time,
     update_time, deleted
   </sql>
   <select id="selectByExample" parameterType="org.linlinjava.litemall.db.domain.LitemallOrderExample" resultMap="BaseResultMap">
@@ -246,23 +244,23 @@
     insert into litemall_order (user_id, order_sn, order_status, 
       aftersale_status, consignee, mobile, 
       address, message, goods_price, 
-      freight_price, coupon_price, integral_price, 
-      groupon_price, order_price, actual_price, 
+      freight_price, coupon_price, integral_price,
+      order_price, actual_price,
       pay_id, pay_time, ship_sn, 
       ship_channel, ship_time, refund_amount, 
       refund_type, refund_content, refund_time, 
-      confirm_time, comments, end_time, 
+      confirm_time, end_time,
       add_time, update_time, deleted
       )
     values (#{userId,jdbcType=INTEGER}, #{orderSn,jdbcType=VARCHAR}, #{orderStatus,jdbcType=SMALLINT}, 
       #{aftersaleStatus,jdbcType=SMALLINT}, #{consignee,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, 
       #{address,jdbcType=VARCHAR}, #{message,jdbcType=VARCHAR}, #{goodsPrice,jdbcType=DECIMAL}, 
-      #{freightPrice,jdbcType=DECIMAL}, #{couponPrice,jdbcType=DECIMAL}, #{integralPrice,jdbcType=DECIMAL}, 
-      #{grouponPrice,jdbcType=DECIMAL}, #{orderPrice,jdbcType=DECIMAL}, #{actualPrice,jdbcType=DECIMAL}, 
+      #{freightPrice,jdbcType=DECIMAL}, #{couponPrice,jdbcType=DECIMAL}, #{integralPrice,jdbcType=DECIMAL},
+      #{orderPrice,jdbcType=DECIMAL}, #{actualPrice,jdbcType=DECIMAL},
       #{payId,jdbcType=VARCHAR}, #{payTime,jdbcType=TIMESTAMP}, #{shipSn,jdbcType=VARCHAR}, 
       #{shipChannel,jdbcType=VARCHAR}, #{shipTime,jdbcType=TIMESTAMP}, #{refundAmount,jdbcType=DECIMAL}, 
       #{refundType,jdbcType=VARCHAR}, #{refundContent,jdbcType=VARCHAR}, #{refundTime,jdbcType=TIMESTAMP}, 
-      #{confirmTime,jdbcType=TIMESTAMP}, #{comments,jdbcType=SMALLINT}, #{endTime,jdbcType=TIMESTAMP}, 
+      #{confirmTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP},
       #{addTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT}
       )
   </insert>
@@ -336,9 +334,6 @@
       <if test="integralPrice != null">
         integral_price,
       </if>
-      <if test="grouponPrice != null">
-        groupon_price,
-      </if>
       <if test="orderPrice != null">
         order_price,
       </if>
@@ -374,9 +369,6 @@
       </if>
       <if test="confirmTime != null">
         confirm_time,
-      </if>
-      <if test="comments != null">
-        comments,
       </if>
       <if test="endTime != null">
         end_time,
@@ -452,9 +444,6 @@
       <if test="integralPrice != null">
         #{integralPrice,jdbcType=DECIMAL},
       </if>
-      <if test="grouponPrice != null">
-        #{grouponPrice,jdbcType=DECIMAL},
-      </if>
       <if test="orderPrice != null">
         #{orderPrice,jdbcType=DECIMAL},
       </if>
@@ -490,9 +479,6 @@
       </if>
       <if test="confirmTime != null">
         #{confirmTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="comments != null">
-        #{comments,jdbcType=SMALLINT},
       </if>
       <if test="endTime != null">
         #{endTime,jdbcType=TIMESTAMP},
@@ -564,9 +550,6 @@
       <if test="record.integralPrice != null">
         integral_price = #{record.integralPrice,jdbcType=DECIMAL},
       </if>
-      <if test="record.grouponPrice != null">
-        groupon_price = #{record.grouponPrice,jdbcType=DECIMAL},
-      </if>
       <if test="record.orderPrice != null">
         order_price = #{record.orderPrice,jdbcType=DECIMAL},
       </if>
@@ -602,9 +585,6 @@
       </if>
       <if test="record.confirmTime != null">
         confirm_time = #{record.confirmTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.comments != null">
-        comments = #{record.comments,jdbcType=SMALLINT},
       </if>
       <if test="record.endTime != null">
         end_time = #{record.endTime,jdbcType=TIMESTAMP},
@@ -642,7 +622,6 @@
       freight_price = #{record.freightPrice,jdbcType=DECIMAL},
       coupon_price = #{record.couponPrice,jdbcType=DECIMAL},
       integral_price = #{record.integralPrice,jdbcType=DECIMAL},
-      groupon_price = #{record.grouponPrice,jdbcType=DECIMAL},
       order_price = #{record.orderPrice,jdbcType=DECIMAL},
       actual_price = #{record.actualPrice,jdbcType=DECIMAL},
       pay_id = #{record.payId,jdbcType=VARCHAR},
@@ -655,7 +634,6 @@
       refund_content = #{record.refundContent,jdbcType=VARCHAR},
       refund_time = #{record.refundTime,jdbcType=TIMESTAMP},
       confirm_time = #{record.confirmTime,jdbcType=TIMESTAMP},
-      comments = #{record.comments,jdbcType=SMALLINT},
       end_time = #{record.endTime,jdbcType=TIMESTAMP},
       add_time = #{record.addTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP},
@@ -731,9 +709,6 @@
       <if test="integralPrice != null">
         integral_price = #{integralPrice,jdbcType=DECIMAL},
       </if>
-      <if test="grouponPrice != null">
-        groupon_price = #{grouponPrice,jdbcType=DECIMAL},
-      </if>
       <if test="orderPrice != null">
         order_price = #{orderPrice,jdbcType=DECIMAL},
       </if>
@@ -770,9 +745,6 @@
       <if test="confirmTime != null">
         confirm_time = #{confirmTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="comments != null">
-        comments = #{comments,jdbcType=SMALLINT},
-      </if>
       <if test="endTime != null">
         end_time = #{endTime,jdbcType=TIMESTAMP},
       </if>
@@ -806,7 +778,6 @@
       freight_price = #{freightPrice,jdbcType=DECIMAL},
       coupon_price = #{couponPrice,jdbcType=DECIMAL},
       integral_price = #{integralPrice,jdbcType=DECIMAL},
-      groupon_price = #{grouponPrice,jdbcType=DECIMAL},
       order_price = #{orderPrice,jdbcType=DECIMAL},
       actual_price = #{actualPrice,jdbcType=DECIMAL},
       pay_id = #{payId,jdbcType=VARCHAR},
@@ -819,7 +790,6 @@
       refund_content = #{refundContent,jdbcType=VARCHAR},
       refund_time = #{refundTime,jdbcType=TIMESTAMP},
       confirm_time = #{confirmTime,jdbcType=TIMESTAMP},
-      comments = #{comments,jdbcType=SMALLINT},
       end_time = #{endTime,jdbcType=TIMESTAMP},
       add_time = #{addTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP},

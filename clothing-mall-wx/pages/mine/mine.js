@@ -19,8 +19,7 @@ Page({
     order: {
       unpaid: 0,
       unship: 0,
-      unrecv: 0,
-      uncomment: 0
+      unrecv: 0
     },
     hasLogin: false,
     couponCount: 0,

@@ -71,7 +71,6 @@ module.exports = {
   OrderDelete: WxApiRoot + 'order/delete', //删除订单
   OrderConfirm: WxApiRoot + 'order/confirm', //确认收货
   OrderGoods: WxApiRoot + 'order/goods', // 代评价商品信息
-  OrderComment: WxApiRoot + 'order/comment', // 评价订单商品信息
 
   AftersaleSubmit: WxApiRoot + 'aftersale/submit', // 提交售后申请
   AftersaleList: WxApiRoot + 'aftersale/list', // 售后列表
@@ -91,8 +90,6 @@ module.exports = {
   StorageUpload: WxApiRoot + 'storage/upload', //图片上传,
   SceneBanners: WxApiRoot + 'scene/banners',
   SceneGoods: WxApiRoot + 'scene/goods',
-  FullReductionList: WxApiRoot + 'fullReduction/list', // 满减活动列表
-
   UserIndex: WxApiRoot + 'user/index', //个人页面用户相关信息
   UserRole: WxApiRoot + 'user/role', // 获取用户角色
   UserIsManager: WxApiRoot + 'user/isManager', // 检查用户是否有管理权限
@@ -110,10 +107,6 @@ module.exports = {
   ClothingUserLevels: WxApiRoot + 'clothing/user/levels', // 会员等级列表
   ClothingUserInfo: WxApiRoot + 'clothing/user/info', // 会员信息
   ClothingUserBindGuide: WxApiRoot + 'clothing/user/bindGuide', // 绑定导购
-
-  FlashSaleGoods: WxApiRoot + 'flashSale/goods', // 商品特卖信息
-  FlashSaleList: WxApiRoot + 'flashSale/list', // 限时特卖列表
-  FlashSaleDetail: WxApiRoot + 'flashSale/detail', // 限时特卖详情
 
   // 埋点上报接口
   TrackerReport: WxApiRoot + 'tracker/report',

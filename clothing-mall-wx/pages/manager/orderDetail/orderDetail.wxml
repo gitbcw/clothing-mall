@@ -20,6 +20,7 @@
       <view class="goods-info">
         <text class="goods-name">{{item.goodsName}}</text>
         <text class="goods-spec" wx:if="{{item.specifications}}">{{item.specifications}}</text>
+        <text class="goods-spec" wx:elif="{{item.size}}">{{item.size}}</text>
         <view class="goods-price-num">
           <text class="goods-price">¥{{item.price}}</text>
           <text class="goods-num">x{{item.number}}</text>

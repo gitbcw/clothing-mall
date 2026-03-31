@@ -36,16 +36,8 @@ Page({
     // 推荐商品
     relatedGoods: [],
 
-    // SKU 选择器
+    // 尺码选择器
     showSkuPicker: false,
-    skuList: [],
-    skuColors: [],
-    skuSizes: [],
-    selectedSku: null,
-
-    // 限时特卖
-    flashSale: null,
-    flashSaleId: null,
 
     // 分享
     canShare: true,
@@ -133,10 +125,6 @@ Page({
 
         // 获取推荐商品
         that.getGoodsRelated()
-        // 获取 SKU 列表
-        that.getSkuList()
-        // 获取特卖信息
-        that.getFlashSaleInfo()
 
         // 商品浏览埋点
         tracker.trackGoodsView(info.id, info.name, info.retailPrice, info.categoryId)
@@ -150,61 +138,24 @@ Page({
     })
   },
 
-  // 获取商品特卖信息
-  getFlashSaleInfo() {
-    let that = this
-    util.request(api.FlashSaleGoods, { goodsId: this.data.id }).then(function(res) {
-      if (res.errno === 0 && res.data) {
-        that.setData({
-          flashSale: res.data,
-          flashSaleId: res.data.id
-        })
-      }
-    })
-  },
-
-  // 获取 SKU 列表
-  getSkuList() {
-    let that = this
-    util.request(api.ClothingSkuList, { goodsId: this.data.id }).then(function(res) {
-      if (res.errno === 0 && res.data) {
-        that.setData({
-          skuList: res.data.skuList || [],
-          skuColors: res.data.colors || [],
-          skuSizes: res.data.sizes || []
-        })
-      }
-    })
-  },
-
-  // 打开 SKU 选择器
+  // 打开尺码选择器
   openSkuPicker() {
     this.setData({ showSkuPicker: true })
   },
 
-  // 关闭 SKU 选择器
+  // 关闭尺码选择器
   closeSkuPicker() {
     this.setData({ showSkuPicker: false })
   },
 
-  // SKU 图片切换
-  onSkuImageChange(e) {
-    if (e.detail.image) {
-      this.setData({ tmpPicUrl: e.detail.image })
-    }
-  },
-
-  // SKU 加入购物车
+  // 加入购物车
   skuAddToCart(e) {
     let that = this
-    let { skuId, color, size, quantity } = e.detail
+    let { size, quantity } = e.detail
 
     util.request(api.CartAdd, {
       goodsId: this.data.goods.id,
       number: quantity,
-      productId: 0,
-      skuId: skuId,
-      color: color,
       size: size
     }, 'POST').then(function(res) {
       if (res.errno === 0) {
@@ -213,25 +164,21 @@ Page({
           showSkuPicker: false,
           cartGoodsCount: res.data
         })
-        // 加购埋点
-        tracker.trackAddCart(that.data.goods.id, that.data.goods.name, that.data.goods.retailPrice, quantity, skuId)
+        tracker.trackAddCart(that.data.goods.id, that.data.goods.name, that.data.goods.retailPrice, quantity)
       } else {
         wx.showToast({ title: res.errmsg, icon: 'none' })
       }
     })
   },
 
-  // SKU 立即购买
+  // 立即购买
   skuBuyNow(e) {
     let that = this
-    let { skuId, color, size, quantity } = e.detail
+    let { size, quantity } = e.detail
 
     util.request(api.CartFastAdd, {
       goodsId: this.data.goods.id,
       number: quantity,
-      productId: 0,
-      skuId: skuId,
-      color: color,
       size: size
     }, 'POST').then(function(res) {
       if (res.errno === 0) {

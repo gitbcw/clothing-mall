@@ -53,6 +53,8 @@ Page({
     loading: false,
     hasDraft: false,
     searchKeyword: '',
+    batchMode: false,    // 批量操作模式
+    selectedIds: [],      // 已选中的商品 ID
     // 分类数据
     categoryList: [],
     showCategoryPicker: false,
@@ -654,6 +656,64 @@ Page({
               that.refreshGoodsList();
             } else {
               wx.showToast({ title: res.errmsg || '操作失败', icon: 'none' });
+            }
+          });
+        }
+      }
+    });
+  },
+
+  // 批量操作模式
+  toggleBatchMode() {
+    this.setData({
+      batchMode: !this.data.batchMode,
+      selectedIds: []
+    });
+  },
+
+  onSelectGoods(e) {
+    const id = e.currentTarget.dataset.id;
+    let selectedIds = this.data.selectedIds.slice();
+    const index = selectedIds.indexOf(id);
+    if (index > -1) {
+      selectedIds.splice(index, 1);
+    } else {
+      selectedIds.push(id);
+    }
+    this.setData({ selectedIds: selectedIds });
+  },
+
+  onSelectAll() {
+    const allIds = this.data.goodsList.map(function(g) { return g.id; });
+    const allSelected = allIds.length > 0 && allIds.every(function(id) {
+      return this.data.selectedIds.indexOf(id) > -1;
+    }.bind(this));
+    if (allSelected) {
+      this.setData({ selectedIds: [] });
+    } else {
+      this.setData({ selectedIds: allIds });
+    }
+  },
+
+  onBatchDelete() {
+    const ids = this.data.selectedIds;
+    if (ids.length === 0) {
+      wx.showToast({ title: '请先选择商品', icon: 'none' });
+      return;
+    }
+    let that = this;
+    wx.showModal({
+      title: '确认删除',
+      content: '确认删除选中的 ' + ids.length + ' 件商品？删除后不可恢复。',
+      success(res) {
+        if (res.confirm) {
+          util.request(api.ManagerGoodsBatchDelete, { ids: ids }, 'POST').then(function(res) {
+            if (res.errno === 0) {
+              wx.showToast({ title: '删除成功', icon: 'success' });
+              that.setData({ batchMode: false, selectedIds: [] });
+              that.refreshGoodsList();
+            } else {
+              wx.showToast({ title: res.errmsg || '删除失败', icon: 'none' });
             }
           });
         }

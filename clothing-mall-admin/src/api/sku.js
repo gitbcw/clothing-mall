@@ -64,34 +64,3 @@ export function deleteGuide(data) {
   })
 }
 
-export function listMemberLevel(query) {
-  return request({
-    url: '/clothing/memberLevel/list',
-    method: 'get',
-    params: query
-  })
-}
-
-export function createMemberLevel(data) {
-  return request({
-    url: '/clothing/memberLevel/create',
-    method: 'post',
-    data
-  })
-}
-
-export function updateMemberLevel(data) {
-  return request({
-    url: '/clothing/memberLevel/update',
-    method: 'post',
-    data
-  })
-}
-
-export function deleteMemberLevel(data) {
-  return request({
-    url: '/clothing/memberLevel/delete',
-    method: 'post',
-    data
-  })
-}

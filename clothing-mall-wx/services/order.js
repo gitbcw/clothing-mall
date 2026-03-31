@@ -50,11 +50,6 @@ module.exports = {
     return request(api.OrderGoods, { orderId, goodsId })
   },
 
-  // 提交评价
-  submitComment(data) {
-    return request(api.OrderComment, data, 'POST')
-  },
-
   // 查询物流
   queryExpress(orderId) {
     return request(api.ExpressQuery, { orderId })

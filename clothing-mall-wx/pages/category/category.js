@@ -25,6 +25,7 @@ Page({
     defaultImage: '/static/images/fallback-image.svg',
 
     scrollLeft: 0,
+    scrollTop: 0,
     scrollHeight: 0
   },
 
@@ -136,15 +137,40 @@ Page({
     this.setData({ leftGoodsList, rightGoodsList })
   },
 
-  // 触底加载更多
-  onReachBottom() {
+  // 触底加载更多 / 自动跳转下一分类
+  loadMore() {
     let pageNum = this.data.page + 1
     if (pageNum <= this.data.pages) {
       this.setData({ page: pageNum })
       this.getGoodsList()
     } else {
-      wx.showToast({ title: '没有更多了', icon: 'none' })
+      // 已是最后一页，尝试跳转下一个分类
+      this.switchToNextCategory()
     }
+  },
+
+  // 自动切换到下一个分类
+  switchToNextCategory() {
+    const navList = this.data.navList
+    const currentId = this.data.activeCategoryId
+    let currentIndex = navList.findIndex(item => item.id === currentId)
+
+    if (currentIndex === -1 || currentIndex >= navList.length - 1) {
+      wx.showToast({ title: '已经到底了', icon: 'none' })
+      return
+    }
+
+    const nextCategory = navList[currentIndex + 1]
+    this.setData({
+      activeCategoryId: nextCategory.id,
+      page: 1,
+      goodsList: [],
+      leftGoodsList: [],
+      rightGoodsList: [],
+      scrollTop: 0
+    })
+
+    this.getCategoryInfo()
   },
 
   // 切换分类
@@ -167,7 +193,8 @@ Page({
       page: 1,
       goodsList: [],
       leftGoodsList: [],
-      rightGoodsList: []
+      rightGoodsList: [],
+      scrollTop: 0
     })
 
     this.getCategoryInfo()

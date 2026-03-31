@@ -22,7 +22,6 @@ public class SystemConfig {
     // 订单相关配置
     public final static String LITEMALL_ORDER_UNPAID = "litemall_order_unpaid";
     public final static String LITEMALL_ORDER_UNCONFIRM = "litemall_order_unconfirm";
-    public final static String LITEMALL_ORDER_COMMENT = "litemall_order_comment";
     // 商场相关配置
     public final static String LITEMALL_MALL_NAME = "litemall_mall_name";
     public final static String LITEMALL_MALL_ADDRESS = "litemall_mall_address";
@@ -104,10 +103,6 @@ public class SystemConfig {
         return getConfigInt(LITEMALL_ORDER_UNCONFIRM);
     }
 
-    public static Integer getOrderComment() {
-        return getConfigInt(LITEMALL_ORDER_COMMENT);
-    }
-
     public static String getMallName() {
         return getConfig(LITEMALL_MALL_NAME);
     }
@@ -175,16 +170,6 @@ public class SystemConfig {
             return 30;
         }
         return Integer.parseInt(value);
-    }
-
-    // ================== 满减配置 ==================
-
-    /**
-     * 满减是否与优惠券叠加
-     */
-    public static boolean isFullReductionStackWithCoupon() {
-        String value = getConfig(LITEMALL_FULL_REDUCTION_STACK_WITH_COUPON);
-        return "1".equals(value);
     }
 
     // ================== 企业微信配置 ==================
@@ -255,9 +240,6 @@ public class SystemConfig {
     public final static String LITEMALL_BIRTHDAY_COUPON_STATUS = "litemall_birthday_coupon_status";
     public final static String LITEMALL_BIRTHDAY_COUPON_ID = "litemall_birthday_coupon_id";
     public final static String LITEMALL_BIRTHDAY_COUPON_DAYS = "litemall_birthday_coupon_days";
-
-    // 满减活动配置
-    public final static String LITEMALL_FULL_REDUCTION_STACK_WITH_COUPON = "litemall_full_reduction_stack_with_coupon";
 
     // 预售配置
     public final static String LITEMALL_PRESALE_SHIP_DAYS = "litemall_presale_ship_days";

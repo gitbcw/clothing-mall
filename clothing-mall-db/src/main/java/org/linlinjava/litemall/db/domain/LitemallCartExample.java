@@ -968,6 +968,16 @@ public class LitemallCartExample {
             return (Criteria) this;
         }
 
+        public Criteria andColorEqualTo(String value) {
+            addCriterion("color =", value, "color");
+            return (Criteria) this;
+        }
+
+        public Criteria andSizeEqualTo(String value) {
+            addCriterion("`size` =", value, "size");
+            return (Criteria) this;
+        }
+
         public Criteria andProductIdIsNull() {
             addCriterion("product_id is null");
             return (Criteria) this;

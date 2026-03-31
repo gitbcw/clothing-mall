@@ -73,6 +73,7 @@ public class AdminConfigController {
     public Object updateOrder(@RequestBody String body) {
         Map<String, String> data = JacksonUtil.toMap(body);
         systemConfigService.updateConfig(data);
+        SystemConfig.updateConfigs(data);
         return ResponseUtil.ok();
     }
 
@@ -126,6 +127,7 @@ public class AdminConfigController {
     public Object updateHomeActivity(@RequestBody String body) {
         Map<String, String> data = JacksonUtil.toMap(body);
         systemConfigService.updateConfig(data);
+        SystemConfig.updateConfigs(data);
         return ResponseUtil.ok();
     }
 }

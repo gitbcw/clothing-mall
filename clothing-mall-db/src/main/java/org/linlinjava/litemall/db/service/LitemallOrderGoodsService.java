@@ -35,13 +35,6 @@ public class LitemallOrderGoodsService {
         orderGoodsMapper.updateByPrimaryKeySelective(orderGoods);
     }
 
-    public Short getComments(Integer orderId) {
-        LitemallOrderGoodsExample example = new LitemallOrderGoodsExample();
-        example.or().andOrderIdEqualTo(orderId).andDeletedEqualTo(false);
-        long count = orderGoodsMapper.countByExample(example);
-        return (short) count;
-    }
-
     public boolean checkExist(Integer goodsId) {
         LitemallOrderGoodsExample example = new LitemallOrderGoodsExample();
         example.or().andGoodsIdEqualTo(goodsId).andDeletedEqualTo(false);

@@ -7,16 +7,39 @@ Page({
     goods: {},
     galleryList: [],
     skuList: [],
-    loading: true
+    loading: true,
+    // 新增字段
+    categoryList: [],
+    showCategoryPicker: false,
+    presetScenes: [
+      '日常通勤', '约会聚餐', '度假旅行', '运动健身', '居家休闲', '商务正式'
+    ],
+    customSceneInput: '',
+    showCustomSceneInput: false,
+    params: [],
+    scenes: []
   },
 
   onLoad(options) {
     if (options.id) {
       this.setData({ goodsId: parseInt(options.id) });
+      this.getCategoryList();
       this.getGoodsDetail();
     } else {
+      this.getCategoryList();
       this.setData({ loading: false });
     }
+  },
+
+  getCategoryList() {
+    let that = this;
+    util.request(api.GoodsCategory).then(function(res) {
+      if (res.errno === 0) {
+        that.setData({
+          categoryList: res.data.list || []
+        });
+      }
+    });
   },
 
   getGoodsDetail() {
@@ -37,10 +60,38 @@ Page({
           };
         });
 
+        // 解析 sceneTags JSON 字符串
+        let scenes = [];
+        if (goods.sceneTags) {
+          try { scenes = JSON.parse(goods.sceneTags); } catch (e) {}
+        }
+
+        // 解析 goodsParams JSON 字符串
+        let params = [];
+        if (goods.goodsParams) {
+          try { params = JSON.parse(goods.goodsParams); } catch (e) {}
+        }
+
+        // 查找分类名称
+        let categoryName = '';
+        if (goods.categoryId && that.data.categoryList.length > 0) {
+          const cat = that.data.categoryList.find(function(c) { return c.id === goods.categoryId; });
+          if (cat) categoryName = cat.name;
+        }
+
         that.setData({
           goods: goods,
+          goods: Object.assign(goods, {
+            categoryName: categoryName,
+            specialPrice: goods.specialPrice ? goods.specialPrice.toString() : '',
+            counterPrice: goods.counterPrice ? goods.counterPrice.toString() : '',
+            retailPrice: goods.retailPrice ? goods.retailPrice.toString() : '',
+            detail: goods.detail || ''
+          }),
           galleryList: goods.gallery ? Array.from(goods.gallery) : [],
           skuList: skuList,
+          scenes: scenes,
+          params: params,
           loading: false
         });
       } else {
@@ -112,6 +163,107 @@ Page({
   onBriefInput(e) { this.setData({ 'goods.brief': e.detail.value }); },
   onCounterPriceInput(e) { this.setData({ 'goods.counterPrice': e.detail.value }); },
   onRetailPriceInput(e) { this.setData({ 'goods.retailPrice': e.detail.value }); },
+  onSpecialPriceInput(e) { this.setData({ 'goods.specialPrice': e.detail.value }); },
+  onKeywordsInput(e) { this.setData({ 'goods.keywords': e.detail.value }); },
+  onDetailInput(e) { this.setData({ 'goods.detail': e.detail.value }); },
+
+  // ========== 分类选择 ==========
+
+  showCategoryPicker() {
+    this.setData({ showCategoryPicker: true });
+  },
+
+  onCategoryChange(e) {
+    const index = e.detail.index;
+    const category = this.data.categoryList[index];
+    if (category) {
+      this.setData({
+        'goods.categoryId': category.id,
+        'goods.categoryName': category.name,
+        showCategoryPicker: false
+      });
+    }
+  },
+
+  onCategoryClose() {
+    this.setData({ showCategoryPicker: false });
+  },
+
+  // ========== 场景标签 ==========
+
+  onSceneToggle(e) {
+    const scene = e.currentTarget.dataset.scene;
+    const scenes = this.data.scenes || [];
+    const index = scenes.indexOf(scene);
+    if (index > -1) {
+      scenes.splice(index, 1);
+    } else {
+      scenes.push(scene);
+    }
+    this.setData({ scenes: scenes });
+  },
+
+  showCustomSceneInput() {
+    this.setData({ showCustomSceneInput: true });
+  },
+
+  hideCustomSceneInput() {
+    this.setData({ showCustomSceneInput: false, customSceneInput: '' });
+  },
+
+  onCustomSceneInput(e) {
+    this.setData({ customSceneInput: e.detail.value });
+  },
+
+  addCustomScene() {
+    const input = this.data.customSceneInput.trim();
+    if (!input) return;
+    const scenes = this.data.scenes || [];
+    const presets = this.data.presetScenes;
+    if (scenes.indexOf(input) > -1 || presets.indexOf(input) > -1) {
+      wx.showToast({ title: '场景已存在', icon: 'none' });
+      return;
+    }
+    scenes.push(input);
+    this.setData({
+      scenes: scenes,
+      customSceneInput: '',
+      showCustomSceneInput: false
+    });
+  },
+
+  removeScene(e) {
+    const scene = e.currentTarget.dataset.scene;
+    const scenes = this.data.scenes || [];
+    const index = scenes.indexOf(scene);
+    if (index > -1) {
+      scenes.splice(index, 1);
+      this.setData({ scenes: scenes });
+    }
+  },
+
+  // ========== 商品参数 ==========
+
+  addParam() {
+    this.data.params.push({ key: '', value: '' });
+    this.setData({ params: this.data.params });
+  },
+
+  removeParam(e) {
+    const index = e.currentTarget.dataset.index;
+    this.data.params.splice(index, 1);
+    this.setData({ params: this.data.params });
+  },
+
+  onParamKeyInput(e) {
+    const index = e.currentTarget.dataset.index;
+    this.setData({ ['params[' + index + '].key']: e.detail.value });
+  },
+
+  onParamValueInput(e) {
+    const index = e.currentTarget.dataset.index;
+    this.setData({ ['params[' + index + '].value']: e.detail.value });
+  },
 
   // ========== SKU 操作 ==========
 
@@ -138,10 +290,18 @@ Page({
     const data = {
       name: goods.name,
       brief: goods.brief || '',
+      detail: goods.detail || '',
       picUrl: goods.picUrl || '',
       gallery: this.data.galleryList,
       counterPrice: goods.counterPrice ? parseFloat(goods.counterPrice) : null,
       retailPrice: goods.retailPrice ? parseFloat(goods.retailPrice) : null,
+      specialPrice: goods.specialPrice ? parseFloat(goods.specialPrice) : null,
+      categoryId: goods.categoryId || null,
+      keywords: goods.keywords || '',
+      scenes: this.data.scenes,
+      params: this.data.params.filter(function(p) {
+        return p.key && p.key.trim();
+      }),
       skus: this.data.skuList.filter(function(s) {
         return s.color || s.size;
       }).map(function(s) {
@@ -168,7 +328,6 @@ Page({
     return true;
   },
 
-  // 保存草稿
   onSaveDraft() {
     if (!this.validateForm()) return;
     let that = this;
@@ -185,18 +344,15 @@ Page({
     });
   },
 
-  // 保存并上架
   onPublish() {
     if (!this.validateForm()) return;
     let that = this;
     const data = this.collectFormData();
 
-    // 先保存
     const saveApi = this.data.goodsId ? api.ManagerGoodsEdit : api.ManagerGoodsCreate;
     util.request(saveApi, data, 'POST').then(function(res) {
       if (res.errno === 0) {
         const goodsId = that.data.goodsId || res.data;
-        // 再上架
         util.request(api.ManagerGoodsPublish, { id: goodsId }, 'POST').then(function(res2) {
           if (res2.errno === 0) {
             wx.showToast({ title: '上架成功', icon: 'success' });
@@ -211,7 +367,6 @@ Page({
     });
   },
 
-  // 下架
   onUnpublish() {
     if (!this.data.goodsId) return;
     let that = this;

@@ -23,20 +23,14 @@ export default {
       goods_list: '商品列表',
       goods_create: '商品上架',
       goods_edit: '商品编辑',
-      goods_comment: '商品评论',
       goods_scene: '场景管理',
       goods_store: '门店管理',
       goods_guide: '导购管理',
-      goods_memberLevel: '会员等级',
       // 活动管理
       promotion: '营销管理',
       promotion_index: '促销管理',
       promotion_coupon: '优惠券管理',
       promotion_coupon_detail: '优惠券详情',
-      promotion_groupon_rule: '团购规则',
-      promotion_groupon_activity: '团购活动',
-      promotion_flashSale: '限时特卖',
-      promotion_fullReduction: '满减活动',
       // 营收分析（原数据统计）
       stat: '营收分析',
       stat_growth: '增长分析',
@@ -644,27 +638,6 @@ export default {
       edit: '更新商品'
     }
   },
-  goods_comment: {
-    table: {
-      user_id: '用户ID',
-      value_id: '商品ID',
-      star: '打分',
-      content: '评论内容',
-      pic_urls: '评论图片',
-      add_time: '时间',
-      actions: '操作'
-    },
-    dialog: {
-      reply: '回复'
-    },
-    form: {
-      content: '回复内容'
-    },
-    placeholder: {
-      filter_user_id: '请输入用户ID',
-      filter_value_id: '请输入商品ID'
-    }
-  },
   promotion_coupon: {
     text: {
       days: '天',
@@ -751,46 +724,6 @@ export default {
     placeholder: {
       filter_user_id: '请输入用户ID',
       filter_status: '请选择使用状态'
-    }
-  },
-  promotion_groupon_rule: {
-    table: {
-      id: '团购规则ID',
-      goods_id: '商品ID',
-      goods_name: '名称',
-      pic_url: '图片',
-      discount: '团购优惠',
-      discount_member: '团购要求',
-      status: '状态',
-      expire_time: '结束时间',
-      actions: '操作'
-    },
-    form: {
-      goods_id: '商品ID',
-      discount: '团购折扣',
-      discount_member: '团购人数要求',
-      expire_time: '过期时间'
-    },
-    placeholder: {
-      filter_goods_id: '请输入商品款号',
-      expire_time: '选择日期'
-    }
-  },
-  promotion_groupon_activity: {
-    table: {
-      order_id: '订单ID',
-      user_id: '用户ID',
-      groupon_order_id: '订单ID',
-      groupon_user_id: '用户ID',
-      subgroupons_length: '参与人数',
-      rules_discount: '团购折扣',
-      rules_discount_member: '团购要求',
-      groupon_share_url: '分享图片',
-      rules_add_time: '开始时间',
-      rules_expire_time: '结束时间'
-    },
-    placeholder: {
-      filter_groupon_rule_id: '请输入团购规则ID'
     }
   },
   sys_admin: {

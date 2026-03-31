@@ -23,14 +23,22 @@ public class LitemallGoodsService {
 
     /**
      * 获取热卖商品
-     *
-     * @param offset
-     * @param limit
-     * @return
      */
     public List<LitemallGoods> queryByHot(int offset, int limit) {
         LitemallGoodsExample example = new LitemallGoodsExample();
         example.or().andIsHotEqualTo(true).andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED).andDeletedEqualTo(false);
+        example.setOrderByClause("add_time desc");
+        PageHelper.startPage(offset, limit);
+
+        return goodsMapper.selectByExampleSelective(example, columns);
+    }
+
+    /**
+     * 查询所有已上架商品（首页展示用）
+     */
+    public List<LitemallGoods> queryAllPublished(int offset, int limit) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        example.or().andStatusEqualTo(LitemallGoods.STATUS_PUBLISHED).andDeletedEqualTo(false);
         example.setOrderByClause("add_time desc");
         PageHelper.startPage(offset, limit);
 
@@ -323,7 +331,6 @@ public class LitemallGoodsService {
         LitemallGoods goods = new LitemallGoods();
         goods.setId(id);
         goods.setStatus(status);
-        goods.setIsOnSale(LitemallGoods.STATUS_PUBLISHED.equals(status));
         goods.setUpdateTime(LocalDateTime.now());
         goodsMapper.updateByPrimaryKeySelective(goods);
     }
@@ -341,7 +348,6 @@ public class LitemallGoodsService {
             .andDeletedEqualTo(false);
         LitemallGoods goods = new LitemallGoods();
         goods.setStatus(status);
-        goods.setIsOnSale(LitemallGoods.STATUS_PUBLISHED.equals(status));
         goods.setUpdateTime(LocalDateTime.now());
         goodsMapper.updateByExampleSelective(goods, example);
     }
@@ -415,7 +421,7 @@ public class LitemallGoodsService {
     /**
      * 查询商品列表（支持 isOnSale 过滤，用于管理端）
      */
-    public List<LitemallGoods> querySelectiveForManager(String status, Boolean isOnSale, Integer page, Integer size, String sort, String order) {
+    public List<LitemallGoods> querySelectiveForManager(String status, Boolean isOnSale, String keyword, Integer page, Integer size, String sort, String order) {
         LitemallGoodsExample example = new LitemallGoodsExample();
         LitemallGoodsExample.Criteria criteria = example.createCriteria();
         if (status != null && !status.isEmpty()) {
@@ -423,6 +429,10 @@ public class LitemallGoodsService {
         }
         if (isOnSale != null) {
             criteria.andIsOnSaleEqualTo(isOnSale);
+        }
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            String like = "%" + keyword.trim() + "%";
+            criteria.andNameLike(like);
         }
         criteria.andDeletedEqualTo(false);
         if (sort != null && !sort.isEmpty() && order != null && !order.isEmpty()) {

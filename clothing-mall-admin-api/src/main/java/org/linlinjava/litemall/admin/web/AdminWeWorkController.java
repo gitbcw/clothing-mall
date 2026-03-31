@@ -69,7 +69,6 @@ public class AdminWeWorkController {
         pages.add(createPageItem("新品推荐", "pages/newGoods/newGoods"));
         pages.add(createPageItem("热门商品", "pages/hotGoods/hotGoods"));
         pages.add(createPageItem("个人中心", "pages/ucenter/index/index"));
-        pages.add(createPageItem("限时特卖", "pages/flashSale/flashSale"));
         pages.add(createPageItem("优惠券中心", "pages/coupon/coupon"));
 
         // 从配置读取活动页面

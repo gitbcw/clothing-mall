@@ -34,18 +34,10 @@
       </view>
     </view>
 
-    <!-- 限时特卖价格 -->
-    <view class="price-wrap" wx:if="{{flashSale}}">
-      <text class="price-symbol">￥</text>
-      <text class="price-num">{{flashSale.flashPrice}}</text>
-      <view class="price-tag">限时特卖</view>
-      <text class="original-price">原价 ￥{{goods.counterPrice}}</text>
-    </view>
-
     <!-- 普通价格 -->
     <view class="price-wrap" wx:else>
       <text class="price-symbol">￥</text>
-      <text class="price-num">{{checkedSpecPrice}}</text>
+      <text class="price-num">{{goods.retailPrice}}</text>
       <view class="price-tag" wx:if="{{goods.counterPrice > goods.retailPrice}}">特卖价</view>
       <text class="original-price" wx:if="{{goods.counterPrice > goods.retailPrice}}">原价 ￥{{goods.counterPrice}}</text>
     </view>
@@ -172,18 +164,14 @@
     </view>
   </view>
 
-  <!-- SKU 选择器 -->
+  <!-- 尺码选择器 -->
   <sku-picker
     visible="{{showSkuPicker}}"
     goods-id="{{goods.id}}"
-    goods-image="{{tmpPicUrl}}"
+    goods-image="{{goods.picUrl}}"
     goods-price="{{goods.retailPrice}}"
-    sku-list="{{skuList}}"
-    colors="{{skuColors}}"
-    sizes="{{skuSizes}}"
     bind:close="closeSkuPicker"
     bind:addcart="skuAddToCart"
     bind:buynow="skuBuyNow"
-    bind:imagechange="onSkuImageChange"
   />
 </view>

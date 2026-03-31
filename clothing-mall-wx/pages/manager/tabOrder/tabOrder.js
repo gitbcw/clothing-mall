@@ -3,6 +3,8 @@ const api = require('../../../config/api.js');
 
 Page({
   data: {
+    statusBarHeight: 20,
+    navBarHeight: 44,
     activeSubTab: 'order',  // 'order' | 'aftersale'
     orderList: [],
     page: 1,
@@ -10,11 +12,20 @@ Page({
     total: 0,
     pendingCount: 0,
     aftersaleCount: 0,
+    pendingGoodsCount: 0,
     loading: false
   },
 
   onLoad() {
+    // 获取系统信息，设置状态栏高度
+    const sysInfo = wx.getSystemInfoSync();
+    const isIOS = sysInfo.system.indexOf('iOS') > -1;
+    this.setData({
+      statusBarHeight: sysInfo.statusBarHeight,
+      navBarHeight: isIOS ? 44 : 48
+    });
     this.getOrderList();
+    this.getStats();
   },
 
   onShow() {
@@ -26,6 +37,7 @@ Page({
     // 刷新数据
     if (this.data.orderList.length > 0) {
       this.refreshList();
+      this.getStats();
     }
   },
 
@@ -56,6 +68,19 @@ Page({
   refreshList() {
     this.setData({ page: 1, orderList: [] });
     this.getOrderList();
+  },
+
+  getStats() {
+    let that = this;
+    util.request(api.ManagerStats).then(function(res) {
+      if (res.errno === 0) {
+        that.setData({
+          pendingCount: res.data.pendingOrderCount || 0,
+          aftersaleCount: res.data.aftersaleCount || 0,
+          pendingGoodsCount: res.data.pendingGoodsCount || 0
+        });
+      }
+    });
   },
 
   getOrderList() {

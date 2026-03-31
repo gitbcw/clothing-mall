@@ -3,9 +3,7 @@ package org.linlinjava.litemall.wx.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.util.ResponseUtil;
-import org.linlinjava.litemall.db.domain.ClothingMemberLevel;
 import org.linlinjava.litemall.db.domain.LitemallUser;
-import org.linlinjava.litemall.db.service.ClothingMemberLevelService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.service.UserInfoService;
@@ -28,11 +26,8 @@ public class WxClothingUserController {
     @Autowired
     private LitemallUserService userService;
 
-    @Autowired
-    private ClothingMemberLevelService levelService;
-
     /**
-     * 获取会员信息（包含等级）
+     * 获取会员信息
      */
     @GetMapping("/info")
     public Object info(@LoginUser Integer userId) {
@@ -49,31 +44,12 @@ public class WxClothingUserController {
         result.put("nickname", user.getNickname());
         result.put("avatar", user.getAvatar());
         result.put("mobile", user.getMobile());
-        result.put("levelId", user.getLevelId());
         result.put("totalPoints", user.getTotalPoints());
         result.put("availablePoints", user.getAvailablePoints());
         result.put("guideId", user.getGuideId());
         result.put("storeId", user.getStoreId());
 
-        // 获取会员等级信息
-        if (user.getLevelId() != null) {
-            ClothingMemberLevel level = levelService.findById(user.getLevelId());
-            result.put("level", level);
-        } else {
-            // 根据积分自动计算等级
-            ClothingMemberLevel level = levelService.queryByPoints(user.getTotalPoints());
-            result.put("level", level);
-        }
-
         return ResponseUtil.ok(result);
-    }
-
-    /**
-     * 获取会员等级列表
-     */
-    @GetMapping("/levels")
-    public Object levels() {
-        return ResponseUtil.okList(levelService.queryAll());
     }
 
     /**

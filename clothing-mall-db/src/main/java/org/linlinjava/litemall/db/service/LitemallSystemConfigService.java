@@ -75,10 +75,9 @@ public class LitemallSystemConfigService {
 
     public Map<String, String> listPromotion() {
         LitemallSystemExample example = new LitemallSystemExample();
-        // 查询新人优惠、生日券、满减、企业微信相关配置（多条件 OR 查询）
+        // 查询新人优惠、生日券、企业微信相关配置（多条件 OR 查询）
         example.or().andKeyNameLike("litemall_newuser_%").andDeletedEqualTo(false);
         example.or().andKeyNameLike("litemall_birthday_%").andDeletedEqualTo(false);
-        example.or().andKeyNameLike("litemall_full_reduction_%").andDeletedEqualTo(false);
         example.or().andKeyNameLike("litemall_wework_%").andDeletedEqualTo(false);
         List<LitemallSystem> systemList = systemMapper.selectByExample(example);
         Map<String, String> data = new HashMap<>();

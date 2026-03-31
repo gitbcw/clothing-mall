@@ -28,20 +28,99 @@
     <view class="section">
       <view class="section-title">基本信息</view>
       <view class="form-item">
-        <text class="form-label">商品名称</text>
+        <text class="form-label">商品名称 <text class="required">*</text></text>
         <input class="form-input" placeholder="请输入商品名称" value="{{goods.name}}" bindinput="onNameInput" />
       </view>
-      <view class="form-item">
-        <text class="form-label">商品简介</text>
-        <textarea class="form-textarea" placeholder="请输入商品简介" value="{{goods.brief}}" bindinput="onBriefInput" maxlength="200"></textarea>
+      <view class="form-row">
+        <view class="form-item third">
+          <text class="form-label">专柜价</text>
+          <input class="form-input" type="digit" placeholder="专柜价" value="{{goods.counterPrice}}" bindinput="onCounterPriceInput" />
+        </view>
+        <view class="form-item third">
+          <text class="form-label">零售价 <text class="required">*</text></text>
+          <input class="form-input" type="digit" placeholder="零售价" value="{{goods.retailPrice}}" bindinput="onRetailPriceInput" />
+        </view>
+        <view class="form-item third">
+          <text class="form-label">特价</text>
+          <input class="form-input" type="digit" placeholder="特价（可选）" value="{{goods.specialPrice}}" bindinput="onSpecialPriceInput" />
+        </view>
       </view>
-      <view class="form-item">
-        <text class="form-label">专柜价</text>
-        <input class="form-input" type="digit" placeholder="请输入专柜价" value="{{goods.counterPrice}}" bindinput="onCounterPriceInput" />
+      <view class="form-item" bindtap="showCategoryPicker">
+        <text class="form-label">商品分类</text>
+        <view class="form-picker">
+          <text class="picker-value {{goods.categoryName ? '' : 'placeholder'}}">{{goods.categoryName || '请选择分类'}}</text>
+          <text class="picker-arrow">›</text>
+        </view>
       </view>
-      <view class="form-item">
-        <text class="form-label">零售价</text>
-        <input class="form-input" type="digit" placeholder="请输入零售价" value="{{goods.retailPrice}}" bindinput="onRetailPriceInput" />
+    </view>
+
+    <!-- 场景标签 -->
+    <view class="section">
+      <view class="section-title">场景标签</view>
+      <view class="scene-chips">
+        <view class="scene-chip {{scenes.indexOf(item) > -1 ? 'active' : ''}}"
+              wx:for="{{presetScenes}}" wx:key="*this" bindtap="onSceneToggle" data-scene="{{item}}">
+          {{item}}
+        </view>
+        <view class="scene-chip active" wx:for="{{scenes}}" wx:for-item="scene" wx:key="*this"
+              wx:if="{{presetScenes.indexOf(scene) === -1}}">
+          {{scene}}
+          <text class="chip-remove" catchtap="removeScene" data-scene="{{scene}}">×</text>
+        </view>
+        <view class="scene-chip add-btn" wx:if="{{!showCustomSceneInput}}" bindtap="showCustomSceneInput">
+          <text class="add-icon">+</text>
+          <text>自定义</text>
+        </view>
+      </view>
+      <view class="custom-scene-input" wx:if="{{showCustomSceneInput}}">
+        <input class="scene-input" placeholder="输入场景名称" value="{{customSceneInput}}" bindinput="onCustomSceneInput" />
+        <view class="scene-input-actions">
+          <view class="scene-action-btn cancel" bindtap="hideCustomSceneInput">取消</view>
+          <view class="scene-action-btn confirm" bindtap="addCustomScene">添加</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 商品简介 -->
+    <view class="section">
+      <view class="section-title">商品简介</view>
+      <view class="form-item" style="margin-bottom: 0;">
+        <textarea class="form-textarea" placeholder="请输入商品简介（一句话描述，最多200字）" value="{{goods.brief}}" bindinput="onBriefInput" maxlength="200"></textarea>
+      </view>
+    </view>
+
+    <!-- 商品详细介绍 -->
+    <view class="section">
+      <view class="section-title">商品详细介绍</view>
+      <view class="form-item" style="margin-bottom: 0;">
+        <textarea class="form-textarea detail-textarea" placeholder="请输入商品详细介绍（支持换行，最多500字）" value="{{goods.detail}}" bindinput="onDetailInput" maxlength="500"></textarea>
+        <text class="char-count">{{goods.detail.length || 0}}/500</text>
+      </view>
+    </view>
+
+    <!-- 关键词 -->
+    <view class="section">
+      <view class="section-title">关键词</view>
+      <view class="form-item" style="margin-bottom: 0;">
+        <input class="form-input" placeholder="多个关键词用逗号分隔，便于搜索" value="{{goods.keywords}}" bindinput="onKeywordsInput" />
+      </view>
+    </view>
+
+    <!-- 商品参数 -->
+    <view class="section">
+      <view class="section-title">
+        <text>商品参数</text>
+        <view class="add-param-btn" bindtap="addParam">+ 添加参数</view>
+      </view>
+      <view class="params-list" wx:if="{{params.length > 0}}">
+        <view class="param-row" wx:for="{{params}}" wx:key="index">
+          <input class="param-input param-key" placeholder="参数名（如面料）" value="{{item.key}}" bindinput="onParamKeyInput" data-index="{{index}}" />
+          <input class="param-input param-value" placeholder="参数值（如棉麻混纺）" value="{{item.value}}" bindinput="onParamValueInput" data-index="{{index}}" />
+          <view class="param-delete" catchtap="removeParam" data-index="{{index}}">×</view>
+        </view>
+      </view>
+      <view class="params-empty" wx:else>
+        <text>暂无参数，点击上方按钮添加</text>
       </view>
     </view>
 
@@ -79,6 +158,16 @@
     <view class="action-btn btn-publish" bindtap="onPublish" wx:if="{{goods.status !== 'published'}}">保存并上架</view>
     <view class="action-btn btn-unpublish" bindtap="onUnpublish" wx:if="{{goods.status === 'published' && goods.isOnSale}}">下架</view>
   </view>
+
+  <!-- 分类选择器 -->
+  <van-popup show="{{showCategoryPicker}}" position="bottom" round bind:close="onCategoryClose">
+    <view class="picker-header">
+      <text class="picker-cancel" bindtap="onCategoryClose">取消</text>
+      <text class="picker-title">选择分类</text>
+      <text class="picker-confirm"></text>
+    </view>
+    <van-picker columns="{{categoryList}}" value-key="name" bind:change="onCategoryChange" />
+  </van-popup>
 
   <view class="loading" wx:if="{{loading}}">
     <text>加载中...</text>

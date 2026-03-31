@@ -1,6 +1,7 @@
 package org.linlinjava.litemall.wx.web;
 
 import com.github.pagehelper.PageInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.util.ResponseUtil;
@@ -33,6 +34,7 @@ import java.util.Map;
 @Validated
 public class WxManagerGoodsController {
     private final Log logger = LogFactory.getLog(WxManagerGoodsController.class);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     private LitemallGoodsService goodsService;
@@ -80,6 +82,7 @@ public class WxManagerGoodsController {
     @GetMapping("list")
     public Object list(@LoginUser Integer userId,
                        @RequestParam(defaultValue = "all") String status,
+                       @RequestParam(required = false) String keyword,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "20") Integer limit) {
         Object error = checkManager(userId);
@@ -109,7 +112,7 @@ public class WxManagerGoodsController {
         }
 
         List<LitemallGoods> goodsList = goodsService.querySelectiveForManager(
-                queryStatus, queryOnSale, page, limit, "update_time", "desc");
+                queryStatus, queryOnSale, keyword, page, limit, "update_time", "desc");
         long total = PageInfo.of(goodsList).getTotal();
 
         // 各 tab 数量
@@ -222,6 +225,46 @@ public class WxManagerGoodsController {
                 goods.setGallery(galleryList.toArray(new String[0]));
             }
         }
+        if (body.containsKey("detail")) {
+            goods.setDetail((String) body.get("detail"));
+        }
+        if (body.containsKey("keywords")) {
+            goods.setKeywords((String) body.get("keywords"));
+        }
+        if (body.containsKey("specialPrice")) {
+            Object specialPriceObj = body.get("specialPrice");
+            if (specialPriceObj != null) {
+                goods.setSpecialPrice(new BigDecimal(specialPriceObj.toString()));
+                goods.setIsSpecialPrice(true);
+            } else {
+                goods.setSpecialPrice(null);
+                goods.setIsSpecialPrice(false);
+            }
+        }
+
+        // 场景标签：JSON 数组存储
+        if (body.containsKey("scenes")) {
+            Object scenesObj = body.get("scenes");
+            if (scenesObj instanceof List) {
+                try {
+                    goods.setSceneTags(objectMapper.writeValueAsString(scenesObj));
+                } catch (Exception e) {
+                    logger.error("序列化 scenes 失败", e);
+                }
+            }
+        }
+
+        // 商品参数：JSON 数组存储
+        if (body.containsKey("params")) {
+            Object paramsObj = body.get("params");
+            if (paramsObj instanceof List) {
+                try {
+                    goods.setGoodsParams(objectMapper.writeValueAsString(paramsObj));
+                } catch (Exception e) {
+                    logger.error("序列化 params 失败", e);
+                }
+            }
+        }
 
         goodsService.updateById(goods);
 
@@ -258,7 +301,7 @@ public class WxManagerGoodsController {
     }
 
     /**
-     * 下架商品（支持批量，只改 isOnSale 不改 status）
+     * 下架商品（支持批量，status 改为 pending）
      *
      * @param userId 用户ID
      * @param body   { id: 123 } 或 { ids: [1,2,3] }
@@ -275,9 +318,7 @@ public class WxManagerGoodsController {
             return ResponseUtil.badArgument();
         }
 
-        for (Integer id : ids) {
-            goodsService.setOnSale(id, false);
-        }
+        goodsService.updateStatusBatch(ids, LitemallGoods.STATUS_PENDING);
         return ResponseUtil.ok();
     }
 
@@ -343,6 +384,15 @@ public class WxManagerGoodsController {
         }
 
         goods.setBrief((String) body.get("brief"));
+        goods.setDetail((String) body.get("detail"));
+        goods.setKeywords((String) body.get("keywords"));
+
+        Object specialPriceObj = body.get("specialPrice");
+        if (specialPriceObj != null) {
+            BigDecimal specialPrice = new BigDecimal(specialPriceObj.toString());
+            goods.setSpecialPrice(specialPrice);
+            goods.setIsSpecialPrice(true);
+        }
 
         String picUrl = (String) body.get("picUrl");
         String sourceImage = (String) body.get("sourceImage");
@@ -358,8 +408,28 @@ public class WxManagerGoodsController {
             List<String> galleryList = (List<String>) galleryObj;
             goods.setGallery(galleryList.toArray(new String[0]));
         }
+
+        // 场景标签：JSON 数组存储
+        Object scenesObj = body.get("scenes");
+        if (scenesObj instanceof List) {
+            try {
+                goods.setSceneTags(objectMapper.writeValueAsString(scenesObj));
+            } catch (Exception e) {
+                logger.error("序列化 scenes 失败", e);
+            }
+        }
+
+        // 商品参数：JSON 数组存储
+        Object paramsObj = body.get("params");
+        if (paramsObj instanceof List) {
+            try {
+                goods.setGoodsParams(objectMapper.writeValueAsString(paramsObj));
+            } catch (Exception e) {
+                logger.error("序列化 params 失败", e);
+            }
+        }
+
         goods.setStatus(LitemallGoods.STATUS_DRAFT);
-        goods.setIsOnSale(false);
         goods.setDeleted(false);
         goodsService.add(goods);
 

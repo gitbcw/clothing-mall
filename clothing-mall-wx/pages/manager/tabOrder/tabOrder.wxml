@@ -1,4 +1,13 @@
 <view class="container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="padding-top: {{statusBarHeight}}px; height: {{navBarHeight}}px;">
+    <view class="nav-inner">
+      <view class="nav-title">订单管理</view>
+    </view>
+  </view>
+  <!-- 占位符 -->
+  <view class="nav-placeholder" style="height: {{statusBarHeight + navBarHeight}}px;"></view>
+
   <!-- 子 Tab 切换 -->
   <view class="sub-tabs">
     <view class="sub-tab-item {{activeSubTab === 'order' ? 'active' : ''}}" bindtap="onSubTabChange" data-tab="order">
@@ -6,6 +15,24 @@
     </view>
     <view class="sub-tab-item {{activeSubTab === 'aftersale' ? 'active' : ''}}" bindtap="onSubTabChange" data-tab="aftersale">
       售后{{aftersaleCount > 0 ? '(' + aftersaleCount + ')' : ''}}
+    </view>
+  </view>
+
+  <!-- 统计概览 -->
+  <view class="stats-card">
+    <view class="stat-item">
+      <text class="stat-value">{{pendingCount}}</text>
+      <text class="stat-label">待处理订单</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">{{aftersaleCount}}</text>
+      <text class="stat-label">售后中</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">{{pendingGoodsCount}}</text>
+      <text class="stat-label">待上架商品</text>
     </view>
   </view>
 
@@ -28,6 +55,7 @@
           <view class="goods-info">
             <text class="goods-name">{{goods.goodsName}}</text>
             <text class="goods-spec" wx:if="{{goods.specifications}}">{{goods.specifications}}</text>
+            <text class="goods-spec" wx:elif="{{goods.size}}">{{goods.size}}</text>
             <view class="goods-price-num">
               <text class="goods-price">¥{{goods.price}}</text>
               <text class="goods-num">x{{goods.number}}</text>

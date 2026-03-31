@@ -16,7 +16,7 @@ import org.linlinjava.litemall.core.express.ExpressService;
 import org.linlinjava.litemall.core.express.dao.ExpressInfo;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.NotifyType;
-import org.linlinjava.litemall.core.system.FullReductionService;
+import org.linlinjava.litemall.core.system.FreightService;
 import org.linlinjava.litemall.core.system.SystemConfig;
 import org.linlinjava.litemall.core.task.TaskService;
 import org.linlinjava.litemall.core.util.DateTimeUtil;
@@ -99,6 +99,8 @@ public class WxOrderService {
     @Autowired
     private TaskService taskService;
     @Autowired
+    private FreightService freightService;
+    @Autowired
     private LitemallAftersaleService aftersaleService;
     @Autowired
     private LitemallRoleService roleService;
@@ -106,10 +108,6 @@ public class WxOrderService {
     private LitemallPermissionService permissionService;
     @Autowired
     private LitemallOrderExpressService orderExpressService;
-    @Autowired
-    private LitemallFlashSaleService flashSaleService;
-    @Autowired
-    private FullReductionService fullReductionService;
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
     /**
@@ -360,32 +358,21 @@ public class WxOrderService {
             }
         }
 
-        // 满减优惠（需检查是否与优惠券叠加）
-        BigDecimal fullReductionDiscount = BigDecimal.ZERO;
-        BigDecimal priceForFullReduction = checkedGoodsPrice;
-        // 如果不允许叠加，则先减去优惠券
-        if (!fullReductionService.isStackWithCoupon()) {
-            priceForFullReduction = checkedGoodsPrice.subtract(couponPrice).max(BigDecimal.ZERO);
-        }
-        fullReductionDiscount = fullReductionService.calculateDiscount(priceForFullReduction);
-
         // 根据订单商品总价计算运费，满足条件（例如88元）则免运费，否则需要支付运费（例如8元）；
         // 自提模式运费为0
         BigDecimal freightPrice = new BigDecimal(0);
         if ("express".equals(deliveryType)) {
-            if (checkedGoodsPrice.compareTo(SystemConfig.getFreightLimit()) < 0) {
-                freightPrice = SystemConfig.getFreight();
-            }
+            int totalPieceCount = checkedGoodsList.stream().mapToInt(LitemallCart::getNumber).sum();
+            freightPrice = freightService.calculateFreight(checkedGoodsPrice, totalPieceCount);
         }
 
         // 可以使用的其他钱，例如用户积分
         BigDecimal integralPrice = new BigDecimal(0);
 
-        // 订单费用 = 商品价格 + 运费 - 优惠券 - 新人立减 - 满减
+        // 订单费用 = 商品价格 + 运费 - 优惠券 - 新人立减
         BigDecimal orderTotalPrice = checkedGoodsPrice.add(freightPrice)
                 .subtract(couponPrice)
                 .subtract(newuserDiscount)
-                .subtract(fullReductionDiscount)
                 .max(new BigDecimal(0));
         // 最终支付费用
         BigDecimal actualPrice = orderTotalPrice.subtract(integralPrice);
@@ -420,8 +407,6 @@ public class WxOrderService {
             // 生成取货码
             order.setPickupCode(generatePickupCode());
         }
-
-        order.setGrouponPrice(new BigDecimal(0));
 
         // 添加订单表项
         orderService.add(order);
@@ -458,8 +443,15 @@ public class WxOrderService {
 
         // 商品货品数量减少
         for (LitemallCart checkGoods : checkedGoodsList) {
+            // SKU 模式（skuId 不为空）不扣减库存
+            if (checkGoods.getSkuId() != null) {
+                continue;
+            }
             Integer productId = checkGoods.getProductId();
             LitemallGoodsProduct product = productService.findById(productId);
+            if (product == null) {
+                continue;
+            }
 
             int remainNumber = product.getNumber() - checkGoods.getNumber();
             if (remainNumber < 0) {
@@ -467,20 +459,6 @@ public class WxOrderService {
             }
             if (productService.reduceStock(productId, checkGoods.getNumber()) == 0) {
                 throw new RuntimeException("商品货品库存减少失败");
-            }
-
-            // 特卖库存扣减（如果商品参与特卖活动）
-            Integer goodsId = checkGoods.getGoodsId();
-            LitemallFlashSale flashSale = flashSaleService.findOngoingByGoodsId(goodsId);
-            if (flashSale != null) {
-                int buyNumber = checkGoods.getNumber();
-                int flashRemain = flashSale.getFlashStock() - buyNumber;
-                if (flashRemain < 0) {
-                    throw new RuntimeException("特卖商品库存不足");
-                }
-                if (!flashSaleService.reduceStock(flashSale.getId(), buyNumber)) {
-                    throw new RuntimeException("特卖库存扣减失败");
-                }
             }
         }
 
@@ -573,13 +551,6 @@ public class WxOrderService {
             Short number = orderGoods.getNumber();
             if (productService.addStock(productId, number) == 0) {
                 throw new RuntimeException("商品货品库存增加失败");
-            }
-
-            // 特卖库存恢复（如果商品当前有进行中的特卖活动）
-            Integer goodsId = orderGoods.getGoodsId();
-            LitemallFlashSale flashSale = flashSaleService.findOngoingByGoodsId(goodsId);
-            if (flashSale != null) {
-                flashSaleService.addStock(flashSale.getId(), number.intValue());
             }
         }
 
@@ -878,9 +849,6 @@ public class WxOrderService {
         if (!handleOption.isConfirm()) {
             return ResponseUtil.fail(ORDER_INVALID_OPERATION, "订单不能确认收货");
         }
-
-        Short comments = orderGoodsService.getComments(orderId);
-        order.setComments(comments);
 
         order.setOrderStatus(OrderUtil.STATUS_CONFIRM);
         order.setConfirmTime(LocalDateTime.now());

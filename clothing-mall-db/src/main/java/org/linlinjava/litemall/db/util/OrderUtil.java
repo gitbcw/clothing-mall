@@ -133,7 +133,6 @@ public class OrderUtil {
         } else if (status == 401 || status == 402) {
             // 如果订单已经支付，且已经收货，则可删除、去评论、申请售后和再次购买
             handleOption.setDelete(true);
-            handleOption.setComment(true);
             handleOption.setRebuy(true);
             handleOption.setAftersale(true);
         } else if (status == 501) {
@@ -141,7 +140,6 @@ public class OrderUtil {
             handleOption.setRefund(true);
         } else if (status == 502) {
             handleOption.setDelete(true);
-            handleOption.setComment(true);
             handleOption.setRebuy(true);
         } else if (status == 503) {
             handleOption.setDelete(true);

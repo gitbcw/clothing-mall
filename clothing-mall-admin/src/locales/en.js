@@ -29,7 +29,6 @@ export default {
       goods_list: 'List goods',
       goods_create: 'Add goods',
       goods_edit: 'Edit goods',
-      goods_comment: 'Comments',
       promotion: 'Marketing Management',
       promotion_ad: 'Ads',
       promotion_coupon: 'Coupons',
@@ -37,8 +36,6 @@ export default {
       promotion_topic: 'Topics',
       promotion_topic_create: 'Create topic',
       promotion_topic_edit: 'Edit topic',
-      promotion_groupon_rule: 'Groupon rules',
-      promotion_groupon_activity: 'Groupon activity',
       sys: 'System',
       sys_admin: 'Admins',
       sys_notice: 'Notifications',
@@ -594,27 +591,6 @@ export default {
       edit: 'Edit'
     }
   },
-  goods_comment: {
-    table: {
-      user_id: 'User ID',
-      value_id: 'Item ID',
-      star: 'Rating',
-      content: 'Content',
-      pic_urls: 'Pictures',
-      add_time: 'Time added',
-      actions: 'Actions'
-    },
-    dialog: {
-      reply: 'Reply'
-    },
-    form: {
-      content: 'Content'
-    },
-    placeholder: {
-      filter_user_id: 'User ID',
-      filter_value_id: 'Item ID'
-    }
-  },
   promotion_ad: {
     table: {
       id: 'ID',
@@ -785,46 +761,6 @@ export default {
     },
     button: {
       goods_create: 'Add'
-    }
-  },
-  promotion_groupon_rule: {
-    table: {
-      id: 'ID',
-      goods_id: 'Goods ID',
-      goods_name: 'Goods name',
-      pic_url: 'Picture',
-      discount: 'Discount',
-      discount_member: 'Min buy quantity',
-      status: 'Status',
-      expire_time: 'Expire time',
-      actions: 'Actions'
-    },
-    form: {
-      goods_id: 'Goods ID',
-      discount: 'Discount',
-      discount_member: 'Min buy quantity',
-      expire_time: 'Expire time'
-    },
-    placeholder: {
-      filter_goods_id: 'Goods ID',
-      expire_time: 'Select date'
-    }
-  },
-  promotion_groupon_activity: {
-    table: {
-      order_id: 'Order ID',
-      user_id: 'User ID',
-      groupon_order_id: 'Order ID',
-      groupon_user_id: 'User ID',
-      subgroupons_length: 'Number used',
-      rules_discount: 'Discount',
-      rules_discount_member: 'Min buy quantity',
-      groupon_share_url: 'Picture',
-      rules_add_time: 'Time added',
-      rules_expire_time: 'Expire time'
-    },
-    placeholder: {
-      filter_groupon_rule_id: 'Rule ID'
     }
   },
   sys_admin: {

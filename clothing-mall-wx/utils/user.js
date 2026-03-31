@@ -73,22 +73,49 @@ function loginByWeixin(userInfo) {
 
 /**
  * 判断用户是否登录
+ * 只检查本地存储的 token 和 userInfo，不依赖微信 session
  */
 function checkLogin() {
   return new Promise(function(resolve, reject) {
-    if (wx.getStorageSync('userInfo') && wx.getStorageSync('token')) {
-      checkSession().then(() => {
-        resolve(true);
-      }).catch(() => {
-        reject(false);
-      });
+    const userInfo = wx.getStorageSync('userInfo');
+    const token = wx.getStorageSync('token');
+    if (userInfo && token) {
+      resolve(true);
     } else {
       reject(false);
     }
   });
 }
 
+/**
+ * 检查登录状态并验证 token 是否有效（调用后端接口）
+ */
+function checkLoginWithApi() {
+  return new Promise(function(resolve, reject) {
+    const userInfo = wx.getStorageSync('userInfo');
+    const token = wx.getStorageSync('token');
+    if (!userInfo || !token) {
+      reject(false);
+      return;
+    }
+    // 调用后端接口验证 token
+    util.request(api.UserIndex, {}, 'GET').then(res => {
+      if (res.errno === 0) {
+        resolve(true);
+      } else {
+        // token 无效，清除本地存储
+        wx.removeStorageSync('userInfo');
+        wx.removeStorageSync('token');
+        reject(false);
+      }
+    }).catch(() => {
+      reject(false);
+    });
+  });
+}
+
 module.exports = {
   loginByWeixin,
   checkLogin,
+  checkLoginWithApi,
 };

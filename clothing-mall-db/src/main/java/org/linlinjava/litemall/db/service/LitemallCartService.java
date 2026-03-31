@@ -36,6 +36,21 @@ public class LitemallCartService {
         return cartMapper.selectOneByExample(example);
     }
 
+    /**
+     * 按商品ID+尺码查询购物车商品
+     */
+    public LitemallCart queryExistBySize(Integer goodsId, String size, Integer userId) {
+        LitemallCartExample example = new LitemallCartExample();
+        LitemallCartExample.Criteria criteria = example.or()
+                .andGoodsIdEqualTo(goodsId)
+                .andUserIdEqualTo(userId)
+                .andDeletedEqualTo(false);
+        if (size != null && !size.isEmpty()) {
+            criteria.andSizeEqualTo(size);
+        }
+        return cartMapper.selectOneByExample(example);
+    }
+
     public void add(LitemallCart cart) {
         cart.setAddTime(LocalDateTime.now());
         cart.setUpdateTime(LocalDateTime.now());
@@ -62,7 +77,7 @@ public class LitemallCartService {
 
     public int delete(List<Integer> productIdList, int userId) {
         LitemallCartExample example = new LitemallCartExample();
-        example.or().andUserIdEqualTo(userId).andProductIdIn(productIdList);
+        example.or().andUserIdEqualTo(userId).andIdIn(productIdList);
         return cartMapper.logicalDeleteByExample(example);
     }
 
@@ -78,7 +93,7 @@ public class LitemallCartService {
 
     public int updateCheck(Integer userId, List<Integer> idsList, Boolean checked) {
         LitemallCartExample example = new LitemallCartExample();
-        example.or().andUserIdEqualTo(userId).andProductIdIn(idsList).andDeletedEqualTo(false);
+        example.or().andUserIdEqualTo(userId).andIdIn(idsList).andDeletedEqualTo(false);
         LitemallCart cart = new LitemallCart();
         cart.setChecked(checked);
         cart.setUpdateTime(LocalDateTime.now());

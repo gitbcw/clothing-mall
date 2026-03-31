@@ -34,6 +34,10 @@ service.interceptors.response.use(
     const res = response.data
 
     if (res.errno === 501) {
+      // 登录页面不弹出"系统未登录"提示
+      if (window.location.pathname === '/login' || window.location.hash === '#/login') {
+        return Promise.reject('error')
+      }
       MessageBox.alert('系统未登录，请重新登录', '错误', {
         confirmButtonText: '确定',
         type: 'error'

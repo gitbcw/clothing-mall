@@ -196,12 +196,11 @@ public class LitemallOrderService {
         LitemallOrderExample example = new LitemallOrderExample();
         example.or().andUserIdEqualTo(userId).andDeletedEqualTo(false);
         List<LitemallOrder> orders = litemallOrderMapper.selectByExampleSelective(example,
-                LitemallOrder.Column.orderStatus, LitemallOrder.Column.comments);
+                LitemallOrder.Column.orderStatus);
 
         int unpaid = 0;
         int unship = 0;
         int unrecv = 0;
-        int uncomment = 0;
         for (LitemallOrder order : orders) {
             if (OrderUtil.isCreateStatus(order)) {
                 unpaid++;
@@ -209,10 +208,6 @@ public class LitemallOrderService {
                 unship++;
             } else if (OrderUtil.isShipStatus(order)) {
                 unrecv++;
-            } else if (OrderUtil.isConfirmStatus(order) || OrderUtil.isAutoConfirmStatus(order)) {
-                uncomment += order.getComments();
-            } else {
-                // do nothing
             }
         }
 
@@ -220,17 +215,8 @@ public class LitemallOrderService {
         orderInfo.put("unpaid", unpaid);
         orderInfo.put("unship", unship);
         orderInfo.put("unrecv", unrecv);
-        orderInfo.put("uncomment", uncomment);
         return orderInfo;
 
-    }
-
-    public List<LitemallOrder> queryComment(int days) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime expired = now.minusDays(days);
-        LitemallOrderExample example = new LitemallOrderExample();
-        example.or().andCommentsGreaterThan((short) 0).andConfirmTimeLessThan(expired).andDeletedEqualTo(false);
-        return litemallOrderMapper.selectByExample(example);
     }
 
     public void updateAftersaleStatus(Integer orderId, Short statusReject) {

@@ -8,16 +8,15 @@ Page({
   data: {
     statusBarHeight: 20,
     navBarHeight: 44,
-    navOpacity: 0,
 
     // 轮播图
     banners: [],
 
-    // 每周上新
-    weeklyNews: [],
-
     // 热销推荐
     hotSales: [],
+    hotSalesScroll: [],  // 复制一份用于无限循环滚动
+    hotScrollDuration: 30,
+    hotScrollPaused: false,
 
     // 搭配推荐
     matchRecommends: [],
@@ -66,22 +65,19 @@ Page({
     tracker.trackPageView('首页')
   },
 
-  onPageScroll(e) {
-    const scrollTop = e.scrollTop
-    let opacity = scrollTop / 100
-    if (opacity > 1) opacity = 1
-    this.setData({ navOpacity: opacity })
-  },
+  onPageScroll() {},
 
   // 加载数据
   loadData() {
     util.request(api.IndexUrl).then(res => {
       if (res.errno === 0) {
-        const { hotGoodsList = [], newGoodsList = [] } = res.data
+        const { hotGoodsList = [] } = res.data
 
+        const hotSales = hotGoodsList.filter(item => item.categoryId !== 1022001)
         this.setData({
-          weeklyNews: newGoodsList.filter(item => item.categoryId !== 1022001).slice(0, 5),
-          hotSales: hotGoodsList.filter(item => item.categoryId !== 1022001).slice(0, 6)
+          hotSales,
+          hotSalesScroll: [...hotSales, ...hotSales],
+          hotScrollDuration: Math.max(hotSales.length * 1.5, 15)
         })
 
         // 活动位数据
@@ -171,45 +167,16 @@ Page({
     }
   },
 
-  // 加入购物车
+  // 加入购物车（跳转详情页选择尺码）
   addToCart(e) {
     const id = e.currentTarget.dataset.id
-    util.request(api.CartAdd, {
-      goodsId: id,
-      number: 1,
-      productId: 0
-    }, 'POST').then(res => {
-      if (res.errno === 0) {
-        wx.showToast({ title: '已加入购物车', icon: 'success' })
-        // 加购埋点
-        tracker.trackAddCart(id, '商品', 0, 1)
-      } else {
-        wx.showToast({ title: res.errmsg || '加购失败', icon: 'none' })
-      }
-    }).catch(() => {
-      wx.showToast({ title: '网络错误', icon: 'none' })
-    })
+    wx.navigateTo({ url: '/pages/goods_detail/goods_detail?id=' + id })
   },
 
-  // 立即购买
+  // 立即购买（跳转详情页选择尺码）
   buyNow(e) {
     const id = e.currentTarget.dataset.id
-    util.request(api.CartFastAdd, {
-      goodsId: id,
-      number: 1,
-      productId: 0
-    }, 'POST').then(res => {
-      if (res.errno === 0) {
-        wx.setStorageSync('cartId', res.data)
-        wx.navigateTo({
-          url: '/pages/confirm_order/confirm_order'
-        })
-      } else {
-        wx.showToast({ title: res.errmsg || '下单失败', icon: 'none' })
-      }
-    }).catch(() => {
-      wx.showToast({ title: '网络错误', icon: 'none' })
-    })
+    wx.navigateTo({ url: '/pages/goods_detail/goods_detail?id=' + id })
   },
 
   // 跳转购物车
@@ -221,5 +188,14 @@ Page({
   switchTab(e) {
     const url = e.currentTarget.dataset.url
     wx.switchTab({ url })
+  },
+
+  // 热销推荐自动滚动控制
+  pauseHotScroll() {
+    this.setData({ hotScrollPaused: true })
+  },
+
+  resumeHotScroll() {
+    this.setData({ hotScrollPaused: false })
   }
 })

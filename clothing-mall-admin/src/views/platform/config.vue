@@ -1,20 +1,23 @@
 <template>
   <div class="app-container platform-config">
     <el-tabs v-model="activeTab" type="card" @tab-click="handleTabClick">
-      <el-tab-pane label="平台规则" name="rule">
+      <el-tab-pane label="用户优惠" name="promotion-rules">
+        <promotion-rules v-if="loadedTabs['promotion-rules']" />
+      </el-tab-pane>
+      <el-tab-pane label="订单和运费" name="rule">
         <rule-config v-if="loadedTabs.rule" />
       </el-tab-pane>
-      <el-tab-pane label="促销管理" name="promotion">
+      <el-tab-pane label="优惠券管理" name="promotion">
         <promotion-index v-if="loadedTabs.promotion" />
       </el-tab-pane>
-      <el-tab-pane label="小程序设置" name="wx">
-        <wx-config v-if="loadedTabs.wx" />
+      <el-tab-pane label="搜索关键词" name="keyword">
+        <keyword-manage v-if="loadedTabs.keyword" />
       </el-tab-pane>
       <el-tab-pane label="通用问题" name="issue">
         <issue-manage v-if="loadedTabs.issue" />
       </el-tab-pane>
-      <el-tab-pane label="搜索关键词" name="keyword">
-        <keyword-manage v-if="loadedTabs.keyword" />
+      <el-tab-pane label="客服设置" name="service">
+        <service-config v-if="loadedTabs.service" />
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -23,17 +26,18 @@
 <script>
 import RuleConfig from '@/views/config/rule'
 import PromotionIndex from '@/views/promotion/index'
-import WxConfig from '@/views/config/wx'
+import PromotionRules from '@/views/config/promotion-rules'
+import ServiceConfig from '@/views/config/service'
 import IssueManage from '@/views/mall/issue'
 import KeywordManage from '@/views/mall/keyword'
 
 export default {
   name: 'PlatformConfig',
-  components: { RuleConfig, PromotionIndex, WxConfig, IssueManage, KeywordManage },
+  components: { RuleConfig, PromotionIndex, PromotionRules, ServiceConfig, IssueManage, KeywordManage },
   data() {
     return {
-      activeTab: 'rule',
-      loadedTabs: { rule: true, promotion: false, wx: false, issue: false, keyword: false }
+      activeTab: 'promotion-rules',
+      loadedTabs: { rule: true, promotion: false, 'promotion-rules': false, service: false, issue: false, keyword: false }
     }
   },
   methods: {

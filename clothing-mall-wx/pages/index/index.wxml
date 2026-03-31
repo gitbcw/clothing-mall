@@ -1,13 +1,12 @@
 <view class="container">
-  <!-- 沉浸式自定义导航栏 -->
-  <view class="custom-nav" style="padding-top: {{statusBarHeight}}px; height: {{navBarHeight}}px; background-color: rgba(255, 255, 255, {{navOpacity}});">
-    <view class="search-btn">
-      <view class="search-icon" style="filter: brightness({{navOpacity > 0.5 ? 0 : 1}});"></view>
-    </view>
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="padding-top: {{statusBarHeight}}px; height: {{navBarHeight}}px;">
+    <view class="nav-left"></view>
+    <view class="nav-title">川着·Transmute</view>
     <view class="nav-right"></view>
   </view>
 
-  <scroll-view class="page-scroll" scroll-y="true" bindscroll="onPageScroll">
+  <scroll-view class="page-scroll" scroll-y="true" style="padding-top: {{statusBarHeight + navBarHeight}}px;">
     <!-- Banner -->
     <swiper class="banner-swiper" indicator-dots="true" autoplay="true" circular="true" indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#ffffff">
       <swiper-item wx:for="{{banners}}" wx:key="id" bindtap="goToScene" data-scene-id="{{item.id}}">
@@ -36,45 +35,18 @@
       </scroll-view>
     </view>
 
-    <!-- 每周上新 (叠在Banner下方) -->
-    <view class="weekly-new-section">
-      <view class="section-header-weekly">
-        <view class="title-weekly">每周上新</view>
-        <view class="subtitle-weekly">NEW ARRIVAL</view>
-      </view>
-      <scroll-view class="weekly-scroll" scroll-x="true">
-        <view class="weekly-list">
-          <view class="weekly-item" wx:for="{{weeklyNews}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
-            <image class="weekly-img" src="{{item.picUrl || defaultImage}}" mode="aspectFill" binderror="onHomeImageError" data-source="weeklyNews" data-index="{{index}}"></image>
-            <view class="weekly-info">
-              <view class="weekly-title">{{item.name}}</view>
-              <view class="weekly-bottom">
-                <view class="weekly-price-wrap">
-                  <text class="price-symbol">￥</text>
-                  <text class="price-num">{{item.retailPrice}}</text>
-                  <text class="original-price" wx:if="{{item.counterPrice > item.retailPrice}}">￥{{item.counterPrice}}</text>
-                </view>
-                <view class="cart-icon-small" catchtap="addToCart" data-id="{{item.id}}"></view>
-              </view>
-            </view>
-          </view>
-        </view>
-      </scroll-view>
-    </view>
-
-    <!-- 热销推荐 -->
+    <!-- 热销推荐（无限循环滚动） -->
     <view class="hot-sale-section">
       <view class="section-header">
         <view class="title-wrap">
           <text class="title">热销推荐</text>
           <text class="subtitle">HOT</text>
         </view>
-        <view class="view-more">查看更多 ></view>
       </view>
-      <scroll-view class="hot-scroll" scroll-x="true">
-        <view class="hot-list">
-          <view class="hot-item" wx:for="{{hotSales}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
-            <image class="hot-img" src="{{item.picUrl || defaultImage}}" mode="aspectFill" binderror="onHomeImageError" data-source="hotSales" data-index="{{index}}"></image>
+      <view class="hot-scroll-wrapper" bindtouchstart="pauseHotScroll" bindtouchend="resumeHotScroll">
+        <view class="hot-scroll-inner" style="animation-duration: {{hotScrollDuration}}s; animation-play-state: {{hotScrollPaused ? 'paused' : 'running'}}">
+          <view class="hot-item" wx:for="{{hotSalesScroll}}" wx:key="{{item.id}}_{{index}}" bindtap="goToDetail" data-id="{{item.id}}">
+            <image class="hot-img" src="{{item.picUrl || defaultImage}}" mode="aspectFill" binderror="onHomeImageError" data-source="hotSales" data-index="{{index % hotSales.length}}"></image>
             <view class="hot-info">
               <view class="hot-title">{{item.name}}</view>
               <view class="hot-price-wrap">
@@ -86,7 +58,7 @@
             </view>
           </view>
         </view>
-      </scroll-view>
+      </view>
     </view>
 
     <!-- 穿搭推荐 -->

@@ -206,18 +206,6 @@ export const asyncRoutes = [
         },
         hidden: true
       },
-      // 隐藏的会员等级（保留路由但不在菜单显示）
-      {
-        path: 'memberLevel',
-        component: () => import('@/views/mall/memberLevel'),
-        name: 'memberLevel',
-        meta: {
-          perms: ['GET /admin/clothing/memberLevel/list', 'POST /admin/clothing/memberLevel/create', 'POST /admin/clothing/memberLevel/update', 'POST /admin/clothing/memberLevel/delete'],
-          title: 'app.menu.goods_memberLevel',
-          noCache: true
-        },
-        hidden: true
-      },
       {
         path: 'region',
         component: () => import('@/views/mall/region'),
@@ -265,59 +253,48 @@ export const asyncRoutes = [
           noCache: true
         }
       },
-      // 会员管理
+      // 会员管理（Tab 容器）
       {
         path: 'user',
-        component: () => import('@/views/user/user'),
+        component: () => import('@/views/user/index'),
         name: 'platformUser',
         meta: {
-          perms: ['GET /admin/user/list'],
+          perms: ['GET /admin/user/list', 'GET /admin/address/list', 'GET /admin/collect/list', 'GET /admin/footprint/list', 'GET /admin/history/list'],
           title: 'app.menu.platform_user',
           noCache: true
         }
       },
-      {
-        path: 'address',
-        component: () => import('@/views/user/address'),
-        name: 'platformAddress',
-        meta: {
-          perms: ['GET /admin/address/list'],
-          title: 'app.menu.user_address',
-          noCache: true
-        },
-        hidden: true
-      },
+      // 以下为旧路由兼容（已合并至会员管理 Tab）
       {
         path: 'collect',
-        component: () => import('@/views/user/collect'),
+        component: { render: h => h('div') },
         name: 'platformCollect',
-        meta: {
-          perms: ['GET /admin/collect/list'],
-          title: 'app.menu.user_collect',
-          noCache: true
-        },
+        beforeEnter(to, from, next) { next('/platform/user?tab=collect') },
+        meta: { perms: ['GET /admin/collect/list'], title: 'app.menu.user_collect', noCache: true },
         hidden: true
       },
       {
         path: 'footprint',
-        component: () => import('@/views/user/footprint'),
+        component: { render: h => h('div') },
         name: 'platformFootprint',
-        meta: {
-          perms: ['GET /admin/footprint/list'],
-          title: 'app.menu.user_footprint',
-          noCache: true
-        },
+        beforeEnter(to, from, next) { next('/platform/user?tab=footprint') },
+        meta: { perms: ['GET /admin/footprint/list'], title: 'app.menu.user_footprint', noCache: true },
         hidden: true
       },
       {
         path: 'history',
-        component: () => import('@/views/user/history'),
+        component: { render: h => h('div') },
         name: 'platformHistory',
-        meta: {
-          perms: ['GET /admin/history/list'],
-          title: 'app.menu.user_history',
-          noCache: true
-        },
+        beforeEnter(to, from, next) { next('/platform/user?tab=history') },
+        meta: { perms: ['GET /admin/history/list'], title: 'app.menu.user_history', noCache: true },
+        hidden: true
+      },
+      {
+        path: 'address',
+        component: { render: h => h('div') },
+        name: 'platformAddress',
+        beforeEnter(to, from, next) { next('/platform/user?tab=address') },
+        meta: { perms: ['GET /admin/address/list'], title: 'app.menu.user_address', noCache: true },
         hidden: true
       },
       {
@@ -363,8 +340,8 @@ export const asyncRoutes = [
           perms: [
             'GET /admin/config/order', 'POST /admin/config/order',
             'GET /admin/config/express', 'POST /admin/config/express',
-            'GET /admin/flashSale/list', 'GET /admin/coupon/list', 'GET /admin/fullReduction/list',
-            'GET /admin/config/wx', 'POST /admin/config/wx',
+            'GET /admin/coupon/list',
+            'GET /admin/config/promotion', 'POST /admin/config/promotion',
             'GET /admin/issue/list',
             'GET /admin/keyword/list'
           ],
@@ -480,18 +457,7 @@ export const asyncRoutes = [
           noCache: true
         }
       },
-      // 小程序设置（已移至 /platform/config，保留路由兼容）
-      {
-        path: 'wx',
-        component: () => import('@/views/config/wx'),
-        name: 'systemWx',
-        meta: {
-          perms: ['GET /admin/config/wx', 'POST /admin/config/wx'],
-          title: 'app.menu.platform_wx',
-          noCache: true
-        },
-        hidden: true
-      },
+      // 小程序设置（已拆分至 /platform/config 的客服设置和促销规则 Tab）
       // 隐藏的原商城配置（保留路由兼容）
       {
         path: 'config-mall',
@@ -573,7 +539,7 @@ export const asyncRoutes = [
         component: () => import('@/views/promotion/index'),
         name: 'promotionIndex',
         meta: {
-          perms: ['GET /admin/flashSale/list', 'GET /admin/coupon/list', 'GET /admin/fullReduction/list'],
+          perms: ['GET /admin/coupon/list'],
           title: 'app.menu.promotion_index',
           noCache: true
         }
@@ -587,17 +553,6 @@ export const asyncRoutes = [
           title: 'app.menu.promotion_outfit',
           noCache: true
         }
-      },
-      {
-        path: 'flashSale',
-        component: () => import('@/views/promotion/flashSale'),
-        name: 'flashSale',
-        meta: {
-          perms: ['GET /admin/flashSale/list', 'POST /admin/flashSale/create', 'POST /admin/flashSale/update', 'POST /admin/flashSale/delete'],
-          title: 'app.menu.promotion_flashSale',
-          noCache: true
-        },
-        hidden: true
       },
       {
         path: 'coupon',
@@ -617,17 +572,6 @@ export const asyncRoutes = [
         meta: {
           perms: ['GET /admin/coupon/list', 'GET /admin/coupon/listuser'],
           title: 'app.menu.promotion_coupon_detail',
-          noCache: true
-        },
-        hidden: true
-      },
-      {
-        path: 'fullReduction',
-        component: () => import('@/views/promotion/fullReduction'),
-        name: 'fullReduction',
-        meta: {
-          perms: ['GET /admin/fullReduction/list', 'POST /admin/fullReduction/create', 'POST /admin/fullReduction/update', 'POST /admin/fullReduction/delete'],
-          title: 'app.menu.promotion_fullReduction',
           noCache: true
         },
         hidden: true

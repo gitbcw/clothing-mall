@@ -38,7 +38,8 @@
         </view>
         <view class="goods-detail">
           <view class="goods-title">{{item.goodsName}}</view>
-          <view class="goods-desc">{{item.specifications}}</view>
+          <view class="goods-desc" wx:if="{{item.specifications}}">{{item.specifications}}</view>
+          <view class="goods-desc" wx:elif="{{item.size}}">{{item.size}}</view>
           <view class="goods-bottom">
             <view class="price-wrap">
               <text class="price-symbol">￥</text>

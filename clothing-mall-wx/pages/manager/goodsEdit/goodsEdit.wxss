@@ -244,3 +244,197 @@
   padding: 100rpx 0;
   color: #999;
 }
+
+/* 表单行 */
+.form-row {
+  display: flex;
+  gap: 16rpx;
+}
+
+.form-item.third {
+  flex: 1;
+}
+
+.required {
+  color: #ff4d4f;
+}
+
+/* 分类选择器 */
+.form-picker {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f5f5f5;
+  padding: 20rpx;
+  border-radius: 12rpx;
+}
+
+.picker-value {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.picker-value.placeholder {
+  color: #999;
+}
+
+.picker-arrow {
+  font-size: 36rpx;
+  color: #999;
+}
+
+/* 场景标签 */
+.scene-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.scene-chip {
+  padding: 12rpx 24rpx;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  color: #666;
+  background: #f5f5f5;
+  position: relative;
+}
+
+.scene-chip.active {
+  color: #BA8D59;
+  background: rgba(186, 141, 89, 0.1);
+}
+
+.chip-remove {
+  margin-left: 8rpx;
+  color: #999;
+  font-size: 28rpx;
+}
+
+.scene-chip.add-btn {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  color: #BA8D59;
+  background: transparent;
+  border: 1rpx dashed #BA8D59;
+}
+
+.add-icon {
+  font-size: 28rpx;
+}
+
+.custom-scene-input {
+  margin-top: 20rpx;
+  display: flex;
+  gap: 16rpx;
+}
+
+.scene-input {
+  flex: 1;
+  background: #f5f5f5;
+  padding: 16rpx 20rpx;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+}
+
+.scene-input-actions {
+  display: flex;
+  gap: 12rpx;
+}
+
+.scene-action-btn {
+  padding: 16rpx 24rpx;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+}
+
+.scene-action-btn.cancel {
+  color: #999;
+  background: #f5f5f5;
+}
+
+.scene-action-btn.confirm {
+  color: #fff;
+  background: #BA8D59;
+}
+
+/* 商品详细介绍 */
+.detail-textarea {
+  height: 240rpx;
+}
+
+.char-count {
+  display: block;
+  text-align: right;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+/* 商品参数 */
+.add-param-btn {
+  font-size: 24rpx;
+  color: #BA8D59;
+  font-weight: normal;
+}
+
+.params-list {
+  border: 1rpx solid #f0f0f0;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+.param-row {
+  display: flex;
+  padding: 12rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.param-row:last-child {
+  border-bottom: none;
+}
+
+.param-input {
+  flex: 1;
+  font-size: 24rpx;
+  padding: 8rpx 12rpx;
+  background: #f5f5f5;
+  border-radius: 6rpx;
+}
+
+.param-delete {
+  flex: 0 0 50rpx;
+  text-align: center;
+  color: #ff4d4f;
+  font-size: 32rpx;
+  line-height: 1;
+}
+
+.params-empty {
+  text-align: center;
+  padding: 40rpx 0;
+  color: #999;
+  font-size: 26rpx;
+}
+
+/* 分类选择器头部 */
+.picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.picker-cancel {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.picker-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}

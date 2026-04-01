@@ -705,6 +705,8 @@
   border-bottom: 3rpx solid #fff;
   transform: rotate(-45deg) translateY(-2rpx);
 }
+
+.box-shadow-fix {
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 

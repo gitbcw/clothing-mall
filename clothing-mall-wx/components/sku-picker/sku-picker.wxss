@@ -23,7 +23,7 @@
   right: 0;
   bottom: 0;
   background: #fff;
-  border-radius: 24rpx 24rpx 0 0;
+  border-radius: 40rpx 40rpx 0 0;
   max-height: 80vh;
   overflow-y: auto;
   animation: slideUp 0.3s ease;
@@ -65,7 +65,7 @@
 .sku-image {
   width: 180rpx;
   height: 180rpx;
-  border-radius: 8rpx;
+  border-radius: 16rpx;
   flex-shrink: 0;
 }
 
@@ -79,7 +79,7 @@
 
 .sku-price {
   font-size: 40rpx;
-  color: #e64340;
+  color: #ff8096;
   font-weight: bold;
 }
 
@@ -115,7 +115,7 @@
 .sku-option {
   padding: 16rpx 28rpx;
   border: 1rpx solid #e5e5e5;
-  border-radius: 8rpx;
+  border-radius: 32rpx;
   font-size: 26rpx;
   color: #333;
   background: #f9f9f9;
@@ -123,9 +123,9 @@
 }
 
 .sku-option.selected {
-  border-color: #e64340;
-  color: #e64340;
-  background: #fff5f5;
+  border-color: #ff8096;
+  color: #ff8096;
+  background: #fff0f3;
 }
 
 .sku-option.disabled {
@@ -163,7 +163,7 @@
   align-items: center;
   justify-content: center;
   border: 1rpx solid #e5e5e5;
-  border-radius: 8rpx;
+  border-radius: 50%;
   font-size: 36rpx;
   color: #333;
   background: #f9f9f9;
@@ -180,14 +180,13 @@
   font-size: 28rpx;
   margin: 0 16rpx;
   border: 1rpx solid #e5e5e5;
-  border-radius: 8rpx;
+  border-radius: 32rpx;
 }
 
 .sku-footer {
   display: flex;
   padding: 24rpx 30rpx;
   padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
-  gap: 20rpx;
 }
 
 .sku-btn {
@@ -196,17 +195,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 44rpx;
   font-size: 30rpx;
   font-weight: 500;
 }
 
 .btn-cart {
-  background: #ff9500;
+  background: #ffb6c1;
   color: #fff;
+  border-radius: 44rpx 0 0 44rpx;
 }
 
 .btn-buy {
-  background: linear-gradient(135deg, #ff6b6b, #e64340);
+  background: #ff8096;
   color: #fff;
+  border-radius: 0 44rpx 44rpx 0;
 }

@@ -3,14 +3,9 @@ var apiRootMap = {
   trial: 'http://47.107.151.70:8088/wx/',
   release: 'https://www.menethil.com.cn/wx/'
 };
-var envVersion = 'develop';
-try {
-  var accountInfo = wx.getAccountInfoSync();
-  if (accountInfo && accountInfo.miniProgram && accountInfo.miniProgram.envVersion) {
-    envVersion = accountInfo.miniProgram.envVersion;
-  }
-} catch (e) {}
-var WxApiRoot = apiRootMap[envVersion] || apiRootMap.develop;
+var envVersion = 'trial';
+// 固定为 trial，避免被开发者工具的 envVersion 覆盖
+var WxApiRoot = apiRootMap[envVersion];
 
 module.exports = {
   IndexUrl: WxApiRoot + 'home/index', //首页数据接口
@@ -27,6 +22,7 @@ module.exports = {
   AuthReset: WxApiRoot + 'auth/reset', //账号密码重置
   AuthRegisterCaptcha: WxApiRoot + 'auth/regCaptcha', //验证码
   AuthBindPhone: WxApiRoot + 'auth/bindPhone', //绑定微信手机号
+  AuthBindPhoneManual: WxApiRoot + 'auth/bindPhoneManual', //手动输入手机号绑定
 
   GoodsCount: WxApiRoot + 'goods/count', //统计商品总数
   GoodsList: WxApiRoot + 'goods/list', //获得商品列表
@@ -92,6 +88,8 @@ module.exports = {
   SceneGoods: WxApiRoot + 'scene/goods',
   UserIndex: WxApiRoot + 'user/index', //个人页面用户相关信息
   UserRole: WxApiRoot + 'user/role', // 获取用户角色
+  UserInfo: WxApiRoot + 'user/info', //获取当前用户信息
+  UserProfile: WxApiRoot + 'user/profile', //更新当前用户信息
   UserIsManager: WxApiRoot + 'user/isManager', // 检查用户是否有管理权限
   IssueList: WxApiRoot + 'issue/list', //帮助信息
 

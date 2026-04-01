@@ -33,11 +33,26 @@ App({
   },
 
   onShow: function(options) {
-    // 检查登录状态
+    // 检查登录状态，未登录则执行静默登录
     user.checkLogin().then(res => {
       this.globalData.hasLogin = true;
     }).catch(() => {
       this.globalData.hasLogin = false;
+      this.silentLogin();
+    });
+  },
+
+  silentLogin: function() {
+    console.log('开始执行静默登录');
+    user.loginByWeixin({
+      nickName: '微信用户',
+      avatarUrl: 'https://yanxuan.nosdn.127.net/80841d741d7fa3073e0ae27bf487339f.jpg',
+      gender: 0
+    }).then(res => {
+      console.log('静默登录成功', res);
+      this.globalData.hasLogin = true;
+    }).catch(err => {
+      console.error('静默登录失败，具体原因:', err);
     });
   },
 

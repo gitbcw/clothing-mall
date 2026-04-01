@@ -1,0 +1,27 @@
+<view class="container">
+  <view class="form-group">
+    <view class="form-item avatar-item">
+      <view class="label">头像</view>
+      <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+        <image class="avatar" src="{{userInfo.avatarUrl || '/static/images/user.png'}}"></image>
+      </button>
+      <view class="arrow">></view>
+    </view>
+    <view class="form-item">
+      <view class="label">昵称</view>
+      <input type="nickname" class="input" value="{{userInfo.nickName}}" placeholder="请输入昵称" bindinput="bindNicknameInput" />
+      <view class="arrow">></view>
+    </view>
+    <picker mode="date" value="{{userInfo.birthday || '2000-01-01'}}" start="1900-01-01" end="{{today}}" bindchange="bindBirthdayChange">
+      <view class="form-item">
+        <view class="label">生日</view>
+        <view class="value {{!userInfo.birthday ? 'placeholder' : ''}}">{{userInfo.birthday || '请选择生日（完善送优惠券）'}}</view>
+        <view class="arrow">></view>
+      </view>
+    </picker>
+  </view>
+
+  <view class="btn-wrap">
+    <button class="save-btn" bindtap="saveProfile">保存</button>
+  </view>
+</view>

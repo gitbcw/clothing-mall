@@ -12,10 +12,25 @@
   </view>
   <view style="height: {{navTotalHeight}}px;"></view>
   <view class="login-box">
-    <button wx:if="{{canIUseGetUserProfile}}" type="primary" class="wx-login-btn" bindtap="wxLogin">微信一键登录</button>
-    <button wx:else type="primary" open-type="getUserProfile" class="wx-login-btn" open-type="getUserInfo" bindgetuserinfo="wxLogin">微信一键登录</button>
-    <button class="phone-login-btn" open-type="getPhoneNumber" bindgetphonenumber="phoneLogin">手机号一键登录</button>
-    <button class="account-login-btn" bindtap="accountLogin">账号登录</button>
+    <!-- 手动输入手机号绑定 -->
+    <view class="form-group">
+      <view class="form-item">
+        <van-icon name="phone-o" class="input-icon" />
+        <input class="mobile-input" value="{{mobile}}" bindinput="bindMobileInput" placeholder="请输入手机号" type="number" maxlength="11" placeholder-style="color: #999; font-size: 30rpx;" />
+        <van-icon name="close" wx:if="{{ mobile.length > 0 }}" class="clear-icon" catchtap="clearInput"/>
+      </view>
+      <button class="manual-bind-btn" bindtap="bindPhoneNumberManual">确定绑定</button>
+    </view>
+
+    <!-- 分割线 -->
+    <view class="divider">
+      <text class="line"></text>
+      <text class="text">或</text>
+      <text class="line"></text>
+    </view>
+
+    <!-- 一键绑定 -->
+    <button class="phone-login-btn" open-type="getPhoneNumber" bindgetphonenumber="bindPhoneNumber">一键获取微信手机号</button>
   </view>
 
   <!-- 生日填写弹窗 -->

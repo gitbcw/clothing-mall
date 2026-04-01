@@ -89,11 +89,50 @@ public class WxUserController {
         data.put("nickname", user.getNickname());
         data.put("avatar", user.getAvatar());
         data.put("mobile", user.getMobile());
+        data.put("birthday", user.getBirthday());
         data.put("role", user.getRole() != null ? user.getRole() : "user");
         data.put("storeId", user.getStoreId());
         data.put("guideId", user.getGuideId());
 
         return ResponseUtil.ok(data);
+    }
+
+    /**
+     * 更新用户信息
+     *
+     * @param userId 用户ID
+     * @param body 用户信息
+     * @return 操作结果
+     */
+    @PostMapping("profile")
+    public Object profile(@LoginUser Integer userId, @RequestBody Map<String, Object> body) {
+        if (userId == null) {
+            return ResponseUtil.unlogin();
+        }
+
+        LitemallUser user = userService.findById(userId);
+        if (user == null) {
+            return ResponseUtil.badArgumentValue();
+        }
+
+        if (body.containsKey("nickname")) {
+            user.setNickname((String) body.get("nickname"));
+        }
+        if (body.containsKey("avatar")) {
+            user.setAvatar((String) body.get("avatar"));
+        }
+        if (body.containsKey("birthday")) {
+            String birthdayStr = (String) body.get("birthday");
+            if (birthdayStr != null && !birthdayStr.isEmpty()) {
+                user.setBirthday(java.time.LocalDate.parse(birthdayStr));
+            }
+        }
+
+        if (userService.updateById(user) == 0) {
+            return ResponseUtil.updatedDataFailed();
+        }
+
+        return ResponseUtil.ok();
     }
 
     /**

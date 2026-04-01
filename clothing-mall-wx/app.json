@@ -17,6 +17,7 @@
     "pages/ucenter/address/address",
     "pages/ucenter/addressAdd/addressAdd",
     "pages/ucenter/couponList/couponList",
+    "pages/ucenter/userInfo/userInfo",
     "pages/ucenter/couponSelect/couponSelect",
     "pages/ucenter/collect/collect",
     "pages/ucenter/footprint/footprint",

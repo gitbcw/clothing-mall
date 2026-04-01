@@ -54,11 +54,34 @@ function loginByWeixin(userInfo) {
         userInfo: userInfo
       }, 'POST').then(res => {
         if (res.errno === 0) {
-          //存储用户信息
-          wx.setStorageSync('userInfo', res.data.userInfo);
+          // 存储基本 token
           wx.setStorageSync('token', res.data.token);
-
-          resolve(res);
+          
+          // 请求最新用户数据
+          util.request(api.UserInfo, {}, 'GET').then(infoRes => {
+            if (infoRes.errno === 0) {
+              wx.setStorageSync('userInfo', {
+                nickName: infoRes.data.nickname,
+                avatarUrl: infoRes.data.avatar,
+                mobile: infoRes.data.mobile,
+                birthday: infoRes.data.birthday
+              });
+              // 补充给 login.js 使用的 userInfo 结构
+              res.data.userInfo = {
+                nickName: infoRes.data.nickname,
+                avatarUrl: infoRes.data.avatar,
+                mobile: infoRes.data.mobile,
+                birthday: infoRes.data.birthday
+              };
+              resolve(res);
+            } else {
+              wx.setStorageSync('userInfo', res.data.userInfo);
+              resolve(res);
+            }
+          }).catch(() => {
+            wx.setStorageSync('userInfo', res.data.userInfo);
+            resolve(res);
+          });
         } else {
           reject(res);
         }

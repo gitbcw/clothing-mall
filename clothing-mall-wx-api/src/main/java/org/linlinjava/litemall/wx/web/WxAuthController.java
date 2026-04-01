@@ -534,6 +534,32 @@ public class WxAuthController {
     }
 
     /**
+     * 手动输入手机号绑定
+     *
+     * @param userId
+     * @param body
+     * @return
+     */
+    @PostMapping("bindPhoneManual")
+    public Object bindPhoneManual(@LoginUser Integer userId, @RequestBody String body) {
+        if (userId == null) {
+            return ResponseUtil.unlogin();
+        }
+        LitemallUser user = userService.findById(userId);
+        String phone = JacksonUtil.parseString(body, "mobile");
+        
+        if (StringUtils.isEmpty(phone)) {
+            return ResponseUtil.badArgument();
+        }
+        
+        user.setMobile(phone);
+        if (userService.updateById(user) == 0) {
+            return ResponseUtil.updatedDataFailed();
+        }
+        return ResponseUtil.ok();
+    }
+
+    /**
      * 手机号一键登录
      *
      * @param body    请求内容，{ code: xxx, encryptedData: xxx, iv: xxx }

@@ -120,6 +120,10 @@ Page({
       wx.navigateTo({
         url: '/pages/auth/login/login'
       })
+    } else {
+      wx.navigateTo({
+        url: '/pages/ucenter/userInfo/userInfo'
+      })
     }
   },
 
@@ -237,6 +241,19 @@ Page({
       title: '敬请期待',
       icon: 'none'
     })
+  },
+
+  // 跳转个人信息
+  goUserInfo() {
+    if (this.data.hasLogin) {
+      wx.navigateTo({
+        url: '/pages/ucenter/userInfo/userInfo'
+      })
+    } else {
+      wx.navigateTo({
+        url: '/pages/auth/login/login'
+      })
+    }
   },
 
   // 跳转管理后台

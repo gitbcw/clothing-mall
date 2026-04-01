@@ -141,6 +141,57 @@
   padding: 0 32rpx;
 }
 
+/* Stats Card */
+.stats-card {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 40rpx 0;
+}
+
+.stats-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 33.33%;
+}
+
+.stats-title {
+  font-size: 26rpx;
+  color: #333;
+  margin-bottom: 20rpx;
+  display: flex;
+  align-items: center;
+}
+
+.arrow-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: 50%;
+  background-color: #ccc;
+  color: #fff;
+  font-size: 16rpx;
+  margin-left: 8rpx;
+  line-height: 1;
+}
+
+.icon-colored {
+  width: 64rpx;
+  height: 64rpx;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.icon-star-colored { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FF6B6B'%3E%3Cpath d='M12 2l2.4 7.4L22 9.4l-5.6 5.4 1.3 7.8L12 18.6l-5.7 4 1.3-7.8L2 9.4l7.6-1.1L12 2z'/%3E%3Cpath d='M9 14s1 1.5 3 1.5 3-1.5 3-1.5' stroke='%23fff' stroke-width='1.5' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='9.5' cy='11' r='1' fill='%23fff'/%3E%3Ccircle cx='14.5' cy='11' r='1' fill='%23fff'/%3E%3C/svg%3E"); }
+
+.icon-wallet-colored { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2348C774'%3E%3Crect x='2' y='6' width='20' height='14' rx='3' ry='3'/%3E%3Cpath d='M16 11h6v4h-6a2 2 0 0 1 0-4z' fill='%23fff'/%3E%3Ccircle cx='18' cy='13' r='1' fill='%2348C774'/%3E%3Cpath d='M4 6V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1' fill='%23fff' opacity='0.3'/%3E%3C/svg%3E"); }
+
+.icon-footprint-colored { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235D9CEC'%3E%3Cpath d='M12 22c-3.5 0-5.5-3.5-5.5-7.5s1.5-6.5 4-7.5c2.5-1 5.5.5 5.5 4.5S15.5 22 12 22z'/%3E%3Ccircle cx='7.5' cy='6' r='1.5'/%3E%3Ccircle cx='10.5' cy='3.5' r='1.8'/%3E%3Ccircle cx='14' cy='4' r='1.5'/%3E%3Ccircle cx='16.5' cy='7' r='1.2'/%3E%3C/svg%3E"); }
+
 .menu-item {
   display: flex;
   justify-content: space-between;

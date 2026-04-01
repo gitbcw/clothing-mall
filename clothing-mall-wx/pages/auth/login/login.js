@@ -9,8 +9,9 @@ Page({
     statusBarHeight: 20,
     navContentHeight: 48,
     navTotalHeight: 68,
-    navTitle: '账户登录',
+    navTitle: '绑定手机号',
     showBirthdayPopup: false,
+    mobile: ''
   },
   onLoad: function(options) {
     // 页面初始化 options为页面跳转所带来的参数
@@ -39,97 +40,103 @@ Page({
   },
   onUnload: function() {
     // 页面关闭
-
   },
-  wxLogin: function(e) {
-    if (this.data.canIUseGetUserProfile) {
-      wx.getUserProfile({
-        desc: '用于完善会员资料', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
-        success: (res) => {
-          this.doLogin(res.userInfo)
-        },
-        fail: () => {
-          util.showErrorToast('微信登录失败');
-        }
-      })
-    }
-    else {
-      if (e.detail.userInfo == undefined) {
-        app.globalData.hasLogin = false;
-        util.showErrorToast('微信登录失败');
-        return;
-      }
-      this.doLogin(e.detail.userInfo)
-    }
-  },
-  doLogin: function(userInfo) {
-    user.checkLogin().catch(() => {
-      user.loginByWeixin(userInfo).then(res => {
-        app.globalData.hasLogin = true;
-
-        // 检查是否需要显示生日弹窗（新用户且未填写生日）
-        const userInfo = res.data.userInfo;
-        if (userInfo && !userInfo.birthday) {
-          this.setData({ showBirthdayPopup: true });
-        } else {
-          wx.navigateBack({
-            delta: 1
-          });
-        }
-      }).catch((err) => {
-        app.globalData.hasLogin = false;
-        util.showErrorToast('微信登录失败');
-      });
-
+  bindMobileInput: function(e) {
+    this.setData({
+      mobile: e.detail.value
     });
   },
-  accountLogin: function() {
-    wx.navigateTo({
-      url: "/pages/auth/accountLogin/accountLogin"
+  clearInput: function() {
+    this.setData({
+      mobile: ''
     });
   },
-  phoneLogin: function(e) {
-    if (e.detail.errMsg !== 'getPhoneNumber:ok') {
-      util.showErrorToast('授权失败');
+  bindPhoneNumberManual: function() {
+    if (this.data.mobile.length !== 11) {
+      util.showErrorToast('请输入11位手机号');
       return;
     }
 
     const that = this;
-    wx.login({
-      success: function(loginRes) {
-        if (loginRes.code) {
-          const data = {
-            code: loginRes.code,
-            encryptedData: e.detail.encryptedData,
-            iv: e.detail.iv
-          };
-
-          util.request(api.AuthLoginByPhone, data, 'POST').then(res => {
-            if (res.errno === 0) {
-              app.globalData.hasLogin = true;
-              // 存储 token
-              wx.setStorageSync('token', res.data.token);
-              wx.setStorageSync('userInfo', res.data.userInfo);
-
-              util.showToast('登录成功');
-
-              // 检查是否需要显示生日弹窗
-              const userInfo = res.data.userInfo;
-              if (userInfo && !userInfo.birthday) {
-                that.setData({ showBirthdayPopup: true });
-              } else {
-                wx.navigateBack({ delta: 1 });
-              }
-            } else {
-              util.showErrorToast(res.errmsg || '登录失败');
-            }
-          }).catch(err => {
-            util.showErrorToast('登录失败');
-          });
-        } else {
-          util.showErrorToast('微信登录失败');
-        }
+    util.request(api.AuthBindPhoneManual, { mobile: this.data.mobile }, 'POST').then(res => {
+      console.log('手动绑定手机号返回结果:', res);
+      if (res.errno === 0) {
+        util.showToast('绑定成功');
+        
+        // 重新获取用户信息以更新 mobile
+        util.request(api.UserInfo, {}, 'GET').then(infoRes => {
+          if (infoRes.errno === 0) {
+            wx.setStorageSync('userInfo', {
+              nickName: infoRes.data.nickname,
+              avatarUrl: infoRes.data.avatar,
+              mobile: infoRes.data.mobile,
+              birthday: infoRes.data.birthday
+            });
+          }
+          
+          // 检查是否需要显示生日弹窗
+          const userInfo = infoRes.data;
+          if (userInfo && !userInfo.birthday) {
+            that.setData({ showBirthdayPopup: true });
+          } else {
+            wx.navigateBack({ delta: 1 });
+          }
+        });
+      } else {
+        console.error('手动绑定手机号失败，接口返回非0:', res);
+        util.showErrorToast(res.errmsg || '绑定失败');
       }
+    }).catch(err => {
+      console.error('手动绑定手机号请求抛出异常:', err);
+      util.showErrorToast('绑定失败');
+    });
+  },
+  bindPhoneNumber: function(e) {
+    if (e.detail.errMsg !== 'getPhoneNumber:ok') {
+      if (e.detail.errMsg.indexOf('user deny') !== -1) {
+        util.showErrorToast('已取消授权');
+      } else if (e.detail.errMsg.indexOf('no permission') !== -1) {
+        util.showErrorToast('无权限获取手机号');
+      } else {
+        util.showErrorToast('授权失败');
+      }
+      return;
+    }
+
+    const that = this;
+    const data = {
+      encryptedData: e.detail.encryptedData,
+      iv: e.detail.iv
+    };
+
+    util.request(api.AuthBindPhone, data, 'POST').then(res => {
+      if (res.errno === 0) {
+        util.showToast('绑定成功');
+        
+        // 重新获取用户信息以更新 mobile
+        util.request(api.UserInfo, {}, 'GET').then(infoRes => {
+          if (infoRes.errno === 0) {
+            wx.setStorageSync('userInfo', {
+              nickName: infoRes.data.nickname,
+              avatarUrl: infoRes.data.avatar,
+              mobile: infoRes.data.mobile,
+              birthday: infoRes.data.birthday
+            });
+          }
+          
+          // 检查是否需要显示生日弹窗
+          const userInfo = infoRes.data;
+          if (userInfo && !userInfo.birthday) {
+            that.setData({ showBirthdayPopup: true });
+          } else {
+            wx.navigateBack({ delta: 1 });
+          }
+        });
+      } else {
+        util.showErrorToast(res.errmsg || '绑定失败');
+      }
+    }).catch(err => {
+      util.showErrorToast('绑定失败');
     });
   },
   handleBack: function() {

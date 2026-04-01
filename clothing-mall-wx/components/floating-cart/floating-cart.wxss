@@ -4,7 +4,7 @@
   bottom: 200rpx;
   width: 100rpx;
   height: 100rpx;
-  background: #F5E6D3;
+  background: rgba(248, 227, 187, 0.4);
   border-radius: 50%;
   display: flex;
   justify-content: center;

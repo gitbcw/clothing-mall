@@ -1,6 +1,6 @@
 <view class="container">
   <!-- 自定义导航栏 -->
-  <view class="custom-nav" style="padding-top: {{statusBarHeight}}px; height: {{navBarHeight}}px;">
+  <view class="custom-nav" style="padding-top: {{statusBarHeight+16}}px; height: {{navBarHeight}}px;">
     <view class="nav-inner">
       <view class="nav-title">商品管理</view>
     </view>

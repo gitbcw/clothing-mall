@@ -142,30 +142,30 @@ page {
 
 /* 购物车小图标 */
 .cart-icon-small {
-  width: 36rpx;
-  height: 36rpx;
+  width: 45rpx;
+  height: 45rpx;
   background-color: #FF8096;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='21' r='1'%3E%3C/circle%3E%3Ccircle cx='20' cy='21' r='1'%3E%3C/circle%3E%3Cpath d='M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6'%3E%3C/path%3E%3C/svg%3E");
-  background-size: 20rpx;
+  background-size: 25rpx;
   background-repeat: no-repeat;
-  background-position: center;
+  background-position: center center;
 }
 
 .price-symbol {
-  font-size: 20rpx;
+  font-size: 28rpx;
 }
 
 .price-num {
-  font-size: 28rpx;
-  font-weight: bold;
+  font-size: 40rpx;
+  /* font-weight: bold; */
 }
 
 .original-price {
-  font-size: 18rpx;
+  font-size: 24rpx;
   color: #CCCCCC;
   text-decoration: line-through;
   margin-left: 6rpx;
@@ -184,7 +184,7 @@ page {
   justify-content: space-between;
   align-items: baseline;
   padding: 0 24rpx;
-  margin-bottom: 24rpx;
+  margin-bottom: 36rpx;
 }
 
 .title-wrap {
@@ -193,7 +193,8 @@ page {
 }
 
 .title {
-  font-size: 32rpx;
+  font-size: 34rpx;
+  line-height: 42rpx;
   font-weight: bold;
   color: #333333;
   font-style: italic;
@@ -214,7 +215,7 @@ page {
 .hot-scroll-wrapper {
   overflow: hidden;
   width: 100%;
-  padding: 0 24rpx;
+  padding: 0;
 }
 
 .hot-scroll-inner {
@@ -234,16 +235,19 @@ page {
 }
 
 .hot-item {
-  width: 260rpx;
-  margin-right: 20rpx;
+  width: 340rpx;
+  margin-right: 32rpx;
   display: flex;
   flex-direction: column;
+  border: 1px solid rgba(255, 137, 152, 0.36);
+  border-radius: 18rpx;
+  padding: 6rpx 6rpx 20rpx;
 }
 
 .hot-img {
-  width: 260rpx;
-  height: 260rpx;
-  border-radius: 12rpx;
+  width: 340rpx;
+  height: 380rpx;
+  border-radius: 18rpx;
   background-color: #F5F5F5;
   margin-bottom: 16rpx;
 }
@@ -255,7 +259,8 @@ page {
 }
 
 .hot-title {
-  font-size: 26rpx;
+  font-size: 32rpx;
+  line-height: 42rpx;
   color: #333333;
   margin-bottom: 8rpx;
   white-space: nowrap;
@@ -274,7 +279,7 @@ page {
 .buy-btn {
   background-color: #FF8096;
   color: #FFFFFF;
-  font-size: 20rpx;
+  font-size: 22rpx;
   padding: 6rpx 24rpx;
   border-radius: 20rpx;
 }
@@ -282,7 +287,7 @@ page {
 /* 搭配推荐 & 饰饰如意 (网格布局) */
 .grid-section {
   padding: 0 24rpx;
-  margin-bottom: 40rpx;
+  margin-bottom: 20rpx;
 }
 
 .section-title-center {
@@ -293,17 +298,18 @@ page {
 }
 
 .section-title-center text {
-  font-size: 32rpx;
+  font-size: 36rpx;
   font-weight: bold;
   color: #333333;
   margin: 0 24rpx;
   letter-spacing: 2rpx;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .section-title-center .line {
   width: 60rpx;
   height: 1rpx;
-  background-color: #DDDDDD;
+  background-color: #666666;
   position: relative;
 }
 
@@ -313,7 +319,7 @@ page {
   width: 6rpx;
   height: 6rpx;
   border-radius: 50%;
-  background-color: #DDDDDD;
+  background-color: #666666;
   top: -2.5rpx;
 }
 
@@ -332,10 +338,10 @@ page {
 }
 
 .grid-item {
-  width: calc(50% - 10rpx);
+  width: calc(50% - 15rpx);
   background-color: #FFFFFF;
-  border-radius: 12rpx;
-  margin-bottom: 20rpx;
+  border-radius: 20rpx;
+  margin-bottom: 30rpx;
   overflow: hidden;
 }
 
@@ -344,20 +350,33 @@ page {
   height: 400rpx;
   background-color: #F5F5F5;
 }
+.grid-img.other {
+  height: 340rpx;
+}
 
 .grid-info {
-  padding: 20rpx;
+  padding: 10rpx 20rpx 20rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+.grid-info .grid-name{
+  font-size: 34rpx;
+  line-height: 48rpx;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .grid-title {
-  font-size: 26rpx;
+  font-size: 34rpx;
+  line-height: 48rpx;
   color: #333333;
-  margin-bottom: 16rpx;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  margin-bottom: 10rpx;
+  width: 100%;
+  white-space: nowrap;
   overflow: hidden;
-  height: 72rpx;
+  text-overflow: ellipsis;
 }
 
 .grid-bottom {
@@ -377,10 +396,10 @@ page {
   line-height: 56rpx;
   text-align: center;
   font-size: 24rpx;
-  color: #96745A;
-  background-color: #F0EBE6;
+  color: #D5AB74;
+  background-color: rgba(248, 227, 187, 0.4);
   border-radius: 28rpx;
-  margin: 0 auto;
+  margin: 10rpx auto;
 }
 
 /* 底部占位 */
@@ -435,7 +454,6 @@ page {
   display: flex;
   padding-bottom: env(safe-area-inset-bottom);
   box-sizing: border-box;
-  border-top: 1rpx solid #EEEEEE;
   z-index: 100;
 }
 
@@ -480,36 +498,65 @@ page {
 }
 
 .section-header-weekly .section-title-cn {
-  font-size: 32rpx;
+  font-size: 34rpx;
   font-weight: bold;
   color: #333;
+  font-style: italic;
 }
 
 .section-header-weekly .section-title-en {
   font-size: 20rpx;
   color: #999;
   margin-top: 4rpx;
+  margin-left: 8rpx;
+  color: #FF8096;
 }
 
 .activity-section {
-  background: #fff;
   padding: 30rpx 0;
-  margin-bottom: 20rpx;
+  background-image:linear-gradient(to bottom, #f0f0f4,#ffffff);
+  margin-bottom: 36rpx;
 }
 
 .activity-scroll {
   white-space: nowrap;
-  padding: 0 30rpx;
+  padding: 0 42rpx;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.activity-scroll-sub {
+  white-space: nowrap;
+  padding: 0 42rpx;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  margin-top: 42rpx;
 }
 
 .activity-item {
   display: inline-block;
-  width: 280rpx;
-  margin-right: 20rpx;
+  width: 320rpx;
+  margin-right: 40rpx;
   vertical-align: top;
   background: #F7F8FA;
   border-radius: 16rpx;
   overflow: hidden;
+}
+.activity-item-sub {
+  display: inline-block;
+  width: 200rpx;
+  margin-right: 40rpx;
+  vertical-align: top;
+  background: #F7F8FA;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+.activity-img-sub {
+  width: 200rpx;
+  height: 200rpx;
+  display: block;
 }
 
 .activity-item:last-child {
@@ -517,22 +564,24 @@ page {
 }
 
 .activity-img {
-  width: 280rpx;
-  height: 280rpx;
+  width: 340rpx;
+  height: 340rpx;
   display: block;
 }
 
 .activity-info {
-  padding: 16rpx;
+  padding: 10rpx 20rpx 20rpx;
 }
 
 .activity-name {
-  font-size: 26rpx;
+  font-size: 34rpx;
+  line-height: 48rpx;
   color: #333;
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  margin-bottom: 10rpx;
 }
 
 .activity-price {
@@ -542,6 +591,14 @@ page {
   display: block;
   margin-top: 8rpx;
 }
+.activity-price .rmb{
+  font-size: 28rpx;
+}
+.activity-price .num{
+  font-size: 40rpx;
+}
+
+
 
 .activity-price-wrap {
   display: flex;

@@ -75,7 +75,7 @@ page {
   justify-content: space-between;
   padding: 0 16px;
   box-sizing: border-box;
-  background-color: #ffffff;
+  background-color: #F7F8FA;
   z-index: 100;
 }
 
@@ -575,7 +575,6 @@ page {
   display: flex;
   padding-bottom: env(safe-area-inset-bottom);
   box-sizing: border-box;
-  border-top: 1rpx solid #eeeeee;
   z-index: 100;
 }
 

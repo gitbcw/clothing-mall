@@ -237,7 +237,6 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  border-top: 1rpx solid #EAEAEA;
   padding-bottom: env(safe-area-inset-bottom);
   z-index: 100;
 }

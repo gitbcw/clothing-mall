@@ -8,7 +8,6 @@
   display: flex;
   padding-bottom: env(safe-area-inset-bottom);
   box-sizing: border-box;
-  border-top: 1rpx solid #EEEEEE;
   z-index: 1000;
 }
 

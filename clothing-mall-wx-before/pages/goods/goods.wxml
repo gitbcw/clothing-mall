@@ -1,0 +1,195 @@
+<view class="container">
+  <swiper class="goodsimgs" indicator-dots="true" autoplay="true" interval="3000" duration="1000">
+    <swiper-item wx:for="{{goods.gallery}}" wx:key="*this">
+      <image src="{{item}}" background-size="cover"></image>
+    </swiper-item>
+  </swiper>
+  <!-- 分享 -->
+  <view class='goods_name'>
+    <view class='goods_name_left'>{{goods.name}}</view>
+    <view hidden="{{!canShare}}" class="goods_name_right" bindtap="shareFriendOrCircle">分享</view>
+  </view>
+  <view class="share-pop-box" hidden="{{!openShare}}">
+    <view class="share-pop">
+      <view class="close" bindtap="closeShare">
+        <van-icon class="icon" name="cross" />      
+      </view>
+      <view class='share-info'>
+        <button class="sharebtn" open-type="share">
+          <image class='sharebtn_image' src='/static/images/wechat.png'></image>
+          <view class='sharebtn_text'>分享给好友</view>
+        </button>
+        <button  class="savesharebtn" open-type="openSetting" bindopensetting="handleSetting" wx:if="{{!canWrite}}" >
+          <image class='sharebtn_image' src='/static/images/friend.png'></image>
+          <view class='sharebtn_text'>生成海报</view>
+        </button>
+        <button class="savesharebtn" bindtap="saveShare" wx:if="{{canWrite}}">
+          <image class='sharebtn_image' src='/static/images/friend.png'></image>
+          <view class='sharebtn_text'>生成海报</view>
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <view class="goods-info">
+    <view class="c">
+      <text class="desc">{{goods.brief}}</text>
+      <!-- 限时特卖价格显示 -->
+      <view class="price" wx:if="{{flashSale}}">
+        <view class="flash-tag">限时特卖</view>
+        <view class="flash-price-box">
+          <text class="flash-price">￥{{flashSale.flashPrice}}</text>
+          <text class="original-price">￥{{goods.counterPrice}}</text>
+        </view>
+        <view class="flash-info">
+          <text>库存: {{flashSale.flashStock}} | 已售: {{flashSale.flashSales || 0}}</text>
+        </view>
+      </view>
+      <!-- 普通价格显示 -->
+      <view class="price" wx:else>
+        <view class="counterPrice">原价：￥{{goods.counterPrice}}</view>
+        <view class="retailPrice">现价：￥{{checkedSpecPrice}}</view>
+      </view>
+    </view>
+  </view>
+  <view class="section-nav section-attr" bindtap="switchAttrPop">
+    <view class="t">{{checkedSpecText}}</view>
+    <van-icon class="i" name="arrow" />
+  </view>
+  <!-- 配送 -->
+  <view class="section-nav section-delivery" bindtap="selectAddress">
+    <view class="delivery-label">配送</view>
+    <view class="delivery-info">
+      <text wx:if="{{address}}">{{address.province}}{{address.city}}{{address.county}}</text>
+      <text wx:else class="placeholder">请选择收货地址</text>
+    </view>
+    <van-icon class="i" name="arrow" />
+  </view>
+  <view class="goods-attr">
+    <view class="t">商品参数</view>
+    <view class="l">
+      <view class="item" wx:for="{{attribute}}" wx:key="name">
+        <text class="left">{{item.attribute}}</text>
+        <text class="right">{{item.value}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="detail">
+    <import src="/lib/wxParse/wxParse.wxml" />
+    <template is="wxParse" data="{{wxParseData:goodsDetail.nodes}}" />
+  </view>
+
+  <view class="common-problem">
+    <view class="h">
+      <view class="line"></view>
+      <text class="title">常见问题</text>
+    </view>
+    <view class="b">
+      <view class="item" wx:for="{{issueList}}" wx:key="id">
+        <view class="question-box">
+          <text class="spot"></text>
+          <text class="question">{{item.question}}</text>
+        </view>
+        <view class="answer">
+          {{item.answer}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 大家都在看 -->
+  <view class="related-goods" wx:if="{{relatedGoods.length > 0}}">
+    <view class="h">
+      <view class="line"></view>
+      <text class="title">大家都在看</text>
+    </view>
+    <view class="b">
+      <view class="item" wx:for="{{relatedGoods}}" wx:key="id">
+        <navigator url="/pages/goods/goods?id={{item.id}}">
+          <image class="img" src="{{item.picUrl}}" background-size="cover"></image>
+          <text class="name">{{item.name}}</text>
+          <text class="price">￥{{item.retailPrice}}</text>
+        </navigator>
+      </view>
+    </view>
+  </view>
+</view>
+<!-- 规格选择界面 -->
+<view class="attr-pop-box" hidden="{{!openAttr}}">
+  <view class="attr-pop">
+    <view class="close" bindtap="closeAttr">
+      <van-icon  class="icon" name="cross" />      
+    </view>
+    <view class="img-info">
+      <image class="img" src="{{tmpPicUrl}}"></image>
+      <view class="info">
+        <view class="c">
+          <view class="p">价格：￥{{checkedSpecPrice}}</view>
+          <view class="a">{{tmpSpecText}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 规格列表 -->
+    <view class="spec-con">
+      <view class="spec-item" wx:for="{{specificationList}}" wx:key="name">
+        <view class="name">{{item.name}}</view>
+        <view class="values">
+          <view class="value {{vitem.checked ? 'selected' : ''}}" bindtap="clickSkuValue" wx:for="{{item.valueList}}" wx:for-item="vitem" wx:key="id" data-value-id="{{vitem.id}}" data-name="{{vitem.specification}}">{{vitem.value}}</view>
+        </view>
+      </view>
+
+      <!-- 数量 -->
+      <view class="number-item">
+        <view class="name">数量</view>
+        <view class="selnum">
+          <view class="cut" bindtap="cutNumber">-</view>
+          <input value="{{number}}" class="number" disabled="true" type="number" />
+          <view class="add" bindtap="addNumber">+</view>
+        </view>
+      </view>
+
+    </view>
+  </view>
+</view>
+
+<!-- 底部按钮 -->
+<view class="bottom-btn">
+<view class="l" bindtap="contactService">
+  <button class="l-contact">
+				<van-icon class="icon" name="/static/images/customer.png" />
+			</button>
+</view>
+  <view class="l l-collect" bindtap="addCollectOrNot">
+    <van-icon class="icon" name="star" color="#ab956d" wx:if="{{collect}}"/>
+    <van-icon class="icon" name="star-o" wx:else/>
+  </view>
+  <view class="l l-cart">
+    <view class="box">
+      <text class="cart-count">{{cartGoodsCount}}</text>
+      <van-icon bindtap="openCartPage" class="icon" name="cart-o" />
+    </view>
+  </view>
+  <view class="r" bindtap="openSkuPicker" wx:if="{{!soldout}}">加入购物车</view>
+  <view class="c" bindtap="openSkuPicker" wx:if="{{!soldout}}">立即购买</view>
+  <view class="n" wx:if="{{soldout}}">商品已售空</view>
+</view>
+
+<!-- 服装店 SKU 选择器 -->
+<sku-picker
+  visible="{{showSkuPicker}}"
+  goods-id="{{goods.id}}"
+  goods-image="{{goods.picUrl}}"
+  goods-price="{{goods.retailPrice}}"
+  sku-list="{{skuList}}"
+  colors="{{skuColors}}"
+  sizes="{{skuSizes}}"
+  bind:close="closeSkuPicker"
+  bind:addcart="skuAddToCart"
+  bind:buynow="skuBuyNow"
+  bind:imagechange="onSkuImageChange"
+/>
+
+<!-- 悬浮购物车 -->
+<floating-cart />

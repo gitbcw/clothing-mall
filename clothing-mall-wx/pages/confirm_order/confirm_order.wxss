@@ -91,7 +91,7 @@ page {
 
 /* 主题咖色 */
 .theme-color {
-  color: #ba8d59;
+  color: #FF8096;
 }
 
 /* 1. 地址卡片 */
@@ -190,7 +190,7 @@ page {
 .price-wrap {
   display: flex;
   align-items: baseline;
-  color: #ba8d59;
+  color: #FF8096;
 }
 
 .price-symbol {
@@ -333,7 +333,7 @@ page {
 }
 
 .btn-submit {
-  background-color: #ba8d59;
+  background-color: #FF8096;
   color: #ffffff;
   font-size: 30rpx;
   font-weight: 500;
@@ -492,7 +492,7 @@ page {
 
 .coupon-left {
   width: 180rpx;
-  background-color: #ba8d59;
+  background-color: #FF8096;
   color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -588,8 +588,8 @@ page {
 }
 
 .coupon-radio.checked {
-  border-color: #ba8d59;
-  background-color: #ba8d59;
+  border-color: #FF8096;
+  background-color: #FF8096;
 }
 
 .coupon-radio.checked::after {
@@ -618,7 +618,7 @@ page {
 .btn-confirm {
   width: 100%;
   height: 88rpx;
-  background-color: #ba8d59;
+  background-color: #FF8096;
   color: #ffffff;
   font-size: 32rpx;
   font-weight: 500;

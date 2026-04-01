@@ -7,7 +7,7 @@
 }
 
 .status-section {
-  background: linear-gradient(135deg, #BA8D59 0%, #96745A 100%);
+  background: linear-gradient(135deg, #FF8096 0%, #96745A 100%);
   padding: 60rpx 40rpx;
   text-align: center;
 }
@@ -164,7 +164,7 @@
 }
 
 .action-btn.ship {
-  background: #BA8D59;
+  background: #FF8096;
   color: #fff;
 }
 
@@ -278,7 +278,7 @@
 }
 
 .btn-confirm {
-  color: #BA8D59;
+  color: #FF8096;
   font-weight: 500;
 }
 
@@ -325,7 +325,7 @@
 }
 
 .info-item .value.pickup-code {
-  color: #BA8D59;
+  color: #FF8096;
   font-weight: 600;
   font-size: 32rpx;
   letter-spacing: 4rpx;
@@ -354,7 +354,7 @@
 
 .action-btn.btn-primary {
   color: #fff;
-  background: #BA8D59;
+  background: #FF8096;
 }
 
 .action-btn.btn-cancel {
@@ -437,6 +437,6 @@
 
 .dialog-actions .btn-confirm {
   color: #fff;
-  background: #BA8D59;
+  background: #FF8096;
   font-weight: normal;
 }

@@ -120,5 +120,5 @@ button::after {
   justify-content: center;
   align-items: center;
   letter-spacing: 3rpx;
-  background: #006699;
+  background: #FF8096;
 }

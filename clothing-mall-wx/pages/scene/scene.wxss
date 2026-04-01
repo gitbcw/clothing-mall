@@ -102,7 +102,7 @@
 
 .goods-price {
   font-size: 30rpx;
-  color: #BA8D59;
+  color: #FF8096;
   font-weight: 500;
   margin-top: 8rpx;
   display: block;

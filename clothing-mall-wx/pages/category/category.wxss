@@ -17,7 +17,7 @@ page {
 
 /* 主题颜色 */
 .theme-color {
-  color: #BA8D59;
+  color: #FF8096;
 }
 
 /* 沉浸式导航栏 */
@@ -196,7 +196,7 @@ page {
 
 .category-item.active {
   background-color: #FFFFFF;
-  color: #BA8D59;
+  color: #FF8096;
   font-weight: 500;
 }
 
@@ -291,7 +291,7 @@ page {
 .cart-icon-small {
   width: 40rpx;
   height: 40rpx;
-  background-color: #BA8D59;
+  background-color: #FF8096;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -350,7 +350,7 @@ page {
 .tab-icon.mine { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cpath d='M8 14s1.5 2 4 2 4-2 4-2'%3E%3C/path%3E%3Cline x1='9' y1='9' x2='9.01' y2='9'%3E%3C/line%3E%3Cline x1='15' y1='9' x2='15.01' y2='9'%3E%3C/line%3E%3C/svg%3E"); }
 
 /* 选中状态的图标 */
-.tab-icon.category.active { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23BA8D59' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='7' height='7'%3E%3C/rect%3E%3Crect x='14' y='3' width='7' height='7'%3E%3C/rect%3E%3Crect x='14' y='14' width='7' height='7'%3E%3C/rect%3E%3Crect x='3' y='14' width='7' height='7'%3E%3C/rect%3E%3C/svg%3E"); }
+.tab-icon.category.active { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FF8096' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='7' height='7'%3E%3C/rect%3E%3Crect x='14' y='3' width='7' height='7'%3E%3C/rect%3E%3Crect x='14' y='14' width='7' height='7'%3E%3C/rect%3E%3Crect x='3' y='14' width='7' height='7'%3E%3C/rect%3E%3C/svg%3E"); }
 
 .tab-text {
   font-size: 20rpx;
@@ -358,5 +358,5 @@ page {
 }
 
 .tab-text.active {
-  color: #BA8D59;
+  color: #FF8096;
 }

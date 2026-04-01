@@ -433,7 +433,7 @@ Page({
               content: '海报已成功保存到相册，可以分享到朋友圈了',
               showCancel: false,
               confirmText: '好的',
-              confirmColor: '#BA8D59'
+              confirmColor: '#FF8096'
             })
           },
           fail: function() {

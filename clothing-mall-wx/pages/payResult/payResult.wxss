@@ -34,11 +34,11 @@ page {
   line-height: 78rpx;
   border: 1px solid #868686;
   color: #000;
-  border-radius: 5rpx;
+  border-radius: 40rpx;
 }
 
 .pay-result .error .msg {
-  color: #b4282d;
+  color: #FF8096;
   margin-bottom: 60rpx;
 }
 

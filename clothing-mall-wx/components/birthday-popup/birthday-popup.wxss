@@ -38,7 +38,7 @@
 
 .date-value {
   font-size: 28rpx;
-  color: #AB956D;
+  color: #FF8096;
   font-weight: 500;
 }
 
@@ -70,7 +70,7 @@
   text-align: center;
   font-size: 30rpx;
   color: #fff;
-  background: linear-gradient(135deg, #AB956D 0%, #9a8560 100%);
+  background: linear-gradient(135deg, #FF8096 0%, #9a8560 100%);
   border-radius: 44rpx;
 }
 

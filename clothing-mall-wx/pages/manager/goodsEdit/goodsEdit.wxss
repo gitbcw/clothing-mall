@@ -25,7 +25,7 @@
 
 .add-sku-btn {
   font-size: 24rpx;
-  color: #BA8D59;
+  color: #FF8096;
   font-weight: normal;
 }
 
@@ -225,13 +225,13 @@
 }
 
 .action-btn.btn-save {
-  color: #BA8D59;
+  color: #FF8096;
   background: rgba(186, 141, 89, 0.08);
 }
 
 .action-btn.btn-publish {
   color: #fff;
-  background: #BA8D59;
+  background: #FF8096;
 }
 
 .action-btn.btn-unpublish {
@@ -300,7 +300,7 @@
 }
 
 .scene-chip.active {
-  color: #BA8D59;
+  color: #FF8096;
   background: rgba(186, 141, 89, 0.1);
 }
 
@@ -314,9 +314,9 @@
   display: flex;
   align-items: center;
   gap: 4rpx;
-  color: #BA8D59;
+  color: #FF8096;
   background: transparent;
-  border: 1rpx dashed #BA8D59;
+  border: 1rpx dashed #FF8096;
 }
 
 .add-icon {
@@ -355,7 +355,7 @@
 
 .scene-action-btn.confirm {
   color: #fff;
-  background: #BA8D59;
+  background: #FF8096;
 }
 
 /* 商品详细介绍 */
@@ -374,7 +374,7 @@
 /* 商品参数 */
 .add-param-btn {
   font-size: 24rpx;
-  color: #BA8D59;
+  color: #FF8096;
   font-weight: normal;
 }
 

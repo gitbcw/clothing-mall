@@ -43,12 +43,12 @@ page {
 }
 
 .item-c .cost {
-  color: #006699;
+  color: #ff8096;
 }
 
 .item-c .btn {
   line-height: 66rpx;
-  border-radius: 5rpx;
+  border-radius: 33rpx;
   text-align: center;
   margin: 0 15rpx;
   padding: 0 20rpx;
@@ -56,7 +56,7 @@ page {
 }
 
 .item-c .btn.active {
-  background: #006699;
+  background: #ff8096;
   color: #fff;
 }
 
@@ -82,7 +82,7 @@ page {
 .order-goods .h .status {
   float: right;
   font-size: 30rpx;
-  color: #006699;
+  color: #ff8096;
 }
 
 .order-goods .item {
@@ -161,7 +161,7 @@ page {
 .order-goods .item .btn {
   height: 50rpx;
   line-height: 50rpx;
-  border-radius: 5rpx;
+  border-radius: 25rpx;
   text-align: center;
   display: block;
   float: right;
@@ -170,7 +170,7 @@ page {
 }
 
 .order-goods .item .btn.active {
-  background: #006699;
+  background: #ff8096;
   color: #fff;
 }
 
@@ -214,13 +214,13 @@ page {
 .order-bottom .pay-fee .label {
   display: inline-block;
   width: 140rpx;
-  color: #006699;
+  color: #ff8096;
 }
 
 .order-bottom .pay-fee .txt {
   display: inline-block;
   width: 140rpx;
-  color: #006699;
+  color: #ff8096;
 }
 
 .order-express {
@@ -247,13 +247,13 @@ page {
 .order-express .t {
   font-size: 29rpx;
   margin-left: 10.25rpx;
-  color: #006699;
+  color: #ff8096;
 }
 
 .order-express .b {
   font-size: 29rpx;
   margin-left: 10.25rpx;
-  color: #006699;
+  color: #ff8096;
 }
 
 .order-express .traces {
@@ -289,7 +289,7 @@ page {
 
 .pickup-title {
   font-size: 32rpx;
-  color: #b4282d;
+  color: #FF8096;
   font-weight: bold;
   margin-bottom: 20rpx;
 }
@@ -311,7 +311,7 @@ page {
 
 .pickup-code-value {
   font-size: 48rpx;
-  color: #b4282d;
+  color: #FF8096;
   font-weight: bold;
   letter-spacing: 8rpx;
 }
@@ -328,7 +328,7 @@ page {
 
 .pickup-contact .mobile {
   margin-left: 20rpx;
-  color: #006699;
+  color: #ff8096;
 }
 
 .pickup-store {

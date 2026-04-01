@@ -19,7 +19,7 @@ page {
   height: 80rpx;
   border: none;
   width: 700rpx;
-  background: #28b43b;
+  background: #FF8096;
   color: #fff;
   font-size: 40rpx;
   text-align: center;
@@ -27,13 +27,14 @@ page {
   margin-left: 30rpx;
   margin-right: 30rpx;
   line-height: 80rpx;
+  border-radius: 40rpx;
 }
 
 .item {
   position: relative;
   height: 290rpx;
   width: 700rpx;
-  background: linear-gradient(to right, #cfa568, #e3bf79);
+  background: linear-gradient(to right, #FF8096, #FFB6C1);
   margin-bottom: 30rpx;
   margin-left: 30rpx;
   margin-right: 30rpx;
@@ -42,7 +43,7 @@ page {
 
 .tag {
   height: 32rpx;
-  background: #a48143;
+  background: #FF8096;
   padding-left: 16rpx;
   padding-right: 16rpx;
   position: absolute;
@@ -68,7 +69,7 @@ page {
 
 .discount {
   font-size: 50rpx;
-  color: #b4282d;
+  color: #FF8096;
 }
 
 .min {

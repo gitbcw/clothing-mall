@@ -1,0 +1,46 @@
+<view class="container">
+  <!-- 选择图片区域 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">选择图片</text>
+      <text class="section-tip">选择原图以保证高清质量</text>
+    </view>
+    <view class="upload-area" bindtap="chooseImage">
+      <view class="upload-btn" wx:if="{{files.length < maxCount}}">
+        <text class="upload-icon-text">+</text>
+        <text class="upload-text">添加图片</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 图片预览区域 -->
+  <view class="preview-section" wx:if="{{files.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">已选择 {{files.length}} 张图片</text>
+      <text class="clear-btn" bindtap="clearAll">清空</text>
+    </view>
+    <view class="image-list">
+      <view class="image-item" wx:for="{{files}}" wx:key="index">
+        <image class="preview-image" src="{{item}}" mode="aspectFill" bindtap="previewImage" data-url="{{item}}"></image>
+        <view class="delete-btn" bindtap="deleteImage" data-index="{{index}}">×</view>
+        <view class="upload-status {{uploadStatus[index] === 'success' ? 'success' : uploadStatus[index] === 'fail' ? 'fail' : ''}}">
+          <text wx:if="{{uploadStatus[index] === 'success'}}">已上传</text>
+          <text wx:elif="{{uploadStatus[index] === 'fail'}}">失败</text>
+          <text wx:elif="{{uploadStatus[index] === 'uploading'}}">{{uploadProgress[index]}}%</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 上传按钮 -->
+  <view class="btn-area">
+    <button class="upload-btn-main" bindtap="startUpload" disabled="{{uploading || files.length === 0 || allUploaded}}">
+      {{uploading ? '上传中...' : allUploaded ? '已全部上传' : '开始上传'}}
+    </button>
+  </view>
+
+  <!-- 上传统计 -->
+  <view class="stats" wx:if="{{totalCount > 0}}">
+    <text>总计: {{totalCount}} 张 | 成功: {{successCount}} 张 | 失败: {{failCount}} 张</text>
+  </view>
+</view>

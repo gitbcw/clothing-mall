@@ -103,9 +103,9 @@
 .form-item-code .code-btn {
   float: right;
   padding: 20rpx 40rpx;
-  border: 1px solid #d9d9d9;
-  border-radius: 10rpx;
-  background: #006699;
+  border: 1px solid #FF8096;
+  border-radius: 40rpx;
+  background: #FF8096;
   color: white;
   border: none;
 }
@@ -126,6 +126,6 @@
   color: #fff;
   font-size: 30rpx;
   width: 100%;
-  background: #b4282d;
-  border-radius: 6rpx;
+  background: #FF8096;
+  border-radius: 48rpx;
 }

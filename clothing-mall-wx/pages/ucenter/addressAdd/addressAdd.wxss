@@ -43,23 +43,26 @@ page {
 
 .add-address .btns {
   position: fixed;
-  bottom: 0;
+  bottom: 40rpx;
   left: 0;
   overflow: hidden;
   display: flex;
   height: 100rpx;
   width: 100%;
+  padding: 0 30rpx;
+  box-sizing: border-box;
 }
 
 .add-address .cannel, .add-address .save {
   flex: 1;
-  height: 100rpx;
+  height: 96rpx;
   text-align: center;
-  line-height: 100rpx;
+  line-height: 96rpx;
   font-size: 28rpx;
   color: #fff;
   border: none;
-  border-radius: 0;
+  border-radius: 48rpx;
+  margin: 0 10rpx;
 }
 
 .add-address .cannel {
@@ -67,7 +70,7 @@ page {
 }
 
 .add-address .save {
-  background: #006699;
+  background: #FF8096;
 }
 
 .region-select {
@@ -111,7 +114,7 @@ page {
 }
 
 .region-select .region-selected .item.selected {
-  color: #b4282d;
+  color: #FF8096;
 }
 
 .region-select .done {
@@ -150,7 +153,7 @@ page {
 }
 
 .region-select .region-list .item.selected {
-  color: #b4282d;
+  color: #FF8096;
 }
 
 .bg-mask {

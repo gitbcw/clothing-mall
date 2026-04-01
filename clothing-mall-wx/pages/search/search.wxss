@@ -131,8 +131,8 @@ page {
 }
 
 .search-keywords .item.active {
-  color: #b4282d;
-  border: 1px solid #b4282d;
+  color: #FF8096;
+  border: 1px solid #FF8096;
 }
 
 .shelper-list {
@@ -184,7 +184,7 @@ page {
 }
 
 .sort-box .item.active .txt {
-  color: #b4282d;
+  color: #FF8096;
 }
 
 .sort-box .item .van-icon {
@@ -213,8 +213,8 @@ page {
 }
 
 .sort-box-category .item.active {
-  color: #b4282d;
-  border: 1px solid #b4282d;
+  color: #FF8096;
+  border: 1px solid #FF8096;
 }
 
 .cate-item {
@@ -299,7 +299,7 @@ page {
   height: 30rpx;
   text-align: center;
   font-size: 30rpx;
-  color: #b4282d;
+  color: #FF8096;
 }
 
 .search-result-empty {

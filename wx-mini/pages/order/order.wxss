@@ -80,7 +80,7 @@ page {
 }
 
 .tab-item.active text {
-  color: #BA8D59; /* 截图中的棕色/咖色 */
+  color: #FF8096; /* 截图中的棕色/咖色 */
   font-weight: bold;
 }
 
@@ -167,12 +167,12 @@ page {
 
 .price-symbol {
   font-size: 22rpx;
-  color: #BA8D59;
+  color: #FF8096;
 }
 
 .price-num {
   font-size: 32rpx;
-  color: #BA8D59;
+  color: #FF8096;
   font-weight: 500;
 }
 
@@ -214,6 +214,6 @@ page {
 
 .btn-primary {
   color: #FFFFFF;
-  border: 1rpx solid #BA8D59;
-  background-color: #BA8D59;
+  border: 1rpx solid #FF8096;
+  background-color: #FF8096;
 }

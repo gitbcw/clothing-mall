@@ -4,7 +4,7 @@
  * ======================================== */
 
 /* ---- 品牌色 ---- */
-/* primary: #BA8D59 */
+/* primary: #FF8096 */
 /* primary-dark: #96745A */
 /* primary-light: #D4A86C */
 /* primary-bg: #F7F3EF */
@@ -49,7 +49,7 @@
  * 按钮样式
  * ======================================== */
 .manager-btn-primary {
-  background: linear-gradient(135deg, #BA8D59, #96745A);
+  background: linear-gradient(135deg, #FF8096, #96745A);
   color: #FFFFFF;
   border: none;
   border-radius: 34rpx;
@@ -77,7 +77,7 @@
 
 .manager-btn-ghost {
   background: rgba(186, 141, 89, 0.08);
-  color: #BA8D59;
+  color: #FF8096;
   border: none;
   border-radius: 34rpx;
   text-align: center;

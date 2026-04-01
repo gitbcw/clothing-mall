@@ -25,7 +25,7 @@
 .stat-value {
   font-size: 44rpx;
   font-weight: 700;
-  color: #BA8D59;
+  color: #FF8096;
 }
 
 .stat-label {
@@ -89,7 +89,7 @@
 }
 
 .sub-tab-item.active {
-  color: #BA8D59;
+  color: #FF8096;
   font-weight: 600;
 }
 
@@ -101,7 +101,7 @@
   transform: translateX(-50%);
   width: 48rpx;
   height: 6rpx;
-  background: #BA8D59;
+  background: #FF8096;
   border-radius: 3rpx;
 }
 
@@ -134,7 +134,7 @@
 
 .order-status {
   font-size: 24rpx;
-  color: #BA8D59;
+  color: #FF8096;
   font-weight: 500;
   background: rgba(186, 141, 89, 0.1);
   padding: 6rpx 16rpx;
@@ -253,8 +253,8 @@
 }
 
 .action-btn.btn-primary {
-  color: #BA8D59;
-  border-color: #BA8D59;
+  color: #FF8096;
+  border-color: #FF8096;
   background: rgba(186, 141, 89, 0.08);
 }
 

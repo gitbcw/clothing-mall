@@ -17,7 +17,7 @@ page {
 
 /* 主题颜色 */
 .theme-color {
-  color: #BA8D59;
+  color: #FF8096;
 }
 
 /* 沉浸式导航栏 */
@@ -217,7 +217,7 @@ page {
 .weekly-price-wrap {
   display: flex;
   align-items: baseline;
-  color: #BA8D59;
+  color: #FF8096;
 }
 
 .price-symbol {
@@ -240,7 +240,7 @@ page {
 .cart-icon-small {
   width: 36rpx;
   height: 36rpx;
-  background-color: #BA8D59;
+  background-color: #FF8096;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -281,7 +281,7 @@ page {
 
 .subtitle {
   font-size: 20rpx;
-  color: #BA8D59;
+  color: #FF8096;
   margin-left: 8rpx;
   font-style: italic;
 }
@@ -340,7 +340,7 @@ page {
 }
 
 .buy-btn {
-  background-color: #BA8D59;
+  background-color: #FF8096;
   color: #FFFFFF;
   font-size: 20rpx;
   padding: 6rpx 24rpx;
@@ -470,7 +470,7 @@ page {
   align-items: center;
   justify-content: center;
   z-index: 90;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23BA8D59' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='21' r='1'%3E%3C/circle%3E%3Ccircle cx='20' cy='21' r='1'%3E%3C/circle%3E%3Cpath d='M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6'%3E%3C/path%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FF8096' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='21' r='1'%3E%3C/circle%3E%3Ccircle cx='20' cy='21' r='1'%3E%3C/circle%3E%3Cpath d='M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6'%3E%3C/path%3E%3C/svg%3E");
   background-size: 44rpx;
   background-repeat: no-repeat;
   background-position: center;
@@ -530,7 +530,7 @@ page {
 .tab-icon.mine { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cpath d='M8 14s1.5 2 4 2 4-2 4-2'%3E%3C/path%3E%3Cline x1='9' y1='9' x2='9.01' y2='9'%3E%3C/line%3E%3Cline x1='15' y1='9' x2='15.01' y2='9'%3E%3C/line%3E%3C/svg%3E"); }
 
 /* 选中状态的图标 */
-.tab-icon.home.active { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23BA8D59' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E"); }
+.tab-icon.home.active { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FF8096' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E"); }
 
 .tab-text {
   font-size: 20rpx;
@@ -538,5 +538,5 @@ page {
 }
 
 .tab-text.active {
-  color: #BA8D59;
+  color: #FF8096;
 }

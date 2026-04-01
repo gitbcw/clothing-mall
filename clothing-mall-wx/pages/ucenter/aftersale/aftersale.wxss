@@ -26,7 +26,7 @@ page {
 .order-goods .h .status {
   float: right;
   font-size: 30rpx;
-  color: #b4282d;
+  color: #FF8096;
 }
 
 .order-goods .item {

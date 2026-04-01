@@ -12,92 +12,84 @@ Page({
     limit: 10,
     count: 0,
     scrollTop: 0,
-    showPage: false
+    showPage: false,
+    loading: false
   },
 
-
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad: function(options) {
-    this.getCouponList();
+    this.loadCouponList();
   },
 
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
   onReady: function() {
 
   },
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
   onShow: function() {
 
   },
 
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
   onHide: function() {
 
   },
 
-  /**
-   * 生命周期函数--监听页面卸载
-   */
   onUnload: function() {
 
   },
 
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
   onPullDownRefresh() {
-    wx.showNavigationBarLoading() //在标题栏中显示加载
-    this.getCouponList();
-    wx.hideNavigationBarLoading() //完成停止加载
-    wx.stopPullDownRefresh() //停止下拉刷新
+    wx.showNavigationBarLoading()
+    this.setData({
+      page: 1,
+      couponList: [],
+      count: 0,
+      showPage: false
+    }, function() {
+      this.loadCouponList();
+    }.bind(this));
   },
 
-  /**
-   * 页面上拉触底事件的处理函数
-   */
   onReachBottom: function() {
-
+    if (!this.data.loading && this.data.page * this.data.limit < this.data.count) {
+      this.setData({ page: this.data.page + 1 });
+      this.loadCouponList();
+    }
   },
 
-  /**
-   * 用户点击右上角分享
-   */
   onShareAppMessage: function() {
 
   },
-  getCouponList: function() {
-
+  loadCouponList: function() {
     let that = this;
-    that.setData({
-      scrollTop: 0,
-      showPage: false,
-      couponList: []
-    });
+    if (that.data.loading) return;
+    that.setData({ loading: true });
+
     util.request(api.CouponMyList, {
       status: that.data.status,
       page: that.data.page,
       limit: that.data.limit
     }).then(function(res) {
       if (res.errno === 0) {
-
+        var newList = that.data.couponList.concat(res.data.list);
         that.setData({
           scrollTop: 0,
-          couponList: res.data.list,
+          couponList: newList,
           showPage: res.data.total > that.data.limit,
-          count: res.data.total
+          count: res.data.total,
+          loading: false
         });
       }
     });
-
+  },
+  resetAndLoad: function() {
+    this.setData({
+      page: 1,
+      couponList: [],
+      count: 0,
+      scrollTop: 0,
+      showPage: false,
+      loading: false
+    });
+    this.loadCouponList();
   },
   bindExchange: function (e) {
     this.setData({
@@ -120,7 +112,7 @@ Page({
       code: that.data.code
     }, 'POST').then(function (res) {
       if (res.errno === 0) {
-        that.getCouponList();
+        that.resetAndLoad();
         that.clearExchange();
         wx.showToast({
           title: "领取成功",
@@ -132,32 +124,7 @@ Page({
       }
     });
   },
-  nextPage: function(event) {
-    var that = this;
-    if (this.data.page >= Math.ceil(that.data.count / that.data.limit)) {
-      return true;
-    }
-
-    that.setData({
-      page: that.data.page + 1
-    });
-
-    this.getCouponList();
-
-  },
-  prevPage: function(event) {
-    if (this.data.page <= 1) {
-      return false;
-    }
-
-    var that = this;
-    that.setData({
-      page: that.data.page - 1
-    });
-    this.getCouponList();
-  },
   switchTab: function(e) {
-
     this.setData({
       couponList: [],
       status: e.currentTarget.dataset.index,
@@ -165,9 +132,10 @@ Page({
       limit: 10,
       count: 0,
       scrollTop: 0,
-      showPage: false
+      showPage: false,
+      loading: false
     });
 
-    this.getCouponList();
+    this.loadCouponList();
   },
 })

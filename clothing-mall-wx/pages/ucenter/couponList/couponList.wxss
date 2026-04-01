@@ -10,10 +10,6 @@ page {
 }
 
 .container .h {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 1000;
   width: 100%;
   display: flex;
   background: #fff;
@@ -45,7 +41,6 @@ page {
 }
 
 .container .b {
-  margin-top: 85rpx;
   height: auto;
 }
 
@@ -210,33 +205,26 @@ page {
   color: #fff;
 }
 
-.container .b .condition .icon {
-  margin-left: 30rpx;
-  width: 24rpx;
-  height: 24rpx;
+
+.no-coupon {
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
 }
 
-.container .b .page {
-  width: 750rpx;
-  height: 108rpx;
-  background: #fff;
-  margin-bottom: 20rpx;
+.no-coupon .c {
+  width: 100%;
+  height: auto;
+  margin-top: 400rpx;
 }
 
-.container .b .page view {
-  height: 108rpx;
-  width: 50%;
-  float: left;
-  font-size: 29rpx;
-  color: #333;
+.no-coupon .c text {
+  margin: 0 auto;
+  display: block;
+  width: 258rpx;
+  height: 29rpx;
+  line-height: 29rpx;
   text-align: center;
-  line-height: 108rpx;
-}
-
-.container .b .page .prev {
-  border-right: 1px solid #d9d9d9;
-}
-
-.container .b .page .disabled {
-  color: #ccc;
+  font-size: 29rpx;
+  color: #999;
 }

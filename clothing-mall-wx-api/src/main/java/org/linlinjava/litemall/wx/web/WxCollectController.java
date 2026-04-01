@@ -85,7 +85,7 @@ public class WxCollectController {
             	//查询专题信息
             	LitemallTopic topic = topicService.findById(collect.getValueId());
 	            c.put("title", topic.getTitle());
-	            c.put("subtitle", topic.getTitle());
+	            c.put("subtitle", topic.getSubtitle());
 	            c.put("price", topic.getPrice());
 	            c.put("picUrl", topic.getPicUrl());
             }

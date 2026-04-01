@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 用户访问足迹服务
@@ -84,6 +85,14 @@ public class WxFootprintController {
 
         List<LitemallFootprint> footprintList = footprintService.queryByAddTime(userId, page, limit);
 
+        // 批量查询商品信息，避免 N+1
+        List<Integer> goodsIds = footprintList.stream()
+                .map(LitemallFootprint::getGoodsId)
+                .collect(Collectors.toList());
+        List<LitemallGoods> goodsList = goodsService.queryByIds(goodsIds);
+        Map<Integer, LitemallGoods> goodsMap = goodsList.stream()
+                .collect(Collectors.toMap(LitemallGoods::getId, g -> g));
+
         List<Object> footprintVoList = new ArrayList<>(footprintList.size());
         for (LitemallFootprint footprint : footprintList) {
             Map<String, Object> c = new HashMap<String, Object>();
@@ -91,7 +100,10 @@ public class WxFootprintController {
             c.put("goodsId", footprint.getGoodsId());
             c.put("addTime", footprint.getAddTime());
 
-            LitemallGoods goods = goodsService.findById(footprint.getGoodsId());
+            LitemallGoods goods = goodsMap.get(footprint.getGoodsId());
+            if (goods == null) {
+                continue;
+            }
             c.put("name", goods.getName());
             c.put("brief", goods.getBrief());
             c.put("picUrl", goods.getPicUrl());

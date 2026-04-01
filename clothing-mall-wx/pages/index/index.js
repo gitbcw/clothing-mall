@@ -15,7 +15,7 @@ Page({
     // 热销推荐
     hotSales: [],
     hotSalesScroll: [],  // 复制一份用于无限循环滚动
-    hotScrollDuration: 30,
+    hotScrollDuration: 60,
     hotScrollPaused: false,
 
     // 搭配推荐
@@ -23,6 +23,8 @@ Page({
 
     // 活动位
     activityGoods: [],
+    activityTitle: '每周上新',
+    activityTitleEn: 'NEW IN',
 
     // 饰饰如意
     accessories: [],
@@ -77,13 +79,24 @@ Page({
         this.setData({
           hotSales,
           hotSalesScroll: [...hotSales, ...hotSales],
-          hotScrollDuration: Math.max(hotSales.length * 1.5, 15)
+          hotScrollDuration: Math.max(hotSales.length * 3, 40)
         })
 
         // 活动位数据
         const homeActivity = res.data.homeActivity
         if (homeActivity && homeActivity.goods) {
-          this.setData({ activityGoods: homeActivity.goods })
+          // 根据 titleType 设置标题
+          const titleMap = {
+            holiday: { title: '节日特款', en: 'HOLIDAY' },
+            special: { title: '限时特价', en: 'SALE' },
+            weekly: { title: '每周上新', en: 'NEW IN' }
+          }
+          const titleInfo = titleMap[homeActivity.titleType] || titleMap.weekly
+          this.setData({
+            activityGoods: homeActivity.goods,
+            activityTitle: titleInfo.title,
+            activityTitleEn: titleInfo.en
+          })
         }
 
         // 穿搭推荐（替换原来的搭配推荐数据源）

@@ -17,8 +17,8 @@
     <!-- 活动位 -->
     <view class="activity-section" wx:if="{{activityGoods.length > 0}}">
       <view class="section-header-weekly">
-        <text class="section-title-cn">精选活动</text>
-        <text class="section-title-en">FEATURED</text>
+        <text class="section-title-cn">{{activityTitle}}</text>
+        <text class="section-title-en">{{activityTitleEn}}</text>
       </view>
       <scroll-view class="activity-scroll" scroll-x enhanced show-scrollbar="{{false}}">
         <view class="activity-item" wx:for="{{activityGoods}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
@@ -33,6 +33,23 @@
           </view>
         </view>
       </scroll-view>
+    </view>
+
+    <!-- 穿搭推荐 -->
+    <view class="grid-section" wx:if="{{matchRecommends.length > 0}}">
+      <view class="section-title-center">
+        <view class="title-line"></view>
+        <text class="title-text">穿搭推荐</text>
+        <view class="title-line"></view>
+      </view>
+      <view class="grid-list">
+        <view class="grid-item" wx:for="{{matchRecommends}}" wx:key="id" bindtap="goToOutfit" data-id="{{item.id}}">
+          <image src="{{item.coverPic}}" mode="aspectFill" class="grid-img" binderror="onHomeImageError" data-source="matchRecommends" data-index="{{index}}" />
+          <view class="grid-info">
+            <text class="grid-name">{{item.title}}</text>
+          </view>
+        </view>
+      </view>
     </view>
 
     <!-- 热销推荐（无限循环滚动） -->
@@ -56,23 +73,6 @@
               </view>
               <view class="buy-btn" catchtap="buyNow" data-id="{{item.id}}">立即购买</view>
             </view>
-          </view>
-        </view>
-      </view>
-    </view>
-
-    <!-- 穿搭推荐 -->
-    <view class="grid-section" wx:if="{{matchRecommends.length > 0}}">
-      <view class="section-title-center">
-        <view class="title-line"></view>
-        <text class="title-text">穿搭推荐</text>
-        <view class="title-line"></view>
-      </view>
-      <view class="grid-list">
-        <view class="grid-item" wx:for="{{matchRecommends}}" wx:key="id" bindtap="goToOutfit" data-id="{{item.id}}">
-          <image src="{{item.coverPic}}" mode="aspectFill" class="grid-img" binderror="onHomeImageError" data-source="matchRecommends" data-index="{{index}}" />
-          <view class="grid-info">
-            <text class="grid-name">{{item.title}}</text>
           </view>
         </view>
       </view>

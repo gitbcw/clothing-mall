@@ -25,7 +25,7 @@ Component({
     selectedSize: '',
     quantity: 1,
     // 写死的尺码列表
-    sizes: ['S', 'M', 'L', 'XL', 'XXL', '均码']
+    sizes: ['S', 'M', 'L', 'XL']
   },
 
   methods: {

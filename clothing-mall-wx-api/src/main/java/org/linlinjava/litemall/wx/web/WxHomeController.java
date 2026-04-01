@@ -121,8 +121,9 @@ public class WxHomeController {
         List<Map<String, Object>> result = new ArrayList<>();
         Set<Integer> addedIds = new HashSet<>();
         int limit = 8;
+        String titleType = "weekly"; // 默认每周上新
 
-        // 1. 节日商品（替换原来的手动置顶 + 节假日场景商品）
+        // 1. 节日商品
         List<ClothingHoliday> activeHolidays = holidayService.queryActive();
         for (ClothingHoliday holiday : activeHolidays) {
             List<Integer> goodsIds = holidayGoodsService.queryGoodsIdsByHolidayId(holiday.getId());
@@ -137,29 +138,39 @@ public class WxHomeController {
                 }
             }
         }
+        if (!result.isEmpty()) {
+            titleType = "holiday"; // 有节日商品
+        }
 
         // 2. 特价商品
-        List<LitemallGoods> specialGoods = goodsService.queryBySpecialPrice(0, limit);
-        int specialCount = 0;
-        for (LitemallGoods goods : specialGoods) {
-            if (addedIds.contains(goods.getId()) || specialCount >= limit) continue;
-            result.add(goodsToMap(goods));
-            addedIds.add(goods.getId());
-            specialCount++;
+        if (result.size() < limit) {
+            List<LitemallGoods> specialGoods = goodsService.queryBySpecialPrice(0, limit);
+            int specialCount = 0;
+            for (LitemallGoods goods : specialGoods) {
+                if (addedIds.contains(goods.getId()) || specialCount >= limit) continue;
+                result.add(goodsToMap(goods));
+                addedIds.add(goods.getId());
+                specialCount++;
+            }
+            if (specialCount > 0 && "holiday".equals(titleType)) {
+                // 既有节日商品又有特价商品，优先显示节日
+            } else if (specialCount > 0) {
+                titleType = "special"; // 主要是特价商品
+            }
         }
 
-        // 3. 本周上新
-        List<LitemallGoods> weeklyGoods = goodsService.queryByWeeklyNew(0, limit);
-        int weeklyCount = 0;
-        for (LitemallGoods goods : weeklyGoods) {
-            if (addedIds.contains(goods.getId()) || weeklyCount >= limit) continue;
-            result.add(goodsToMap(goods));
-            addedIds.add(goods.getId());
-            weeklyCount++;
-        }
-
-        if (result.size() > 20) {
-            result = result.subList(0, 20);
+        // 3. 兜底：从所有商品中随机抽取
+        if (result.isEmpty()) {
+            List<LitemallGoods> allGoods = goodsService.queryAllPublished(0, limit * 2);
+            Collections.shuffle(allGoods);
+            int fallbackCount = 0;
+            for (LitemallGoods goods : allGoods) {
+                if (fallbackCount >= limit) break;
+                result.add(goodsToMap(goods));
+                addedIds.add(goods.getId());
+                fallbackCount++;
+            }
+            titleType = "weekly"; // 兜底是每周上新
         }
 
         if (result.isEmpty()) {
@@ -168,6 +179,7 @@ public class WxHomeController {
 
         Map<String, Object> activity = new HashMap<>();
         activity.put("goods", result);
+        activity.put("titleType", titleType);
         return activity;
     }
 

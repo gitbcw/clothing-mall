@@ -119,7 +119,7 @@ Page({
           brand: res.data.brand,
           issueList: res.data.issue || [],
           userHasCollect: res.data.userHasCollect || 0,
-          checkedSpecPrice: info.retailPrice,
+          checkedSpecPrice: info.isSpecialPrice && info.specialPrice ? info.specialPrice : info.retailPrice,
           tmpPicUrl: info.picUrl
         })
 

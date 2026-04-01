@@ -167,6 +167,19 @@ public class AdminGoodsService {
         }
         goods.setRetailPrice(retailPrice);
 
+        // 场景标签：将名称数组转为 JSON 字符串存入 scene_tags 字段
+        String[] sceneTags = goodsAllinone.getSceneTags();
+        if (sceneTags != null && sceneTags.length > 0) {
+            StringBuilder sb = new StringBuilder("[");
+            for (int i = 0; i < sceneTags.length; i++) {
+                if (i > 0) sb.append(",");
+                sb.append("\"").append(sceneTags[i].replace("\"", "\\\"")).append("\"");
+            }
+            goods.setSceneTags(sb.append("]").toString());
+        } else {
+            goods.setSceneTags(null);
+        }
+
         // 商品基本信息表litemall_goods
         if (goodsService.updateById(goods) == 0) {
             throw new RuntimeException("更新数据失败");

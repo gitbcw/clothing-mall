@@ -19,7 +19,8 @@ Page({
     hotKeyword: [],
     page: 1,
     limit: 20,
-    categoryId: 0
+    categoryId: 0,
+    statusBarHeight: 20
   },
   //事件处理函数
   closeSearch: function() {
@@ -32,7 +33,10 @@ Page({
     });
   },
   onLoad: function() {
-
+    const sysInfo = wx.getSystemInfoSync();
+    this.setData({
+      statusBarHeight: sysInfo.statusBarHeight || 20
+    });
     this.getSearchKeyword();
   },
 

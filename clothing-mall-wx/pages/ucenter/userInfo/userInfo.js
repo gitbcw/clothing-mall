@@ -86,7 +86,7 @@ Page({
           title: '保存成功',
           icon: 'success'
         });
-        
+
         // 更新本地缓存
         const localUserInfo = wx.getStorageSync('userInfo') || {};
         wx.setStorageSync('userInfo', {

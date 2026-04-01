@@ -325,6 +325,21 @@ export default {
         if (this.goods.keywords) {
           this.keywords = this.goods.keywords.split(',')
         }
+
+        // 回显场景标签：从 scene_tags JSON 字符串反查 ID
+        if (this.goods.sceneTags) {
+          try {
+            const tagNames = JSON.parse(this.goods.sceneTags)
+            if (Array.isArray(tagNames)) {
+              this.selectedSceneIds = tagNames.map(name => {
+                const scene = this.sceneList.find(s => s.label === name)
+                return scene ? scene.value : null
+              }).filter(Boolean)
+            }
+          } catch (e) {
+            console.warn('解析场景标签失败:', e)
+          }
+        }
       })
     },
 
@@ -380,7 +395,10 @@ export default {
           specifications: [],
           products: [],
           attributes: this.attributes,
-          sceneIds: this.selectedSceneIds
+          sceneTags: this.selectedSceneIds.map(id => {
+            const scene = this.sceneList.find(s => s.value === id)
+            return scene ? scene.label : null
+          }).filter(Boolean)
         }
 
         await editGoods(data)

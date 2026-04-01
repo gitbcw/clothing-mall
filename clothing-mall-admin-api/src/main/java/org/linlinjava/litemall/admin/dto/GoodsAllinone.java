@@ -13,6 +13,7 @@ public class GoodsAllinone {
     LitemallGoodsAttribute[] attributes;
     LitemallGoodsProduct[] products;
     Boolean isDraft; // 是否为草稿
+    String[] sceneTags; // 场景标签名称数组，与小程序管理端 scene_tags JSON 字段对齐
 
     public LitemallGoods getGoods() {
         return goods;
@@ -52,5 +53,13 @@ public class GoodsAllinone {
 
     public void setIsDraft(Boolean isDraft) {
         this.isDraft = isDraft;
+    }
+
+    public String[] getSceneTags() {
+        return sceneTags;
+    }
+
+    public void setSceneTags(String[] sceneTags) {
+        this.sceneTags = sceneTags;
     }
 }

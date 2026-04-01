@@ -1,4 +1,5 @@
 <view class="container">
+  <custom-nav title="意见反馈" />
 
   <picker bindchange="bindPickerChange" value="{{index}}" range="{{array}}">
     <view class="picker">

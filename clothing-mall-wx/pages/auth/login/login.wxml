@@ -1,17 +1,16 @@
 <view class="container">
-  <view class="custom-nav" style="padding-top: {{statusBarHeight}}px; height: {{navTotalHeight}}px;">
-    <view class="nav-inner">
-      <view class="nav-left" bindtap="handleBack" hover-class="nav-left-hover" hover-stay-time="100">
-        <view class="arrow"></view>
-      </view>
-      <view class="nav-center">
-        <text class="nav-title">{{navTitle}}</text>
-      </view>
-      <view class="nav-right"></view>
+  <custom-nav title="绑定手机号" />
+  <!-- 未登录模式：测试登录 -->
+  <view wx:if="{{!hasLogin}}" class="login-box">
+    <view class="test-login-section">
+      <view class="test-login-tip">当前为测试环境，请使用测试账号登录</view>
+      <button class="test-login-btn" bindtap="testLogin">一键登录（测试）</button>
+      <view class="test-login-hint">仅用于开发测试</view>
     </view>
   </view>
-  <view style="height: {{navTotalHeight}}px;"></view>
-  <view class="login-box">
+
+  <!-- 已登录模式：绑定手机号 -->
+  <view wx:else class="login-box">
     <!-- 手动输入手机号绑定 -->
     <view class="form-group">
       <view class="form-item">

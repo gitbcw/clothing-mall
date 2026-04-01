@@ -20,47 +20,68 @@ function formatNumber(n) {
 }
 
 /**
- * 封封微信的的request
+ * 封装微信的 request（内部实现）
+ * retryCount 用于防止 501 自动重试时无限递归
  */
-function request(url, data = {}, method = "GET") {
-  return new Promise(function(resolve, reject) {
-    wx.request({
-      url: url,
-      data: data,
-      method: method,
-      header: {
-        'Content-Type': 'application/json',
-        'X-Litemall-Token': wx.getStorageSync('token')
-      },
-      success: function(res) {
+function doRequest(url, data, method, resolve, reject, retryCount) {
+  wx.request({
+    url: url,
+    data: data,
+    method: method,
+    header: {
+      'Content-Type': 'application/json',
+      'X-Litemall-Token': wx.getStorageSync('token')
+    },
+    success: function(res) {
 
-        if (res.statusCode == 200) {
+      if (res.statusCode == 200) {
 
-          if (res.data.errno == 501) {
-            // 清除登录相关内容
-            try {
-              wx.removeStorageSync('userInfo');
-              wx.removeStorageSync('token');
-            } catch (e) {
-              // Do something when catch error
-            }
-            // 切换到登录页面
+        if (res.data.errno == 501 && retryCount < 1) {
+          // 清除登录相关内容
+          try {
+            wx.removeStorageSync('userInfo');
+            wx.removeStorageSync('token');
+          } catch (e) {
+            // Do something when catch error
+          }
+          getApp().globalData.hasLogin = false;
+
+          // 先尝试静默续期，成功则重试原请求
+          getApp().silentLogin().then(function() {
+            doRequest(url, data, method, resolve, reject, retryCount + 1);
+          }).catch(function() {
+            // 静默续期失败，跳转登录页
             wx.navigateTo({
               url: '/pages/auth/login/login'
             });
             reject(res.data);
-          } else {
-            resolve(res.data);
-          }
+          });
+        } else if (res.data.errno == 501) {
+          // 已经重试过一次，直接跳转登录页
+          wx.navigateTo({
+            url: '/pages/auth/login/login'
+          });
+          reject(res.data);
         } else {
-          reject(res.errMsg);
+          resolve(res.data);
         }
-
-      },
-      fail: function(err) {
-        reject(err)
+      } else {
+        reject(res.errMsg);
       }
-    })
+
+    },
+    fail: function(err) {
+      reject(err)
+    }
+  });
+}
+
+/**
+ * 封装微信的 request
+ */
+function request(url, data = {}, method = "GET") {
+  return new Promise(function(resolve, reject) {
+    doRequest(url, data, method, resolve, reject, 0);
   });
 }
 

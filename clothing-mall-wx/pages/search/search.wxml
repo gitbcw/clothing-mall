@@ -1,5 +1,6 @@
 <scroll-view class="container" style="height: 100%;">
-  <view class="search-header">
+  <view style="height: {{statusBarHeight}}px;"></view>
+  <view class="search-header" style="padding-top: {{statusBarHeight}}px;">
     <view class="input-box">
       <van-icon name="search"/>
       <input name="input" class="keywrod" focus="true" value="{{keyword}}" confirm-type="search" bindinput="inputChange" bindfocus="inputFocus" bindconfirm="onKeywordConfirm" placeholder="{{defaultKeyword.keyword}}" />
@@ -7,7 +8,7 @@
     </view>
     <view class="right" bindtap="closeSearch">取消</view>
   </view>
-  <view class="no-search" wx:if="{{ !searchStatus}}">
+  <view class="no-search" style="margin-top: {{statusBarHeight * 2 + 91}}rpx;" wx:if="{{ !searchStatus}}">
     <view class="search-keywords search-history" wx:if="{{!keyword  && historyKeyword.length}}">
       <view class="h">
         <text class="title">历史记录</text>
@@ -31,7 +32,7 @@
   </view>
 
   <view class="search-result" wx:if="{{ searchStatus && goodsList.length}}">
-    <view class="sort">
+    <view class="sort" style="top: {{statusBarHeight * 2 + 91}}rpx;">
       <view class="sort-box">
         <view class="item {{currentSortType == 'default' ? 'active' : ''}}" bindtap="openSortFilter" id="defaultSort">
           <text class="txt">综合</text>

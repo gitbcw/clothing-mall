@@ -1,4 +1,5 @@
 <view class="add-address">
+  <custom-nav title="编辑地址" />
   <view class="add-form">
     <view class="form-item">
       <input class="input" bindinput="bindinputName" placeholder="姓名" value="{{address.name}}" auto-focus/>

@@ -137,8 +137,37 @@ function checkLoginWithApi() {
   });
 }
 
+/**
+ * 检查用户是否已绑定手机号
+ */
+function checkPhoneBound() {
+  const userInfo = wx.getStorageSync('userInfo');
+  return !!(userInfo && userInfo.mobile);
+}
+
+/**
+ * 要求用户已绑定手机号，未绑定则弹窗提示并跳转
+ * @returns {boolean} true 表示已绑定，false 表示未绑定
+ */
+function requirePhoneBound() {
+  if (checkPhoneBound()) return true;
+  wx.showModal({
+    title: '需要绑定手机号',
+    content: '下单前请先绑定手机号，方便我们联系您',
+    confirmText: '去绑定',
+    success: function(res) {
+      if (res.confirm) {
+        wx.navigateTo({ url: '/pages/auth/login/login' });
+      }
+    }
+  });
+  return false;
+}
+
 module.exports = {
   loginByWeixin,
   checkLogin,
   checkLoginWithApi,
+  checkPhoneBound,
+  requirePhoneBound,
 };

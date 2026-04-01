@@ -149,6 +149,5 @@ Page({
     }
 
     wx.navigateBack();
-  }
-
+  },
 })

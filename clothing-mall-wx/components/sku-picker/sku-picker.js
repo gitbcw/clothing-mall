@@ -24,7 +24,7 @@ Component({
   data: {
     selectedSize: '',
     quantity: 1,
-    // 写死的尺码列表
+    // 写死的尺码列表（设计决策：当前商品均为标准服装尺码，无需从后端动态获取）
     sizes: ['S', 'M', 'L', 'XL']
   },
 

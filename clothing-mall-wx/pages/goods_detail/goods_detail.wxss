@@ -129,6 +129,13 @@ page {
   line-height: 44rpx;
 }
 
+.goods-brief {
+  font-size: 24rpx;
+  color: #999999;
+  line-height: 36rpx;
+  margin-bottom: 20rpx;
+}
+
 .share-btn {
   display: flex;
   flex-direction: column;
@@ -197,6 +204,12 @@ page {
   border-radius: 4rpx;
   margin-right: 16rpx;
   background-color: #FDF9F4;
+}
+
+.brand-tag {
+  color: #999999;
+  border-color: #E0E0E0;
+  background-color: #F5F5F5;
 }
 
 /* 服务与选择区块 */

@@ -6,12 +6,9 @@ var app = getApp();
 Page({
   data: {
     canIUseGetUserProfile: false,
-    statusBarHeight: 20,
-    navContentHeight: 48,
-    navTotalHeight: 68,
-    navTitle: '绑定手机号',
     showBirthdayPopup: false,
-    mobile: ''
+    mobile: '',
+    hasLogin: false
   },
   onLoad: function(options) {
     // 页面初始化 options为页面跳转所带来的参数
@@ -21,18 +18,15 @@ Page({
         canIUseGetUserProfile: true
       })
     }
-
-    const sysInfo = wx.getSystemInfoSync()
-    const statusBarHeight = sysInfo.statusBarHeight || 20
-    const navContentHeight = this.data.navContentHeight
-    const navTotalHeight = statusBarHeight + navContentHeight
-    this.setData({ statusBarHeight, navTotalHeight })
   },
   onReady: function() {
 
   },
   onShow: function() {
-    // 页面显示
+    // 页面显示，读取登录状态切换模式
+    this.setData({
+      hasLogin: app.globalData.hasLogin
+    });
   },
   onHide: function() {
     // 页面隐藏
@@ -139,8 +133,40 @@ Page({
       util.showErrorToast('绑定失败');
     });
   },
-  handleBack: function() {
-    wx.navigateBack({ delta: 1 })
+  testLogin: function() {
+    var that = this;
+    wx.showLoading({ title: '登录中...' });
+
+    util.request(api.AuthLoginByAccount, {
+      username: 'test',
+      password: '123456'
+    }, 'POST').then(function(res) {
+      wx.hideLoading();
+      if (res.errno === 0) {
+        wx.setStorageSync('token', res.data.token);
+        app.globalData.hasLogin = true;
+
+        // 拉取用户信息
+        util.request(api.UserInfo, {}, 'GET').then(function(infoRes) {
+          if (infoRes.errno === 0) {
+            wx.setStorageSync('userInfo', {
+              nickName: infoRes.data.nickname,
+              avatarUrl: infoRes.data.avatar,
+              mobile: infoRes.data.mobile,
+              birthday: infoRes.data.birthday
+            });
+          }
+          wx.navigateBack({ delta: 1 });
+        }).catch(function() {
+          wx.navigateBack({ delta: 1 });
+        });
+      } else {
+        util.showErrorToast(res.errmsg || '登录失败');
+      }
+    }).catch(function(err) {
+      wx.hideLoading();
+      util.showErrorToast('登录失败');
+    });
   },
 
   /**

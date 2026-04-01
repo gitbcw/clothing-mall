@@ -1,6 +1,7 @@
 const util = require('../../utils/util.js');
 const api = require('../../config/api.js');
 const tracker = require('../../utils/tracker.js');
+const user = require('../../utils/user.js');
 
 const app = getApp();
 
@@ -127,6 +128,8 @@ Page({
 
   // 提交订单
   submitOrder() {
+    if (!user.requirePhoneBound()) return;
+
     let that = this
     if (that.data.submitting) {
       return

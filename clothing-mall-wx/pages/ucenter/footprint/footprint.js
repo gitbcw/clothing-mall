@@ -50,7 +50,7 @@ Page({
     let goodsId = this.data.footprintList[index][iindex].goodsId;
     var touchTime = that.data.touchEnd - that.data.touchStart;
     console.log(touchTime);
-    //如果按下时间大于350为长按  
+    //如果按下时间大于350为长按
     if (touchTime > 350) {
       wx.showModal({
         title: '',
@@ -116,7 +116,7 @@ Page({
   onUnload: function() {
     // 页面关闭
   },
-  //按下事件开始  
+  //按下事件开始
   touchStart: function(e) {
     let that = this;
     that.setData({
@@ -124,7 +124,7 @@ Page({
     })
     console.log(e.timeStamp + '- touchStart')
   },
-  //按下事件结束  
+  //按下事件结束
   touchEnd: function(e) {
     let that = this;
     that.setData({

@@ -1,4 +1,5 @@
 <view class="container">
+  <custom-nav title="我的足迹" />
   <view class="no-footprint" wx:if="{{footprintList.length <= 0}}">
     <view class="c">
       <text>没有浏览足迹</text>

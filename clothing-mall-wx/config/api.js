@@ -3,8 +3,8 @@ var apiRootMap = {
   trial: 'http://47.107.151.70:8088/wx/',
   release: 'https://www.transmute.cn/wx/'
 };
-var envVersion = 'trial';
-// 固定为 trial，避免被开发者工具的 envVersion 覆盖
+var envVersion = 'release';
+// 固定为 release，使用 HTTPS 域名
 var WxApiRoot = apiRootMap[envVersion];
 
 module.exports = {

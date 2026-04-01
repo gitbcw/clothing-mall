@@ -43,20 +43,28 @@ App({
   },
 
   silentLogin: function() {
-    console.log('开始执行静默登录');
-    user.loginByWeixin({
+    if (this.globalData.loginPromise) return this.globalData.loginPromise;
+
+    this.globalData.loginPromise = user.loginByWeixin({
       nickName: '微信用户',
-      avatarUrl: 'https://yanxuan.nosdn.127.net/80841d741d7fa3073e0ae27bf487339f.jpg',
+      avatarUrl: 'https://yanxuan.nosdn.127.net/80841d7fa3073e0ae27bf487339f.jpg',
       gender: 0
     }).then(res => {
       console.log('静默登录成功', res);
       this.globalData.hasLogin = true;
+      this.globalData.loginPromise = null;
+      return res;
     }).catch(err => {
       console.error('静默登录失败，具体原因:', err);
+      this.globalData.loginPromise = null;
+      throw err;
     });
+
+    return this.globalData.loginPromise;
   },
 
   globalData: {
-    hasLogin: false
+    hasLogin: false,
+    loginPromise: null
   }
 })

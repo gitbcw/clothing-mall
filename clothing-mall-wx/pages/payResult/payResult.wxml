@@ -1,4 +1,5 @@
 <view class="container">
+  <custom-nav title="付款结果" />
   <view class="pay-result">
     <view class="success" wx:if="{{status}}">
       <view class="msg">付款成功</view>

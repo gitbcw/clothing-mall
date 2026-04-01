@@ -108,7 +108,5 @@
   </scroll-view>
 
   <!-- 悬浮购物车 -->
-  <view class="floating-cart" bindtap="goToCart">
-    <view class="badge">3</view>
-  </view>
+  <floating-cart />
 </view>

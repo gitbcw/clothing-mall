@@ -1,4 +1,6 @@
 {
-  "usingComponents": {},
+  "usingComponents": {
+    "floating-cart": "/components/floating-cart/floating-cart"
+  },
   "navigationStyle": "custom"
 }

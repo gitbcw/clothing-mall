@@ -1,7 +1,7 @@
 var apiRootMap = {
   develop: 'http://127.0.0.1:8088/wx/',
   trial: 'http://47.107.151.70:8088/wx/',
-  release: 'https://www.menethil.com.cn/wx/'
+  release: 'https://www.transmute.cn/wx/'
 };
 var envVersion = 'trial';
 // 固定为 trial，避免被开发者工具的 envVersion 覆盖

@@ -54,8 +54,10 @@ services:
     container_name: clothing-mall-nginx
     ports:
       - "8080:80"
+      - "443:443"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
       - ./admin-dist:/usr/share/nginx/html
     depends_on:
       - app
@@ -65,16 +67,3 @@ services:
           memory: 768M
     restart: always
 
-  # Nginx 反向代理（可选，用于域名和 HTTPS）
-  # nginx:
-  #   image: nginx:alpine
-  #   container_name: clothing-mall-nginx
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   volumes:
-  #     - ./nginx/conf.d:/etc/nginx/conf.d
-  #     - ./nginx/ssl:/etc/nginx/ssl
-  #   depends_on:
-  #     - app
-  #   restart: always

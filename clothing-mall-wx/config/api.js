@@ -4,7 +4,7 @@ var apiRootMap = {
   release: 'https://www.transmute.cn/wx/'
 };
 var envVersion = 'trial';
-// 固定为 release，使用 HTTPS 域名
+// 本地调试用 trial (HTTP)，上传体验版前改为 release (HTTPS)
 var WxApiRoot = apiRootMap[envVersion];
 
 module.exports = {

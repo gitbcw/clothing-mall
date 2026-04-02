@@ -55,14 +55,15 @@
 
 .nickname {
   font-size: 36rpx;
-  color: #333;
+  color: #FFFFFF;
   font-weight: 600;
   margin-bottom: 8rpx;
+  font-family: monospace;
 }
 
 .status {
   font-size: 24rpx;
-  color: #666;
+  color: #ffffff;
 }
 
 /* Content Section */
@@ -321,19 +322,19 @@
 
 /* Manager Entry Styles */
 .manager-entry {
-  background-color: #FFF7E6;
+  background-color: #FFFFFF;
 }
 
 .manager-entry .item-left text {
-  color: #D48806;
+  color: #D9B075;
   font-weight: 500;
 }
 
 .role-tag {
   font-size: 24rpx;
   color: #fff;
-  background-color: #FA8C16;
-  padding: 4rpx 16rpx;
+  background-color: #D9B075;
+  padding: 8rpx 20rpx;
   border-radius: 20rpx;
   margin-right: 16rpx;
 }

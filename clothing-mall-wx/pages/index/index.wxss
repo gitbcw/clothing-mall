@@ -547,7 +547,7 @@ page {
 .activity-item-sub {
   display: inline-block;
   width: 200rpx;
-  margin-right: 40rpx;
+  margin-right: 36rpx;
   vertical-align: top;
   background: #F7F8FA;
   border-radius: 16rpx;

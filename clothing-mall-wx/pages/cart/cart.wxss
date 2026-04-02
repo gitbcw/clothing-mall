@@ -562,6 +562,8 @@ page {
   background-color: #FF8096;
   color: #ffffff;
   font-size: 26rpx;
+  font-weight: bold;
+  margin-top: 32rpx;
 }
 
 /* 自定义底部 TabBar */

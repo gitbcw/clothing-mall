@@ -129,12 +129,29 @@
   flex-direction: column;
   align-items: center;
   width: 25%;
+  position: relative;
 }
 
 .order-item text {
   font-size: 24rpx;
   color: #333;
   margin-top: 16rpx;
+}
+
+/* Order Badge */
+.badge {
+  position: absolute;
+  top: -10rpx;
+  right: 10rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  text-align: center;
+  font-size: 20rpx;
+  color: #fff;
+  background-color: #FF8096;
+  border-radius: 16rpx;
+  padding: 0 8rpx;
 }
 
 /* Menu Card */
@@ -326,14 +343,14 @@
 }
 
 .manager-entry .item-left text {
-  color: #D9B075;
+  color: #FF8096;
   font-weight: 500;
 }
 
 .role-tag {
   font-size: 24rpx;
   color: #fff;
-  background-color: #D9B075;
+  background-color: #FF8096;
   padding: 8rpx 20rpx;
   border-radius: 20rpx;
   margin-right: 16rpx;

@@ -26,6 +26,19 @@ public class WxSceneController {
     private LitemallGoodsService goodsService;
 
     /**
+     * 启用的场景名称列表（供小程序管理端预加载）
+     */
+    @GetMapping("/list")
+    public Object list() {
+        List<ClothingScene> scenes = sceneService.queryEnabled();
+        List<String> names = new ArrayList<>();
+        for (ClothingScene scene : scenes) {
+            names.add(scene.getName());
+        }
+        return ResponseUtil.ok(names);
+    }
+
+    /**
      * 场景轮播图列表（有海报图且启用的场景）
      */
     @GetMapping("/banners")

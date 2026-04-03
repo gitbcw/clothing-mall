@@ -12,6 +12,7 @@ public class CategoryVo {
     private String level;
     private Integer pid;
     private String seasonSwitch;
+    private Boolean enableSize;
     private List<CategoryVo> children;
 
     public List<CategoryVo> getChildren() {
@@ -92,5 +93,13 @@ public class CategoryVo {
 
     public void setSeasonSwitch(String seasonSwitch) {
         this.seasonSwitch = seasonSwitch;
+    }
+
+    public Boolean getEnableSize() {
+        return enableSize;
+    }
+
+    public void setEnableSize(Boolean enableSize) {
+        this.enableSize = enableSize;
     }
 }

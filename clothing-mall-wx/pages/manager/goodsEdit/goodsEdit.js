@@ -29,12 +29,9 @@ Page({
     // 分类
     categoryList: [],
     showCategoryPicker: false,
-    // 场景标签
-    presetScenes: [
-      '日常通勤', '约会聚餐', '度假旅行', '运动健身', '居家休闲', '商务正式'
-    ],
+    // 场景标签（从数据库加载）
+    presetScenes: [],
     customSceneInput: '',
-    showCustomSceneInput: false,
     scenes: [],
     sceneMap: {},
     presetSceneMap: {},
@@ -59,10 +56,7 @@ Page({
       statusBarHeight,
       navBarHeight: isIOS ? 44 : 48
     });
-    // 初始化预设场景查找表
-    var psm = {};
-    this.data.presetScenes.forEach(function(s) { psm[s] = true; });
-    this.setData({ presetSceneMap: psm });
+    this.loadScenes();
 
     if (options.id) {
       // 编辑模式
@@ -76,6 +70,20 @@ Page({
       this.loadDraft();
       this.setData({ loading: false });
     }
+  },
+
+  // ========== 场景标签（从数据库加载） ==========
+
+  loadScenes() {
+    let that = this;
+    util.request(api.SceneList).then(function(res) {
+      if (res.errno === 0 && res.data) {
+        var scenes = res.data || [];
+        var psm = {};
+        scenes.forEach(function(s) { psm[s] = true; });
+        that.setData({ presetScenes: scenes, presetSceneMap: psm });
+      }
+    });
   },
 
   // ========== 分类 ==========
@@ -355,48 +363,6 @@ Page({
     }
     this.setData({ scenes: scenes, sceneMap: this._buildSceneMap(scenes) });
     this.autoSaveDraft();
-  },
-
-  showCustomSceneInput() {
-    this.setData({ showCustomSceneInput: true });
-  },
-
-  hideCustomSceneInput() {
-    this.setData({ showCustomSceneInput: false, customSceneInput: '' });
-  },
-
-  onCustomSceneInput(e) {
-    this.setData({ customSceneInput: e.detail.value });
-  },
-
-  addCustomScene() {
-    const input = this.data.customSceneInput.trim();
-    if (!input) return;
-    const scenes = (this.data.scenes || []).slice();
-    const presets = this.data.presetScenes;
-    if (scenes.indexOf(input) > -1 || presets.indexOf(input) > -1) {
-      wx.showToast({ title: '场景已存在', icon: 'none' });
-      return;
-    }
-    scenes.push(input);
-    this.setData({
-      scenes: scenes,
-      sceneMap: this._buildSceneMap(scenes),
-      customSceneInput: '',
-      showCustomSceneInput: false
-    });
-    this.autoSaveDraft();
-  },
-
-  removeScene(e) {
-    const scene = e.currentTarget.dataset.scene;
-    const scenes = (this.data.scenes || []).slice();
-    const index = scenes.indexOf(scene);
-    if (index > -1) {
-      scenes.splice(index, 1);
-      this.setData({ scenes: scenes, sceneMap: this._buildSceneMap(scenes) });
-      this.autoSaveDraft();
-    }
   },
 
   // ========== 商品参数 ==========

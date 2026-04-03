@@ -124,9 +124,12 @@ Page({
       limit: 4
     }).then(res => {
       if (res.errno === 0 && res.data.list) {
-        this.setData({
-          accessories: res.data.list.slice(0, 4)
-        })
+        const enableSizeMap = res.data.enableSizeMap || {}
+        const accessories = res.data.list.slice(0, 4).map(item => ({
+          ...item,
+          enableSize: enableSizeMap[item.categoryId] !== false
+        }))
+        this.setData({ accessories })
       }
     }).catch(() => {})
   },

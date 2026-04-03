@@ -30,10 +30,12 @@
   align-items: center;
 }
 
-.back-arrow {
-  font-size: 40rpx;
-  color: #333;
-  font-weight: 300;
+.back-icon {
+  width: 20rpx;
+  height: 20rpx;
+  border-left: 4rpx solid #333;
+  border-bottom: 4rpx solid #333;
+  transform: rotate(45deg);
 }
 
 .nav-title {
@@ -307,54 +309,6 @@
   font-size: 28rpx;
 }
 
-.scene-chip.add-btn {
-  display: flex;
-  align-items: center;
-  gap: 4rpx;
-  color: #FF8096;
-  background: transparent;
-  border: 1rpx dashed #FF8096;
-}
-
-.add-icon {
-  font-size: 28rpx;
-}
-
-.custom-scene-input {
-  margin-top: 20rpx;
-  display: flex;
-  gap: 16rpx;
-}
-
-.scene-input {
-  flex: 1;
-  background: #f5f5f5;
-  padding: 16rpx 20rpx;
-  border-radius: 8rpx;
-  font-size: 26rpx;
-}
-
-.scene-input-actions {
-  display: flex;
-  gap: 12rpx;
-}
-
-.scene-action-btn {
-  padding: 16rpx 24rpx;
-  border-radius: 8rpx;
-  font-size: 26rpx;
-}
-
-.scene-action-btn.cancel {
-  color: #999;
-  background: #f5f5f5;
-}
-
-.scene-action-btn.confirm {
-  color: #fff;
-  background: #FF8096;
-}
-
 /* 商品详细介绍 */
 .detail-textarea {
   height: 240rpx;
@@ -496,12 +450,12 @@
 
 .action-btn.btn-save {
   color: #FF8096;
-  background: rgba(186, 141, 89, 0.08);
+  background: rgba(255, 128, 150, 0.08);
 }
 
 .action-btn.btn-publish {
   color: #fff;
-  background: linear-gradient(135deg, #FF8096, #96745A);
+  background: linear-gradient(135deg, #FF8096, #FF6B85);
 }
 
 .action-btn.btn-unpublish {
@@ -511,7 +465,7 @@
 
 .action-btn.btn-preview {
   color: #FF8096;
-  background: rgba(186, 141, 89, 0.08);
+  background: rgba(255, 128, 150, 0.08);
 }
 
 /* 预览弹窗 */
@@ -666,7 +620,7 @@
 }
 
 .preview-btn.btn-confirm {
-  background: linear-gradient(135deg, #FF8096, #96745A);
+  background: linear-gradient(135deg, #FF8096, #FF6B85);
   color: #fff;
 }
 

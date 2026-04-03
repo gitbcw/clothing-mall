@@ -33,8 +33,8 @@ Page({
     }
     try {
       const tab = wx.getStorageSync('tab')
-      if (tab) {
-        tabIndex = tab
+      if (tab !== '' && tab !== undefined && tab !== null) {
+        tabIndex = parseInt(tab, 10)
         wx.removeStorageSync('tab')
       }
     } catch (e) {}

@@ -354,42 +354,6 @@
   color: #FF8096;
 }
 
-.custom-scene-input {
-  display: flex;
-  align-items: center;
-  margin-top: 20rpx;
-  gap: 16rpx;
-}
-
-.scene-input {
-  flex: 1;
-  background: #F5F5F5;
-  padding: 16rpx 20rpx;
-  border-radius: 24rpx;
-  font-size: 26rpx;
-}
-
-.scene-input-actions {
-  display: flex;
-  gap: 12rpx;
-}
-
-.scene-action-btn {
-  padding: 12rpx 24rpx;
-  border-radius: 24rpx;
-  font-size: 24rpx;
-}
-
-.scene-action-btn.cancel {
-  background: #F5F5F5;
-  color: #666;
-}
-
-.scene-action-btn.confirm {
-  background: #FF8096;
-  color: #fff;
-}
-
 /* 商品参数 */
 .add-param-btn {
   font-size: 24rpx;

@@ -96,6 +96,7 @@
     goods-id="{{skuGoods.id}}"
     goods-image="{{skuGoods.picUrl}}"
     goods-price="{{skuGoods.retailPrice}}"
+    enable-size="{{skuGoods.enableSize}}"
     bottom-offset="{{100}}"
     bind:close="closeSkuPicker"
     bind:addcart="skuAddToCart"

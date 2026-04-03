@@ -179,6 +179,7 @@
     goods-id="{{goods.id}}"
     goods-image="{{goods.picUrl}}"
     goods-price="{{goods.retailPrice}}"
+    enable-size="{{enableSize}}"
     bind:close="closeSkuPicker"
     bind:addcart="skuAddToCart"
     bind:buynow="skuBuyNow"

@@ -48,8 +48,8 @@ public class WxUserController {
         }
 
         long unpaid = countByStatus(userId, Collections.singletonList(OrderUtil.STATUS_CREATE));
-        long unship = countByStatus(userId, Collections.singletonList(OrderUtil.STATUS_PAY));
-        long unrecv = countByStatus(userId, Arrays.asList(OrderUtil.STATUS_SHIP));
+        long unship = countByStatus(userId, Arrays.asList(OrderUtil.STATUS_PAY, OrderUtil.STATUS_ADMIN_CONFIRM));
+        long unrecv = countByStatus(userId, Arrays.asList(OrderUtil.STATUS_SHIP, OrderUtil.STATUS_VERIFY_PENDING));
 
         Map<String, Object> order = new HashMap<>();
         order.put("unpaid", unpaid);

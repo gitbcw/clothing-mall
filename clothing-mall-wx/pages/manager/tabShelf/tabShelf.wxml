@@ -101,22 +101,6 @@
               wx:for="{{presetScenes}}" wx:key="*this" bindtap="onSceneToggle" data-scene="{{item}}">
           {{item}}
         </view>
-        <view class="scene-chip active" wx:for="{{form.scenes}}" wx:for-item="scene" wx:key="*this"
-              wx:if="{{!presetSceneMap[scene]}}">
-          {{scene}}
-          <text class="chip-remove" catchtap="removeScene" data-scene="{{scene}}">×</text>
-        </view>
-        <view class="scene-chip add-btn" wx:if="{{!showCustomSceneInput}}" bindtap="showCustomSceneInput">
-          <text class="add-icon">+</text>
-          <text>自定义</text>
-        </view>
-      </view>
-      <view class="custom-scene-input" wx:if="{{showCustomSceneInput}}">
-        <input class="scene-input" placeholder="输入场景名称" value="{{customSceneInput}}" bindinput="onCustomSceneInput" />
-        <view class="scene-input-actions">
-          <view class="scene-action-btn cancel" bindtap="hideCustomSceneInput">取消</view>
-          <view class="scene-action-btn confirm" bindtap="addCustomScene">添加</view>
-        </view>
       </view>
     </view>
 

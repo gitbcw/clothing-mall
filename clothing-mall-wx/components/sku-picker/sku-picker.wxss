@@ -200,7 +200,7 @@
 }
 
 .btn-cart {
-  background: #ffb6c1;
+  background: #A0785A;
   color: #fff;
   border-radius: 44rpx 0 0 44rpx;
 }

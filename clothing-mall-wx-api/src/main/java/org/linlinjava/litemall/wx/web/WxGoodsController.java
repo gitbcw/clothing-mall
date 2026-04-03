@@ -152,6 +152,24 @@ public class WxGoodsController {
 			//SystemConfig.isAutoCreateShareImage()
 			data.put("share", SystemConfig.isAutoCreateShareImage());
 
+			// 根据商品分类获取是否启用尺码选择（L2 继承 L1 设置）
+			boolean enableSize = true;
+			if (info.getCategoryId() != null) {
+				LitemallCategory cat = categoryService.findById(info.getCategoryId());
+				if (cat != null) {
+					if (cat.getPid() != null && cat.getPid() > 0) {
+						// L2 分类，查找 L1 父分类
+						LitemallCategory parent = categoryService.findById(cat.getPid());
+						if (parent != null && parent.getEnableSize() != null) {
+							enableSize = parent.getEnableSize();
+						}
+					} else if (cat.getEnableSize() != null) {
+						enableSize = cat.getEnableSize();
+					}
+				}
+			}
+			data.put("enableSize", enableSize);
+
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -249,6 +267,23 @@ public class WxGoodsController {
 
 		PageInfo<LitemallGoods> pagedList = PageInfo.of(goodsList);
 
+		// 计算每个分类的 enableSize（L2 继承 L1 设置）
+		Map<Integer, Boolean> enableSizeMap = new HashMap<>();
+		for (LitemallGoods goods : goodsList) {
+			Integer catId = goods.getCategoryId();
+			if (catId != null && !enableSizeMap.containsKey(catId)) {
+				LitemallCategory cat = categoryService.findById(catId);
+				if (cat != null) {
+					if (cat.getPid() != null && cat.getPid() > 0) {
+						LitemallCategory parent = categoryService.findById(cat.getPid());
+						enableSizeMap.put(catId, parent != null && parent.getEnableSize() != null ? parent.getEnableSize() : true);
+					} else {
+						enableSizeMap.put(catId, cat.getEnableSize() != null ? cat.getEnableSize() : true);
+					}
+				}
+			}
+		}
+
 		Map<String, Object> entity = new HashMap<>();
 		entity.put("list", goodsList);
 		entity.put("total", pagedList.getTotal());
@@ -256,6 +291,7 @@ public class WxGoodsController {
 		entity.put("limit", pagedList.getPageSize());
 		entity.put("pages", pagedList.getPages());
 		entity.put("filterCategoryList", categoryList);
+		entity.put("enableSizeMap", enableSizeMap);
 
 		// 因为这里需要返回额外的filterCategoryList参数，因此不能方便使用ResponseUtil.okList
 		return ResponseUtil.ok(entity);

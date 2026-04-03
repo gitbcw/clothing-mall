@@ -23,6 +23,13 @@
         </template>
       </el-table-column>
 
+      <el-table-column align="center" label="尺码选择" width="100">
+        <template slot-scope="scope">
+          <el-switch v-if="scope.row.level === 'L1'" v-model="scope.row.enableSize" :active-value="true" :inactive-value="false" @change="handleEnableSizeChange(scope.row)" />
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
+
       <el-table-column align="center" :label="$t('mall_category.table.actions')" width="150" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button v-permission="['POST /admin/category/update']" type="primary" size="mini" @click="handleUpdate(scope.row)">{{ $t('app.button.edit') }}</el-button>
@@ -45,6 +52,9 @@
             <el-option :label="$t('mall_category.value.level_L1')" value="L1" />
             <el-option :label="$t('mall_category.value.level_L2')" value="L2" />
           </el-select>
+        </el-form-item>
+        <el-form-item v-if="dataForm.level === 'L1'" label="启用尺码选择">
+          <el-switch v-model="dataForm.enableSize" :active-value="true" :inactive-value="false" />
         </el-form-item>
         <el-form-item v-if="dataForm.level === 'L2'" :label="$t('mall_category.form.pid')" prop="pid">
           <el-select v-model="dataForm.pid">
@@ -138,7 +148,8 @@ export default {
         pid: 0,
         desc: '',
         iconUrl: '',
-        picUrl: ''
+        picUrl: '',
+        enableSize: true
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -196,6 +207,16 @@ export default {
       if (value === 'L1') {
         this.dataForm.pid = 0
       }
+    },
+    handleEnableSizeChange(row) {
+      updateCategory(row)
+        .then(() => {
+          this.$notify.success({ title: '成功', message: row.enableSize ? '已启用尺码选择' : '已关闭尺码选择' })
+        })
+        .catch(() => {
+          row.enableSize = !row.enableSize
+          this.$notify.error({ title: '失败', message: '更新失败' })
+        })
     },
     handleCreate() {
       this.resetForm()

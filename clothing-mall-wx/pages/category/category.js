@@ -123,7 +123,12 @@ Page({
       limit: that.data.limit
     }).then(function(res) {
       if (res.errno === 0) {
-        let goodsList = that.data.goodsList.concat(res.data.list || [])
+        const enableSizeMap = res.data.enableSizeMap || {}
+        const newList = (res.data.list || []).map(function(item) {
+          item.enableSize = enableSizeMap[item.categoryId] !== false
+          return item
+        })
+        let goodsList = that.data.goodsList.concat(newList)
         that.setData({
           goodsList: goodsList,
           pages: res.data.pages || 1

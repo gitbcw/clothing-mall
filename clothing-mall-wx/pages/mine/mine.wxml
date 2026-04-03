@@ -35,7 +35,7 @@
         </view>
         <view class="order-item" bindtap="goOrderIndex" data-index="3">
           <view class="icon icon-package"></view>
-          <text>待收货</text>
+          <text>待收货/使用</text>
           <view class="badge" wx:if="{{order.unrecv > 0}}">{{order.unrecv}}</view>
         </view>
         <view class="order-item" bindtap="goOrderIndex" data-index="4">

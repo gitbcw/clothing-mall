@@ -420,6 +420,7 @@ page {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .b-icon {
@@ -458,7 +459,7 @@ page {
 }
 
 .btn-cart {
-  background-color: #FFB6C1;
+  background-color: #A0785A;
   color: #FFFFFF;
 }
 

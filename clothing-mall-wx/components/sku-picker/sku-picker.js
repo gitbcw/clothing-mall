@@ -22,6 +22,10 @@ Component({
     bottomOffset: {
       type: Number,
       value: 0
+    },
+    enableSize: {
+      type: Boolean,
+      value: true
     }
   },
 
@@ -57,23 +61,23 @@ Component({
     },
 
     onAddToCart() {
-      if (!this.data.selectedSize) {
+      if (this.data.enableSize && !this.data.selectedSize) {
         wx.showToast({ title: '请选择尺码', icon: 'none' });
         return;
       }
       this.triggerEvent('addcart', {
-        size: this.data.selectedSize,
+        size: this.data.selectedSize || '',
         quantity: this.data.quantity
       });
     },
 
     onBuyNow() {
-      if (!this.data.selectedSize) {
+      if (this.data.enableSize && !this.data.selectedSize) {
         wx.showToast({ title: '请选择尺码', icon: 'none' });
         return;
       }
       this.triggerEvent('buynow', {
-        size: this.data.selectedSize,
+        size: this.data.selectedSize || '',
         quantity: this.data.quantity
       });
     },

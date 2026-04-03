@@ -84,6 +84,7 @@ module.exports = {
   CouponExchange: WxApiRoot + 'coupon/exchange', //优惠券兑换
 
   StorageUpload: WxApiRoot + 'storage/upload', //图片上传,
+  SceneList: WxApiRoot + 'scene/list',
   SceneBanners: WxApiRoot + 'scene/banners',
   SceneGoods: WxApiRoot + 'scene/goods',
   UserIndex: WxApiRoot + 'user/index', //个人页面用户相关信息

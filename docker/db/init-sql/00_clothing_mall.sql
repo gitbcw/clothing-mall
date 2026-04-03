@@ -664,6 +664,7 @@ CREATE TABLE `litemall_category` (
   `keywords` varchar(1023) NOT NULL DEFAULT '' COMMENT '类目关键字，以JSON数组格式',
   `desc` varchar(255) DEFAULT '' COMMENT '类目广告语介绍',
   `season_switch` varchar(50) DEFAULT 'all' COMMENT '季节开关',
+  `enable_size` tinyint(1) DEFAULT 1 COMMENT '是否启用尺码选择(0=否,1=是)',
   `pid` int NOT NULL DEFAULT '0' COMMENT '父类目ID',
   `icon_url` varchar(255) DEFAULT '' COMMENT '类目图标',
   `pic_url` varchar(255) DEFAULT '' COMMENT '类目图片',

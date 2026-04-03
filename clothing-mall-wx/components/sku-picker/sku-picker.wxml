@@ -12,13 +12,14 @@
       <image class="sku-image" src="{{goodsImage}}" mode="aspectFill"></image>
       <view class="sku-info">
         <view class="sku-price">￥{{goodsPrice}}</view>
-        <view class="sku-selected" wx:if="{{selectedSize}}">已选：{{selectedSize}}</view>
-        <view class="sku-selected" wx:else>请选择尺码</view>
+        <view class="sku-selected" wx:if="{{enableSize && selectedSize}}">已选：{{selectedSize}}</view>
+        <view class="sku-selected" wx:elif="{{enableSize}}">请选择尺码</view>
+        <view class="sku-selected" wx:else>请选择数量</view>
       </view>
     </view>
 
     <!-- 尺码选择 -->
-    <view class="sku-section">
+    <view class="sku-section" wx:if="{{enableSize}}">
       <view class="sku-section-title">尺码</view>
       <view class="sku-options">
         <view

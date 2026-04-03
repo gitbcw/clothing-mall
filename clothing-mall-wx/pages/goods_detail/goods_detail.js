@@ -38,6 +38,7 @@ Page({
 
     // 尺码选择器
     showSkuPicker: false,
+    enableSize: true,
 
     // 分享
     canShare: true,
@@ -104,7 +105,8 @@ Page({
           userHasCollect: res.data.userHasCollect || 0,
           collect: res.data.userHasCollect === 1,
           checkedSpecPrice: info.isSpecialPrice && info.specialPrice ? info.specialPrice : info.retailPrice,
-          tmpPicUrl: info.picUrl
+          tmpPicUrl: info.picUrl,
+          enableSize: res.data.enableSize !== false
         })
 
         // 获取推荐商品

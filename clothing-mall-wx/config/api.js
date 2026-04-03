@@ -1,7 +1,7 @@
 var apiRootMap = {
   develop: 'http://127.0.0.1:8088/wx/',
   trial: 'http://47.107.151.70:8088/wx/',
-  release: 'https://www.transmute.cn/wx/'
+  release: 'http://www.transmute.cn/wx/'
 };
 var envVersion = 'trial';
 // 本地调试用 trial (HTTP)，上传体验版前改为 release (HTTPS)

@@ -157,6 +157,9 @@ Page({
     }
   },
 
+  // 阻止冒泡
+  preventTap() {},
+
   // 跳转商品详情
   goToDetail(e) {
     const id = e.currentTarget.dataset.id

@@ -96,21 +96,28 @@
       </view>
     </view>
 
-    <!-- 穿搭推荐 -->
-    <view class="grid-section" wx:if="{{matchRecommends.length > 0}}">
-      <view class="section-title-center">
-        <view class="line"></view>
-        <text class="title-text">穿搭推荐</text>
-        <view class="line"></view>
+    <!-- 搭配推荐 -->
+    <view class="outfit-recommend-section" wx:if="{{matchRecommends.length > 0}}">
+      <view class="section-header-weekly" style="text-align: center; margin-bottom: 32rpx;">
+        <view class="section-title-cn" style="font-style: normal; font-size: 36rpx; margin-bottom: 8rpx; display: block; color: #333;">搭配推荐</view>
+        <view class="section-title-en" style="font-size: 24rpx; color: #FF8096; margin: 0; letter-spacing: 2rpx; display: block; font-weight: normal;">SELECTION LIST</view>
       </view>
-      <view class="grid-list">
-        <view class="grid-item" wx:for="{{matchRecommends}}" wx:key="id" bindtap="goToOutfit" data-id="{{item.id}}">
-          <image src="{{item.coverPic}}" mode="aspectFill" class="grid-img" binderror="onHomeImageError" data-source="matchRecommends" data-index="{{index}}" />
-          <view class="grid-info">
-            <text class="grid-name">{{item.title}}</text>
+      <scroll-view class="outfit-list-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="outfit-item-wrap" wx:for="{{matchRecommends}}" wx:key="id" bindtap="goToOutfit" data-id="{{item.id}}">
+          <!-- 背景海报图 -->
+          <image src="{{item.coverPic}}" mode="aspectFill" class="outfit-bg-img" binderror="onHomeImageError" data-source="matchRecommends" data-index="{{index}}" />
+          <!-- 左侧商品浮窗 -->
+          <view class="outfit-float-panel" wx:if="{{item.goods && item.goods.length > 0}}" catchtap="preventTap">
+            <view class="outfit-float-title">Get同款</view>
+            <scroll-view class="outfit-goods-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+              <view class="outfit-good-item" wx:for="{{item.goods}}" wx:key="id" wx:for-item="good" catchtap="goToDetail" data-id="{{good.id}}">
+                <image src="{{good.picUrl}}" mode="aspectFill" class="outfit-good-img" />
+                <view class="outfit-good-price">¥{{good.retailPrice}}</view>
+              </view>
+            </scroll-view>
           </view>
         </view>
-      </view>
+      </scroll-view>
     </view>
 
     <!-- 饰饰如意 -->

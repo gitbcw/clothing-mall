@@ -105,9 +105,11 @@ Page({
     util.request(api.GoodsDetail, { id: this.data.id }).then(function(res) {
       if (res.errno === 0 && res.data && res.data.info) {
         let info = res.data.info
-        let gallery = info.gallery ? JSON.parse(info.gallery) : [info.picUrl]
-        if (!gallery || gallery.length === 0) {
-          gallery = [info.picUrl]
+        let fallback = info.picUrl || this.data.defaultImage
+        let gallery = [fallback]
+        if (info.gallery) {
+          try { gallery = JSON.parse(info.gallery) } catch (e) { /* gallery 非法 JSON，使用兜底图 */ }
+          if (!Array.isArray(gallery) || gallery.length === 0) gallery = [fallback]
         }
 
         that.setData({
@@ -119,6 +121,7 @@ Page({
           brand: res.data.brand,
           issueList: res.data.issue || [],
           userHasCollect: res.data.userHasCollect || 0,
+          collect: res.data.userHasCollect === 1,
           checkedSpecPrice: info.isSpecialPrice && info.specialPrice ? info.specialPrice : info.retailPrice,
           tmpPicUrl: info.picUrl
         })

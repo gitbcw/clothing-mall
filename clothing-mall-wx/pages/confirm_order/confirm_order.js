@@ -29,7 +29,12 @@ Page({
     userCouponId: 0,
     message: '',
     submitting: false,
-    defaultImage: '/static/images/fallback-image.svg'
+    defaultImage: '/static/images/fallback-image.svg',
+    // 配送方式
+    deliveryType: 'express',
+    storeList: [],
+    selectedStore: null,
+    showStorePicker: false
   },
 
   onLoad() {
@@ -71,7 +76,8 @@ Page({
       cartId: that.data.cartId,
       addressId: that.data.addressId,
       couponId: that.data.couponId,
-      userCouponId: that.data.userCouponId
+      userCouponId: that.data.userCouponId,
+      deliveryType: that.data.deliveryType
     }).then(function(res) {
       if (res.errno === 0) {
         that.setData({
@@ -87,6 +93,10 @@ Page({
           couponId: res.data.couponId || 0,
           userCouponId: res.data.userCouponId || 0
         })
+        // 自提模式下存储门店列表
+        if (res.data.stores) {
+          that.setData({ storeList: res.data.stores || [] })
+        }
       }
       wx.hideLoading()
     }).catch(function() {
@@ -102,8 +112,44 @@ Page({
     })
   },
 
+  // 切换配送方式
+  switchDeliveryType(e) {
+    const type = e.currentTarget.dataset.type
+    if (type === this.data.deliveryType) return
+    this.setData({
+      deliveryType: type,
+      selectedStore: null
+    })
+    this.getCheckoutInfo()
+  },
+
+  // 打开门店选择
+  openStorePicker() {
+    if (this.data.storeList.length === 0) {
+      wx.showToast({ title: '暂无可用门店', icon: 'none' })
+      return
+    }
+    this.setData({ showStorePicker: true })
+  },
+
+  closeStorePicker() {
+    this.setData({ showStorePicker: false })
+  },
+
+  selectStore(e) {
+    const index = e.currentTarget.dataset.index
+    const store = this.data.storeList[index]
+    this.setData({
+      selectedStore: store,
+      showStorePicker: false
+    })
+  },
+
   // 选择优惠券
   selectCoupon() {
+    if (!this.data.availableCouponLength || this.data.availableCouponLength <= 0) {
+      return
+    }
     wx.navigateTo({
       url: '/pages/ucenter/couponSelect/couponSelect'
     })
@@ -136,20 +182,30 @@ Page({
     }
 
     if (!this.data.checkedAddress || !this.data.checkedAddress.id) {
-      wx.showToast({ title: '请选择收货地址', icon: 'none' })
+      wx.showToast({ title: '请先添加收货地址', icon: 'none' })
+      return
+    }
+    // 自提模式校验门店
+    if (this.data.deliveryType === 'pickup' && !this.data.selectedStore) {
+      wx.showToast({ title: '请选择自提门店', icon: 'none' })
       return
     }
 
     that.setData({ submitting: true })
     wx.showLoading({ title: '提交中...' })
 
-    util.request(api.OrderSubmit, {
+    const submitData = {
       cartId: that.data.cartId,
       addressId: that.data.addressId,
       couponId: that.data.couponId,
       userCouponId: that.data.userCouponId,
-      message: that.data.message
-    }, 'POST').then(function(res) {
+      message: that.data.message,
+      deliveryType: that.data.deliveryType
+    }
+    if (that.data.deliveryType === 'pickup' && that.data.selectedStore) {
+      submitData.pickupStoreId = that.data.selectedStore.id
+    }
+    util.request(api.OrderSubmit, submitData, 'POST').then(function(res) {
       if (res.errno === 0) {
         const orderId = res.data.orderId
         tracker.trackOrderCreate(res.data.orderId, that.data.actualPrice, (that.data.checkedGoodsList || []).length)

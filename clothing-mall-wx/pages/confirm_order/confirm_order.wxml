@@ -12,8 +12,14 @@
   <view class="nav-placeholder" style="height: {{statusBarHeight + navBarHeight}}px;"></view>
 
   <view class="content-wrap">
-    <!-- 地址选择卡片 -->
-    <view class="card address-card" bindtap="selectAddress">
+    <!-- 配送方式切换 -->
+    <view class="delivery-tabs">
+      <view class="tab {{deliveryType === 'express' ? 'active' : ''}}" bindtap="switchDeliveryType" data-type="express">快递配送</view>
+      <view class="tab {{deliveryType === 'pickup' ? 'active' : ''}}" bindtap="switchDeliveryType" data-type="pickup">到店自提</view>
+    </view>
+
+    <!-- 快递模式：地址选择卡片 -->
+    <view class="card address-card" wx:if="{{deliveryType === 'express'}}" bindtap="selectAddress">
       <view class="address-left">
         <view class="location-icon"></view>
         <view class="address-info">
@@ -25,6 +31,29 @@
             {{checkedAddress.name}} {{checkedAddress.mobile}}
           </view>
         </view>
+      </view>
+      <view class="arrow"></view>
+    </view>
+
+    <!-- 自提模式：联系人卡片 -->
+    <view class="card pickup-contact-card" wx:if="{{deliveryType === 'pickup'}}">
+      <view class="pickup-contact-row" bindtap="selectAddress">
+        <view class="pickup-contact-info">
+          <view class="pickup-contact-detail" wx:if="{{checkedAddress.id}}">
+            {{checkedAddress.name}} {{checkedAddress.mobile}}
+          </view>
+          <view class="pickup-contact-detail" wx:else>请先添加收货地址</view>
+        </view>
+        <view class="arrow"></view>
+      </view>
+    </view>
+
+    <!-- 自提模式：门店选择 -->
+    <view class="card store-select-card" wx:if="{{deliveryType === 'pickup'}}" bindtap="openStorePicker">
+      <view class="store-select-info">
+        <view class="store-select-label">自提门店</view>
+        <view class="store-select-value" wx:if="{{selectedStore}}">{{selectedStore.name}}</view>
+        <view class="store-select-value placeholder" wx:else>请选择门店</view>
       </view>
       <view class="arrow"></view>
     </view>
@@ -58,15 +87,16 @@
         </view>
         <view class="fee-item">
           <text class="fee-label">运费</text>
-          <text class="fee-value theme-color">￥{{freightPrice}}</text>
+          <text class="fee-value theme-color" wx:if="{{deliveryType === 'pickup'}}">免运费</text>
+          <text class="fee-value theme-color" wx:else>￥{{freightPrice}}</text>
         </view>
         <view class="fee-item" bindtap="selectCoupon">
           <text class="fee-label">优惠券</text>
           <view class="coupon-value">
             <text class="coupon-text selected" wx:if="{{couponPrice > 0}}">-￥{{couponPrice}}</text>
             <text class="coupon-text" wx:elif="{{availableCouponLength > 0}}">{{availableCouponLength}}张可用</text>
-            <text class="coupon-text" wx:else>无可用</text>
-            <view class="arrow small-arrow selected"></view>
+            <text class="coupon-text disabled" wx:else>无可用</text>
+            <view class="arrow small-arrow selected" wx:if="{{availableCouponLength > 0 || couponPrice > 0}}"></view>
           </view>
         </view>
       </view>
@@ -97,4 +127,21 @@
   </view>
   <!-- 底部安全区占位 -->
   <view class="safe-area-placeholder"></view>
+
+  <!-- 门店选择弹窗 -->
+  <view class="store-picker-mask" wx:if="{{showStorePicker}}" bindtap="closeStorePicker">
+    <view class="store-picker" catchtap="">
+      <view class="picker-header">
+        <text class="picker-title">选择自提门店</text>
+        <view class="picker-close" bindtap="closeStorePicker"></view>
+      </view>
+      <scroll-view scroll-y class="picker-list">
+        <view class="store-option {{selectedStore && selectedStore.id === item.id ? 'selected' : ''}}" wx:for="{{storeList}}" wx:key="id" bindtap="selectStore" data-index="{{index}}">
+          <view class="store-option-name">{{item.name}}</view>
+          <view class="store-option-address">{{item.address}}</view>
+          <view class="store-option-hours" wx:if="{{item.businessHours}}">{{item.businessHours}}</view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
 </view>

@@ -73,16 +73,9 @@
       <text class="label">服务</text>
       <view class="content">
         <view class="heart-icon"></view>
-        <text class="value">7天无理由 · 正品保障</text>
+        <text class="value">只换不退 · 正品保障</text>
       </view>
       <view class="arrow"></view>
-    </view>
-    <!-- 款号 -->
-    <view class="service-item" wx:if="{{goods.goodsSn}}">
-      <text class="label">款号</text>
-      <view class="content">
-        <text class="value">{{goods.goodsSn}}</text>
-      </view>
     </view>
     <!-- 选择规格 -->
     <view class="service-item no-border" bindtap="openSkuPicker">

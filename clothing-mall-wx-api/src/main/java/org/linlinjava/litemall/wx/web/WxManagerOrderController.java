@@ -78,7 +78,7 @@ public class WxManagerOrderController {
     // ========== Tab 状态映射 ==========
 
     private static final List<Short> PENDING_STATUSES = Arrays.asList(
-            OrderUtil.STATUS_PAY, OrderUtil.STATUS_ADMIN_CONFIRM, OrderUtil.STATUS_VERIFY_PENDING);
+            OrderUtil.STATUS_PAY, OrderUtil.STATUS_VERIFY_PENDING);
 
     // 售后待处理状态（需要店主操作的：待审核 + 审核通过待发货）
     private static final List<Short> AFTERSALE_PENDING_STATUSES = Arrays.asList(
@@ -259,46 +259,8 @@ public class WxManagerOrderController {
     }
 
     /**
-     * 确认付款（管理员确认线下付款）
-     * 150(待确认) → 201(已付款)
-     *
-     * @param userId 用户ID
-     * @param body   { orderId }
-     */
-    @PostMapping("confirm")
-    public Object confirm(@LoginUser Integer userId, @RequestBody String body) {
-        Object error = checkManager(userId);
-        if (error != null) {
-            return error;
-        }
-
-        Integer orderId = JacksonUtil.parseInteger(body, "orderId");
-        if (orderId == null) {
-            return ResponseUtil.badArgument();
-        }
-
-        LitemallOrder order = orderService.findById(orderId);
-        if (order == null) {
-            return ResponseUtil.badArgument();
-        }
-
-        if (!order.getOrderStatus().equals(OrderUtil.STATUS_ADMIN_CONFIRM)) {
-            return ResponseUtil.fail(403, "订单状态不允许确认");
-        }
-
-        order.setOrderStatus(OrderUtil.STATUS_PAY);
-
-        if (orderService.updateWithOptimisticLocker(order) == 0) {
-            return ResponseUtil.updatedDateExpired();
-        }
-
-        return ResponseUtil.ok();
-    }
-
-    /**
      * 取消订单
      * - 101(待付款): 直接取消 + 回滚库存
-     * - 150(待确认): 直接取消 + 回滚库存
      * - 201(已付款): 取消 + 微信退款 + 回滚库存
      *
      * @param userId 用户ID
@@ -322,9 +284,8 @@ public class WxManagerOrderController {
         }
 
         Short orderStatus = order.getOrderStatus();
-        // 仅允许取消 待付款/待确认/已付款 状态的订单
+        // 仅允许取消 待付款/已付款 状态的订单
         if (!orderStatus.equals(OrderUtil.STATUS_CREATE) &&
-                !orderStatus.equals(OrderUtil.STATUS_ADMIN_CONFIRM) &&
                 !orderStatus.equals(OrderUtil.STATUS_PAY)) {
             return ResponseUtil.fail(403, "订单状态不允许取消");
         }

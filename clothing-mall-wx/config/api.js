@@ -122,7 +122,6 @@ module.exports = {
   ManagerOrderList: WxApiRoot + 'manager/order/list', // 订单列表（分页+tab统计）
   ManagerOrderDetail: WxApiRoot + 'manager/order/detail', // 管理端订单详情
   ManagerOrderShip: WxApiRoot + 'manager/order/ship', // 发货
-  ManagerOrderConfirm: WxApiRoot + 'manager/order/confirm', // 确认付款
   ManagerOrderCancel: WxApiRoot + 'manager/order/cancel', // 取消订单
   ManagerOrderRefundAgree: WxApiRoot + 'manager/order/refundAgree', // 同意退款
   ManagerOrderRefundReject: WxApiRoot + 'manager/order/refundReject', // 拒绝退款

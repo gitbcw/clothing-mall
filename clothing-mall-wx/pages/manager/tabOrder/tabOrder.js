@@ -169,28 +169,6 @@ Page({
     });
   },
 
-  // 确认付款
-  onConfirm(e) {
-    const orderId = e.currentTarget.dataset.id;
-    let that = this;
-    wx.showModal({
-      title: '确认',
-      content: '确认客户已付款？',
-      success(res) {
-        if (res.confirm) {
-          util.request(api.ManagerOrderConfirm, { orderId: orderId }, 'POST').then(function(res) {
-            if (res.errno === 0) {
-              wx.showToast({ title: '确认成功', icon: 'success' });
-              that.refreshList();
-            } else {
-              wx.showToast({ title: res.errmsg || '操作失败', icon: 'none' });
-            }
-          });
-        }
-      }
-    });
-  },
-
   // 取消
   onCancel(e) {
     const orderId = e.currentTarget.dataset.id;

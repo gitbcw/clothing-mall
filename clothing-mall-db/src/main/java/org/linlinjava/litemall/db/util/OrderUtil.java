@@ -22,7 +22,6 @@ import java.util.List;
 public class OrderUtil {
 
     public static final Short STATUS_CREATE = 101;
-    public static final Short STATUS_ADMIN_CONFIRM = 150;  // 待确认：用户已付款，等待管理员确认
     public static final Short STATUS_PAY = 201;
     public static final Short STATUS_SHIP = 301;
     public static final Short STATUS_CONFIRM = 401;
@@ -42,10 +41,6 @@ public class OrderUtil {
 
         if (status == 101) {
             return "未付款";
-        }
-
-        if (status == 150) {
-            return "待确认";
         }
 
         if (status == 102) {
@@ -111,10 +106,6 @@ public class OrderUtil {
             // 如果订单没有被取消，且没有支付，则可支付，可取消
             handleOption.setCancel(true);
             handleOption.setPay(true);
-        } else if (status == 150) {
-            // 待确认状态，管理员需要确认订单
-            // 用户端：可以申请退款（暂不实现）
-            handleOption.setRefund(true);
         } else if (status == 102 || status == 103) {
             // 如果订单已经取消或是已完成，则可删除
             handleOption.setDelete(true);
@@ -225,7 +216,4 @@ public class OrderUtil {
         return OrderUtil.STATUS_AUTO_CONFIRM == litemallOrder.getOrderStatus().shortValue();
     }
 
-    public static boolean isConfirmPendingStatus(LitemallOrder litemallOrder) {
-        return OrderUtil.STATUS_ADMIN_CONFIRM == litemallOrder.getOrderStatus().shortValue();
-    }
 }

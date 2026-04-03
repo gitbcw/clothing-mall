@@ -106,9 +106,19 @@
     <!-- 商品详细介绍 -->
     <view class="section">
       <view class="section-title">商品详细介绍</view>
-      <view class="form-item" style="margin-bottom: 0;">
-        <textarea class="form-textarea detail-textarea" placeholder="请输入商品详细介绍（支持换行，最多500字）" value="{{goods.detail}}" bindinput="onDetailInput" maxlength="500"></textarea>
-        <text class="char-count">{{goods.detail.length || 0}}/500</text>
+      <view class="editor-wrap">
+        <view class="editor-toolbar">
+          <view class="toolbar-btn {{formats.bold ? 'active' : ''}}" bindtap="formatBold">B</view>
+          <view class="toolbar-btn italic {{formats.italic ? 'active' : ''}}" bindtap="formatItalic">I</view>
+          <view class="toolbar-btn" bindtap="formatHeader" data-level="2">标题</view>
+          <view class="toolbar-btn" bindtap="insertImage">插入图片</view>
+        </view>
+        <editor
+          id="editor"
+          class="editor-content"
+          placeholder="请输入商品详细介绍"
+          onStatusChange="onEditorStatusChange"
+        />
       </view>
     </view>
 

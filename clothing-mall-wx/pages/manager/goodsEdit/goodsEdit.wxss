@@ -309,17 +309,52 @@
   font-size: 28rpx;
 }
 
-/* 商品详细介绍 */
-.detail-textarea {
-  height: 240rpx;
+/* 富文本编辑器 */
+.editor-wrap {
+  border: 1rpx solid #e8e8e8;
+  border-radius: 12rpx;
+  overflow: hidden;
 }
 
-.char-count {
-  display: block;
-  text-align: right;
-  font-size: 24rpx;
-  color: #999;
-  margin-top: 8rpx;
+.editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  padding: 16rpx 20rpx;
+  background: #f8f8f8;
+  border-bottom: 1rpx solid #e8e8e8;
+}
+
+.toolbar-btn {
+  height: 64rpx;
+  padding: 0 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  color: #333;
+  background: #fff;
+  border-radius: 8rpx;
+  border: 1rpx solid #e0e0e0;
+}
+
+.toolbar-btn.italic {
+  font-style: italic;
+}
+
+.toolbar-btn.active {
+  background: #FF8096;
+  color: #fff;
+  border-color: #FF8096;
+}
+
+.editor-content {
+  width: 100%;
+  min-height: 400rpx;
+  padding: 20rpx;
+  box-sizing: border-box;
+  font-size: 28rpx;
+  line-height: 1.6;
 }
 
 /* 商品参数 */

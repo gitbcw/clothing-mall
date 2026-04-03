@@ -50,7 +50,6 @@ Page({
           102: '已取消',
           103: '已取消(系统)',
           104: '已取消(管理员)',
-          150: '待确认',
           201: '已付款',
           202: '退款中',
           203: '已退款',
@@ -82,28 +81,6 @@ Page({
       }
     }).catch(function() {
       that.setData({ loading: false });
-    });
-  },
-
-  // ========== 确认付款（150→201） ==========
-
-  handleConfirm() {
-    let that = this;
-    wx.showModal({
-      title: '确认',
-      content: '确认客户已付款？',
-      success(res) {
-        if (res.confirm) {
-          util.request(api.ManagerOrderConfirm, { orderId: that.data.orderId }, 'POST').then(function(res) {
-            if (res.errno === 0) {
-              wx.showToast({ title: '确认成功', icon: 'success' });
-              that.getOrderDetail();
-            } else {
-              wx.showToast({ title: res.errmsg || '操作失败', icon: 'none' });
-            }
-          });
-        }
-      }
     });
   },
 

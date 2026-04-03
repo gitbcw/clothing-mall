@@ -45,10 +45,14 @@ Page({
     showPreview: false,
     previewData: null,
     // 草稿（仅新建模式）
-    hasDraft: false
+    hasDraft: false,
+    // 富文本编辑器
+    editorCtx: null,
+    formats: {}
   },
 
   onLoad(options) {
+    const that = this;
     const { system } = wx.getDeviceInfo();
     const { statusBarHeight } = wx.getWindowInfo();
     const isIOS = system.indexOf('iOS') > -1;
@@ -57,6 +61,11 @@ Page({
       navBarHeight: isIOS ? 44 : 48
     });
     this.loadScenes();
+
+    // editor 就绪 Promise
+    this._editorReady = new Promise(function(resolve) {
+      that._resolveEditorReady = resolve;
+    });
 
     if (options.id) {
       // 编辑模式
@@ -69,7 +78,85 @@ Page({
       this.getCategoryList();
       this.loadDraft();
       this.setData({ loading: false });
+
+      // editor 就绪后设置已有内容（草稿）
+      this._editorReady.then(function() {
+        if (that.data.goods.detail) {
+          var html = that.data.goods.detail;
+          if (html.indexOf('<') === -1) {
+            html = '<p>' + html.replace(/\n/g, '</p><p>') + '</p>';
+          }
+          that.data.editorCtx.setContents({ html: html });
+        }
+      });
     }
+  },
+
+  // ========== 富文本编辑器 ==========
+
+  onEditorReady() {
+    const that = this;
+    this.createSelectorQuery()
+      .select('#editor')
+      .context(function(res) {
+        if (res && res.context) {
+          that.setData({ editorCtx: res.context });
+          if (that._resolveEditorReady) {
+            that._resolveEditorReady();
+          }
+        }
+      })
+      .exec();
+  },
+
+  onEditorStatusChange(e) {
+    this.setData({ formats: e.detail });
+  },
+
+  formatBold() {
+    if (this.data.editorCtx) this.data.editorCtx.format('bold');
+  },
+  formatItalic() {
+    if (this.data.editorCtx) this.data.editorCtx.format('italic');
+  },
+  formatHeader(e) {
+    if (!this.data.editorCtx) return;
+    const level = e.currentTarget.dataset.level;
+    this.data.editorCtx.format('header', level);
+  },
+  formatList(e) {
+    if (!this.data.editorCtx) return;
+    const type = e.currentTarget.dataset.type;
+    this.data.editorCtx.format('list', type);
+  },
+  undo() {
+    if (this.data.editorCtx) this.data.editorCtx.undo();
+  },
+  redo() {
+    if (this.data.editorCtx) this.data.editorCtx.redo();
+  },
+  insertImage() {
+    const that = this;
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success(res) {
+        const tempPath = res.tempFilePaths[0];
+        wx.showLoading({ title: '上传中...' });
+        that.uploadImage(tempPath, function(url) {
+          wx.hideLoading();
+          if (url) {
+            that.data.editorCtx.insertImage({
+              src: url,
+              width: '100%'
+            });
+          } else {
+            wx.showToast({ title: '图片上传失败', icon: 'none' });
+          }
+        });
+      }
+    });
   },
 
   // ========== 场景标签（从数据库加载） ==========
@@ -150,6 +237,17 @@ Page({
           sceneMap: that._buildSceneMap(scenes),
           params: params,
           loading: false
+        });
+
+        // 编辑模式：等待 editor 就绪后设置富文本内容
+        that._editorReady.then(function() {
+          if (goods.detail) {
+            var html = goods.detail;
+            if (html.indexOf('<') === -1) {
+              html = '<p>' + html.replace(/\n/g, '</p><p>') + '</p>';
+            }
+            that.data.editorCtx.setContents({ html: html });
+          }
         });
       } else {
         that.setData({ loading: false });
@@ -314,10 +412,6 @@ Page({
   },
   onKeywordsInput(e) {
     this.setData({ 'goods.keywords': e.detail.value });
-    this.autoSaveDraft();
-  },
-  onDetailInput(e) {
-    this.setData({ 'goods.detail': e.detail.value });
     this.autoSaveDraft();
   },
 
@@ -490,6 +584,7 @@ Page({
 
   collectFormData() {
     const goods = this.data.goods;
+    const that = this;
     const data = {
       name: goods.name,
       brief: goods.brief || '',
@@ -520,29 +615,45 @@ Page({
     if (this.data.goodsId) {
       data.id = this.data.goodsId;
     }
-    return data;
+
+    // 从 editor 获取最新 HTML
+    if (that.data.editorCtx) {
+      return new Promise(function(resolve) {
+        that.data.editorCtx.getContents({
+          success(res) {
+            data.detail = res.html;
+            resolve(data);
+          },
+          fail() {
+            resolve(data);
+          }
+        });
+      });
+    }
+    return Promise.resolve(data);
   },
 
   onSaveDraft() {
     if (this.data.submitting || !this.validateForm()) return;
     let that = this;
     this.setData({ submitting: true });
-    const data = this.collectFormData();
 
-    const api_url = this.data.goodsId ? api.ManagerGoodsEdit : api.ManagerGoodsCreate;
-    util.request(api_url, data, 'POST').then(function(res) {
-      if (res.errno === 0) {
-        wx.showToast({ title: '保存成功', icon: 'success' });
-        if (!that.data.isEdit) {
-          that.clearDraft();
+    this.collectFormData().then(function(data) {
+      const api_url = that.data.goodsId ? api.ManagerGoodsEdit : api.ManagerGoodsCreate;
+      util.request(api_url, data, 'POST').then(function(res) {
+        if (res.errno === 0) {
+          wx.showToast({ title: '保存成功', icon: 'success' });
+          if (!that.data.isEdit) {
+            that.clearDraft();
+          }
+          setTimeout(function() { wx.navigateBack(); }, 1000);
+        } else {
+          that.setData({ submitting: false });
+          wx.showToast({ title: res.errmsg || '保存失败', icon: 'none' });
         }
-        setTimeout(function() { wx.navigateBack(); }, 1000);
-      } else {
+      }).catch(function() {
         that.setData({ submitting: false });
-        wx.showToast({ title: res.errmsg || '保存失败', icon: 'none' });
-      }
-    }).catch(function() {
-      that.setData({ submitting: false });
+      });
     });
   },
 
@@ -550,10 +661,10 @@ Page({
     if (this.data.submitting || !this.validateForm()) return;
     let that = this;
     this.setData({ submitting: true });
-    const data = this.collectFormData();
 
-    const saveApi = this.data.goodsId ? api.ManagerGoodsEdit : api.ManagerGoodsCreate;
-    util.request(saveApi, data, 'POST').then(function(res) {
+    this.collectFormData().then(function(data) {
+      const saveApi = that.data.goodsId ? api.ManagerGoodsEdit : api.ManagerGoodsCreate;
+      util.request(saveApi, data, 'POST').then(function(res) {
       if (res.errno === 0) {
         const goodsId = that.data.goodsId || res.data;
         util.request(api.ManagerGoodsPublish, { id: goodsId }, 'POST').then(function(res2) {
@@ -574,6 +685,7 @@ Page({
       }
     }).catch(function() {
       that.setData({ submitting: false });
+    });
     });
   },
 

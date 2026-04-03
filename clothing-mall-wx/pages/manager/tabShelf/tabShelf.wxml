@@ -6,10 +6,10 @@
     </view>
   </view>
   <!-- 占位符 -->
-  <view class="nav-placeholder" style="height: {{statusBarHeight + navBarHeight}}px;"></view>
+  <view class="nav-placeholder" style="height: {{statusBarHeight + navBarHeight + 16}}px;"></view>
 
   <!-- 子 Tab 切换 -->
-  <view class="sub-tabs">
+  <view class="sub-tabs" style="top: {{statusBarHeight + navBarHeight + 16}}px;">
     <view class="sub-tab-item {{activeSubTab === 'upload' ? 'active' : ''}}" bindtap="onSubTabChange" data-tab="upload">
       上架商品
     </view>
@@ -97,23 +97,20 @@
     <view class="section">
       <view class="section-title">场景标签</view>
       <view class="scene-chips">
-        <view class="scene-chip {{form.scenes.indexOf(item) > -1 ? 'active' : ''}}"
+        <view class="scene-chip {{sceneMap[item] ? 'active' : ''}}"
               wx:for="{{presetScenes}}" wx:key="*this" bindtap="onSceneToggle" data-scene="{{item}}">
           {{item}}
         </view>
-        <!-- 已添加的自定义场景 -->
         <view class="scene-chip active" wx:for="{{form.scenes}}" wx:for-item="scene" wx:key="*this"
-              wx:if="{{presetScenes.indexOf(scene) === -1}}">
+              wx:if="{{!presetSceneMap[scene]}}">
           {{scene}}
           <text class="chip-remove" catchtap="removeScene" data-scene="{{scene}}">×</text>
         </view>
-        <!-- 自定义输入入口 -->
         <view class="scene-chip add-btn" wx:if="{{!showCustomSceneInput}}" bindtap="showCustomSceneInput">
           <text class="add-icon">+</text>
           <text>自定义</text>
         </view>
       </view>
-      <!-- 自定义场景输入框 -->
       <view class="custom-scene-input" wx:if="{{showCustomSceneInput}}">
         <input class="scene-input" placeholder="输入场景名称" value="{{customSceneInput}}" bindinput="onCustomSceneInput" />
         <view class="scene-input-actions">
@@ -198,9 +195,16 @@
     </view>
 
     <!-- 草稿提示 -->
-    <view class="draft-tip" wx:if="{{hasDraft}}">
-      <text class="draft-icon">📋</text>
-      <text>有未提交的草稿</text>
+    <view class="draft-tip" wx:if="{{showDraftTip}}">
+      <view class="draft-tip-left">
+        <text class="draft-icon">📋</text>
+        <text>有未提交的草稿</text>
+        <text class="draft-time" wx:if="{{draftSavedAt}}">{{draftSavedAt}} 保存</text>
+      </view>
+      <view class="draft-tip-actions">
+        <view class="draft-tip-btn" bindtap="onContinueDraft">继续编辑</view>
+        <view class="draft-tip-btn draft-tip-btn-danger" bindtap="onClearDraft">清除</view>
+      </view>
     </view>
   </view>
 
@@ -213,6 +217,9 @@
       </view>
       <view class="list-tab-item {{listTab === 'pending' ? 'active' : ''}}" bindtap="onListTabChange" data-tab="pending">
         待上架{{tabCounts.pendingCount > 0 ? '(' + tabCounts.pendingCount + ')' : ''}}
+      </view>
+      <view class="list-tab-item {{listTab === 'draft' ? 'active' : ''}}" bindtap="onListTabChange" data-tab="draft">
+        草稿{{tabCounts.draftCount > 0 ? '(' + tabCounts.draftCount + ')' : ''}}
       </view>
     </view>
 
@@ -243,9 +250,11 @@
     <view class="goods-list">
       <view class="goods-card {{batchMode ? 'batch-mode' : ''}}" wx:for="{{goodsList}}" wx:key="id">
         <view class="goods-checkbox" wx:if="{{batchMode}}" catchtap="onSelectGoods" data-id="{{item.id}}">
-          <view class="checkbox {{selectedIds.indexOf(item.id) > -1 ? 'checked' : ''}}"></view>
+          <view class="checkbox {{selectedMap[item.id] ? 'checked' : ''}}">
+            <text class="checkbox-mark" wx:if="{{selectedMap[item.id]}}">✓</text>
+          </view>
         </view>
-        <image class="goods-image" src="{{item.picUrl}}" mode="aspectFill"></image>
+        <image class="goods-image" src="{{item.picUrl || defaultImage}}" mode="aspectFill" binderror="onGoodsImageError" data-index="{{index}}"></image>
         <view class="goods-info">
           <text class="goods-name">{{item.name}}</text>
           <view class="goods-tags">
@@ -260,14 +269,16 @@
         <view class="goods-actions">
           <view class="goods-btn" catchtap="onEditGoods" data-id="{{item.id}}">编辑</view>
           <view class="goods-btn btn-warning" wx:if="{{listTab === 'on_sale'}}" catchtap="onUnpublishGoods" data-id="{{item.id}}">下架</view>
-          <view class="goods-btn btn-primary" wx:if="{{listTab === 'pending'}}" catchtap="onPublishGoods" data-id="{{item.id}}">上架</view>
+          <view class="goods-btn btn-primary" wx:if="{{listTab === 'pending' || listTab === 'draft'}}" catchtap="onPublishGoods" data-id="{{item.id}}">上架</view>
+          <view class="goods-btn btn-danger" wx:if="{{listTab === 'draft'}}" catchtap="onDeleteGoods" data-id="{{item.id}}">删除</view>
         </view>
       </view>
     </view>
 
     <!-- 空状态 -->
     <view class="empty" wx:if="{{!loading && goodsList.length === 0}}">
-      <text>暂无{{listTab === 'on_sale' ? '在售' : '待上架'}}商品</text>
+      <view class="empty-icon">📦</view>
+      <text class="empty-text">暂无{{listTab === 'on_sale' ? '在售' : listTab === 'draft' ? '草稿' : '待上架'}}商品</text>
     </view>
 
     <!-- 加载状态 -->

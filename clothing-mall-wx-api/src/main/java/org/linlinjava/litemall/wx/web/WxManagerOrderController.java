@@ -8,15 +8,21 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
+import org.linlinjava.litemall.db.domain.LitemallAftersale;
 import org.linlinjava.litemall.db.domain.LitemallOrder;
 import org.linlinjava.litemall.db.domain.LitemallOrderGoods;
 import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
+import org.linlinjava.litemall.db.domain.ClothingStore;
+import org.linlinjava.litemall.db.service.ClothingStoreService;
+import org.linlinjava.litemall.db.service.LitemallAftersaleService;
+import org.linlinjava.litemall.db.service.LitemallShipperService;
 import org.linlinjava.litemall.db.service.LitemallGoodsProductService;
 import org.linlinjava.litemall.db.service.LitemallGoodsService;
 import org.linlinjava.litemall.db.service.LitemallOrderGoodsService;
 import org.linlinjava.litemall.db.service.LitemallOrderService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
+import org.linlinjava.litemall.db.util.AftersaleConstant;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,13 +66,27 @@ public class WxManagerOrderController {
     @Autowired
     private WxPayService wxPayService;
 
+    @Autowired
+    private LitemallAftersaleService aftersaleService;
+
+    @Autowired
+    private LitemallShipperService shipperService;
+
+    @Autowired
+    private ClothingStoreService clothingStoreService;
+
     // ========== Tab 状态映射 ==========
 
     private static final List<Short> PENDING_STATUSES = Arrays.asList(
             OrderUtil.STATUS_PAY, OrderUtil.STATUS_ADMIN_CONFIRM, OrderUtil.STATUS_VERIFY_PENDING);
 
-    private static final List<Short> AFTERSALE_STATUSES = Arrays.asList(
-            OrderUtil.STATUS_REFUND);
+    // 售后待处理状态（需要店主操作的：待审核 + 审核通过待发货）
+    private static final List<Short> AFTERSALE_PENDING_STATUSES = Arrays.asList(
+            AftersaleConstant.STATUS_REQUEST, AftersaleConstant.STATUS_RECEPT);
+
+    // 售后已完结状态
+    private static final List<Short> AFTERSALE_DONE_STATUSES = Arrays.asList(
+            AftersaleConstant.STATUS_REJECT, AftersaleConstant.STATUS_CANCEL, AftersaleConstant.STATUS_COMPLETED);
 
     private static final List<Short> COMPLETED_STATUSES = Arrays.asList(
             OrderUtil.STATUS_SHIP, OrderUtil.STATUS_CONFIRM, OrderUtil.STATUS_AUTO_CONFIRM,
@@ -152,7 +172,7 @@ public class WxManagerOrderController {
         data.put("total", total);
         data.put("pages", (total + limit - 1) / limit);
         data.put("pendingCount", orderService.countByOrderStatus(PENDING_STATUSES));
-        data.put("aftersaleCount", orderService.countByOrderStatus(AFTERSALE_STATUSES));
+        data.put("aftersaleCount", countAftersaleByStatus(AFTERSALE_PENDING_STATUSES));
         data.put("completedCount", orderService.countByOrderStatus(COMPLETED_STATUSES));
 
         return ResponseUtil.ok(data);
@@ -177,6 +197,19 @@ public class WxManagerOrderController {
         }
 
         Map<String, Object> data = new HashMap<>();
+        // 自提订单附加门店信息
+        if ("pickup".equals(order.getDeliveryType()) && order.getPickupStoreId() != null) {
+            ClothingStore store = clothingStoreService.findById(order.getPickupStoreId());
+            if (store != null) {
+                Map<String, Object> storeInfo = new HashMap<>();
+                storeInfo.put("id", store.getId());
+                storeInfo.put("name", store.getName());
+                storeInfo.put("address", store.getAddress());
+                storeInfo.put("phone", store.getPhone());
+                storeInfo.put("businessHours", store.getBusinessHours());
+                data.put("pickupStore", storeInfo);
+            }
+        }
         data.put("order", order);
         data.put("goodsList", orderGoodsService.queryByOid(orderId));
         return ResponseUtil.ok(data);
@@ -455,6 +488,160 @@ public class WxManagerOrderController {
         return ResponseUtil.ok();
     }
 
+    // ========== 售后接口 ==========
+
+    /**
+     * 售后列表（管理端）
+     *
+     * @param userId 用户ID
+     * @param tab    pending/done
+     * @param page   页码
+     * @param limit  每页数量
+     * @return 售后列表 + 统计
+     */
+    @GetMapping("aftersale/list")
+    public Object aftersaleList(@LoginUser Integer userId,
+                                @RequestParam(defaultValue = "pending") String tab,
+                                @RequestParam(defaultValue = "1") Integer page,
+                                @RequestParam(defaultValue = "20") Integer limit) {
+        Object error = checkManager(userId);
+        if (error != null) {
+            return error;
+        }
+
+        List<Short> statusArray;
+        if ("done".equals(tab)) {
+            statusArray = AFTERSALE_DONE_STATUSES;
+        } else {
+            statusArray = AFTERSALE_PENDING_STATUSES;
+        }
+
+        List<LitemallAftersale> aftersaleList = aftersaleService.querySelective(
+                null, null, null, statusArray, page, limit, "add_time", "desc");
+        long total = PageInfo.of(aftersaleList).getTotal();
+
+        // 组装返回数据
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        for (LitemallAftersale aftersale : aftersaleList) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", aftersale.getId());
+            map.put("aftersaleSn", aftersale.getAftersaleSn());
+            map.put("orderId", aftersale.getOrderId());
+            map.put("type", aftersale.getType());
+            map.put("typeText", aftersaleTypeText(aftersale.getType()));
+            map.put("status", aftersale.getStatus());
+            map.put("statusText", aftersaleStatusText(aftersale.getStatus()));
+            map.put("reason", aftersale.getReason());
+            map.put("amount", aftersale.getAmount());
+            map.put("addTime", aftersale.getAddTime());
+            map.put("handleTime", aftersale.getHandleTime());
+
+            // 关联订单信息
+            LitemallOrder order = orderService.findById(aftersale.getOrderId());
+            if (order != null) {
+                map.put("orderSn", order.getOrderSn());
+                map.put("consignee", order.getConsignee());
+                map.put("mobile", order.getMobile());
+            }
+
+            // 关联订单商品信息
+            List<LitemallOrderGoods> goodsList = orderGoodsService.queryByOid(aftersale.getOrderId());
+            map.put("goodsList", goodsList);
+
+            resultList.add(map);
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("list", resultList);
+        data.put("total", total);
+        data.put("pendingCount", countAftersaleByStatus(AFTERSALE_PENDING_STATUSES));
+        data.put("doneCount", countAftersaleByStatus(AFTERSALE_DONE_STATUSES));
+
+        return ResponseUtil.ok(data);
+    }
+
+    /**
+     * 审核通过（同意换货）
+     */
+    @PostMapping("aftersale/recept")
+    public Object aftersaleRecept(@LoginUser Integer userId, @RequestBody String body) {
+        Object error = checkManager(userId);
+        if (error != null) return error;
+
+        Integer id = JacksonUtil.parseInteger(body, "id");
+        if (id == null) return ResponseUtil.badArgument();
+
+        LitemallAftersale aftersale = aftersaleService.findById(id);
+        if (aftersale == null) return ResponseUtil.badArgumentValue();
+        if (!aftersale.getStatus().equals(AftersaleConstant.STATUS_REQUEST)) {
+            return ResponseUtil.fail(403, "当前状态不允许审核");
+        }
+
+        aftersale.setStatus(AftersaleConstant.STATUS_RECEPT);
+        aftersale.setHandleTime(LocalDateTime.now());
+        aftersaleService.updateById(aftersale);
+        orderService.updateAftersaleStatus(aftersale.getOrderId(), AftersaleConstant.STATUS_RECEPT);
+
+        return ResponseUtil.ok();
+    }
+
+    /**
+     * 审核拒绝
+     */
+    @PostMapping("aftersale/reject")
+    public Object aftersaleReject(@LoginUser Integer userId, @RequestBody String body) {
+        Object error = checkManager(userId);
+        if (error != null) return error;
+
+        Integer id = JacksonUtil.parseInteger(body, "id");
+        if (id == null) return ResponseUtil.badArgument();
+
+        LitemallAftersale aftersale = aftersaleService.findById(id);
+        if (aftersale == null) return ResponseUtil.badArgumentValue();
+        if (!aftersale.getStatus().equals(AftersaleConstant.STATUS_REQUEST)) {
+            return ResponseUtil.fail(403, "当前状态不允许拒绝");
+        }
+
+        aftersale.setStatus(AftersaleConstant.STATUS_REJECT);
+        aftersale.setHandleTime(LocalDateTime.now());
+        aftersaleService.updateById(aftersale);
+        orderService.updateAftersaleStatus(aftersale.getOrderId(), AftersaleConstant.STATUS_REJECT);
+
+        return ResponseUtil.ok();
+    }
+
+    /**
+     * 换货发货
+     */
+    @PostMapping("aftersale/ship")
+    public Object aftersaleShip(@LoginUser Integer userId, @RequestBody String body) {
+        Object error = checkManager(userId);
+        if (error != null) return error;
+
+        Integer id = JacksonUtil.parseInteger(body, "id");
+        String shipSn = JacksonUtil.parseString(body, "shipSn");
+        String shipChannel = JacksonUtil.parseString(body, "shipChannel");
+
+        if (id == null || shipSn == null || shipChannel == null) {
+            return ResponseUtil.badArgument();
+        }
+
+        LitemallAftersale aftersale = aftersaleService.findById(id);
+        if (aftersale == null) return ResponseUtil.badArgumentValue();
+        if (!aftersale.getStatus().equals(AftersaleConstant.STATUS_RECEPT)) {
+            return ResponseUtil.fail(403, "当前状态不允许发货，请先审核通过");
+        }
+
+        aftersale.setStatus(AftersaleConstant.STATUS_SHIPPED);
+        aftersale.setHandleTime(LocalDateTime.now());
+        aftersale.setShipSn(shipSn);
+        aftersale.setShipChannel(shipChannel);
+        aftersaleService.updateById(aftersale);
+        orderService.updateAftersaleStatus(aftersale.getOrderId(), AftersaleConstant.STATUS_SHIPPED);
+
+        return ResponseUtil.ok();
+    }
+
     // ========== 私有方法 ==========
 
     /**
@@ -491,13 +678,38 @@ public class WxManagerOrderController {
         switch (status) {
             case "pending":
                 return PENDING_STATUSES;
-            case "aftersale":
-                return AFTERSALE_STATUSES;
             case "completed":
                 return COMPLETED_STATUSES;
             default:
                 return null;
         }
+    }
+
+    /**
+     * 统计售后数量
+     */
+    private long countAftersaleByStatus(List<Short> statusArray) {
+        List<LitemallAftersale> list = aftersaleService.querySelective(
+                null, null, null, statusArray, 1, 1, "add_time", "desc");
+        return PageInfo.of(list).getTotal();
+    }
+
+    private String aftersaleStatusText(Short status) {
+        if (status == null) return "未知";
+        if (status.equals(AftersaleConstant.STATUS_REQUEST)) return "待审核";
+        if (status.equals(AftersaleConstant.STATUS_RECEPT)) return "审核通过";
+        if (status.equals(AftersaleConstant.STATUS_SHIPPED)) return "换货已发货";
+        if (status.equals(AftersaleConstant.STATUS_REJECT)) return "已拒绝";
+        if (status.equals(AftersaleConstant.STATUS_CANCEL)) return "已取消";
+        if (status.equals(AftersaleConstant.STATUS_COMPLETED)) return "已完成";
+        return "未知";
+    }
+
+    private String aftersaleTypeText(Short type) {
+        if (type == null) return "未知";
+        if (type.equals(AftersaleConstant.TYPE_EXCHANGE_SAME)) return "同款换货";
+        if (type.equals(AftersaleConstant.TYPE_EXCHANGE_DIFF)) return "换其他商品";
+        return "未知";
     }
 
     /**
@@ -512,7 +724,7 @@ public class WxManagerOrderController {
 
         // 订单统计
         long pendingOrderCount = orderService.countByOrderStatus(PENDING_STATUSES);
-        long aftersaleCount = orderService.countByOrderStatus(AFTERSALE_STATUSES);
+        long aftersaleCount = countAftersaleByStatus(AFTERSALE_PENDING_STATUSES);
 
         // 最近 5 条待处理订单
         List<LitemallOrder> recentOrders = orderService.querySelective(
@@ -542,5 +754,15 @@ public class WxManagerOrderController {
         data.put("pendingGoodsCount", pendingGoodsCount);
         data.put("recentOrders", recentList);
         return ResponseUtil.ok(data);
+    }
+
+    /**
+     * 获取已启用的快递公司列表（供小程序发货使用）
+     */
+    @GetMapping("shippers")
+    public Object shippers(@LoginUser Integer userId) {
+        Object error = checkManager(userId);
+        if (error != null) return error;
+        return ResponseUtil.ok(shipperService.listEnabledNames());
     }
 }

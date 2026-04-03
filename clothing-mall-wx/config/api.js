@@ -127,6 +127,11 @@ module.exports = {
   ManagerOrderRefundReject: WxApiRoot + 'manager/order/refundReject', // 拒绝退款
   ManagerOrderVerify: WxApiRoot + 'manager/order/verify', // 核销自提订单
   ManagerStats: WxApiRoot + 'manager/order/stats', // 管理后台统计数据
+  ManagerAftersaleList: WxApiRoot + 'manager/order/aftersale/list', // 售后列表
+  ManagerAftersaleRecept: WxApiRoot + 'manager/order/aftersale/recept', // 审核通过
+  ManagerAftersaleReject: WxApiRoot + 'manager/order/aftersale/reject', // 审核拒绝
+  ManagerAftersaleShip: WxApiRoot + 'manager/order/aftersale/ship', // 换货发货
+  ManagerShippers: WxApiRoot + 'manager/order/shippers', // 已启用快递公司列表
 
   // 管理端商品接口
   ManagerGoodsList: WxApiRoot + 'manager/goods/list', // 商品列表（分页+tab统计）
@@ -137,4 +142,5 @@ module.exports = {
   ManagerGoodsBatchDelete: WxApiRoot + 'manager/goods/batchDelete', // 批量删除
   ManagerGoodsUnpublishAll: WxApiRoot + 'manager/goods/unpublishAll', // 一键下架全部商品
   ManagerGoodsCreate: WxApiRoot + 'manager/goods/create', // 快速创建商品草稿
+  ManagerGoodsCategory: WxApiRoot + 'manager/goods/category', // 商品分类列表
 };

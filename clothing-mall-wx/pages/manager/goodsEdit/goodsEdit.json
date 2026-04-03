@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "编辑商品",
+  "navigationStyle": "custom",
   "usingComponents": {
     "van-popup": "../../../lib/vant-weapp/popup/index",
     "van-picker": "../../../lib/vant-weapp/picker/index"

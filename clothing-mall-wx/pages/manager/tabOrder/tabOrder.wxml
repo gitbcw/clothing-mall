@@ -6,7 +6,7 @@
     </view>
   </view>
   <!-- 占位符 -->
-  <view class="nav-placeholder" style="height: {{statusBarHeight + navBarHeight}}px;"></view>
+  <view class="nav-placeholder" style="height: {{statusBarHeight + navBarHeight + 16}}px;"></view>
 
   <!-- 子 Tab 切换 -->
   <view class="sub-tabs">
@@ -18,26 +18,8 @@
     </view>
   </view>
 
-  <!-- 统计概览 -->
-  <view class="stats-card">
-    <view class="stat-item">
-      <text class="stat-value">{{pendingCount}}</text>
-      <text class="stat-label">待处理订单</text>
-    </view>
-    <view class="stat-divider"></view>
-    <view class="stat-item">
-      <text class="stat-value">{{aftersaleCount}}</text>
-      <text class="stat-label">售后中</text>
-    </view>
-    <view class="stat-divider"></view>
-    <view class="stat-item">
-      <text class="stat-value">{{pendingGoodsCount}}</text>
-      <text class="stat-label">待上架商品</text>
-    </view>
-  </view>
-
-  <!-- 订单列表 -->
-  <view class="order-list">
+  <!-- 订单列表（订单 Tab） -->
+  <view class="order-list" wx:if="{{activeSubTab === 'order'}}">
     <view class="order-item" wx:for="{{orderList}}" wx:key="id" bindtap="goOrderDetail" data-id="{{item.id}}">
       <view class="order-header">
         <text class="order-sn">{{item.orderSn}}</text>
@@ -66,14 +48,57 @@
       <view class="order-footer">
         <text class="order-total">共{{item.goodsCount}}件 合计: ¥{{item.actualPrice}}</text>
       </view>
-      <!-- 操作按钮 -->
       <view class="order-actions" catchtap="">
         <view class="action-btn btn-cancel" wx:if="{{item.orderStatus === 201 || item.orderStatus === 150}}" catchtap="onCancel" data-id="{{item.id}}">取消</view>
         <view class="action-btn btn-primary" wx:if="{{item.orderStatus === 201}}" catchtap="onShip" data-id="{{item.id}}">发货</view>
         <view class="action-btn btn-primary" wx:if="{{item.orderStatus === 150}}" catchtap="onConfirm" data-id="{{item.id}}">确认</view>
         <view class="action-btn btn-primary" wx:if="{{item.orderStatus === 501}}" catchtap="onVerify" data-id="{{item.id}}">核销</view>
-        <view class="action-btn btn-danger" wx:if="{{item.orderStatus === 202}}" catchtap="onRefundReject" data-id="{{item.id}}">拒绝</view>
-        <view class="action-btn btn-warning" wx:if="{{item.orderStatus === 202}}" catchtap="onRefundAgree" data-id="{{item.id}}">同意退款</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 售后列表（售后 Tab） -->
+  <view class="order-list" wx:if="{{activeSubTab === 'aftersale'}}">
+    <view class="order-item" wx:for="{{orderList}}" wx:key="id" bindtap="goOrderDetail" data-id="{{item.orderId}}">
+      <view class="order-header">
+        <text class="order-sn">{{item.aftersaleSn}}</text>
+        <text class="order-status">{{item.statusText}}</text>
+      </view>
+      <view class="order-info">
+        <view class="info-row">
+          <text class="info-label">类型</text>
+          <text class="info-value">{{item.typeText}}</text>
+        </view>
+        <view class="info-row" wx:if="{{item.consignee}}">
+          <text class="info-label">客户</text>
+          <text class="info-value">{{item.consignee}} {{item.mobile}}</text>
+        </view>
+        <view class="info-row" wx:if="{{item.reason}}">
+          <text class="info-label">原因</text>
+          <text class="info-value">{{item.reason}}</text>
+        </view>
+      </view>
+      <view class="order-content">
+        <view class="goods-item" wx:for="{{item.goodsList}}" wx:for-item="goods" wx:key="id">
+          <image class="goods-image" src="{{goods.picUrl}}" mode="aspectFill"></image>
+          <view class="goods-info">
+            <text class="goods-name">{{goods.goodsName}}</text>
+            <text class="goods-spec" wx:if="{{goods.specifications}}">{{goods.specifications}}</text>
+            <text class="goods-spec" wx:elif="{{goods.size}}">{{goods.size}}</text>
+            <view class="goods-price-num">
+              <text class="goods-price">¥{{goods.price}}</text>
+              <text class="goods-num">x{{goods.number}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="order-footer">
+        <text class="order-total">关联订单: {{item.orderSn || '-'}}</text>
+      </view>
+      <view class="order-actions" catchtap="">
+        <view class="action-btn btn-danger" wx:if="{{item.status === 1}}" catchtap="onAftersaleReject" data-id="{{item.id}}">拒绝</view>
+        <view class="action-btn btn-primary" wx:if="{{item.status === 1}}" catchtap="onAftersaleRecept" data-id="{{item.id}}">同意换货</view>
+        <view class="action-btn btn-primary" wx:if="{{item.status === 2}}" catchtap="onAftersaleShip" data-id="{{item.id}}">发货</view>
       </view>
     </view>
   </view>

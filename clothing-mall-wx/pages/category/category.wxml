@@ -8,7 +8,7 @@
     <view class="nav-right"></view>
   </view>
 
-  <!-- 搜索栏占位及固定区域 -->
+  <!-- 搜索栏固定区域 -->
   <view class="header-fixed" style="top: {{statusBarHeight + navBarHeight}}px;">
     <view class="search-bar-wrap" bindtap="goSearch">
       <view class="search-bar">
@@ -18,8 +18,8 @@
     </view>
   </view>
 
-  <!-- 占位符，防止内容被顶部固定区域遮挡 -->
-  <view class="nav-placeholder" style="height: {{statusBarHeight + navBarHeight + 54}}px;"></view>
+  <!-- 占位符 -->
+  <view class="nav-placeholder" style="height: {{statusBarHeight + navBarHeight + 52}}px;"></view>
 
   <!-- 主体内容区：左侧分类，右侧商品 -->
   <view class="main-content">
@@ -34,17 +34,23 @@
       >
         {{item.name}}
       </view>
-      <!-- 底部留白 -->
       <view class="sidebar-bottom-placeholder"></view>
     </scroll-view>
 
     <!-- 右侧商品瀑布流 -->
     <scroll-view class="goods-content" scroll-y="true" lower-threshold="100" bindscrolltolower="loadMore" scroll-top="{{scrollTop}}">
-      <view class="waterfall-layout">
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{leftGoodsList.length === 0 && rightGoodsList.length === 0}}">
+        <view class="empty-text">暂无商品</view>
+      </view>
+
+      <view class="waterfall-layout" wx:else>
         <!-- 左列 -->
         <view class="waterfall-col">
           <view class="goods-card" wx:for="{{leftGoodsList}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
-            <image class="goods-img" src="{{item.picUrl || defaultImage}}" mode="aspectFill" binderror="onCategoryImageError" data-source="leftGoodsList" data-index="{{index}}"></image>
+            <view class="goods-img-wrap">
+              <image class="goods-img" src="{{item.picUrl || defaultImage}}" mode="aspectFill" binderror="onCategoryImageError" data-source="leftGoodsList" data-index="{{index}}"></image>
+            </view>
             <view class="goods-info">
               <view class="goods-title">{{item.name}}</view>
               <view class="goods-bottom">
@@ -53,6 +59,7 @@
                   <text class="price-num theme-color">{{item.retailPrice}}</text>
                   <text class="original-price" wx:if="{{item.counterPrice > item.retailPrice}}">￥{{item.counterPrice}}</text>
                 </view>
+                <view class="cart-icon-small" catchtap="addToCart" data-id="{{item.id}}"></view>
               </view>
             </view>
           </view>
@@ -61,7 +68,9 @@
         <!-- 右列 -->
         <view class="waterfall-col">
           <view class="goods-card" wx:for="{{rightGoodsList}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
-            <image class="goods-img" src="{{item.picUrl || defaultImage}}" mode="aspectFill" binderror="onCategoryImageError" data-source="rightGoodsList" data-index="{{index}}"></image>
+            <view class="goods-img-wrap">
+              <image class="goods-img" src="{{item.picUrl || defaultImage}}" mode="aspectFill" binderror="onCategoryImageError" data-source="rightGoodsList" data-index="{{index}}"></image>
+            </view>
             <view class="goods-info">
               <view class="goods-title">{{item.name}}</view>
               <view class="goods-bottom">
@@ -70,13 +79,26 @@
                   <text class="price-num theme-color">{{item.retailPrice}}</text>
                   <text class="original-price" wx:if="{{item.counterPrice > item.retailPrice}}">￥{{item.counterPrice}}</text>
                 </view>
+                <view class="cart-icon-small" catchtap="addToCart" data-id="{{item.id}}"></view>
               </view>
             </view>
           </view>
         </view>
       </view>
-      <!-- 底部留白，防止被 TabBar 遮挡 -->
+      <!-- 底部留白 -->
       <view class="content-bottom-placeholder"></view>
     </scroll-view>
   </view>
+
+  <!-- 尺码选择器 -->
+  <sku-picker
+    visible="{{showSkuPicker}}"
+    goods-id="{{skuGoods.id}}"
+    goods-image="{{skuGoods.picUrl}}"
+    goods-price="{{skuGoods.retailPrice}}"
+    bottom-offset="{{100}}"
+    bind:close="closeSkuPicker"
+    bind:addcart="skuAddToCart"
+    bind:buynow="skuBuyNow"
+  />
 </view>

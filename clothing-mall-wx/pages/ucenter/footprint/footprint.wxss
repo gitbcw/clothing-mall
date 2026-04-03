@@ -6,111 +6,196 @@ page {
 .container {
   background: #f4f4f4;
   min-height: 100%;
-  width: 100%;
-  height: auto;
-  overflow: hidden;
 }
 
-.no-footprint {
-  width: 100%;
-  height: auto;
-  margin: 0 auto;
+/* ================================================================
+   Empty State
+   ================================================================ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 240rpx;
 }
 
-.no-footprint .c {
-  width: 100%;
-  height: auto;
-  margin-top: 400rpx;
+.empty-circle {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FFF5F7, #FFE8EC);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 36rpx;
 }
 
-.no-footprint .c text {
-  margin: 0 auto;
-  display: block;
-  width: 258rpx;
-  height: 29rpx;
-  line-height: 29rpx;
-  text-align: center;
-  font-size: 29rpx;
+/* Eye icon - CSS only */
+.empty-eye {
+  width: 56rpx;
+  height: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eye-outer {
+  width: 56rpx;
+  height: 32rpx;
+  border: 4rpx solid #FFD4DC;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eye-pupil {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #FFD4DC;
+}
+
+.empty-title {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 16rpx;
+}
+
+.empty-desc {
+  font-size: 26rpx;
   color: #999;
 }
 
-.footprint {
-  height: auto;
-  overflow: hidden;
-  width: 100%;
-  border-top: 1px solid #e1e1e1;
+/* ================================================================
+   List Hint
+   ================================================================ */
+.footprint-list {
+  padding: 0 24rpx;
 }
 
-.day-item {
-  height: auto;
-  overflow: hidden;
-  width: 100%;
-  margin-bottom: 20rpx;
+.list-hint {
+  padding: 20rpx 0 8rpx;
 }
 
-.day-hd {
-  height: 94rpx;
-  width: 100%;
-  line-height: 94rpx;
+.list-hint-text {
+  font-size: 22rpx;
+  color: #ccc;
+}
+
+/* ================================================================
+   Date Header (Timeline Style)
+   ================================================================ */
+.day-group {
+  margin-bottom: 12rpx;
+}
+
+.date-header {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 0 16rpx;
+}
+
+.date-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #FF8096;
+  flex-shrink: 0;
+}
+
+.date-text {
+  font-size: 26rpx;
+  color: #666;
+  font-weight: 500;
+  margin-left: 12rpx;
+  flex-shrink: 0;
+}
+
+.date-line {
+  flex: 1;
+  height: 1rpx;
+  background: #e8e8e8;
+  margin-left: 16rpx;
+}
+
+/* ================================================================
+   Goods Card
+   ================================================================ */
+.goods-card {
+  display: flex;
   background: #fff;
-  padding-left: 30rpx;
-  color: #333;
-  font-size: 28rpx;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 12rpx;
 }
 
-.day-list {
-  width: 100%;
-  height: auto;
-  overflow: hidden;
-  background: #fff;
-  padding-left: 30rpx;
-  border-top: 1px solid #e1e1e1;
+.goods-card:active {
+  opacity: 0.85;
 }
 
-.item {
-  height: 212rpx;
-  width: 720rpx;
-  background: #fff;
-  padding: 30rpx 30rpx 30rpx 0;
-  border-bottom: 1px solid #e1e1e1;
+.goods-img {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+  background: #f4f4f4;
 }
 
-.item:last-child {
-  border-bottom: 1px solid #fff;
-}
-
-.item .img {
-  float: left;
-  width: 150rpx;
-  height: 150rpx;
-}
-
-.item .info {
-  float: right;
-  width: 540rpx;
-  height: 150rpx;
+.goods-info {
+  flex: 1;
+  margin-left: 24rpx;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding-left: 20rpx;
+  justify-content: space-between;
+  padding: 4rpx 0;
 }
 
-.item .info .name {
+.goods-top {
+  display: flex;
+  flex-direction: column;
+}
+
+.goods-name {
   font-size: 28rpx;
   color: #333;
+  font-weight: 500;
   line-height: 40rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.item .info .subtitle {
-  margin-top: 8rpx;
+.goods-brief {
   font-size: 24rpx;
-  color: #888;
-  line-height: 40rpx;
+  color: #999;
+  line-height: 34rpx;
+  margin-top: 8rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.item .info .price {
-  margin-top: 8rpx;
-  font-size: 28rpx;
-  color: #333;
-  line-height: 40rpx;
+.goods-bottom {
+  display: flex;
+  align-items: center;
+}
+
+.goods-price {
+  font-size: 32rpx;
+  color: #FF8096;
+  font-weight: 600;
+}
+
+/* ================================================================
+   Footer
+   ================================================================ */
+.list-footer {
+  padding: 32rpx 0 64rpx;
+  text-align: center;
+}
+
+.no-more-text {
+  font-size: 24rpx;
+  color: #ccc;
 }

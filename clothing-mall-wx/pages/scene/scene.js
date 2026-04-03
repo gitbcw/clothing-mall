@@ -18,9 +18,9 @@ Page({
   },
 
   onLoad(options) {
-    const systemInfo = wx.getSystemInfoSync()
+    const { statusBarHeight } = wx.getWindowInfo()
     this.setData({
-      statusBarHeight: systemInfo.statusBarHeight,
+      statusBarHeight,
       navBarHeight: 44
     })
     if (options.id) {
@@ -32,7 +32,7 @@ Page({
 
   getSceneInfo() {
     util.request(api.SceneBanners).then(res => {
-      const scenes = res.data.data || []
+      const scenes = res.data || []
       const scene = scenes.find(s => String(s.id) === String(this.sceneId))
       if (scene) {
         this.setData({
@@ -54,7 +54,7 @@ Page({
       page: this.data.page,
       limit: this.data.limit
     }).then(res => {
-      const data = res.data.data
+      const data = res.data
       const newList = this.data.goodsList.concat(data.list || [])
       this.setData({
         goodsList: newList,

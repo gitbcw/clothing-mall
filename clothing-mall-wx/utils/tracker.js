@@ -59,13 +59,14 @@ function saveCachedEvents(events) {
  * 获取设备信息
  */
 function getDeviceInfo() {
-  const systemInfo = wx.getSystemInfoSync()
+  const deviceInfo = wx.getDeviceInfo()
+  const appBaseInfo = wx.getAppBaseInfo()
   return {
-    model: systemInfo.model,
-    platform: systemInfo.platform,
-    system: systemInfo.system,
-    SDKVersion: systemInfo.SDKVersion,
-    version: systemInfo.version
+    model: deviceInfo.model,
+    platform: deviceInfo.platform,
+    system: deviceInfo.system,
+    SDKVersion: appBaseInfo.SDKVersion,
+    version: appBaseInfo.version
   }
 }
 

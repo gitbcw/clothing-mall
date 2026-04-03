@@ -52,6 +52,7 @@ export default {
       platform_shop: '店铺设置',
       platform_wework: '消息推送',
       platform_push_group: '推送组管理',
+      platform_shipper: '快递公司',
       // 系统设置
       system: '系统设置',
       platform_rule: '平台规则',

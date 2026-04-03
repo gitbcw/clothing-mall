@@ -17,8 +17,8 @@ Component({
 
   lifetimes: {
     attached: function() {
-      const sysInfo = wx.getSystemInfoSync();
-      const statusBarHeight = sysInfo.statusBarHeight || 20;
+      const windowInfo = wx.getWindowInfo();
+      const statusBarHeight = windowInfo.statusBarHeight || 20;
       this.setData({
         statusBarHeight: statusBarHeight,
         navTotalHeight: statusBarHeight + 48

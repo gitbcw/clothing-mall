@@ -1,58 +1,65 @@
 <view class="container">
   <custom-nav title="我的优惠券" />
 
-  <view class="h">
-    <view class="item {{ status == 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">
-      <view class="txt">可用</view>
+  <!-- Tab Bar -->
+  <view class="tab-bar">
+    <view class="tab-item {{status == 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">
+      <text class="tab-text">可用</text>
     </view>
-    <view class="item {{ status == 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">
-      <view class="txt">已用</view>
+    <view class="tab-item {{status == 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">
+      <text class="tab-text">已用</text>
     </view>
-    <view class="item {{ status == 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">
-      <view class="txt">过期</view>
+    <view class="tab-item {{status == 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">
+      <text class="tab-text">过期</text>
+    </view>
+    <view class="tab-indicator" style="left: {{status == 0 ? '16.67%' : status == 1 ? '50%' : '83.33%'}}"></view>
+  </view>
+
+  <!-- Exchange Form -->
+  <view class="exchange-bar" wx:if="{{status == 0}}">
+    <view class="exchange-field">
+      <input class="exchange-input" placeholder="输入优惠码" value="{{code}}" bindinput="bindExchange" />
+      <text class="exchange-clear" wx:if="{{code.length > 0}}" catchtap="clearExchange">×</text>
+    </view>
+    <view class="exchange-btn {{code.length === 0 ? 'disabled' : ''}}" bindtap="goExchange">兑换</view>
+  </view>
+
+  <!-- Empty State -->
+  <view class="empty-state" wx:if="{{couponList.length <= 0 && !loading}}">
+    <view class="empty-circle">
+      <view class="empty-ticket">
+        <view class="empty-ticket-line"></view>
+      </view>
+    </view>
+    <text class="empty-title">{{status == 0 ? '暂无可用优惠券' : status == 1 ? '暂无已使用优惠券' : '暂无过期优惠券'}}</text>
+    <text class="empty-desc" wx:if="{{status == 0}}">输入优惠码兑换，优惠即刻生效</text>
+  </view>
+
+  <!-- Coupon List -->
+  <view class="coupon-list" wx:if="{{couponList.length > 0}}">
+    <view class="coupon-card {{status == 0 ? 'coupon-active' : 'coupon-expired'}}"
+      wx:for="{{couponList}}"
+      wx:key="id">
+      <view class="coupon-tag" wx:if="{{item.tag}}">{{item.tag}}</view>
+      <view class="coupon-body">
+        <view class="coupon-left">
+          <text class="coupon-symbol">¥</text>
+          <text class="coupon-amount">{{item.discount}}</text>
+        </view>
+        <view class="coupon-right">
+          <text class="coupon-name">{{item.name}}</text>
+          <text class="coupon-min">满{{item.min}}元可用</text>
+          <text class="coupon-time">{{item.startTime}} - {{item.endTime}}</text>
+        </view>
+      </view>
+      <view class="coupon-footer" wx:if="{{item.desc}}">
+        <text class="coupon-desc">{{item.desc}}</text>
+      </view>
     </view>
   </view>
 
-  <view class="b">
-
-    <view class="coupon-form" wx:if="{{status == 0}}">
-      <view class="input-box">
-        <input class="coupon-sn" placeholder="请输入优惠码" value="{{code}}" bindinput="bindExchange"/>
-        <van-icon name="close" class="clear-icon" wx:if="{{ code.length > 0 }}" catchtap="clearExchange"/>        
-      </view>
-      <view class="add-btn" bindtap='goExchange'>兑换</view>
-    </view>
-
-    <view class="help" wx:if="{{status == 0}}">
-      <van-icon name="question-o" />
-      使用说明
-    </view>
-
-    <scroll-view class="coupon-list" scroll-y="true" scroll-top="{{scrollTop}}">
-
-      <view class="no-coupon" wx:if="{{couponList.length === 0}}">
-        <view class="c">
-          <text>暂无优惠券</text>
-        </view>
-      </view>
-
-      <view class="item {{ status == 0 ? 'active' : ''}}" wx:for="{{couponList}}" wx:for-index="index" wx:for-item="item" wx:key="id">
-        <view class="tag">{{item.tag}}</view>
-        <view class="content">
-          <view class="left">
-            <view class="discount">{{item.discount}}元</view>
-            <view class="min"> 满{{item.min}}元使用</view>
-          </view>
-          <view class="right">
-            <view class="name">{{item.name}}</view>
-            <view class="time"> 有效期：{{item.startTime}} - {{item.endTime}}</view>
-          </view>
-        </view>
-        <view class="condition">
-          <text class="txt">{{item.desc}}</text>
-        </view>
-      </view>
-
-    </scroll-view>
+  <!-- Footer -->
+  <view class="list-footer" wx:if="{{couponList.length > 0 && page * limit >= count}}">
+    <text class="no-more-text">— 到底了 —</text>
   </view>
 </view>

@@ -135,7 +135,7 @@
           </view>
         </view>
       </view>
-      <view class="btn-more-center">查看更多</view>
+      <view class="btn-more-center" bindtap="switchTab" data-url="/pages/category/category">查看更多</view>
     </view>
 
     <!-- 底部占位 -->
@@ -144,4 +144,16 @@
 
   <!-- 悬浮购物车 -->
   <floating-cart />
+
+  <!-- 尺码选择器 -->
+  <sku-picker
+    visible="{{showSkuPicker}}"
+    goods-id="{{skuGoods.id}}"
+    goods-image="{{skuGoods.picUrl}}"
+    goods-price="{{skuGoods.retailPrice}}"
+    bottom-offset="{{100}}"
+    bind:close="closeSkuPicker"
+    bind:addcart="skuAddToCart"
+    bind:buynow="skuBuyNow"
+  />
 </view>

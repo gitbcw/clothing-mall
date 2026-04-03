@@ -18,8 +18,8 @@ Page({
   onLoad: function(options) {
     // 页面初始化 options为页面跳转所带来的参数
     // 页面渲染完成
-    const sysInfo = wx.getSystemInfoSync()
-    const statusBarHeight = sysInfo.statusBarHeight || 20
+    const { statusBarHeight: sbh } = wx.getWindowInfo()
+    const statusBarHeight = sbh || 20
     const navContentHeight = this.data.navContentHeight
     const navTotalHeight = statusBarHeight + navContentHeight
     this.setData({ statusBarHeight, navTotalHeight })

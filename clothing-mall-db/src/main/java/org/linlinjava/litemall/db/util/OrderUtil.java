@@ -168,8 +168,9 @@ public class OrderUtil {
             // 待发货订单
             status.add((short) 201);
         } else if (showType.equals(3)) {
-            // 待收货订单
+            // 待收货/使用订单（含快递待收货 + 自提待核销）
             status.add((short) 301);
+            status.add((short) 501);
         } else if (showType.equals(4)) {
             // 待评价订单
             status.add((short) 401);

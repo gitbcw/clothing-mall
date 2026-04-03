@@ -48,6 +48,8 @@ public class WxCartController {
     private ClothingGoodsSkuService skuService;
     @Autowired
     private FreightService freightService;
+    @Autowired
+    private ClothingStoreService clothingStoreService;
 
     /**
      * 用户购物车信息
@@ -371,7 +373,7 @@ public class WxCartController {
      * @return 购物车操作结果
      */
     @GetMapping("checkout")
-    public Object checkout(@LoginUser Integer userId, Integer cartId, Integer addressId, Integer couponId, Integer userCouponId) {
+    public Object checkout(@LoginUser Integer userId, Integer cartId, Integer addressId, Integer couponId, Integer userCouponId, String deliveryType) {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
@@ -459,12 +461,17 @@ public class WxCartController {
             }
         }
 
-        // 根据订单商品总价和件数计算运费
-        int totalPieceCount = 0;
-        for (LitemallCart cart : checkedGoodsList) {
-            totalPieceCount += cart.getNumber();
+        // 根据订单商品总价和件数计算运费，自提模式免运费
+        BigDecimal freightPrice;
+        if ("pickup".equals(deliveryType)) {
+            freightPrice = BigDecimal.ZERO;
+        } else {
+            int totalPieceCount = 0;
+            for (LitemallCart cart : checkedGoodsList) {
+                totalPieceCount += cart.getNumber();
+            }
+            freightPrice = freightService.calculateFreight(checkedGoodsPrice, totalPieceCount);
         }
-        BigDecimal freightPrice = freightService.calculateFreight(checkedGoodsPrice, totalPieceCount);
 
         // 可以使用的其他钱，例如用户积分
         BigDecimal integralPrice = new BigDecimal(0.00);
@@ -487,6 +494,10 @@ public class WxCartController {
         data.put("orderTotalPrice", orderTotalPrice);
         data.put("actualPrice", actualPrice);
         data.put("checkedGoodsList", checkedGoodsList);
+        data.put("deliveryType", deliveryType);
+        if ("pickup".equals(deliveryType)) {
+            data.put("stores", clothingStoreService.queryAll());
+        }
         return ResponseUtil.ok(data);
     }
 }

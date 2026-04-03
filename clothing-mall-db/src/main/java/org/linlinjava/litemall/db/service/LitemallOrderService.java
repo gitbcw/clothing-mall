@@ -114,6 +114,13 @@ public class LitemallOrderService {
             criteria.andOrderStatusIn(orderStatus);
         }
         criteria.andDeletedEqualTo(false);
+        // 全部订单（orderStatus为null）时排除已取消的订单，用户无需看到
+        if (orderStatus == null) {
+            List<Short> cancelledStatus = new ArrayList<>();
+            cancelledStatus.add((short) 102); // 用户取消
+            cancelledStatus.add((short) 103); // 系统超时取消
+            criteria.andOrderStatusNotIn(cancelledStatus);
+        }
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
             example.setOrderByClause(sort + " " + order);
         }

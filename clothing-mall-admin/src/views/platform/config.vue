@@ -19,6 +19,9 @@
       <el-tab-pane label="客服设置" name="service">
         <service-config v-if="loadedTabs.service" />
       </el-tab-pane>
+      <el-tab-pane label="快递公司" name="shipper">
+        <shipper-manage v-if="loadedTabs.shipper" />
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -30,14 +33,15 @@ import PromotionRules from '@/views/config/promotion-rules'
 import ServiceConfig from '@/views/config/service'
 import IssueManage from '@/views/mall/issue'
 import KeywordManage from '@/views/mall/keyword'
+import ShipperManage from '@/views/platform/shipper'
 
 export default {
   name: 'PlatformConfig',
-  components: { RuleConfig, PromotionIndex, PromotionRules, ServiceConfig, IssueManage, KeywordManage },
+  components: { RuleConfig, PromotionIndex, PromotionRules, ServiceConfig, IssueManage, KeywordManage, ShipperManage },
   data() {
     return {
       activeTab: 'promotion-rules',
-      loadedTabs: { rule: true, promotion: false, 'promotion-rules': false, service: false, issue: false, keyword: false }
+      loadedTabs: { rule: true, promotion: false, 'promotion-rules': true, service: false, issue: false, keyword: false, shipper: false }
     }
   },
   methods: {

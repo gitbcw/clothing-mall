@@ -28,7 +28,11 @@ Page({
 
     // 饰饰如意
     accessories: [],
-    defaultImage: '/static/images/fallback-image.svg'
+    defaultImage: '/static/images/fallback-image.svg',
+
+    // 尺码选择器
+    showSkuPicker: false,
+    skuGoods: {}
   },
 
   onShareAppMessage() {
@@ -47,10 +51,11 @@ Page({
 
   onLoad() {
     // 初始化导航栏
-    const sysInfo = wx.getSystemInfoSync()
-    const isIOS = sysInfo.system.indexOf('iOS') > -1
+    const { system } = wx.getDeviceInfo()
+    const { statusBarHeight } = wx.getWindowInfo()
+    const isIOS = system.indexOf('iOS') > -1
     this.setData({
-      statusBarHeight: sysInfo.statusBarHeight,
+      statusBarHeight,
       navBarHeight: isIOS ? 44 : 48
     })
 
@@ -180,16 +185,56 @@ Page({
     }
   },
 
-  // 加入购物车（跳转详情页选择尺码）
+  // 打开尺码选择器
   addToCart(e) {
     const id = e.currentTarget.dataset.id
-    wx.navigateTo({ url: '/pages/goods_detail/goods_detail?id=' + id })
+    const goods = this.data.accessories.find(item => item.id === id)
+      || this.data.hotSales.find(item => item.id === id)
+      || this.data.activityGoods.find(item => item.id === id)
+    if (!goods) return
+    this.setData({
+      showSkuPicker: true,
+      skuGoods: goods
+    })
+    this.skuPicker = this.selectComponent('.sku-picker') || this.selectComponent('sku-picker')
+    if (this.skuPicker) this.skuPicker.reset()
   },
 
-  // 立即购买（跳转详情页选择尺码）
-  buyNow(e) {
-    const id = e.currentTarget.dataset.id
-    wx.navigateTo({ url: '/pages/goods_detail/goods_detail?id=' + id })
+  closeSkuPicker() {
+    this.setData({ showSkuPicker: false })
+  },
+
+  skuAddToCart(e) {
+    const { size, quantity } = e.detail
+    util.request(api.CartAdd, {
+      goodsId: this.data.skuGoods.id,
+      number: quantity,
+      size: size
+    }, 'POST').then(res => {
+      if (res.errno === 0) {
+        wx.showToast({ title: '已加入购物车' })
+        this.setData({ showSkuPicker: false })
+      } else {
+        wx.showToast({ title: res.errmsg || '添加失败', icon: 'none' })
+      }
+    })
+  },
+
+  skuBuyNow(e) {
+    const { size, quantity } = e.detail
+    util.request(api.CartFastAdd, {
+      goodsId: this.data.skuGoods.id,
+      number: quantity,
+      size: size
+    }, 'POST').then(res => {
+      if (res.errno === 0) {
+        wx.setStorageSync('cartId', res.data)
+        this.setData({ showSkuPicker: false })
+        wx.navigateTo({ url: '/pages/confirm_order/confirm_order' })
+      } else {
+        wx.showToast({ title: res.errmsg || '操作失败', icon: 'none' })
+      }
+    })
   },
 
   // 跳转购物车

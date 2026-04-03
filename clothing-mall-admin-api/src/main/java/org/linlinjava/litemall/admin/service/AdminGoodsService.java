@@ -154,15 +154,19 @@ public class AdminGoodsService {
         LitemallGoodsSpecification[] specifications = goodsAllinone.getSpecifications();
         LitemallGoodsProduct[] products = goodsAllinone.getProducts();
 
-        // 商品表里面有一个字段retailPrice记录当前商品的最低价
-        BigDecimal retailPrice = goods.getRetailPrice(); // 保留原值作为默认
-        if (products != null && products.length > 0) {
-            retailPrice = new BigDecimal(Integer.MAX_VALUE);
-            for (LitemallGoodsProduct product : products) {
-                BigDecimal productPrice = product.getPrice();
-                if(retailPrice.compareTo(productPrice) == 1){
-                    retailPrice = productPrice;
+        // retailPrice：前端传入则直接使用，否则从规格中取最低价
+        BigDecimal retailPrice = goods.getRetailPrice();
+        if (retailPrice == null || retailPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            if (products != null && products.length > 0) {
+                retailPrice = new BigDecimal(Integer.MAX_VALUE);
+                for (LitemallGoodsProduct product : products) {
+                    BigDecimal productPrice = product.getPrice();
+                    if (retailPrice.compareTo(productPrice) == 1) {
+                        retailPrice = productPrice;
+                    }
                 }
+            } else {
+                retailPrice = BigDecimal.ZERO;
             }
         }
         goods.setRetailPrice(retailPrice);
@@ -259,15 +263,19 @@ public class AdminGoodsService {
             return ResponseUtil.fail(GOODS_NAME_EXIST, "商品名已经存在");
         }
 
-        // 商品表里面有一个字段retailPrice记录当前商品的最低价
-        BigDecimal retailPrice = BigDecimal.ZERO; // 默认值为0
-        if (products != null && products.length > 0) {
-            retailPrice = new BigDecimal(Integer.MAX_VALUE);
-            for (LitemallGoodsProduct product : products) {
-                BigDecimal productPrice = product.getPrice();
-                if(retailPrice.compareTo(productPrice) == 1){
-                    retailPrice = productPrice;
+        // retailPrice：前端传入则直接使用，否则从规格中取最低价
+        BigDecimal retailPrice = goods.getRetailPrice();
+        if (retailPrice == null || retailPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            if (products != null && products.length > 0) {
+                retailPrice = new BigDecimal(Integer.MAX_VALUE);
+                for (LitemallGoodsProduct product : products) {
+                    BigDecimal productPrice = product.getPrice();
+                    if (retailPrice.compareTo(productPrice) == 1) {
+                        retailPrice = productPrice;
+                    }
                 }
+            } else {
+                retailPrice = BigDecimal.ZERO;
             }
         }
         goods.setRetailPrice(retailPrice);

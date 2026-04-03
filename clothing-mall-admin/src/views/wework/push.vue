@@ -8,24 +8,12 @@
       <el-form ref="pushForm" :model="pushForm" :rules="rules" label-width="120px">
         <!-- 推送目标 -->
         <el-form-item label="推送目标" prop="targetGroupIds">
-          <el-checkbox-group v-model="pushForm.targetGroupIds" @change="onGroupChange">
+          <el-checkbox-group v-model="pushForm.targetGroupIds">
             <el-checkbox v-for="group in pushGroups" :key="group.id" :label="group.id">
               {{ group.name }}
               <el-tag size="mini" :type="getGroupTagType(group.type)" style="margin-left: 4px;">{{ group.memberCount }}人</el-tag>
             </el-checkbox>
           </el-checkbox-group>
-          <el-collapse-transition>
-            <div v-if="showAdvanced" style="margin-top: 10px;">
-              <el-select v-model="pushForm.targetTagId" placeholder="企微标签（可选）" clearable filterable class="input-width" :loading="tagsLoading">
-                <el-option-group v-for="group in tagGroups" :key="group.name" :label="group.name">
-                  <el-option v-for="tag in group.tags" :key="tag.id" :label="tag.name" :value="tag.id" />
-                </el-option-group>
-              </el-select>
-            </div>
-          </el-collapse-transition>
-          <el-button type="text" style="margin-top: 8px;" @click="showAdvanced = !showAdvanced">
-            {{ showAdvanced ? '收起高级选项' : '高级选项 > 企微标签' }}
-          </el-button>
         </el-form-item>
 
         <!-- 推送内容 -->
@@ -90,9 +78,6 @@
 
         <!-- 操作按钮 -->
         <el-form-item>
-          <el-button type="warning" :loading="sending" @click="handleSendToTest">
-            发送给测试组
-          </el-button>
           <el-button type="primary" :loading="sending" @click="handleSend">
             立即发送
           </el-button>
@@ -127,7 +112,7 @@
 </template>
 
 <script>
-import { getTags, getPages, sendMessage, getPushGroups } from '@/api/wework'
+import { getPages, sendMessage, getPushGroups } from '@/api/wework'
 import { getToken } from '@/utils/auth'
 
 export default {
@@ -154,11 +139,8 @@ export default {
         content: [{ required: true, message: '请输入文本内容', trigger: 'blur' }]
       },
       pushGroups: [],
-      tagGroups: [],
       pageList: [],
-      tagsLoading: false,
       sending: false,
-      showAdvanced: false,
       uploadUrl: process.env.VUE_APP_BASE_API + '/admin/wework/uploadMedia',
       pickerOptions: {
         disabledDate(time) {
@@ -174,7 +156,6 @@ export default {
   },
   created() {
     this.loadPushGroups()
-    this.loadTags()
     this.loadPages()
   },
   methods: {
@@ -184,27 +165,6 @@ export default {
           this.pushGroups = res.data.data.list || []
         }
       })
-    },
-    async loadTags() {
-      this.tagsLoading = true
-      try {
-        const res = await getTags()
-        if (res.data.errno === 0) {
-          const groupMap = {}
-          ;(res.data.data.list || []).forEach(tag => {
-            const groupName = tag.groupName || '未分组'
-            if (!groupMap[groupName]) {
-              groupMap[groupName] = { name: groupName, tags: [] }
-            }
-            groupMap[groupName].tags.push(tag)
-          })
-          this.tagGroups = Object.values(groupMap)
-        }
-      } catch (e) {
-        console.error('获取标签失败', e)
-      } finally {
-        this.tagsLoading = false
-      }
     },
     async loadPages() {
       try {
@@ -219,9 +179,6 @@ export default {
     getGroupTagType(type) {
       const map = { test: 'info', active: 'success', dormant: 'warning', salvage: 'danger' }
       return map[type] || ''
-    },
-    onGroupChange() {
-      // 组变更时无需额外处理
     },
     onContentTypeChange() {
       // 切换内容类型时清空相关字段
@@ -277,28 +234,6 @@ export default {
         if (!valid) return
         await this.doSend(this.getFormData())
       })
-    },
-    async handleSendToTest() {
-      // 找到测试组 ID
-      const testGroup = this.pushGroups.find(g => g.type === 'test')
-      if (!testGroup) {
-        this.$message.warning('未找到测试组')
-        return
-      }
-      // 快速校验内容
-      const contentType = this.pushForm.contentType
-      if (contentType === 'card' && (!this.pushForm.title || !this.pushForm.mediaId || !this.pushForm.page)) {
-        this.$message.warning('请先填写完整的卡片内容')
-        return
-      }
-      if (contentType === 'text' && !this.pushForm.content) {
-        this.$message.warning('请先填写文本内容')
-        return
-      }
-      const data = this.getFormData()
-      data.targetGroupIds = [testGroup.id]
-      data.scheduledAt = ''
-      await this.doSend(data)
     },
     async doSend(data) {
       this.sending = true

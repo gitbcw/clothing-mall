@@ -24,6 +24,8 @@ import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
+import org.linlinjava.litemall.db.domain.ClothingStore;
+import org.linlinjava.litemall.db.service.ClothingStoreService;
 import org.linlinjava.litemall.db.util.CouponUserConstant;
 import org.linlinjava.litemall.db.util.OrderHandleOption;
 import org.linlinjava.litemall.db.util.OrderUtil;
@@ -108,6 +110,8 @@ public class WxOrderService {
     private LitemallPermissionService permissionService;
     @Autowired
     private LitemallOrderExpressService orderExpressService;
+    @Autowired
+    private ClothingStoreService clothingStoreService;
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
     /**
@@ -200,6 +204,25 @@ public class WxOrderService {
         orderVo.put("expCode", order.getShipChannel());
         orderVo.put("expName", expressService.getVendorName(order.getShipChannel()));
         orderVo.put("expNo", order.getShipSn());
+        orderVo.put("deliveryType", order.getDeliveryType());
+        if ("pickup".equals(order.getDeliveryType())) {
+            orderVo.put("pickupCode", order.getPickupCode());
+            orderVo.put("pickupStoreId", order.getPickupStoreId());
+            orderVo.put("pickupContact", order.getPickupContact());
+            orderVo.put("pickupPhone", order.getPickupPhone());
+            if (order.getPickupStoreId() != null) {
+                ClothingStore store = clothingStoreService.findById(order.getPickupStoreId());
+                if (store != null) {
+                    Map<String, Object> storeInfo = new HashMap<>();
+                    storeInfo.put("id", store.getId());
+                    storeInfo.put("name", store.getName());
+                    storeInfo.put("address", store.getAddress());
+                    storeInfo.put("phone", store.getPhone());
+                    storeInfo.put("businessHours", store.getBusinessHours());
+                    orderVo.put("pickupStore", storeInfo);
+                }
+            }
+        }
 
         List<LitemallOrderGoods> orderGoodsList = orderGoodsService.queryByOid(order.getId());
 
@@ -292,27 +315,34 @@ public class WxOrderService {
             if (pickupStoreId == null || pickupStoreId <= 0) {
                 return ResponseUtil.fail(400, "请选择自提门店");
             }
-            if (pickupContact == null || pickupContact.isEmpty()) {
-                return ResponseUtil.fail(400, "请输入联系人姓名");
-            }
-            if (pickupPhone == null || !pickupPhone.matches("^1[3-9]\\d{9}$")) {
-                return ResponseUtil.fail(400, "请输入正确的手机号");
-            }
         }
 
         if (cartId == null || couponId == null) {
             return ResponseUtil.badArgument();
         }
 
-        // 快递配送需要验证地址
+        // 两种模式都需要地址（快递用地址，自提用联系人信息）
         LitemallAddress checkedAddress = null;
-        if ("express".equals(deliveryType)) {
-            if (addressId == null || addressId <= 0) {
-                return ResponseUtil.fail(400, "请选择收货地址");
-            }
+        if (addressId != null && addressId > 0) {
             checkedAddress = addressService.query(userId, addressId);
-            if (checkedAddress == null) {
-                return ResponseUtil.fail(400, "收货地址不存在");
+        }
+        if (checkedAddress == null) {
+            checkedAddress = addressService.findDefault(userId);
+        }
+        if (checkedAddress == null) {
+            return ResponseUtil.fail(400, "请先添加收货地址");
+        }
+
+        // 自提模式：从地址中自动取联系人信息
+        if ("pickup".equals(deliveryType)) {
+            if (pickupContact == null || pickupContact.isEmpty()) {
+                pickupContact = checkedAddress.getName();
+            }
+            if (pickupPhone == null || pickupPhone.isEmpty()) {
+                pickupPhone = checkedAddress.getTel();
+            }
+            if (pickupPhone == null || !pickupPhone.matches("^1[3-9]\\d{9}$")) {
+                return ResponseUtil.fail(400, "收货地址中手机号不完整，请先完善地址信息");
             }
         }
 
@@ -406,6 +436,11 @@ public class WxOrderService {
             order.setPickupPhone(pickupPhone);
             // 生成取货码
             order.setPickupCode(generatePickupCode());
+            // 填充 NOT NULL 字段，避免 INSERT 失败
+            order.setConsignee(pickupContact);
+            order.setMobile(pickupPhone);
+            ClothingStore store = clothingStoreService.findById(pickupStoreId);
+            order.setAddress(store != null ? "到店自提-" + store.getName() : "到店自提");
         }
 
         // 添加订单表项
@@ -424,7 +459,11 @@ public class WxOrderService {
             orderGoods.setPicUrl(cartGoods.getPicUrl());
             orderGoods.setPrice(cartGoods.getPrice());
             orderGoods.setNumber(cartGoods.getNumber());
-            orderGoods.setSpecifications(cartGoods.getSpecifications());
+            String[] specs = cartGoods.getSpecifications();
+            if ((specs == null || specs.length == 0) && cartGoods.getSize() != null) {
+                specs = new String[]{cartGoods.getSize()};
+            }
+            orderGoods.setSpecifications(specs != null ? specs : new String[]{});
             // SKU 信息
             orderGoods.setSkuId(cartGoods.getSkuId());
             orderGoods.setColor(cartGoods.getColor());
@@ -479,7 +518,12 @@ public class WxOrderService {
 
             LitemallOrder o = new LitemallOrder();
             o.setId(orderId);
-            o.setOrderStatus(OrderUtil.STATUS_PAY);
+            // 根据配送方式决定下一步状态
+            if ("pickup".equals(order.getDeliveryType())) {
+                o.setOrderStatus(OrderUtil.STATUS_VERIFY_PENDING);
+            } else {
+                o.setOrderStatus(OrderUtil.STATUS_PAY);
+            }
             orderService.updateSelective(o);
 
             // TODO 发送邮件和短信通知，这里采用异步发送
@@ -547,8 +591,16 @@ public class WxOrderService {
         // 商品货品数量增加
         List<LitemallOrderGoods> orderGoodsList = orderGoodsService.queryByOid(orderId);
         for (LitemallOrderGoods orderGoods : orderGoodsList) {
+            // SKU 模式（skuId 不为空）不恢复库存，因为下单时也没有扣减
+            if (orderGoods.getSkuId() != null) {
+                continue;
+            }
             Integer productId = orderGoods.getProductId();
             Short number = orderGoods.getNumber();
+            // productId 无效时跳过（如商品已被删除或数据异常）
+            if (productId == null || productId <= 0) {
+                continue;
+            }
             if (productService.addStock(productId, number) == 0) {
                 throw new RuntimeException("商品货品库存增加失败");
             }
@@ -742,7 +794,12 @@ public class WxOrderService {
 
         order.setPayId(payId);
         order.setPayTime(LocalDateTime.now());
-        order.setOrderStatus(OrderUtil.STATUS_PAY);
+        // 根据配送方式决定下一步状态
+        if ("pickup".equals(order.getDeliveryType())) {
+            order.setOrderStatus(OrderUtil.STATUS_VERIFY_PENDING);
+        } else {
+            order.setOrderStatus(OrderUtil.STATUS_PAY);
+        }
         if (orderService.updateWithOptimisticLocker(order) == 0) {
             return WxPayNotifyResponse.fail("更新数据已失效");
         }

@@ -18,6 +18,10 @@ Component({
     goodsPrice: {
       type: Number,
       value: 0
+    },
+    bottomOffset: {
+      type: Number,
+      value: 0
     }
   },
 

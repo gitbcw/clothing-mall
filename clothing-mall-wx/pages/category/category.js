@@ -26,16 +26,21 @@ Page({
 
     scrollLeft: 0,
     scrollTop: 0,
-    scrollHeight: 0
+    scrollHeight: 0,
+
+    // 尺码选择器
+    showSkuPicker: false,
+    skuGoods: {}
   },
 
   onLoad(options) {
-    const sysInfo = wx.getSystemInfoSync()
-    const isIOS = sysInfo.system.indexOf('iOS') > -1
+    const { system } = wx.getDeviceInfo()
+    const { statusBarHeight, windowHeight } = wx.getWindowInfo()
+    const isIOS = system.indexOf('iOS') > -1
     this.setData({
-      statusBarHeight: sysInfo.statusBarHeight,
+      statusBarHeight,
       navBarHeight: isIOS ? 44 : 48,
-      scrollHeight: sysInfo.windowHeight
+      scrollHeight: windowHeight
     })
 
     if (options.id) {
@@ -74,6 +79,15 @@ Page({
         if (res.data.parentCategory && res.data.parentCategory.id === that.data.activeCategoryId) {
           that.setData({
             activeCategoryId: res.data.currentCategory.id
+          })
+        }
+
+        // 默认选中第一个分类
+        var navList = that.data.navList
+        if ((!that.data.activeCategoryId || !navList.find(function(item) { return item.id === that.data.activeCategoryId })) && navList.length > 0) {
+          that.setData({
+            activeCategoryId: navList[0].id,
+            currentCategory: navList[0]
           })
         }
 
@@ -198,6 +212,56 @@ Page({
     })
 
     this.getCategoryInfo()
+  },
+
+  // 打开尺码选择器
+  addToCart(e) {
+    const id = e.currentTarget.dataset.id
+    const goods = this.data.goodsList.find(item => item.id === id)
+    if (!goods) return
+    this.setData({
+      showSkuPicker: true,
+      skuGoods: goods
+    })
+    const skuPicker = this.selectComponent('sku-picker')
+    if (skuPicker) skuPicker.reset()
+  },
+
+  closeSkuPicker() {
+    this.setData({ showSkuPicker: false })
+  },
+
+  skuAddToCart(e) {
+    const { size, quantity } = e.detail
+    util.request(api.CartAdd, {
+      goodsId: this.data.skuGoods.id,
+      number: quantity,
+      size: size
+    }, 'POST').then(res => {
+      if (res.errno === 0) {
+        wx.showToast({ title: '已加入购物车' })
+        this.setData({ showSkuPicker: false })
+      } else {
+        wx.showToast({ title: res.errmsg || '添加失败', icon: 'none' })
+      }
+    })
+  },
+
+  skuBuyNow(e) {
+    const { size, quantity } = e.detail
+    util.request(api.CartFastAdd, {
+      goodsId: this.data.skuGoods.id,
+      number: quantity,
+      size: size
+    }, 'POST').then(res => {
+      if (res.errno === 0) {
+        wx.setStorageSync('cartId', res.data)
+        this.setData({ showSkuPicker: false })
+        wx.navigateTo({ url: '/pages/confirm_order/confirm_order' })
+      } else {
+        wx.showToast({ title: res.errmsg || '操作失败', icon: 'none' })
+      }
+    })
   },
 
   // 跳转商品详情

@@ -32,6 +32,12 @@
           </el-input>
           <span class="form-tip">（小程序显示为划线原价，非实际售价）</span>
         </el-form-item>
+        <el-form-item label="零售价" prop="retailPrice">
+          <el-input v-model="goods.retailPrice" placeholder="0.00" style="width: 300px">
+            <template slot="append">元</template>
+          </el-input>
+          <span class="form-tip">（实际售价，留空则自动取规格最低价）</span>
+        </el-form-item>
         <!-- 特价设置 -->
         <el-form-item label="设置特价">
           <el-switch v-model="goods.isSpecialPrice" active-text="特价" inactive-text="普通" />

@@ -26,7 +26,7 @@
       </el-table-column>
       <el-table-column align="center" label="操作" width="300" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button type="info" size="mini" @click="handleGoods(scope.row)">关联商品</el-button>
+          <el-button type="primary" size="mini" @click="handleGoods(scope.row)">绑定商品</el-button>
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
           <el-button
             :type="scope.row.enabled ? 'warning' : 'success'"
@@ -76,31 +76,45 @@
       </div>
     </el-dialog>
 
-    <!-- 关联商品对话框 -->
-    <el-dialog :visible.sync="goodsDialogVisible" title="关联商品" width="700">
-      <div style="margin-bottom: 15px;">
-        <el-input v-model="goodsSearchName" placeholder="搜索商品名称" style="width: 200px; margin-right: 10px;" clearable />
-        <el-button type="primary" size="small" @click="loadGoodsList">搜索</el-button>
+    <!-- 绑定商品对话框 -->
+    <el-dialog :visible.sync="goodsDialogVisible" :title="currentSceneName + ' - 绑定商品'" width="800">
+      <div class="bind-goods-panel">
+        <!-- 左栏：待选择 -->
+        <div class="panel-left">
+          <div class="panel-header">
+            <span>待选择商品</span>
+            <el-input v-model="goodsSearchName" placeholder="搜索商品" size="mini" prefix-icon="el-icon-search" clearable style="width: 160px;" />
+          </div>
+          <div v-loading="goodsLoading" class="panel-body">
+            <div v-for="item in availableGoods" :key="item.id" class="goods-item" @click="addGoods(item)">
+              <el-image v-if="item.picUrl" :src="item.picUrl" style="width: 40px; height: 40px; flex-shrink: 0;" fit="cover" />
+              <div class="goods-info">
+                <span class="goods-name">{{ item.name }}</span>
+                <span class="goods-price">¥{{ item.retailPrice }}</span>
+              </div>
+              <i class="el-icon-circle-plus-outline add-icon" />
+            </div>
+            <div v-if="!goodsLoading && availableGoods.length === 0" class="empty-tip">暂无商品</div>
+          </div>
+        </div>
+        <!-- 右栏：已绑定 -->
+        <div class="panel-right">
+          <div class="panel-header">
+            <span>已绑定 ({{ boundGoods.length }})</span>
+          </div>
+          <div class="panel-body">
+            <div v-for="item in boundGoods" :key="'bound-' + item.id" class="goods-item bound">
+              <el-image v-if="item.picUrl" :src="item.picUrl" style="width: 40px; height: 40px; flex-shrink: 0;" fit="cover" />
+              <div class="goods-info">
+                <span class="goods-name">{{ item.name }}</span>
+                <span class="goods-price">¥{{ item.retailPrice }}</span>
+              </div>
+              <i class="el-icon-circle-close remove-icon" @click="removeGoods(item)" />
+            </div>
+            <div v-if="boundGoods.length === 0" class="empty-tip">暂未绑定商品</div>
+          </div>
+        </div>
       </div>
-      <el-table v-loading="goodsLoading" :data="goodsList" border max-height="400" @selection-change="handleGoodsSelectionChange">
-        <el-table-column type="selection" width="55" :reserve-selection="true" />
-        <el-table-column align="center" label="ID" prop="id" width="80" />
-        <el-table-column align="center" label="商品图" width="80">
-          <template slot-scope="scope">
-            <el-image v-if="scope.row.picUrl" :src="scope.row.picUrl" style="width: 40px; height: 40px;" fit="cover" />
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="商品名称" prop="name" />
-        <el-table-column align="center" label="零售价" prop="retailPrice" width="100" />
-      </el-table>
-      <el-pagination
-        layout="total, prev, pager, next"
-        :total="goodsTotal"
-        :page.sync="goodsPage"
-        :limit.sync="goodsLimit"
-        style="margin-top: 15px; text-align: right;"
-        @current-change="loadGoodsList"
-      />
       <div slot="footer">
         <el-button @click="goodsDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="confirmSceneGoods">确定</el-button>
@@ -133,6 +147,79 @@
   height: 80px;
   display: block;
 }
+.bind-goods-panel {
+  display: flex;
+  gap: 16px;
+}
+.panel-left,
+.panel-right {
+  flex: 1;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+}
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background: #f5f7fa;
+  border-bottom: 1px solid #ebeef5;
+  font-weight: 500;
+  font-size: 14px;
+}
+.panel-body {
+  padding: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.goods-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.goods-item:hover {
+  background: #f5f7fa;
+}
+.goods-info {
+  flex: 1;
+  margin-left: 10px;
+  overflow: hidden;
+}
+.goods-name {
+  display: block;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.goods-price {
+  display: block;
+  font-size: 12px;
+  color: #f56c6c;
+  margin-top: 2px;
+}
+.add-icon {
+  font-size: 20px;
+  color: #409eff;
+  flex-shrink: 0;
+}
+.remove-icon {
+  font-size: 20px;
+  color: #f56c6c;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.empty-tip {
+  text-align: center;
+  color: #909399;
+  padding: 40px 0;
+  font-size: 13px;
+}
 </style>
 
 <script>
@@ -164,12 +251,10 @@ export default {
       },
       goodsDialogVisible: false,
       currentSceneId: null,
-      goodsList: [],
-      selectedGoodsIds: [],
+      currentSceneName: '',
+      allGoods: [],
+      boundGoods: [],
       goodsSearchName: '',
-      goodsTotal: 0,
-      goodsPage: 1,
-      goodsLimit: 10,
       goodsLoading: false
     }
   },
@@ -178,6 +263,15 @@ export default {
       return {
         'X-Litemall-Admin-Token': getToken()
       }
+    },
+    availableGoods() {
+      const keyword = this.goodsSearchName.toLowerCase().trim()
+      const boundIds = new Set(this.boundGoods.map(g => g.id))
+      return this.allGoods.filter(g => {
+        if (boundIds.has(g.id)) return false
+        if (keyword && !g.name.toLowerCase().includes(keyword)) return false
+        return true
+      })
     }
   },
   created() {
@@ -309,39 +403,40 @@ export default {
     },
     handleGoods(row) {
       this.currentSceneId = row.id
-      this.selectedGoodsIds = []
+      this.currentSceneName = row.name
+      this.boundGoods = []
+      this.allGoods = []
       this.goodsSearchName = ''
-      this.goodsPage = 1
       this.goodsDialogVisible = true
-      // Load existing associations
-      listSceneGoods(row.id).then(res => {
-        this.selectedGoodsIds = res.data.data || []
-        this.$nextTick(() => {
-          this.loadGoodsList()
-        })
-      })
-    },
-    loadGoodsList() {
       this.goodsLoading = true
-      listGoods({ name: this.goodsSearchName, page: this.goodsPage, limit: this.goodsLimit, status: 'published' }).then(res => {
-        this.goodsList = res.data.data.list || []
-        this.goodsTotal = res.data.data.total || 0
+      Promise.all([
+        listSceneGoods(row.id),
+        listGoods({ limit: 1000, status: 'published' })
+      ]).then(([boundRes, allRes]) => {
+        const boundIds = boundRes.data.data || []
+        const allList = allRes.data.data.list || []
+        this.allGoods = allList
+        this.boundGoods = allList.filter(g => boundIds.includes(g.id))
         this.goodsLoading = false
       }).catch(() => {
-        this.goodsList = []
-        this.goodsTotal = 0
+        this.allGoods = []
+        this.boundGoods = []
         this.goodsLoading = false
       })
     },
-    handleGoodsSelectionChange(selection) {
-      this.selectedGoodsIds = selection.map(item => item.id)
+    addGoods(goods) {
+      this.boundGoods.push(goods)
+    },
+    removeGoods(goods) {
+      this.boundGoods = this.boundGoods.filter(g => g.id !== goods.id)
     },
     confirmSceneGoods() {
-      updateSceneGoods({ sceneId: this.currentSceneId, goodsIds: this.selectedGoodsIds }).then(() => {
+      const goodsIds = this.boundGoods.map(g => g.id)
+      updateSceneGoods({ sceneId: this.currentSceneId, goodsIds }).then(() => {
         this.goodsDialogVisible = false
-        this.$notify.success({ title: '成功', message: '关联商品成功' })
+        this.$notify.success({ title: '成功', message: '绑定商品成功' })
       }).catch(res => {
-        this.$notify.error({ title: '失败', message: res.data.errmsg || '关联失败' })
+        this.$notify.error({ title: '失败', message: res.data.errmsg || '绑定失败' })
       })
     }
   }

@@ -1,52 +1,62 @@
 <template>
-  <div class="app-container">
+  <div class="app-container holiday-page">
     <!-- 筛选标签 + 添加按钮 -->
-    <div class="filter-container">
-      <el-radio-group v-model="statusFilter" size="small" style="margin-right: 20px;" @change="handleFilterChange">
-        <el-radio-button label="all">全部</el-radio-button>
-        <el-radio-button label="active">进行中</el-radio-button>
-        <el-radio-button label="upcoming">未开始</el-radio-button>
-        <el-radio-button label="ended">已结束</el-radio-button>
-        <el-radio-button label="disabled">已禁用</el-radio-button>
-      </el-radio-group>
+    <div class="holiday-toolbar">
+      <div class="toolbar-left">
+        <el-radio-group v-model="statusFilter" size="small" @change="handleFilterChange">
+          <el-radio-button label="all">全部</el-radio-button>
+          <el-radio-button label="active">进行中</el-radio-button>
+          <el-radio-button label="upcoming">未开始</el-radio-button>
+          <el-radio-button label="ended">已结束</el-radio-button>
+          <el-radio-button label="disabled">已禁用</el-radio-button>
+        </el-radio-group>
+        <span class="toolbar-count">共 {{ filteredList.length }} 个节日</span>
+      </div>
       <el-button class="filter-item" type="primary" icon="el-icon-edit" @click="handleCreate">添加节日</el-button>
     </div>
 
     <!-- 查询结果 -->
-    <el-table v-loading="listLoading" :data="filteredList" element-loading-text="正在查询中。。。" border fit highlight-current-row>
-      <el-table-column align="center" label="ID" prop="id" width="80" />
-      <el-table-column align="center" label="节日名称" prop="name" />
-      <el-table-column align="center" label="开始日期" prop="startDate" width="120" />
-      <el-table-column align="center" label="结束日期" prop="endDate" width="120" />
-      <el-table-column align="center" label="排序" prop="sortOrder" width="80" />
-      <el-table-column align="center" label="状态" width="100">
+    <el-table v-loading="listLoading" :data="filteredList" element-loading-text="正在查询中。。。" border fit highlight-current-row class="holiday-table">
+      <el-table-column align="center" label="ID" prop="id" width="70" />
+      <el-table-column align="center" label="节日名称" prop="name" min-width="140">
         <template slot-scope="scope">
-          <el-tag :type="statusTagType(scope.row)" size="mini">
-            {{ statusLabel(scope.row) }}
-          </el-tag>
+          <span class="holiday-name">{{ scope.row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" width="300" class-name="small-padding fixed-width">
+      <el-table-column align="center" label="活动日期" min-width="200">
         <template slot-scope="scope">
-          <el-button type="info" size="mini" @click="handleGoods(scope.row)">关联商品</el-button>
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
+          <span class="date-range">{{ scope.row.startDate }} ~ {{ scope.row.endDate }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="排序" prop="sortOrder" width="70" />
+      <el-table-column align="center" label="状态" width="100">
+        <template slot-scope="scope">
+          <span :class="['status-dot', 'status-' + computeStatus(scope.row)]" />
+          <span :class="['status-text', 'status-text-' + computeStatus(scope.row)]">{{ statusLabel(scope.row) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="操作" width="280" class-name="small-padding fixed-width">
+        <template slot-scope="scope">
+          <el-button type="info" size="mini" plain @click="handleGoods(scope.row)">关联商品</el-button>
+          <el-button type="primary" size="mini" plain @click="handleUpdate(scope.row)">编辑</el-button>
           <el-button
             :type="scope.row.enabled ? 'warning' : 'success'"
             size="mini"
+            plain
             @click="handleEnable(scope.row)"
           >
             {{ scope.row.enabled ? '禁用' : '启用' }}
           </el-button>
-          <el-button type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
+          <el-button type="danger" size="mini" plain @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <!-- 添加或修改对话框 -->
-    <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" width="500">
+    <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" width="500" custom-class="holiday-dialog">
       <el-form ref="dataForm" :model="dataForm" :rules="rules" label-position="left" label-width="80px">
         <el-form-item label="名称" prop="name">
-          <el-input v-model="dataForm.name" placeholder="节日名称" />
+          <el-input v-model="dataForm.name" placeholder="请输入节日名称" />
         </el-form-item>
         <el-form-item label="日期范围" prop="dateRange">
           <el-date-picker
@@ -73,9 +83,9 @@
     </el-dialog>
 
     <!-- 关联商品对话框 -->
-    <el-dialog :visible.sync="goodsDialogVisible" title="关联商品" width="700">
-      <div style="margin-bottom: 15px;">
-        <el-input v-model="goodsSearchName" placeholder="搜索商品名称" style="width: 200px; margin-right: 10px;" clearable />
+    <el-dialog :visible.sync="goodsDialogVisible" title="关联商品" width="700" custom-class="holiday-dialog">
+      <div class="goods-search-bar">
+        <el-input v-model="goodsSearchName" placeholder="搜索商品名称" style="width: 220px;" clearable prefix-icon="el-icon-search" @keyup.enter.native="loadGoodsList" />
         <el-button type="primary" size="small" @click="loadGoodsList">搜索</el-button>
       </div>
       <el-table v-loading="goodsLoading" :data="goodsList" border max-height="400" @selection-change="handleGoodsSelectionChange">
@@ -361,3 +371,99 @@ export default {
   }
 }
 </script>
+
+<style>
+/* ============================
+   节日管理页 — 温暖节日感 + 干净管理效率
+   ============================ */
+
+.holiday-page {
+  padding: 20px;
+}
+
+/* ---------- 工具栏 ---------- */
+.holiday-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #fff8f0 0%, #fff3e8 100%);
+  border-radius: 8px;
+  border: 1px solid #f5e6d3;
+}
+
+.holiday-toolbar .toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.toolbar-count {
+  font-size: 13px;
+  color: #a0886a;
+  white-space: nowrap;
+}
+
+/* ---------- 表格 ---------- */
+.holiday-table .holiday-name {
+  font-weight: 600;
+  color: #5a3e2b;
+}
+
+.holiday-table .date-range {
+  font-size: 13px;
+  color: #8c7a6b;
+  letter-spacing: 0.3px;
+}
+
+/* ---------- 状态指示 ---------- */
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+.status-dot.status-active   { background: #13ce66; box-shadow: 0 0 4px rgba(19,206,102,.4); }
+.status-dot.status-upcoming { background: #ffba00; box-shadow: 0 0 4px rgba(255,186,0,.35); }
+.status-dot.status-ended    { background: #c0c4cc; }
+.status-dot.status-disabled { background: #909399; }
+
+.status-text {
+  font-size: 12px;
+  vertical-align: middle;
+}
+.status-text-active   { color: #13ce66; }
+.status-text-upcoming { color: #e6a23c; }
+.status-text-ended    { color: #909399; }
+.status-text-disabled { color: #606266; }
+
+/* ---------- 对话框 ---------- */
+.holiday-dialog .el-dialog__header {
+  background: linear-gradient(135deg, #fff5ec 0%, #ffe9d6 100%);
+  border-bottom: 1px solid #f0d9c4;
+  padding: 16px 20px;
+}
+.holiday-dialog .el-dialog__title {
+  font-weight: 600;
+  color: #5a3e2b;
+  font-size: 16px;
+}
+.holiday-dialog .el-dialog__body {
+  padding: 20px 24px;
+}
+.holiday-dialog .el-dialog__footer {
+  padding: 12px 20px 16px;
+  border-top: 1px solid #f0e8e0;
+}
+
+/* ---------- 关联商品搜索栏 ---------- */
+.goods-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+</style>

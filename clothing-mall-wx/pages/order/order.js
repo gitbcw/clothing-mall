@@ -7,7 +7,7 @@ Page({
   data: {
     statusBarHeight: 20,
     navBarHeight: 44,
-    tabs: ['全部', '待付款', '待发货', '待收货', '已完成'],
+    tabs: ['全部', '待付款', '待发货', '待收货/使用', '已完成'],
     currentTab: 0,
 
     orderList: [],
@@ -18,10 +18,11 @@ Page({
   },
 
   onLoad(options) {
-    const sysInfo = wx.getSystemInfoSync()
-    const isIOS = sysInfo.system.indexOf('iOS') > -1
+    const { system } = wx.getDeviceInfo()
+    const { statusBarHeight } = wx.getWindowInfo()
+    const isIOS = system.indexOf('iOS') > -1
     this.setData({
-      statusBarHeight: sysInfo.statusBarHeight,
+      statusBarHeight,
       navBarHeight: isIOS ? 44 : 48
     })
 

@@ -248,6 +248,10 @@ page {
   color: #e64340;
 }
 
+.coupon-text.disabled {
+  color: #cccccc;
+}
+
 /* 合计 */
 .total-wrap {
   display: flex;
@@ -632,4 +636,186 @@ page {
   height: env(safe-area-inset-bottom);
   width: 100%;
   background-color: #ffffff;
+}
+
+/* ================== 配送方式切换 ================== */
+.delivery-tabs {
+  display: flex;
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  padding: 8rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.02);
+}
+
+.delivery-tabs .tab {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+  color: #666666;
+  border-radius: 16rpx;
+  transition: all 0.2s;
+}
+
+.delivery-tabs .tab.active {
+  background-color: #FF8096;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* ================== 自提联系人卡片 ================== */
+.pickup-contact-card {
+  padding: 32rpx;
+}
+
+.pickup-contact-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pickup-contact-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.pickup-contact-detail {
+  font-size: 28rpx;
+  color: #333333;
+}
+
+/* ================== 门店选择卡片 ================== */
+.store-select-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+}
+
+.store-select-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.store-select-label {
+  font-size: 24rpx;
+  color: #999999;
+  margin-bottom: 8rpx;
+}
+
+.store-select-value {
+  font-size: 28rpx;
+  color: #333333;
+  font-weight: 500;
+}
+
+.store-select-value.placeholder {
+  color: #999999;
+  font-weight: normal;
+}
+
+/* ================== 门店选择弹窗 ================== */
+.store-picker-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 900;
+}
+
+.store-picker {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 32rpx 32rpx 0 0;
+  z-index: 1000;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100rpx;
+  position: relative;
+  border-bottom: 1rpx solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.picker-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333333;
+}
+
+.picker-close {
+  position: absolute;
+  right: 32rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36rpx;
+  height: 36rpx;
+}
+
+.picker-close::before,
+.picker-close::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2rpx;
+  background-color: #999999;
+}
+
+.picker-close::before {
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.picker-close::after {
+  transform: translateY(-50%) rotate(-45deg);
+}
+
+.picker-list {
+  flex: 1;
+  padding: 24rpx 32rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+}
+
+.store-option {
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  background-color: #f7f8fa;
+  border-radius: 16rpx;
+  border: 2rpx solid transparent;
+}
+
+.store-option.selected {
+  border-color: #FF8096;
+  background-color: #fff5f7;
+}
+
+.store-option-name {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 8rpx;
+}
+
+.store-option-address {
+  font-size: 24rpx;
+  color: #666666;
+  margin-bottom: 4rpx;
+}
+
+.store-option-hours {
+  font-size: 22rpx;
+  color: #999999;
 }

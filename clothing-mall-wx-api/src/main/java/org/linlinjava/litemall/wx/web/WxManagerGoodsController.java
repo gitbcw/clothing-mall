@@ -9,6 +9,7 @@ import org.linlinjava.litemall.db.domain.ClothingGoodsSku;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.ClothingGoodsSkuService;
+import org.linlinjava.litemall.db.service.LitemallCategoryService;
 import org.linlinjava.litemall.db.service.LitemallGoodsService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
@@ -45,6 +46,9 @@ public class WxManagerGoodsController {
     @Autowired
     private ClothingGoodsSkuService clothingGoodsSkuService;
 
+    @Autowired
+    private LitemallCategoryService categoryService;
+
     // ========== 权限校验 ==========
 
     /**
@@ -69,6 +73,16 @@ public class WxManagerGoodsController {
     }
 
     // ========== API 接口 ==========
+
+    /**
+     * 获取商品分类列表（管理端）
+     */
+    @GetMapping("category")
+    public Object category(@LoginUser Integer userId) {
+        Object error = checkManager(userId);
+        if (error != null) return error;
+        return ResponseUtil.okList(categoryService.querySelective(null, null, 1, 100, "sort_order", "asc"));
+    }
 
     /**
      * 商品列表（管理端）
@@ -386,6 +400,16 @@ public class WxManagerGoodsController {
         goods.setBrief((String) body.get("brief"));
         goods.setDetail((String) body.get("detail"));
         goods.setKeywords((String) body.get("keywords"));
+
+        Object counterPriceObj = body.get("counterPrice");
+        if (counterPriceObj != null) {
+            goods.setCounterPrice(new BigDecimal(counterPriceObj.toString()));
+        }
+
+        Object retailPriceObj = body.get("retailPrice");
+        if (retailPriceObj != null) {
+            goods.setRetailPrice(new BigDecimal(retailPriceObj.toString()));
+        }
 
         Object specialPriceObj = body.get("specialPrice");
         if (specialPriceObj != null) {

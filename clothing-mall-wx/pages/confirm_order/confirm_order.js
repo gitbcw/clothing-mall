@@ -38,10 +38,11 @@ Page({
   },
 
   onLoad() {
-    const sysInfo = wx.getSystemInfoSync()
-    const isIOS = sysInfo.system.indexOf('iOS') > -1
+    const { system } = wx.getDeviceInfo()
+    const { statusBarHeight } = wx.getWindowInfo()
+    const isIOS = system.indexOf('iOS') > -1
     this.setData({
-      statusBarHeight: sysInfo.statusBarHeight,
+      statusBarHeight,
       navBarHeight: isIOS ? 44 : 48
     })
   },
@@ -213,6 +214,14 @@ Page({
         wx.removeStorageSync('addressId')
         wx.removeStorageSync('couponId')
         wx.removeStorageSync('userCouponId')
+        // 0元订单（如优惠券全额抵扣），后端已标记为已支付，直接跳支付成功页
+        if (res.data.payed) {
+          wx.hideLoading()
+          wx.redirectTo({
+            url: '/pages/payResult/payResult?status=1&orderId=' + orderId
+          })
+          return
+        }
         util.request(api.OrderPrepay, {
           orderId: orderId
         }, 'POST').then(function(prepayRes) {

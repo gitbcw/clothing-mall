@@ -17,30 +17,34 @@ Page({
     statusBarHeight: 20,
     navBarHeight: 44,
     activeSubTab: 'upload',  // 'upload' | 'list'
-    listTab: 'on_sale',      // 'on_sale' | 'pending'
+    listTab: 'on_sale',
     // 表单数据
     form: {
       picUrl: '',
       gallery: [],
       name: '',
       brief: '',
-      detail: '',  // 商品详细介绍
+      detail: '',
       counterPrice: '',
       retailPrice: '',
       specialPrice: '',
       categoryId: '',
       categoryName: '',
       keywords: '',
-      scenes: []  // 选中的场景标签
+      scenes: []
     },
     // 预设场景标签
     presetScenes: [
       '日常通勤', '约会聚餐', '度假旅行', '运动健身', '居家休闲', '商务正式'
     ],
-    customSceneInput: '',  // 自定义场景输入
+    sceneMap: {},
+    presetSceneMap: {},
+    customSceneInput: '',
     showCustomSceneInput: false,
-    // 商品参数（键值对）
+    // 商品参数
     params: [],
+    // SKU 列表
+    skuList: [],
     // 商品列表
     goodsList: [],
     page: 1,
@@ -48,13 +52,16 @@ Page({
     total: 0,
     tabCounts: {
       onSaleCount: 0,
-      pendingCount: 0
+      pendingCount: 0,
+      draftCount: 0
     },
     loading: false,
     hasDraft: false,
+    showDraftTip: false,
     searchKeyword: '',
-    batchMode: false,    // 批量操作模式
-    selectedIds: [],      // 已选中的商品 ID
+    batchMode: false,
+    selectedIds: [],
+    selectedMap: {},
     // 分类数据
     categoryList: [],
     showCategoryPicker: false,
@@ -64,27 +71,37 @@ Page({
     aiRecognized: false,
     // 预览模式
     showPreview: false,
+    // 草稿保存时间
+    draftSavedAt: '',
+    defaultImage: '/static/images/fallback-image.svg',
     previewData: null
   },
 
   onLoad() {
-    // 获取系统信息，设置状态栏高度
-    const sysInfo = wx.getSystemInfoSync();
-    const isIOS = sysInfo.system.indexOf('iOS') > -1;
+    const { system } = wx.getDeviceInfo();
+    const { statusBarHeight } = wx.getWindowInfo();
+    const isIOS = system.indexOf('iOS') > -1;
     this.setData({
-      statusBarHeight: sysInfo.statusBarHeight,
+      statusBarHeight,
       navBarHeight: isIOS ? 44 : 48
     });
+    // 初始化预设场景查找表
+    var psm = {};
+    this.data.presetScenes.forEach(function(s) { psm[s] = true; });
+    this.setData({ presetSceneMap: psm });
     this.loadDraft();
     this.getCategoryList();
     this.getGoodsList();
   },
 
   onShow() {
-    // 更新管理端 TabBar
     const tabBar = this.selectComponent('#managerTabBar');
     if (tabBar) {
       tabBar.setData({ active: 1 });
+    }
+    // 从编辑页返回时刷新列表
+    if (this.data.activeSubTab === 'list') {
+      this.refreshGoodsList();
     }
   },
 
@@ -101,10 +118,10 @@ Page({
   // ========== 分类相关 ==========
   getCategoryList() {
     let that = this;
-    util.request(api.GoodsCategory).then(function(res) {
+    util.request(api.ManagerGoodsCategory).then(function(res) {
       if (res.errno === 0) {
         that.setData({
-          categoryList: res.data.list || []
+          categoryList: res.data.list || res.data || []
         });
       }
     });
@@ -132,12 +149,6 @@ Page({
   },
 
   // ========== 表单操作 ==========
-  onFormInput: debounce(function(e) {
-    const field = e.currentTarget.dataset.field;
-    this.setData({ ['form.' + field]: e.detail.value });
-    this.autoSaveDraft();
-  }, 500),
-
   onNameInput(e) {
     this.setData({ 'form.name': e.detail.value });
     this.autoSaveDraft();
@@ -174,16 +185,22 @@ Page({
   },
 
   // ========== 场景标签操作 ==========
+  _buildSceneMap(scenes) {
+    var map = {};
+    (scenes || []).forEach(function(s) { map[s] = true; });
+    return map;
+  },
+
   onSceneToggle(e) {
     const scene = e.currentTarget.dataset.scene;
-    const scenes = this.data.form.scenes || [];
+    const scenes = (this.data.form.scenes || []).slice();
     const index = scenes.indexOf(scene);
     if (index > -1) {
       scenes.splice(index, 1);
     } else {
       scenes.push(scene);
     }
-    this.setData({ 'form.scenes': scenes });
+    this.setData({ 'form.scenes': scenes, sceneMap: this._buildSceneMap(scenes) });
     this.autoSaveDraft();
   },
 
@@ -202,9 +219,8 @@ Page({
   addCustomScene() {
     const input = this.data.customSceneInput.trim();
     if (!input) return;
-    const scenes = this.data.form.scenes || [];
+    const scenes = (this.data.form.scenes || []).slice();
     const presets = this.data.presetScenes;
-    // 如果已存在（无论预设还是已添加），不重复添加
     if (scenes.indexOf(input) > -1 || presets.indexOf(input) > -1) {
       wx.showToast({ title: '场景已存在', icon: 'none' });
       return;
@@ -212,6 +228,7 @@ Page({
     scenes.push(input);
     this.setData({
       'form.scenes': scenes,
+      sceneMap: this._buildSceneMap(scenes),
       customSceneInput: '',
       showCustomSceneInput: false
     });
@@ -220,17 +237,13 @@ Page({
 
   removeScene(e) {
     const scene = e.currentTarget.dataset.scene;
-    const scenes = this.data.form.scenes || [];
+    const scenes = (this.data.form.scenes || []).slice();
     const index = scenes.indexOf(scene);
     if (index > -1) {
       scenes.splice(index, 1);
-      this.setData({ 'form.scenes': scenes });
+      this.setData({ 'form.scenes': scenes, sceneMap: this._buildSceneMap(scenes) });
       this.autoSaveDraft();
     }
-  },
-
-  isSceneSelected(scene) {
-    return (this.data.form.scenes || []).indexOf(scene) > -1;
   },
 
   // ========== 商品参数操作 ==========
@@ -268,14 +281,11 @@ Page({
       sourceType: ['album', 'camera'],
       success(res) {
         const tempPath = res.tempFilePaths[0];
-        // 先显示图片
         that.setData({ 'form.picUrl': tempPath, aiRecognizing: true });
-        // 上传图片
         that.uploadImage(tempPath, function(url) {
           if (url) {
             that.setData({ 'form.picUrl': url });
             that.autoSaveDraft();
-            // 上传成功后调用 AI 识别
             that.recognizeImage(url);
           } else {
             that.setData({ aiRecognizing: false });
@@ -285,13 +295,11 @@ Page({
     });
   },
 
-  // AI 识别图片
   recognizeImage(imageUrl) {
     let that = this;
     util.request(api.AiRecognizeByUrl, { imageUrl: imageUrl }, 'POST').then(function(res) {
       if (res.errno === 0 && res.data) {
         const aiData = res.data;
-        // 填充表单
         const updates = {};
         if (aiData.name && !that.data.form.name) {
           updates['form.name'] = aiData.name;
@@ -303,7 +311,6 @@ Page({
           updates.aiConfidence = aiData.confidence;
           updates.aiRecognized = true;
         }
-        // 根据分类名称匹配分类 ID
         if (aiData.category && that.data.categoryList.length > 0) {
           const matchedCategory = that.data.categoryList.find(function(c) {
             return c.name === aiData.category || c.name.indexOf(aiData.category) > -1;
@@ -313,15 +320,14 @@ Page({
             updates['form.categoryName'] = matchedCategory.name;
           }
         }
-        // 添加场景标签
         if (aiData.style && that.data.presetScenes.indexOf(aiData.style) === -1) {
-          const scenes = that.data.form.scenes || [];
+          const scenes = (that.data.form.scenes || []).slice();
           if (scenes.indexOf(aiData.style) === -1) {
             scenes.push(aiData.style);
             updates['form.scenes'] = scenes;
+            updates.sceneMap = that._buildSceneMap(scenes);
           }
         }
-        // 添加商品参数
         if (aiData.material || aiData.color || aiData.pattern) {
           const params = that.data.params.slice();
           if (aiData.material) params.push({ key: '面料', value: aiData.material });
@@ -332,7 +338,6 @@ Page({
         updates.aiRecognizing = false;
         that.setData(updates);
         that.autoSaveDraft();
-        // 显示识别结果提示
         if (aiData.isMock) {
           wx.showToast({ title: 'AI Mock 识别完成', icon: 'none' });
         } else {
@@ -388,25 +393,54 @@ Page({
     });
   },
 
+  // ========== SKU 操作 ==========
+  addSku() {
+    this.data.skuList.push({ color: '', size: '', price: '', stock: '' });
+    this.setData({ skuList: this.data.skuList });
+  },
+
+  removeSku(e) {
+    const index = e.currentTarget.dataset.index;
+    this.data.skuList.splice(index, 1);
+    this.setData({ skuList: this.data.skuList });
+  },
+
+  onSkuInput(e) {
+    const { index, field } = e.currentTarget.dataset;
+    this.setData({ ['skuList[' + index + '].' + field]: e.detail.value });
+  },
+
   // ========== 草稿操作 ==========
   autoSaveDraft() {
+    var now = new Date();
+    var timeStr = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
     const draft = {
       form: this.data.form,
       params: this.data.params,
-      savedAt: new Date().toISOString()
+      skuList: this.data.skuList,
+      savedAt: now.toISOString()
     };
     wx.setStorageSync('managerShelfDraft', draft);
-    this.setData({ hasDraft: true });
+    this.setData({ hasDraft: true, draftSavedAt: timeStr });
   },
 
   loadDraft() {
     try {
       const draft = wx.getStorageSync('managerShelfDraft');
       if (draft && draft.form) {
+        var savedAt = '';
+        if (draft.savedAt) {
+          var d = new Date(draft.savedAt);
+          savedAt = d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+        }
         this.setData({
           form: draft.form,
           params: draft.params || [],
-          hasDraft: true
+          skuList: draft.skuList || [],
+          hasDraft: true,
+          showDraftTip: true,
+          draftSavedAt: savedAt,
+          sceneMap: this._buildSceneMap(draft.form.scenes)
         });
       }
     } catch (e) {
@@ -432,8 +466,31 @@ Page({
         scenes: []
       },
       params: [],
-      hasDraft: false
+      skuList: [],
+      hasDraft: false,
+      showDraftTip: false,
+      draftSavedAt: '',
+      sceneMap: {},
+      aiRecognized: false,
+      aiConfidence: null
     });
+  },
+
+  onClearDraft() {
+    let that = this;
+    wx.showModal({
+      title: '确认清除',
+      content: '确认清除草稿内容？清除后不可恢复。',
+      success(res) {
+        if (res.confirm) {
+          that.clearDraft();
+        }
+      }
+    });
+  },
+
+  onContinueDraft() {
+    this.setData({ activeSubTab: 'upload' });
   },
 
   // ========== 预览操作 ==========
@@ -486,11 +543,20 @@ Page({
       scenes: form.scenes || [],
       params: this.data.params.filter(function(p) {
         return p.key && p.key.trim();
+      }),
+      skus: this.data.skuList.filter(function(s) {
+        return s.color || s.size;
+      }).map(function(s) {
+        return {
+          color: s.color,
+          size: s.size,
+          price: s.price ? parseFloat(s.price) : null,
+          stock: s.stock ? parseInt(s.stock) : 0
+        };
       })
     };
   },
 
-  // 保存草稿到服务器
   onSaveDraft() {
     if (!this.validateForm()) return;
     let that = this;
@@ -506,23 +572,19 @@ Page({
     });
   },
 
-  // 上架商品
   onPublish() {
     if (!this.validateForm()) return;
     let that = this;
     const data = this.collectFormData();
 
-    // 先创建商品
     util.request(api.ManagerGoodsCreate, data, 'POST').then(function(res) {
       if (res.errno === 0) {
         const goodsId = res.data;
-        // 再上架
         util.request(api.ManagerGoodsPublish, { id: goodsId }, 'POST').then(function(res2) {
           if (res2.errno === 0) {
             wx.showToast({ title: '上架成功', icon: 'success' });
             that.clearDraft();
-            // 切换到列表 Tab
-            that.setData({ activeSubTab: 'list', listTab: 'on_sale' });
+            that.setData({ showPreview: false, activeSubTab: 'list', listTab: 'on_sale' });
             that.refreshGoodsList();
           } else {
             wx.showToast({ title: '保存成功但上架失败', icon: 'none' });
@@ -557,14 +619,16 @@ Page({
     let that = this;
     this.setData({ loading: true });
 
-    const status = this.data.listTab === 'on_sale' ? 'on_sale' : 'pending';
-
-    util.request(api.ManagerGoodsList, {
-      status: status,
+    var params = {
+      status: this.data.listTab,
       page: this.data.page,
-      limit: this.data.limit,
-      keyword: this.data.searchKeyword || undefined
-    }).then(function(res) {
+      limit: this.data.limit
+    };
+    var keyword = (this.data.searchKeyword || '').trim();
+    if (keyword) {
+      params.keyword = keyword;
+    }
+    util.request(api.ManagerGoodsList, params).then(function(res) {
       if (res.errno === 0) {
         const data = res.data;
         that.setData({
@@ -572,7 +636,8 @@ Page({
           total: data.total || 0,
           tabCounts: {
             onSaleCount: data.onSaleCount || 0,
-            pendingCount: data.pendingCount || 0
+            pendingCount: data.pendingCount || 0,
+            draftCount: data.draftCount || 0
           },
           loading: false
         });
@@ -598,7 +663,6 @@ Page({
     }
   },
 
-  // 编辑商品
   onEditGoods(e) {
     const id = e.currentTarget.dataset.id;
     wx.navigateTo({
@@ -606,7 +670,6 @@ Page({
     });
   },
 
-  // 下架商品
   onUnpublishGoods(e) {
     const id = e.currentTarget.dataset.id;
     let that = this;
@@ -628,7 +691,6 @@ Page({
     });
   },
 
-  // 上架商品
   onPublishGoods(e) {
     const id = e.currentTarget.dataset.id;
     let that = this;
@@ -642,7 +704,27 @@ Page({
     });
   },
 
-  // 一键下架全部
+  onDeleteGoods(e) {
+    const id = e.currentTarget.dataset.id;
+    let that = this;
+    wx.showModal({
+      title: '确认删除',
+      content: '确认删除该草稿商品？删除后不可恢复。',
+      success(res) {
+        if (res.confirm) {
+          util.request(api.ManagerGoodsBatchDelete, { ids: [id] }, 'POST').then(function(res) {
+            if (res.errno === 0) {
+              wx.showToast({ title: '已删除', icon: 'success' });
+              that.refreshGoodsList();
+            } else {
+              wx.showToast({ title: res.errmsg || '删除失败', icon: 'none' });
+            }
+          });
+        }
+      }
+    });
+  },
+
   onUnpublishAll() {
     let that = this;
     wx.showModal({
@@ -663,35 +745,52 @@ Page({
     });
   },
 
-  // 批量操作模式
+  _syncSelectedMap: function(selectedIds) {
+    var map = {};
+    selectedIds.forEach(function(id) {
+      map[id] = true;
+    });
+    return map;
+  },
+
   toggleBatchMode() {
     this.setData({
       batchMode: !this.data.batchMode,
-      selectedIds: []
+      selectedIds: [],
+      selectedMap: {}
     });
   },
 
   onSelectGoods(e) {
-    const id = e.currentTarget.dataset.id;
-    let selectedIds = this.data.selectedIds.slice();
-    const index = selectedIds.indexOf(id);
+    var id = e.currentTarget.dataset.id;
+    var selectedIds = this.data.selectedIds.slice();
+    var index = -1;
+    for (var i = 0; i < selectedIds.length; i++) {
+      if (selectedIds[i] == id) { index = i; break; }
+    }
     if (index > -1) {
       selectedIds.splice(index, 1);
     } else {
       selectedIds.push(id);
     }
-    this.setData({ selectedIds: selectedIds });
+    this.setData({
+      selectedIds: selectedIds,
+      selectedMap: this._syncSelectedMap(selectedIds)
+    });
   },
 
   onSelectAll() {
-    const allIds = this.data.goodsList.map(function(g) { return g.id; });
-    const allSelected = allIds.length > 0 && allIds.every(function(id) {
-      return this.data.selectedIds.indexOf(id) > -1;
+    var allIds = this.data.goodsList.map(function(g) { return g.id; });
+    var allSelected = allIds.length > 0 && allIds.every(function(id) {
+      return this.data.selectedMap[id];
     }.bind(this));
     if (allSelected) {
-      this.setData({ selectedIds: [] });
+      this.setData({ selectedIds: [], selectedMap: {} });
     } else {
-      this.setData({ selectedIds: allIds });
+      this.setData({
+        selectedIds: allIds,
+        selectedMap: this._syncSelectedMap(allIds)
+      });
     }
   },
 
@@ -710,7 +809,7 @@ Page({
           util.request(api.ManagerGoodsBatchDelete, { ids: ids }, 'POST').then(function(res) {
             if (res.errno === 0) {
               wx.showToast({ title: '删除成功', icon: 'success' });
-              that.setData({ batchMode: false, selectedIds: [] });
+              that.setData({ batchMode: false, selectedIds: [], selectedMap: {} });
               that.refreshGoodsList();
             } else {
               wx.showToast({ title: res.errmsg || '删除失败', icon: 'none' });
@@ -721,12 +820,13 @@ Page({
     });
   },
 
-  // 状态文本
-  statusText(status, isOnSale) {
-    if (status === 'draft') return '草稿';
-    if (status === 'pending') return '待上架';
-    if (status === 'published' && isOnSale) return '已上架';
-    if (status === 'published' && !isOnSale) return '已下架';
-    return '未知';
+  onGoodsImageError: function(e) {
+    var index = e.currentTarget.dataset.index;
+    var list = this.data.goodsList || [];
+    if (list[index] && list[index].picUrl !== this.data.defaultImage) {
+      this.setData({
+        ['goodsList[' + index + '].picUrl']: this.data.defaultImage
+      });
+    }
   }
 });

@@ -33,9 +33,9 @@ Page({
     });
   },
   onLoad: function() {
-    const sysInfo = wx.getSystemInfoSync();
+    const { statusBarHeight } = wx.getWindowInfo();
     this.setData({
-      statusBarHeight: sysInfo.statusBarHeight || 20
+      statusBarHeight: statusBarHeight || 20
     });
     this.getSearchKeyword();
   },

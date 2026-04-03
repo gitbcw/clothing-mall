@@ -373,14 +373,14 @@ page {
   content: "";
   width: 20rpx;
   height: 2rpx;
-  background-color: #dddddd;
+  background-color: #333333;
 }
 
 .step-btn.plus::after {
   content: "";
   width: 2rpx;
   height: 20rpx;
-  background-color: #dddddd;
+  background-color: #333333;
   position: absolute;
 }
 

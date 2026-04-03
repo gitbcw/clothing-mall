@@ -1,14 +1,44 @@
 <view class="container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-inner" style="height: {{navBarHeight}}px;">
+      <view class="nav-back" bindtap="onGoBack">
+        <text class="back-arrow">&lt;</text>
+      </view>
+      <view class="nav-title">{{navTitle}}</view>
+      <view class="nav-placeholder"></view>
+    </view>
+  </view>
+  <!-- 占位符 -->
+  <view class="nav-placeholder" style="height: {{statusBarHeight + navBarHeight}}px;"></view>
+
+  <!-- 草稿提示（仅新建模式） -->
+  <view class="draft-tip" wx:if="{{hasDraft && !isEdit}}">
+    <text class="draft-icon">📋</text>
+    <text>有未提交的草稿</text>
+  </view>
+
   <view class="form-section" wx:if="{{!loading}}">
     <!-- 商品图片 -->
     <view class="section">
-      <view class="section-title">商品图片</view>
+      <view class="section-title">
+        <text>商品图片</text>
+        <text class="ai-hint" wx:if="{{aiRecognized}}">AI 识别置信度 {{aiConfidence}}%</text>
+      </view>
       <view class="image-upload">
         <view class="main-image" bindtap="chooseMainImage">
           <image wx:if="{{goods.picUrl}}" src="{{goods.picUrl}}" mode="aspectFill" class="preview-image"></image>
           <view wx:else class="upload-placeholder">
             <text class="upload-icon">+</text>
             <text class="upload-text">主图</text>
+          </view>
+          <!-- AI 识别中遮罩 -->
+          <view class="ai-overlay" wx:if="{{aiRecognizing}}">
+            <text class="ai-loading">AI 识别中...</text>
+          </view>
+          <!-- AI 识别标签 -->
+          <view class="ai-badge" wx:if="{{aiRecognized && !aiRecognizing}}">
+            <text>AI {{aiConfidence}}%</text>
           </view>
         </view>
       </view>
@@ -58,12 +88,12 @@
     <view class="section">
       <view class="section-title">场景标签</view>
       <view class="scene-chips">
-        <view class="scene-chip {{scenes.indexOf(item) > -1 ? 'active' : ''}}"
+        <view class="scene-chip {{sceneMap[item] ? 'active' : ''}}"
               wx:for="{{presetScenes}}" wx:key="*this" bindtap="onSceneToggle" data-scene="{{item}}">
           {{item}}
         </view>
         <view class="scene-chip active" wx:for="{{scenes}}" wx:for-item="scene" wx:key="*this"
-              wx:if="{{presetScenes.indexOf(scene) === -1}}">
+              wx:if="{{!presetSceneMap[scene]}}">
           {{scene}}
           <text class="chip-remove" catchtap="removeScene" data-scene="{{scene}}">×</text>
         </view>
@@ -124,39 +154,55 @@
       </view>
     </view>
 
-    <!-- SKU 管理 -->
-    <view class="section">
-      <view class="section-title">
-        <text>SKU 规格</text>
-        <view class="add-sku-btn" bindtap="addSku">+ 添加规格</view>
-      </view>
-      <view class="sku-list" wx:if="{{skuList.length > 0}}">
-        <view class="sku-header">
-          <text class="sku-col">颜色</text>
-          <text class="sku-col">尺码</text>
-          <text class="sku-col">价格</text>
-          <text class="sku-col">库存</text>
-          <text class="sku-col sku-col-action">操作</text>
-        </view>
-        <view class="sku-row" wx:for="{{skuList}}" wx:key="index">
-          <input class="sku-input" placeholder="颜色" value="{{item.color}}" bindinput="onSkuInput" data-index="{{index}}" data-field="color" />
-          <input class="sku-input" placeholder="尺码" value="{{item.size}}" bindinput="onSkuInput" data-index="{{index}}" data-field="size" />
-          <input class="sku-input" type="digit" placeholder="价格" value="{{item.price}}" bindinput="onSkuInput" data-index="{{index}}" data-field="price" />
-          <input class="sku-input" type="number" placeholder="库存" value="{{item.stock}}" bindinput="onSkuInput" data-index="{{index}}" data-field="stock" />
-          <view class="sku-delete" catchtap="removeSku" data-index="{{index}}">×</view>
-        </view>
-      </view>
-      <view class="sku-empty" wx:else>
-        <text>暂无规格，点击上方按钮添加</text>
-      </view>
-    </view>
   </view>
 
   <!-- 底部操作栏 -->
   <view class="action-bar" wx:if="{{!loading}}">
-    <view class="action-btn btn-save" bindtap="onSaveDraft">保存草稿</view>
-    <view class="action-btn btn-publish" bindtap="onPublish" wx:if="{{goods.status !== 'published'}}">保存并上架</view>
-    <view class="action-btn btn-unpublish" bindtap="onUnpublish" wx:if="{{goods.status === 'published' && goods.isOnSale}}">下架</view>
+    <!-- 新建模式：预览 | 暂存草稿 | 立即上架 -->
+    <block wx:if="{{!isEdit}}">
+      <view class="action-btn btn-preview" bindtap="onPreview">预览</view>
+      <view class="action-btn btn-save" bindtap="onSaveDraft">暂存草稿</view>
+      <view class="action-btn btn-publish" bindtap="onPublish">立即上架</view>
+    </block>
+    <!-- 编辑模式：预览 | 暂存草稿 | 保存并上架/下架 -->
+    <block wx:else>
+      <view class="action-btn btn-preview" bindtap="onPreview">预览</view>
+      <view class="action-btn btn-save" bindtap="onSaveDraft">暂存草稿</view>
+      <view class="action-btn btn-publish" bindtap="onPublish" wx:if="{{goods.status !== 'published'}}">保存并上架</view>
+      <view class="action-btn btn-unpublish" bindtap="onUnpublish" wx:if="{{goods.status === 'published' && goods.isOnSale}}">下架</view>
+    </block>
+  </view>
+
+  <!-- 预览弹窗 -->
+  <view class="preview-popup" wx:if="{{showPreview}}">
+    <view class="preview-mask" bindtap="hidePreview"></view>
+    <view class="preview-content">
+      <view class="preview-header">
+        <text class="preview-title">商品预览（买家视角）</text>
+        <text class="preview-close" bindtap="hidePreview">×</text>
+      </view>
+      <view class="preview-body">
+        <view class="preview-card">
+          <image class="preview-image" src="{{previewData.picUrl}}" mode="aspectFill"></image>
+          <view class="preview-info">
+            <text class="preview-name">{{previewData.name}}</text>
+            <text class="preview-brief" wx:if="{{previewData.brief}}">{{previewData.brief}}</text>
+            <view class="preview-tags" wx:if="{{previewData.scenes.length > 0}}">
+              <text class="preview-tag" wx:for="{{previewData.scenes}}" wx:key="*this">{{item}}</text>
+            </view>
+            <view class="preview-price">
+              <text class="price-current">¥{{previewData.retailPrice}}</text>
+              <text class="price-original" wx:if="{{previewData.counterPrice}}">¥{{previewData.counterPrice}}</text>
+              <text class="price-special" wx:if="{{previewData.isSpecial}}">特价 ¥{{previewData.specialPrice}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="preview-footer">
+        <view class="preview-btn btn-cancel" bindtap="hidePreview">继续编辑</view>
+        <view class="preview-btn btn-confirm" bindtap="onPublish">确认上架</view>
+      </view>
+    </view>
   </view>
 
   <!-- 分类选择器 -->

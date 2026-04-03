@@ -18,10 +18,11 @@ Page({
 
   onLoad() {
     // 获取系统信息，设置状态栏高度
-    const sysInfo = wx.getSystemInfoSync();
-    const isIOS = sysInfo.system.indexOf('iOS') > -1;
+    const { system } = wx.getDeviceInfo();
+    const { statusBarHeight } = wx.getWindowInfo();
+    const isIOS = system.indexOf('iOS') > -1;
     this.setData({
-      statusBarHeight: sysInfo.statusBarHeight,
+      statusBarHeight,
       navBarHeight: isIOS ? 44 : 48
     });
     this.getOrderList();
@@ -88,11 +89,14 @@ Page({
     let that = this;
     this.setData({ loading: true });
 
-    // 根据子 Tab 选择状态
-    const status = this.data.activeSubTab === 'order' ? 'pending' : 'aftersale';
+    // 根据子 Tab 选择不同接口
+    if (this.data.activeSubTab === 'aftersale') {
+      this.getAftersaleList();
+      return;
+    }
 
     util.request(api.ManagerOrderList, {
-      status: status,
+      status: 'pending',
       page: this.data.page,
       limit: this.data.limit
     }).then(function(res) {
@@ -100,7 +104,6 @@ Page({
         const data = res.data;
         let newList = data.list || [];
 
-        // 处理商品数量统计
         newList.forEach(function(order) {
           let count = 0;
           if (order.goodsList) {
@@ -116,6 +119,31 @@ Page({
           total: data.total || 0,
           pendingCount: data.pendingCount || 0,
           aftersaleCount: data.aftersaleCount || 0,
+          loading: false
+        });
+      } else {
+        that.setData({ loading: false });
+      }
+    }).catch(function() {
+      that.setData({ loading: false });
+    });
+  },
+
+  getAftersaleList() {
+    let that = this;
+    util.request(api.ManagerAftersaleList, {
+      tab: 'pending',
+      page: this.data.page,
+      limit: this.data.limit
+    }).then(function(res) {
+      if (res.errno === 0) {
+        const data = res.data;
+        let newList = data.list || [];
+
+        that.setData({
+          orderList: that.data.page === 1 ? newList : that.data.orderList.concat(newList),
+          total: data.total || 0,
+          aftersaleCount: data.pendingCount || 0,
           loading: false
         });
       } else {
@@ -220,6 +248,94 @@ Page({
     const orderId = e.currentTarget.dataset.id;
     wx.navigateTo({
       url: '/pages/manager/orderDetail/orderDetail?id=' + orderId + '&action=refundReject'
+    });
+  },
+
+  // 售后：审核通过
+  onAftersaleRecept(e) {
+    const id = e.currentTarget.dataset.id;
+    let that = this;
+    wx.showModal({
+      title: '确认',
+      content: '同意该换货申请？',
+      success(res) {
+        if (res.confirm) {
+          util.request(api.ManagerAftersaleRecept, { id: id }, 'POST').then(function(res) {
+            if (res.errno === 0) {
+              wx.showToast({ title: '已同意', icon: 'success' });
+              that.refreshList();
+            } else {
+              wx.showToast({ title: res.errmsg || '操作失败', icon: 'none' });
+            }
+          });
+        }
+      }
+    });
+  },
+
+  // 售后：审核拒绝
+  onAftersaleReject(e) {
+    const id = e.currentTarget.dataset.id;
+    let that = this;
+    wx.showModal({
+      title: '确认',
+      content: '确认拒绝该换货申请？',
+      success(res) {
+        if (res.confirm) {
+          util.request(api.ManagerAftersaleReject, { id: id }, 'POST').then(function(res) {
+            if (res.errno === 0) {
+              wx.showToast({ title: '已拒绝', icon: 'success' });
+              that.refreshList();
+            } else {
+              wx.showToast({ title: res.errmsg || '操作失败', icon: 'none' });
+            }
+          });
+        }
+      }
+    });
+  },
+
+  // 售后：换货发货
+  onAftersaleShip(e) {
+    const id = e.currentTarget.dataset.id;
+    let that = this;
+    util.request(api.ManagerShippers, {}, 'GET').then(function(res) {
+      if (res.errno === 0 && res.data.length > 0) {
+        wx.showActionSheet({
+          itemList: res.data,
+          success(res2) {
+            const channelName = res.data[res2.tapIndex];
+            that.inputShipSn(id, channelName);
+          }
+        });
+      } else {
+        wx.showToast({ title: '请先配置快递公司', icon: 'none' });
+      }
+    });
+  },
+
+  inputShipSn(id, channel) {
+    let that = this;
+    wx.showModal({
+      title: '快递单号',
+      editable: true,
+      placeholderText: '请输入快递单号',
+      success(res) {
+        if (res.confirm && res.content) {
+          util.request(api.ManagerAftersaleShip, {
+            id: id,
+            shipChannel: channel,
+            shipSn: res.content.trim()
+          }, 'POST').then(function(res) {
+            if (res.errno === 0) {
+              wx.showToast({ title: '发货成功', icon: 'success' });
+              that.refreshList();
+            } else {
+              wx.showToast({ title: res.errmsg || '操作失败', icon: 'none' });
+            }
+          });
+        }
+      }
     });
   }
 });

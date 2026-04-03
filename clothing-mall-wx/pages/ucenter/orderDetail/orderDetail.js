@@ -11,7 +11,8 @@ Page({
     handleOption: {},
     isDemo: true,
     expressInfoReal: {},
-    pickupStore: null
+    pickupStore: null,
+    defaultImage: '/static/images/fallback-image.svg'
   },
   onLoad: function(options) {
     // 页面初始化 options为页面跳转所带来的参数
@@ -162,7 +163,17 @@ Page({
         }
         that.setData({
           orderInfo: res.data.orderInfo,
-          orderGoods: res.data.orderGoods,
+          orderGoods: res.data.orderGoods.map(function(goods) {
+            // 格式化规格显示：优先 size，否则将 specifications 数组拼接
+            var specStr = '';
+            if (goods.size) {
+              specStr = goods.size;
+            } else if (Array.isArray(goods.specifications) && goods.specifications.length > 0) {
+              specStr = goods.specifications.join(' / ');
+            }
+            goods.specificationsStr = specStr;
+            return goods;
+          }),
           handleOption: res.data.orderInfo.handleOption,
           expressInfo: demoExpress,
           expressInfoReal: realExpress
@@ -209,9 +220,12 @@ Page({
             console.log("支付过程结束")
           }
         });
+      } else {
+        util.showErrorToast(res.errmsg || '拉起支付失败');
       }
+    }).catch(function() {
+      util.showErrorToast('网络错误');
     });
-
   },
   // “取消订单”点击效果
   cancelOrder: function() {
@@ -346,6 +360,16 @@ Page({
         })
       }
     })
+  },
+  // 商品图片加载失败
+  onGoodsImageError: function(e) {
+    var index = e.currentTarget.dataset.index;
+    var list = this.data.orderGoods || [];
+    if (list[index] && list[index].picUrl !== this.data.defaultImage) {
+      this.setData({
+        ['orderGoods[' + index + '].picUrl']: this.data.defaultImage
+      });
+    }
   },
   // 获取自提门店信息
   getPickupStore: function(storeId) {

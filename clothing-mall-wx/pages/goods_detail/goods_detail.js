@@ -42,7 +42,6 @@ Page({
     // 分享
     canShare: true,
     openShare: false,
-    canWrite: false,
     defaultImage: '/static/images/fallback-image.svg'
   },
 
@@ -58,25 +57,7 @@ Page({
       this.getGoodsInfo()
     }
 
-    // 检查保存相册权限
-    let that = this
-    wx.getSetting({
-      success: function(res) {
-        if (!res.authSetting['scope.writePhotosAlbum']) {
-          wx.authorize({
-            scope: 'scope.writePhotosAlbum',
-            success: function() {
-              that.setData({ canWrite: true })
-            },
-            fail: function() {
-              that.setData({ canWrite: false })
-            }
-          })
-        } else {
-          that.setData({ canWrite: true })
-        }
-      }
-    })
+    // 权限在保存海报时按需请求，不提前授权
   },
 
   onShow() {
@@ -422,8 +403,33 @@ Page({
     this.setData({ openShare: false })
   },
 
-  // 保存分享图
+  // 保存分享图（按需请求权限）
   saveShare() {
+    let that = this
+    wx.getSetting({
+      success: function(res) {
+        if (res.authSetting['scope.writePhotosAlbum'] === false) {
+          // 用户曾经拒绝过，引导去设置页开启
+          wx.showModal({
+            title: '提示',
+            content: '需要您授权保存图片到相册',
+            confirmText: '去设置',
+            confirmColor: '#FF8096',
+            success: function(modalRes) {
+              if (modalRes.confirm) {
+                wx.openSetting()
+              }
+            }
+          })
+        } else {
+          that.doSaveShare()
+        }
+      }
+    })
+  },
+
+  // 实际保存图片到相册
+  doSaveShare() {
     let that = this
     wx.downloadFile({
       url: that.data.shareImage,

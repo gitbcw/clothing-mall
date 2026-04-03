@@ -36,6 +36,8 @@ Page({
     customSceneInput: '',
     showCustomSceneInput: false,
     scenes: [],
+    sceneMap: {},
+    presetSceneMap: {},
     // 商品参数
     params: [],
     // AI 识别
@@ -50,12 +52,17 @@ Page({
   },
 
   onLoad(options) {
-    const sysInfo = wx.getSystemInfoSync();
-    const isIOS = sysInfo.system.indexOf('iOS') > -1;
+    const { system } = wx.getDeviceInfo();
+    const { statusBarHeight } = wx.getWindowInfo();
+    const isIOS = system.indexOf('iOS') > -1;
     this.setData({
-      statusBarHeight: sysInfo.statusBarHeight,
+      statusBarHeight,
       navBarHeight: isIOS ? 44 : 48
     });
+    // 初始化预设场景查找表
+    var psm = {};
+    this.data.presetScenes.forEach(function(s) { psm[s] = true; });
+    this.setData({ presetSceneMap: psm });
 
     if (options.id) {
       // 编辑模式
@@ -132,6 +139,7 @@ Page({
           galleryList: goods.gallery ? Array.from(goods.gallery) : [],
           skuList: skuList,
           scenes: scenes,
+          sceneMap: that._buildSceneMap(scenes),
           params: params,
           loading: false
         });
@@ -203,10 +211,11 @@ Page({
           }
         }
         if (aiData.style && that.data.presetScenes.indexOf(aiData.style) === -1) {
-          const scenes = that.data.scenes.slice();
+          const scenes = (that.data.scenes || []).slice();
           if (scenes.indexOf(aiData.style) === -1) {
             scenes.push(aiData.style);
             updates.scenes = scenes;
+            updates.sceneMap = that._buildSceneMap(scenes);
           }
         }
         if (aiData.material || aiData.color || aiData.pattern) {
@@ -329,16 +338,22 @@ Page({
 
   // ========== 场景标签 ==========
 
+  _buildSceneMap(scenes) {
+    var map = {};
+    (scenes || []).forEach(function(s) { map[s] = true; });
+    return map;
+  },
+
   onSceneToggle(e) {
     const scene = e.currentTarget.dataset.scene;
-    const scenes = this.data.scenes || [];
+    const scenes = (this.data.scenes || []).slice();
     const index = scenes.indexOf(scene);
     if (index > -1) {
       scenes.splice(index, 1);
     } else {
       scenes.push(scene);
     }
-    this.setData({ scenes: scenes });
+    this.setData({ scenes: scenes, sceneMap: this._buildSceneMap(scenes) });
     this.autoSaveDraft();
   },
 
@@ -357,7 +372,7 @@ Page({
   addCustomScene() {
     const input = this.data.customSceneInput.trim();
     if (!input) return;
-    const scenes = this.data.scenes || [];
+    const scenes = (this.data.scenes || []).slice();
     const presets = this.data.presetScenes;
     if (scenes.indexOf(input) > -1 || presets.indexOf(input) > -1) {
       wx.showToast({ title: '场景已存在', icon: 'none' });
@@ -366,6 +381,7 @@ Page({
     scenes.push(input);
     this.setData({
       scenes: scenes,
+      sceneMap: this._buildSceneMap(scenes),
       customSceneInput: '',
       showCustomSceneInput: false
     });
@@ -374,11 +390,11 @@ Page({
 
   removeScene(e) {
     const scene = e.currentTarget.dataset.scene;
-    const scenes = this.data.scenes || [];
+    const scenes = (this.data.scenes || []).slice();
     const index = scenes.indexOf(scene);
     if (index > -1) {
       scenes.splice(index, 1);
-      this.setData({ scenes: scenes });
+      this.setData({ scenes: scenes, sceneMap: this._buildSceneMap(scenes) });
       this.autoSaveDraft();
     }
   },
@@ -453,6 +469,7 @@ Page({
           galleryList: draft.galleryList || [],
           skuList: draft.skuList || [],
           scenes: draft.scenes || [],
+          sceneMap: this._buildSceneMap(draft.scenes || []),
           params: draft.params || [],
           hasDraft: true
         });

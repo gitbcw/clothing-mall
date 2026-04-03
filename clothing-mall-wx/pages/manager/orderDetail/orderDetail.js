@@ -13,7 +13,7 @@ Page({
     showShipDialog: false,
     shipChannel: '',
     shipSn: '',
-    channelOptions: ['顺丰速运', '中通快递', '圆通快递', '韵达快递', '申通快递', '百世快递', '极兔速递', '邮政EMS', '京东快递', '其他'],
+    channelOptions: [],
     channelIndex: 0,
 
     // 核销弹窗
@@ -31,6 +31,7 @@ Page({
       action: options.action || ''
     });
     this.getOrderDetail();
+    this.loadShippers();
   },
 
   getOrderDetail() {
@@ -148,6 +149,15 @@ Page({
         that.getOrderDetail();
       } else {
         wx.showToast({ title: res.errmsg || '发货失败', icon: 'none' });
+      }
+    });
+  },
+
+  loadShippers() {
+    let that = this;
+    util.request(api.ManagerShippers, {}, 'GET').then(function(res) {
+      if (res.errno === 0) {
+        that.setData({ channelOptions: res.data });
       }
     });
   },

@@ -6,16 +6,15 @@
         <view class="back-icon"></view>
       </view>
       <view class="nav-title">{{sceneName}}</view>
-      <view class="nav-right"></view>
     </view>
   </view>
 
   <!-- 导航栏占位 -->
-  <view style="height: {{statusBarHeight + navBarHeight}}px;"></view>
+  <view style="height: {{statusBarHeight + navBarHeight + 16}}px;"></view>
 
   <!-- 场景描述 -->
-  <view class="scene-desc" wx:if="{{sceneDesc}}">
-    <text>{{sceneDesc}}</text>
+  <view class="scene-header" wx:if="{{sceneDesc}}">
+    <text class="scene-desc">{{sceneDesc}}</text>
   </view>
 
   <!-- 商品列表（瀑布流） -->
@@ -25,7 +24,10 @@
         <image src="{{item.picUrl}}" mode="widthFix" class="goods-img" binderror="onImageError" data-index="{{index}}" data-col="left" />
         <view class="goods-info">
           <text class="goods-name">{{item.name}}</text>
-          <text class="goods-price">¥{{item.retailPrice}}</text>
+          <view class="goods-price-row">
+            <text class="goods-price-symbol">¥</text>
+            <text class="goods-price">{{item.retailPrice}}</text>
+          </view>
         </view>
       </view>
     </view>
@@ -34,23 +36,41 @@
         <image src="{{item.picUrl}}" mode="widthFix" class="goods-img" binderror="onImageError" data-index="{{index}}" data-col="right" />
         <view class="goods-info">
           <text class="goods-name">{{item.name}}</text>
-          <text class="goods-price">¥{{item.retailPrice}}</text>
+          <view class="goods-price-row">
+            <text class="goods-price-symbol">¥</text>
+            <text class="goods-price">{{item.retailPrice}}</text>
+          </view>
         </view>
       </view>
     </view>
   </view>
 
-  <!-- 加载更多 -->
+  <!-- 加载中 -->
   <view class="load-more" wx:if="{{loading}}">
-    <text>加载中...</text>
+    <view class="loading-dots">
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+    </view>
+    <text>正在加载</text>
   </view>
-  <view class="load-more" wx:elif="{{page > pages && goodsList.length > 0}}">
-    <text>没有更多了</text>
+
+  <!-- 没有更多 -->
+  <view class="no-more" wx:elif="{{page > pages && goodsList.length > 0}}">
+    <view class="no-more-line"></view>
+    <text>已经到底了</text>
+    <view class="no-more-line"></view>
   </view>
+
+  <!-- 空状态 -->
   <view class="empty" wx:if="{{!loading && goodsList.length === 0}}">
-    <text>暂无该场景下的商品</text>
+    <view class="empty-icon">
+      <view class="empty-hanger"></view>
+    </view>
+    <text class="empty-title">暂无该场景下的商品</text>
+    <text class="empty-hint">去看看其他场景吧</text>
   </view>
 
   <!-- 底部占位 -->
-  <view style="height: calc(100rpx + env(safe-area-inset-bottom));"></view>
+  <view style="height: calc(60rpx + env(safe-area-inset-bottom));"></view>
 </view>

@@ -29,10 +29,11 @@ Page({
   },
 
   onLoad() {
-    const sysInfo = wx.getSystemInfoSync()
-    const isIOS = sysInfo.system.indexOf('iOS') > -1
+    const { system } = wx.getDeviceInfo()
+    const { statusBarHeight } = wx.getWindowInfo()
+    const isIOS = system.indexOf('iOS') > -1
     this.setData({
-      statusBarHeight: sysInfo.statusBarHeight,
+      statusBarHeight,
       navBarHeight: isIOS ? 44 : 48
     })
   },

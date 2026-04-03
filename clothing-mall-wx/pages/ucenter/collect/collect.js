@@ -1,7 +1,5 @@
-var util = require('../../../utils/util.js');
-var api = require('../../../config/api.js');
-
-var app = getApp();
+const util = require('../../../utils/util.js');
+const api = require('../../../config/api.js');
 
 Page({
   data: {
@@ -9,130 +7,110 @@ Page({
     collectList: [],
     page: 1,
     limit: 10,
-    totalPages: 1
+    totalPages: 1,
+    loading: false
   },
-  getCollectList() {
-    wx.showLoading({
-      title: '加载中...',
+
+  onLoad() {
+    this.getCollectList();
+  },
+
+  onPullDownRefresh() {
+    this.setData({
+      collectList: [],
+      page: 1,
+      totalPages: 1,
+      loading: false
     });
-    let that = this;
-    util.request(api.CollectList, {
-      type: that.data.type,
-      page: that.data.page,
-      limit: that.data.limit
-    }).then(function(res) {
+    this.getCollectList(true).then(() => {
+      wx.stopPullDownRefresh();
+    });
+  },
+
+  onReachBottom() {
+    if (this.data.loading) return;
+    if (this.data.page < this.data.totalPages) {
+      this.setData({ page: this.data.page + 1 });
+      this.getCollectList(true);
+    }
+  },
+
+  getCollectList(quiet) {
+    if (this.data.loading) return Promise.resolve();
+    this.setData({ loading: true });
+    if (!quiet) {
+      wx.showLoading({ title: '加载中...' });
+    }
+
+    return util.request(api.CollectList, {
+      type: this.data.type,
+      page: this.data.page,
+      limit: this.data.limit
+    }).then((res) => {
       if (res.errno === 0) {
-        that.setData({
-          collectList: that.data.collectList.concat(res.data.list),
+        this.setData({
+          collectList: this.data.collectList.concat(res.data.list),
           totalPages: res.data.pages
         });
       }
     }).finally(() => {
-      wx.hideLoading();
+      if (!quiet) {
+        wx.hideLoading();
+      }
+      this.setData({ loading: false });
     });
   },
-  switchTab: function(event) {
-    let type = event.currentTarget.dataset.index;
+
+  switchTab(e) {
+    const type = Number(e.currentTarget.dataset.index);
+    if (type === this.data.type) return;
     this.setData({
       collectList: [],
       type,
       page: 1,
-      limit: 10,
-      totalPages: 1
+      totalPages: 1,
+      loading: false
     });
     this.getCollectList();
   },
-  onLoad: function(options) {
-    this.getCollectList();
-  },
-  onReachBottom() {
-    if (this.data.totalPages > this.data.page) {
-      this.setData({
-        page: this.data.page + 1
-      });
-      this.getCollectList();
-    } else {
-      wx.showToast({
-        title: '没有更多用户收藏了',
-        icon: 'none',
-        duration: 2000
-      });
-      return false;
+
+  openCollect(e) {
+    if (this.data.type === 1) {
+      wx.showToast({ title: '专题暂未开放', icon: 'none' });
+      return;
     }
+    const index = e.currentTarget.dataset.index;
+    const item = this.data.collectList[index];
+    if (!item) return;
+    wx.navigateTo({
+      url: '/pages/goods_detail/goods_detail?id=' + item.valueId
+    });
   },
-  onReady: function() {
 
-  },
-  onShow: function() {
+  deleteCollect(e) {
+    const index = e.currentTarget.dataset.index;
+    const item = this.data.collectList[index];
+    if (!item) return;
 
-  },
-  onHide: function() {
-    // 页面隐藏
-
-  },
-  onUnload: function() {
-    // 页面关闭
-  },
-  openCollect(event) {
-    let that = this;
-    let index = event.currentTarget.dataset.index;
-    let valueId = this.data.collectList[index].valueId;
-
-    //触摸时间距离页面打开的毫秒数  
-    var touchTime = that.data.touchEnd - that.data.touchStart;
-    //如果按下时间大于350为长按  
-    if (touchTime > 350) {
-      wx.showModal({
-        title: '',
-        content: '确定删除吗？',
-        success: function(res) {
-          if (res.confirm) {
-
-            util.request(api.CollectAddOrDelete, {
-              type: that.data.type,
-              valueId: valueId
-            }, 'POST').then(function(res) {
-              if (res.errno === 0) {
-                wx.showToast({
-                  title: '删除成功',
-                  icon: 'success',
-                  duration: 2000
-                });
-                that.data.collectList.splice(index, 1)
-                that.setData({
-                  collectList: that.data.collectList
-                });
-              }
-            });
-          }
+    wx.showModal({
+      title: '',
+      content: '确定取消收藏吗？',
+      confirmColor: '#FF8096',
+      success: (res) => {
+        if (res.confirm) {
+          util.request(api.CollectAddOrDelete, {
+            type: this.data.type,
+            valueId: item.valueId
+          }, 'POST').then((res) => {
+            if (res.errno === 0) {
+              wx.showToast({ title: '已取消收藏', icon: 'success' });
+              this.setData({
+                collectList: this.data.collectList.filter((_, i) => i !== index)
+              });
+            }
+          });
         }
-      })
-    } else {
-      if (this.data.type == 1) {
-        wx.showToast({
-          title: '专题暂未开放',
-          icon: 'none'
-        });
-        return;
       }
-      var prefix = '/pages/goods_detail/goods_detail?id='
-      wx.navigateTo({
-        url: prefix + valueId,
-      });
-    }
-  },
-  //按下事件开始  
-  touchStart: function(e) {
-    let that = this;
-    that.setData({
-      touchStart: e.timeStamp
-    })
-  },
-  //按下事件结束  
-  touchEnd: function(e) {
-    let that = this;
-    that.setData({
-      touchEnd: e.timeStamp
-    })
-  },
-})
+    });
+  }
+});

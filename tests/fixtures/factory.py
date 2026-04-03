@@ -101,7 +101,6 @@ class OrderFactory:
             "freightPrice": 10.00,
             "couponPrice": 0.00,
             "integralPrice": 0.00,
-            "grouponPrice": 0.00,
             "actualPrice": round(random.uniform(100, 500), 2),
             "payId": "",
             "payTime": None,

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 /**
  * 应用启动后执行的任务
- * 注意：Groupon 相关任务已移除
  */
 @Component
 public class AdminTaskStartupRunner implements ApplicationRunner {
@@ -17,6 +16,6 @@ public class AdminTaskStartupRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        // Groupon 相关任务已移除
+        // 启动后任务
     }
 }

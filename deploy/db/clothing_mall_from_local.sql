@@ -864,73 +864,6 @@ LOCK TABLES `litemall_goods_specification` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `litemall_groupon`
---
-
-DROP TABLE IF EXISTS `litemall_groupon`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `litemall_groupon` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `order_id` int(11) NOT NULL COMMENT '关联的订单ID',
-  `groupon_id` int(11) DEFAULT '0' COMMENT '如果是开团用户，则groupon_id是0；如果是参团用户，则groupon_id是团购活动ID',
-  `rules_id` int(11) NOT NULL COMMENT '团购规则ID，关联litemall_groupon_rules表ID字段',
-  `user_id` int(11) NOT NULL COMMENT '用户ID',
-  `share_url` varchar(255) DEFAULT NULL COMMENT '团购分享图片地址',
-  `creator_user_id` int(11) NOT NULL COMMENT '开团用户ID',
-  `creator_user_time` datetime DEFAULT NULL COMMENT '开团时间',
-  `status` smallint(6) DEFAULT '0' COMMENT '团购活动状态，开团未支付则0，开团中则1，开团失败则2',
-  `add_time` datetime NOT NULL COMMENT '创建时间',
-  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted` tinyint(1) DEFAULT '0' COMMENT '逻辑删除',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='团购活动表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `litemall_groupon`
---
-
-LOCK TABLES `litemall_groupon` WRITE;
-/*!40000 ALTER TABLE `litemall_groupon` DISABLE KEYS */;
-/*!40000 ALTER TABLE `litemall_groupon` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `litemall_groupon_rules`
---
-
-DROP TABLE IF EXISTS `litemall_groupon_rules`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `litemall_groupon_rules` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `goods_id` int(11) NOT NULL COMMENT '商品表的商品ID',
-  `goods_name` varchar(127) NOT NULL COMMENT '商品名称',
-  `pic_url` varchar(255) DEFAULT NULL COMMENT '商品图片或者商品货品图片',
-  `discount` decimal(63,0) NOT NULL COMMENT '优惠金额',
-  `discount_member` int(11) NOT NULL COMMENT '达到优惠条件的人数',
-  `expire_time` datetime DEFAULT NULL COMMENT '团购过期时间',
-  `status` smallint(6) DEFAULT '0' COMMENT '团购规则状态，正常上线则0，到期自动下线则1，管理手动下线则2',
-  `add_time` datetime NOT NULL COMMENT '创建时间',
-  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted` tinyint(1) DEFAULT '0' COMMENT '逻辑删除',
-  PRIMARY KEY (`id`) USING BTREE,
-  KEY `goods_id` (`goods_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='团购规则表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `litemall_groupon_rules`
---
-
-LOCK TABLES `litemall_groupon_rules` WRITE;
-/*!40000 ALTER TABLE `litemall_groupon_rules` DISABLE KEYS */;
-INSERT INTO `litemall_groupon_rules` VALUES (4,1181004,'简约纯色T恤','',79,3,'2026-03-29 09:53:27',1,'2026-02-27 09:53:27','2026-02-27 09:53:27',0),(5,1181006,'轻薄羽绒服','',399,5,'2026-03-29 09:53:27',1,'2026-02-27 09:53:27','2026-02-27 09:53:27',0),(6,1181008,'经典风衣外套','',299,3,'2026-03-14 09:53:27',1,'2026-02-27 09:53:27','2026-02-27 09:53:27',0);
-/*!40000 ALTER TABLE `litemall_groupon_rules` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `litemall_issue`
 --
 
@@ -1107,7 +1040,6 @@ CREATE TABLE `litemall_order` (
   `guide_id` int(11) DEFAULT NULL COMMENT 'å¯¼è´­IDï¼ˆä¸šç»©å½’å±žï¼‰',
   `coupon_price` decimal(10,2) NOT NULL COMMENT '优惠券减免',
   `integral_price` decimal(10,2) NOT NULL COMMENT '用户积分减免',
-  `groupon_price` decimal(10,2) NOT NULL COMMENT '团购优惠价减免',
   `order_price` decimal(10,2) NOT NULL COMMENT '订单费用， = goods_price + freight_price - coupon_price',
   `actual_price` decimal(10,2) NOT NULL COMMENT '实付费用， = order_price - integral_price',
   `pay_id` varchar(63) DEFAULT NULL COMMENT '微信付款编号',

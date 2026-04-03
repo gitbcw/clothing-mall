@@ -147,12 +147,6 @@
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
 
-        <table tableName="litemall_groupon_rules">
-            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
-        </table>
-        <table tableName="litemall_groupon">
-            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
-        </table>
         <table tableName="litemall_coupon">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
             <columnOverride column="goods_value" javaType="java.lang.Integer[]"

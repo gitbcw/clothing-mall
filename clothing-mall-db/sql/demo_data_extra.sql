@@ -1,5 +1,5 @@
 -- ============================================
--- 补充演示数据 - 售后、团购
+-- 补充演示数据 - 售后
 -- ============================================
 
 -- 售后数据 (5条)
@@ -11,18 +11,3 @@ INSERT INTO litemall_aftersale (aftersale_sn, order_id, user_id, type, reason, a
 ('AS202602270003', 5, 5, 1, '不喜欢/不想要', 399.00, '[]', '颜色和图片不一样', 2, DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY), NOW(), 0),
 ('AS202602270004', 13, 5, 0, '拍错/多拍/不想要', 159.00, '[]', '不小心拍错了', 1, DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 11 DAY), NOW(), 0),
 ('AS202602270005', 15, 8, 2, '商品与描述不符', 399.00, '[]', '风衣颜色偏深', 0, NULL, DATE_SUB(NOW(), INTERVAL 1 DAY), NOW(), 0);
-
--- 团购规则 (3条)
--- status: 0=下架, 1=上架
-INSERT INTO litemall_groupon_rules (goods_id, goods_name, pic_url, discount, discount_member, expire_time, status, add_time, update_time, deleted) VALUES
-(1181004, '简约纯色T恤', '', 79.00, 3, DATE_ADD(NOW(), INTERVAL 30 DAY), 1, NOW(), NOW(), 0),
-(1181006, '轻薄羽绒服', '', 399.00, 5, DATE_ADD(NOW(), INTERVAL 30 DAY), 1, NOW(), NOW(), 0),
-(1181008, '经典风衣外套', '', 299.00, 3, DATE_ADD(NOW(), INTERVAL 15 DAY), 1, NOW(), NOW(), 0);
-
--- 团购活动 (5条)
-INSERT INTO litemall_groupon (rules_id, user_id, creator_user_id, creator_show_url, subshow_url, add_time, update_time, deleted) VALUES
-(1, 1, 1, '', '', NOW(), NOW(), 0),
-(1, 2, 1, '', '', NOW(), NOW(), 0),
-(2, 3, 3, '', '', NOW(), NOW(), 0),
-(2, 5, 3, '', '', NOW(), NOW(), 0),
-(3, 6, 6, '', '', NOW(), NOW(), 0);

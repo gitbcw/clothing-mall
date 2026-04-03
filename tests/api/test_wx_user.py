@@ -221,8 +221,7 @@ class TestWxCoupon:
         if available_coupon_length > 0:
             # 获取可用优惠券列表
             resp = wx_user_client.get("/wx/coupon/selectlist", params={
-                "cartId": 0,
-                "grouponPrice": 0
+                "cartId": 0
             })
             if resp.status_code == 200:
                 coupon_data = resp.json()

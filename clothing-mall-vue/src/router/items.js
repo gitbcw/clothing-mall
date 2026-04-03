@@ -48,12 +48,6 @@ export default [
     props: route => route.query
   },
   {
-    path: '/items/groupon',
-    name: 'groupon',
-    component: () => import('@/views/items/groupon'),
-    props: route => route.query
-  },
-  {
     path: '/items/brand/:brandId',
     name: 'brand',
     props: true,

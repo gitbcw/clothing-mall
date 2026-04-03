@@ -378,19 +378,6 @@ export function feedbackAdd(data) {
 const FootprintList='/footprint/list'; //足迹列表
 const FootprintDelete='/footprint/delete'; //删除足迹
 
-const GrouponList='/groupon/list'; //团购列表
-export function grouponList(query) {
-  return request({
-    url: GrouponList,
-    method: 'get',
-    params: query
-  })
-}
-const GroupOn='/groupon/query'; //团购API-查询
-const GroupOnMy='/groupon/my'; //团购API-我的团购
-const GroupOnDetail='/groupon/detail'; //团购API-详情
-const GroupOnJoin='/groupon/join'; //团购API-详情
-
 const CouponList='/coupon/list'; //优惠券列表
 export function couponList(query) {
   return request({

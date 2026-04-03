@@ -87,7 +87,6 @@ export default {
       goodsTotalPrice: 0, //商品总价
       freightPrice: 0, //快递费
       couponPrice: 0, //优惠券的价格
-      grouponPrice: 0, //团购优惠价格
       orderTotalPrice: 0, //订单总价
       actualPrice: 0, //实际需要支付的总价
       message: '',
@@ -120,8 +119,6 @@ export default {
         cartId: CartId,
         couponId: CouponId,
         userCouponId: UserCouponId,
-        grouponLinkId: 0,
-        grouponRulesId: 0,
         message: this.message
       }).then(res => {
         
@@ -155,7 +152,7 @@ export default {
     },
     getCoupons() {
       const {AddressId, CartId, CouponId} = getLocalStorage('AddressId', 'CartId', 'CouponId');
-      couponSelectList({cartId: CartId, grouponRulesId: 0}).then(res => {
+      couponSelectList({cartId: CartId}).then(res => {
         var cList = res.data.data.list;
         this.coupons = []
         this.disabledCoupons = [];
@@ -187,7 +184,7 @@ export default {
     init() {
       const {AddressId, CartId, CouponId, UserCouponId} = getLocalStorage('AddressId', 'CartId', 'CouponId', 'UserCouponId');
 
-      cartCheckout({cartId: CartId, addressId: AddressId, couponId: CouponId, userCouponId: UserCouponId, grouponRulesId: 0}).then(res => {
+      cartCheckout({cartId: CartId, addressId: AddressId, couponId: CouponId, userCouponId: UserCouponId}).then(res => {
           var data = res.data.data
 
           this.checkedGoodsList = data.checkedGoodsList;
@@ -195,7 +192,6 @@ export default {
           this.availableCouponLength= data.availableCouponLength;
           this.actualPrice= data.actualPrice;
           this.couponPrice= data.couponPrice;
-          this.grouponPrice= data.grouponPrice;
           this.freightPrice= data.freightPrice;
           this.goodsTotalPrice= data.goodsTotalPrice;
           this.orderTotalPrice= data.orderTotalPrice;

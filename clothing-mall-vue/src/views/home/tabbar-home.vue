@@ -50,39 +50,6 @@
     </van-panel>
 
     <van-panel>
-      <van-card :thumb-link="goDetail(grouponGood.id)"
-                v-for="(grouponGood ,index) in shopInfos.grouponList"
-                :key="index"
-                :title="grouponGood.name"
-                :desc="grouponGood.brief"
-                :origin-price="grouponGood.retailPrice"
-                :price="grouponGood.grouponPrice +'.00'"
-                :thumb="grouponGood.picUrl"
-                @native-click="goDetail(grouponGood.id)">
-        <div slot="tags"
-             class="card__tags">
-          <van-tag plain
-                   type="primary">
-            {{grouponGood.grouponMember}}人成团
-          </van-tag>
-          <van-tag plain
-                   type="danger">
-            {{grouponGood.grouponDiscount}}元再减
-          </van-tag>
-        </div>
-      </van-card>
-      <div slot='header'>
-        <van-cell-group>
-          <van-cell title="团购专区"
-                    isLink>
-            <router-link to="/items/groupon"
-                         class="text-desc">更多团购商品</router-link>
-          </van-cell>
-        </van-cell-group>
-      </div>
-    </van-panel>
-
-    <van-panel>
       <van-grid clickable
                 :column-num="2">
         <van-grid-item v-for="(brand ,index) in shopInfos.brandList"

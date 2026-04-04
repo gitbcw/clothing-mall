@@ -238,10 +238,11 @@ public class WxGoodsController {
 		String keyword,
 		Boolean isNew,
 		Boolean isHot,
+		Integer sceneId,
 		@LoginUser Integer userId,
 		@RequestParam(defaultValue = "1") Integer page,
 		@RequestParam(defaultValue = "10") Integer limit,
-		@Sort(accepts = {"add_time", "retail_price", "name"}) @RequestParam(defaultValue = "add_time") String sort,
+		@Sort(accepts = {"add_time", "retail_price", "name", "default"}) @RequestParam(defaultValue = "default") String sort,
 		@Order @RequestParam(defaultValue = "desc") String order) {
 
 		//添加到搜索历史
@@ -254,7 +255,7 @@ public class WxGoodsController {
 		}
 
 		//查询列表数据
-		List<LitemallGoods> goodsList = goodsService.querySelective(categoryId, brandId, keyword, isHot, isNew, page, limit, sort, order);
+		List<LitemallGoods> goodsList = goodsService.querySelectiveWithScene(categoryId, brandId, keyword, isHot, isNew, sceneId, page, limit, sort, order);
 
 		// 查询商品所属类目列表。
 		List<Integer> goodsCatIds = goodsService.getCatIds(brandId, keyword, isHot, isNew);

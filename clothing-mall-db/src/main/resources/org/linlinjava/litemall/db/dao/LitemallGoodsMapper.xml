@@ -872,4 +872,49 @@
     update litemall_goods set deleted = 1
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <!-- 搜索商品（支持场景筛选和综合排序） -->
+  <select id="selectBySearchCondition" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from litemall_goods g
+    <if test="sceneId != null">
+      inner join clothing_goods_scene cgs on g.id = cgs.goods_id and cgs.scene_id = #{sceneId}
+    </if>
+    where g.status = 'published' and g.deleted = 0
+    <if test="categoryId != null and categoryId != 0">
+      and g.category_id = #{categoryId}
+    </if>
+    <if test="brandId != null">
+      and g.brand_id = #{brandId}
+    </if>
+    <if test="isHot != null">
+      and g.is_hot = #{isHot}
+    </if>
+    <if test="isNew != null">
+      and g.is_new = #{isNew}
+    </if>
+    <if test="keyword != null and keyword != ''">
+      and (g.keywords like concat('%', #{keyword}, '%') or g.name like concat('%', #{keyword}, '%'))
+    </if>
+    order by
+    <choose>
+      <when test="sort == 'default' and keyword != null and keyword != ''">
+        (case
+          when g.name = #{keyword} then 100
+          when g.name like concat(#{keyword}, '%') then 80
+          when g.name like concat('%', #{keyword}, '%') then 50
+          when g.keywords like concat(#{keyword}, '%') then 30
+          when g.keywords like concat('%', #{keyword}, '%') then 10
+          else 0
+        end) desc,
+        g.sort_order desc, g.add_time desc
+      </when>
+      <when test="sort == 'default'">
+        g.sort_order desc, g.add_time desc
+      </when>
+      <otherwise>
+        g.${sort} ${order}
+      </otherwise>
+    </choose>
+  </select>
 </mapper>

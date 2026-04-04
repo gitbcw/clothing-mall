@@ -11,7 +11,7 @@ Page({
     helpKeyword: [],
     historyKeyword: [],
     categoryFilter: false,
-    currentSort: 'name',
+    currentSort: 'default',
     currentSortType: 'default',
     currentSortOrder: 'desc',
     filterCategory: [],
@@ -20,6 +20,9 @@ Page({
     page: 1,
     limit: 20,
     categoryId: 0,
+    categoryList: [],
+    sceneList: [],
+    sceneId: 0,
     statusBarHeight: 20
   },
   //事件处理函数
@@ -47,7 +50,9 @@ Page({
         that.setData({
           historyKeyword: res.data.historyKeywordList,
           defaultKeyword: res.data.defaultKeyword,
-          hotKeyword: res.data.hotKeywordList
+          hotKeyword: res.data.hotKeywordList,
+          categoryList: res.data.categoryList || [],
+          sceneList: res.data.sceneList || []
         });
       }
     });
@@ -103,7 +108,8 @@ Page({
       limit: that.data.limit,
       sort: that.data.currentSort,
       order: that.data.currentSortOrder,
-      categoryId: that.data.categoryId
+      categoryId: that.data.categoryId,
+      sceneId: that.data.sceneId
     }).then(function(res) {
       if (res.errno === 0) {
         that.setData({
@@ -141,14 +147,6 @@ Page({
   openSortFilter: function(event) {
     let currentId = event.currentTarget.id;
     switch (currentId) {
-      case 'categoryFilter':
-        this.setData({
-          categoryFilter: !this.data.categoryFilter,
-          currentSortType: 'category',
-          currentSort: 'add_time',
-          currentSortOrder: 'desc'
-        });
-        break;
       case 'priceSort':
         let tmpSortOrder = 'asc';
         if (this.data.currentSortOrder == 'asc') {
@@ -160,17 +158,24 @@ Page({
           currentSortOrder: tmpSortOrder,
           categoryFilter: false
         });
-
+        this.getGoodsList();
+        break;
+      case 'newSort':
+        this.setData({
+          currentSortType: 'new',
+          currentSort: 'add_time',
+          currentSortOrder: 'desc',
+          categoryFilter: false
+        });
         this.getGoodsList();
         break;
       default:
-        //综合排序
+        // 综合排序
         this.setData({
           currentSortType: 'default',
-          currentSort: 'name',
+          currentSort: 'default',
           currentSortOrder: 'desc',
-          categoryFilter: false,
-          categoryId: 0,
+          categoryFilter: false
         });
         this.getGoodsList();
     }
@@ -198,5 +203,34 @@ Page({
   },
   onKeywordConfirm(event) {
     this.getSearchResult(event.detail.value);
+  },
+  onCategoryTap: function(e) {
+    let categoryId = e.currentTarget.dataset.id;
+    this.setData({
+      keyword: '',
+      page: 1,
+      categoryId: categoryId,
+      sceneId: 0,
+      goodsList: [],
+      currentSortType: 'default',
+      currentSort: 'default',
+      currentSortOrder: 'desc'
+    });
+    this.getGoodsList();
+  },
+
+  onSceneTap: function(e) {
+    let sceneId = e.currentTarget.dataset.id;
+    this.setData({
+      keyword: '',
+      page: 1,
+      categoryId: 0,
+      sceneId: sceneId,
+      goodsList: [],
+      currentSortType: 'default',
+      currentSort: 'default',
+      currentSortOrder: 'desc'
+    });
+    this.getGoodsList();
   }
 })

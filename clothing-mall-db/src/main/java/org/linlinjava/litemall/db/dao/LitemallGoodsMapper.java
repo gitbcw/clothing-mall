@@ -181,4 +181,18 @@ public interface LitemallGoodsMapper {
      * @mbg.generated
      */
     int logicalDeleteByPrimaryKey(Integer id);
+
+    /**
+     * 搜索商品（支持场景筛选和综合排序）
+     */
+    List<LitemallGoods> selectBySearchCondition(
+        @Param("categoryId") Integer categoryId,
+        @Param("brandId") Integer brandId,
+        @Param("keyword") String keyword,
+        @Param("isHot") Boolean isHot,
+        @Param("isNew") Boolean isNew,
+        @Param("sceneId") Integer sceneId,
+        @Param("sort") String sort,
+        @Param("order") String order
+    );
 }

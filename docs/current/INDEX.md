@@ -9,6 +9,17 @@
 
 **✅ 阶段五已完成：管理端 UI 重构 + 业务流程打通**
 
+### 5.6 移除线下付款确认状态(150) ✅
+
+**目标**：系统仅支持线上微信支付，清理从未使用的线下付款确认中间状态
+
+| 变更项 | 说明 |
+|--------|------|
+| 删除 STATUS_ADMIN_CONFIRM(150) | OrderUtil 常量、状态文本、build 分支、isConfirmPendingStatus 方法 |
+| 删除后端 confirm 接口 | AdminOrderService/Controller、WxManagerOrderController 的 confirm 方法 |
+| 清理小程序前端 150 代码 | tabOrder.wxml/js 去掉确认按钮，orderDetail.wxml/js 去掉 150 操作区块，api.js 去掉 confirm |
+| 订单统计修正 | WxUserController unship 统计不再包含 150 |
+
 ### 5.5 商品分类尺码开关 + 订单角标修复 ✅
 
 **目标**：分类支持尺码开关控制；修复我的页面订单角标缺少部分状态

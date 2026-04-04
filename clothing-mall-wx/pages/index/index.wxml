@@ -10,20 +10,28 @@
     <!-- Banner -->
     <swiper class="banner-swiper" indicator-dots="true" autoplay="true" circular="true" indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#ffffff">
       <swiper-item wx:for="{{banners}}" wx:key="id" bindtap="goToScene" data-scene-id="{{item.id}}">
-        <image src="{{item.posterUrl}}" mode="aspectFill" class="banner-image" binderror="onHomeImageError" data-source="banner" data-index="{{index}}" />
+        <view class="banner-slide">
+          <image src="{{item.posterUrl}}" mode="aspectFill" class="banner-image" binderror="onHomeImageError" data-source="banner" data-index="{{index}}" />
+          <!-- 艺术水印 -->
+          <view class="banner-watermark">{{item.name}}</view>
+          <!-- 底部场景信息 -->
+          <view class="banner-text-overlay">
+            <text class="banner-scene-name">{{item.name}}</text>
+          </view>
+        </view>
       </swiper-item>
     </swiper>
 
     <!-- 活动位 -->
-    <view class="activity-section" wx:if="{{activityGoods.length > 0}}">
+    <view class="activity-section" wx:if="{{activityGoodsTop.length > 0 || activityGoodsBottom.length > 0}}">
       <view class="section-header-weekly">
         <text class="section-title-cn">{{activityTitle}}</text>
         <text class="section-title-en">{{activityTitleEn}}</text>
       </view>
 
       <scroll-view class="activity-scroll" scroll-x enhanced show-scrollbar="{{false}}">
-        <view class="activity-item" wx:for="{{activityGoods}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
-          <image src="{{item.picUrl}}" mode="aspectFill" class="activity-img" binderror="onHomeImageError" data-source="activityGoods" data-index="{{index}}" />
+        <view class="activity-item" wx:for="{{activityGoodsTop}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+          <image src="{{item.picUrl}}" mode="aspectFill" class="activity-img" binderror="onHomeImageError" data-source="activityGoodsTop" data-index="{{index}}" />
           <view class="activity-info">
             <text class="activity-name">{{item.name}}</text>
             <view class="activity-price-wrap" wx:if="{{item.specialPrice}}">
@@ -45,8 +53,8 @@
       </scroll-view>
 
       <scroll-view class="activity-scroll-sub" scroll-x enhanced show-scrollbar="{{false}}">
-        <view class="activity-item-sub" wx:for="{{activityGoods}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
-          <image src="{{item.picUrl}}" mode="aspectFill" class="activity-img-sub" binderror="onHomeImageError" data-source="activityGoods" data-index="{{index}}" />
+        <view class="activity-item-sub" wx:for="{{activityGoodsBottom}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+          <image src="{{item.picUrl}}" mode="aspectFill" class="activity-img-sub" binderror="onHomeImageError" data-source="activityGoodsBottom" data-index="{{index}}" />
           <view class="activity-info">
             <text class="activity-name">{{item.name}}</text>
             <view class="activity-price-wrap" wx:if="{{item.specialPrice}}">

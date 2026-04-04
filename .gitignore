@@ -100,3 +100,6 @@ docker/admin-dist/
 docker/.env
 .claude/
 .superpowers/
+.agents/
+skills/
+skills-lock.json

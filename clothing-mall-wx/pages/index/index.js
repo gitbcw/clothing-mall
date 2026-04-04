@@ -22,7 +22,8 @@ Page({
     matchRecommends: [],
 
     // 活动位
-    activityGoods: [],
+    activityGoodsTop: [],
+    activityGoodsBottom: [],
     activityTitle: '每周上新',
     activityTitleEn: 'NEW IN',
 
@@ -97,8 +98,11 @@ Page({
             weekly: { title: '每周上新', en: 'NEW IN' }
           }
           const titleInfo = titleMap[homeActivity.titleType] || titleMap.weekly
+          const goods = homeActivity.goods
+          const mid = Math.ceil(goods.length / 2)
           this.setData({
-            activityGoods: homeActivity.goods,
+            activityGoodsTop: goods.slice(0, mid),
+            activityGoodsBottom: goods.slice(mid),
             activityTitle: titleInfo.title,
             activityTitleEn: titleInfo.en
           })
@@ -196,7 +200,8 @@ Page({
     const id = e.currentTarget.dataset.id
     const goods = this.data.accessories.find(item => item.id === id)
       || this.data.hotSales.find(item => item.id === id)
-      || this.data.activityGoods.find(item => item.id === id)
+      || this.data.activityGoodsTop.find(item => item.id === id)
+      || this.data.activityGoodsBottom.find(item => item.id === id)
     if (!goods) return
     this.setData({
       showSkuPicker: true,

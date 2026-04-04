@@ -26,6 +26,26 @@
         <view class="item {{item.is_hot === 1 ? 'active' : ''}}" hover-class="navigator-hover" bindtap="onKeywordTap" data-keyword="{{item.keyword}}" wx:for="{{hotKeyword}}" wx:key="id">{{item.keyword}}</view>
       </view>
     </view>
+    <view class="search-keywords search-category" wx:if="{{!keyword && categoryList.length}}">
+      <view class="h">
+        <text class="title">分类</text>
+      </view>
+      <scroll-view class="tag-scroll" scroll-x="true">
+        <view class="b">
+          <view class="tag-item" hover-class="navigator-hover" bindtap="onCategoryTap" data-id="{{item.id}}" wx:for="{{categoryList}}" wx:key="id">{{item.name}}</view>
+        </view>
+      </scroll-view>
+    </view>
+    <view class="search-keywords search-scene" wx:if="{{!keyword && sceneList.length}}">
+      <view class="h">
+        <text class="title">场景</text>
+      </view>
+      <scroll-view class="tag-scroll" scroll-x="true">
+        <view class="b">
+          <view class="tag-item" hover-class="navigator-hover" bindtap="onSceneTap" data-id="{{item.id}}" wx:for="{{sceneList}}" wx:key="id">{{item.name}}</view>
+        </view>
+      </scroll-view>
+    </view>
     <view class="shelper-list" wx:if="{{keyword}}">
       <view class="item" hover-class="navigator-hover" wx:for="{{helpKeyword}}" wx:key="id" bindtap="onKeywordTap" data-keyword="{{item}}">{{item}}</view>
     </view>
@@ -42,12 +62,9 @@
           <van-icon name="arrow-up" wx:if="{{ currentSortType == 'price' && currentSortOrder == 'asc' }}" />
           <van-icon name="arrow-down" wx:elif="{{ currentSortType == 'price' && currentSortOrder == 'desc'}}" />
         </view>
-        <view class="item {{currentSortType == 'category' ? 'active' : ''}}" bindtap="openSortFilter" id="categoryFilter">
-          <text class="txt">分类</text>
+        <view class="item {{currentSortType == 'new' ? 'active' : ''}}" bindtap="openSortFilter" id="newSort">
+          <text class="txt">上新</text>
         </view>
-      </view>
-      <view class="sort-box-category" wx-if="{{categoryFilter}}">
-        <view class="item {{item.checked ? 'active' : ''}}" wx:for="{{filterCategory}}" wx:key="id" data-category-index="{{index}}" bindtap="selectCategory">{{item.name}}</view>
       </view>
     </view>
     <view class="cate-item">

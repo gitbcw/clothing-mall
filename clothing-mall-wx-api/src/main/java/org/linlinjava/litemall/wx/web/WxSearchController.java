@@ -3,8 +3,12 @@ package org.linlinjava.litemall.wx.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.util.ResponseUtil;
+import org.linlinjava.litemall.db.domain.ClothingScene;
+import org.linlinjava.litemall.db.domain.LitemallCategory;
 import org.linlinjava.litemall.db.domain.LitemallKeyword;
 import org.linlinjava.litemall.db.domain.LitemallSearchHistory;
+import org.linlinjava.litemall.db.service.ClothingSceneService;
+import org.linlinjava.litemall.db.service.LitemallCategoryService;
 import org.linlinjava.litemall.db.service.LitemallKeywordService;
 import org.linlinjava.litemall.db.service.LitemallSearchHistoryService;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
@@ -33,6 +37,10 @@ public class WxSearchController {
     private LitemallKeywordService keywordsService;
     @Autowired
     private LitemallSearchHistoryService searchHistoryService;
+    @Autowired
+    private LitemallCategoryService categoryService;
+    @Autowired
+    private ClothingSceneService sceneService;
 
     /**
      * 搜索页面信息
@@ -62,6 +70,15 @@ public class WxSearchController {
         data.put("defaultKeyword", defaultKeyword);
         data.put("historyKeywordList", historyList);
         data.put("hotKeywordList", hotKeywordList);
+
+        // L1 分类列表
+        List<LitemallCategory> categoryList = categoryService.queryL1();
+        data.put("categoryList", categoryList);
+
+        // 启用的场景列表
+        List<ClothingScene> sceneList = sceneService.queryEnabled();
+        data.put("sceneList", sceneList);
+
         return ResponseUtil.ok(data);
     }
 

@@ -18,30 +18,11 @@ Page({
     navBarHeight: 44,
     activeSubTab: 'upload',  // 'upload' | 'list'
     listTab: 'on_sale',
-    // 表单数据
-    form: {
-      picUrl: '',
-      gallery: [],
-      name: '',
-      brief: '',
-      detail: '',
-      counterPrice: '',
-      retailPrice: '',
-      specialPrice: '',
-      categoryId: '',
-      categoryName: '',
-      keywords: '',
-      scenes: []
-    },
+    // 表单数据（传给组件）
+    formData: {},
+    formFeatures: {},
     // 预设场景标签（从数据库加载）
     presetScenes: [],
-    sceneMap: {},
-    presetSceneMap: {},
-    customSceneInput: '',
-    // 商品参数
-    params: [],
-    // SKU 列表
-    skuList: [],
     // 商品列表
     goodsList: [],
     page: 1,
@@ -61,17 +42,9 @@ Page({
     selectedMap: {},
     // 分类数据
     categoryList: [],
-    showCategoryPicker: false,
-    // AI 识别状态
-    aiRecognizing: false,
-    aiConfidence: null,
-    aiRecognized: false,
-    // 预览模式
-    showPreview: false,
     // 草稿保存时间
     draftSavedAt: '',
-    defaultImage: '/static/images/fallback-image.svg',
-    previewData: null
+    defaultImage: '/static/images/fallback-image.svg'
   },
 
   onLoad() {
@@ -101,18 +74,6 @@ Page({
 
   // ========== 子 Tab 切换 ==========
 
-  // ========== 场景标签预加载 ==========
-  loadScenes() {
-    let that = this;
-    util.request(api.SceneList).then(function(res) {
-      if (res.errno === 0 && res.data) {
-        var scenes = res.data || [];
-        var psm = {};
-        scenes.forEach(function(s) { psm[s] = true; });
-        that.setData({ presetScenes: scenes, presetSceneMap: psm });
-      }
-    });
-  },
   onSubTabChange(e) {
     const tab = e.currentTarget.dataset.tab;
     if (tab === this.data.activeSubTab) return;
@@ -122,7 +83,19 @@ Page({
     }
   },
 
+  // ========== 场景标签预加载 ==========
+
+  loadScenes() {
+    let that = this;
+    util.request(api.SceneList).then(function(res) {
+      if (res.errno === 0 && res.data) {
+        that.setData({ presetScenes: res.data || [] });
+      }
+    });
+  },
+
   // ========== 分类相关 ==========
+
   getCategoryList() {
     let that = this;
     util.request(api.ManagerGoodsCategory).then(function(res) {
@@ -134,255 +107,13 @@ Page({
     });
   },
 
-  showCategoryPicker() {
-    this.setData({ showCategoryPicker: true });
-  },
-
-  onCategoryChange(e) {
-    const index = e.detail.index;
-    const category = this.data.categoryList[index];
-    if (category) {
-      this.setData({
-        'form.categoryId': category.id,
-        'form.categoryName': category.name,
-        showCategoryPicker: false
-      });
-      this.autoSaveDraft();
-    }
-  },
-
-  onCategoryClose() {
-    this.setData({ showCategoryPicker: false });
-  },
-
-  // ========== 表单操作 ==========
-  onNameInput(e) {
-    this.setData({ 'form.name': e.detail.value });
-    this.autoSaveDraft();
-  },
-
-  onBriefInput(e) {
-    this.setData({ 'form.brief': e.detail.value });
-    this.autoSaveDraft();
-  },
-
-  onCounterPriceInput(e) {
-    this.setData({ 'form.counterPrice': e.detail.value });
-    this.autoSaveDraft();
-  },
-
-  onRetailPriceInput(e) {
-    this.setData({ 'form.retailPrice': e.detail.value });
-    this.autoSaveDraft();
-  },
-
-  onSpecialPriceInput(e) {
-    this.setData({ 'form.specialPrice': e.detail.value });
-    this.autoSaveDraft();
-  },
-
-  onKeywordsInput(e) {
-    this.setData({ 'form.keywords': e.detail.value });
-    this.autoSaveDraft();
-  },
-
-  onDetailInput(e) {
-    this.setData({ 'form.detail': e.detail.value });
-    this.autoSaveDraft();
-  },
-
-  // ========== 场景标签操作 ==========
-  _buildSceneMap(scenes) {
-    var map = {};
-    (scenes || []).forEach(function(s) { map[s] = true; });
-    return map;
-  },
-
-  onSceneToggle(e) {
-    const scene = e.currentTarget.dataset.scene;
-    const scenes = (this.data.form.scenes || []).slice();
-    const index = scenes.indexOf(scene);
-    if (index > -1) {
-      scenes.splice(index, 1);
-    } else {
-      scenes.push(scene);
-    }
-    this.setData({ 'form.scenes': scenes, sceneMap: this._buildSceneMap(scenes) });
-    this.autoSaveDraft();
-  },
-
-  // ========== 商品参数操作 ==========
-  addParam() {
-    this.data.params.push({ key: '', value: '' });
-    this.setData({ params: this.data.params });
-    this.autoSaveDraft();
-  },
-
-  removeParam(e) {
-    const index = e.currentTarget.dataset.index;
-    this.data.params.splice(index, 1);
-    this.setData({ params: this.data.params });
-    this.autoSaveDraft();
-  },
-
-  onParamKeyInput(e) {
-    const index = e.currentTarget.dataset.index;
-    this.setData({ ['params[' + index + '].key']: e.detail.value });
-    this.autoSaveDraft();
-  },
-
-  onParamValueInput(e) {
-    const index = e.currentTarget.dataset.index;
-    this.setData({ ['params[' + index + '].value']: e.detail.value });
-    this.autoSaveDraft();
-  },
-
-  // ========== 图片操作 ==========
-  chooseMainImage() {
-    let that = this;
-    wx.chooseImage({
-      count: 1,
-      sizeType: ['compressed'],
-      sourceType: ['album', 'camera'],
-      success(res) {
-        const tempPath = res.tempFilePaths[0];
-        that.setData({ 'form.picUrl': tempPath, aiRecognizing: true });
-        that.uploadImage(tempPath, function(url) {
-          if (url) {
-            that.setData({ 'form.picUrl': url });
-            that.autoSaveDraft();
-            that.recognizeImage(url);
-          } else {
-            that.setData({ aiRecognizing: false });
-          }
-        });
-      }
-    });
-  },
-
-  recognizeImage(imageUrl) {
-    let that = this;
-    util.request(api.AiRecognizeByUrl, { imageUrl: imageUrl }, 'POST').then(function(res) {
-      if (res.errno === 0 && res.data) {
-        const aiData = res.data;
-        const updates = {};
-        if (aiData.name && !that.data.form.name) {
-          updates['form.name'] = aiData.name;
-        }
-        if (aiData.brief && !that.data.form.brief) {
-          updates['form.brief'] = aiData.brief;
-        }
-        if (aiData.confidence) {
-          updates.aiConfidence = aiData.confidence;
-          updates.aiRecognized = true;
-        }
-        if (aiData.category && that.data.categoryList.length > 0) {
-          const matchedCategory = that.data.categoryList.find(function(c) {
-            return c.name === aiData.category || c.name.indexOf(aiData.category) > -1;
-          });
-          if (matchedCategory) {
-            updates['form.categoryId'] = matchedCategory.id;
-            updates['form.categoryName'] = matchedCategory.name;
-          }
-        }
-        if (aiData.style && that.data.presetScenes.indexOf(aiData.style) === -1) {
-          const scenes = (that.data.form.scenes || []).slice();
-          if (scenes.indexOf(aiData.style) === -1) {
-            scenes.push(aiData.style);
-            updates['form.scenes'] = scenes;
-            updates.sceneMap = that._buildSceneMap(scenes);
-          }
-        }
-        if (aiData.material || aiData.color || aiData.pattern) {
-          const params = that.data.params.slice();
-          if (aiData.material) params.push({ key: '面料', value: aiData.material });
-          if (aiData.color) params.push({ key: '颜色', value: aiData.color });
-          if (aiData.pattern) params.push({ key: '图案', value: aiData.pattern });
-          updates.params = params;
-        }
-        updates.aiRecognizing = false;
-        that.setData(updates);
-        that.autoSaveDraft();
-        if (aiData.isMock) {
-          wx.showToast({ title: 'AI Mock 识别完成', icon: 'none' });
-        } else {
-          wx.showToast({ title: 'AI 识别完成', icon: 'success' });
-        }
-      } else {
-        that.setData({ aiRecognizing: false });
-        wx.showToast({ title: 'AI 识别失败', icon: 'none' });
-      }
-    }).catch(function() {
-      that.setData({ aiRecognizing: false });
-      wx.showToast({ title: 'AI 识别失败', icon: 'none' });
-    });
-  },
-
-  chooseGalleryImage() {
-    const remaining = 9 - this.data.form.gallery.length;
-    if (remaining <= 0) return;
-    let that = this;
-    wx.chooseImage({
-      count: remaining,
-      sizeType: ['compressed'],
-      sourceType: ['album', 'camera'],
-      success(res) {
-        const tasks = res.tempFilePaths.map(function(path) {
-          return new Promise(function(resolve) {
-            that.uploadImage(path, resolve);
-          });
-        });
-        Promise.all(tasks).then(function(urls) {
-          const validUrls = urls.filter(function(u) { return u; });
-          that.setData({
-            'form.gallery': that.data.form.gallery.concat(validUrls)
-          });
-          that.autoSaveDraft();
-        });
-      }
-    });
-  },
-
-  removeGallery(e) {
-    const index = e.currentTarget.dataset.index;
-    this.data.form.gallery.splice(index, 1);
-    this.setData({ 'form.gallery': this.data.form.gallery });
-    this.autoSaveDraft();
-  },
-
-  uploadImage(filePath, callback) {
-    util.uploadFile(filePath).then(function(url) {
-      callback(url);
-    }).catch(function() {
-      callback(null);
-    });
-  },
-
-  // ========== SKU 操作 ==========
-  addSku() {
-    this.data.skuList.push({ color: '', size: '', price: '', stock: '' });
-    this.setData({ skuList: this.data.skuList });
-  },
-
-  removeSku(e) {
-    const index = e.currentTarget.dataset.index;
-    this.data.skuList.splice(index, 1);
-    this.setData({ skuList: this.data.skuList });
-  },
-
-  onSkuInput(e) {
-    const { index, field } = e.currentTarget.dataset;
-    this.setData({ ['skuList[' + index + '].' + field]: e.detail.value });
-  },
-
   // ========== 草稿操作 ==========
+
   autoSaveDraft() {
     var now = new Date();
     var timeStr = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
     const draft = {
-      form: this.data.form,
-      params: this.data.params,
-      skuList: this.data.skuList,
+      formData: this.data.formData,
       savedAt: now.toISOString()
     };
     wx.setStorageSync('managerShelfDraft', draft);
@@ -392,20 +123,17 @@ Page({
   loadDraft() {
     try {
       const draft = wx.getStorageSync('managerShelfDraft');
-      if (draft && draft.form) {
+      if (draft && draft.formData) {
         var savedAt = '';
         if (draft.savedAt) {
           var d = new Date(draft.savedAt);
           savedAt = d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
         }
         this.setData({
-          form: draft.form,
-          params: draft.params || [],
-          skuList: draft.skuList || [],
+          formData: draft.formData,
           hasDraft: true,
           showDraftTip: true,
-          draftSavedAt: savedAt,
-          sceneMap: this._buildSceneMap(draft.form.scenes)
+          draftSavedAt: savedAt
         });
       }
     } catch (e) {
@@ -416,28 +144,10 @@ Page({
   clearDraft() {
     wx.removeStorageSync('managerShelfDraft');
     this.setData({
-      form: {
-        picUrl: '',
-        gallery: [],
-        name: '',
-        brief: '',
-        detail: '',
-        counterPrice: '',
-        retailPrice: '',
-        specialPrice: '',
-        categoryId: '',
-        categoryName: '',
-        keywords: '',
-        scenes: []
-      },
-      params: [],
-      skuList: [],
+      formData: {},
       hasDraft: false,
       showDraftTip: false,
-      draftSavedAt: '',
-      sceneMap: {},
-      aiRecognized: false,
-      aiConfidence: null
+      draftSavedAt: ''
     });
   },
 
@@ -458,74 +168,16 @@ Page({
     this.setData({ activeSubTab: 'upload' });
   },
 
-  // ========== 预览操作 ==========
-  onPreview() {
-    if (!this.validateForm()) return;
-    const previewData = {
-      picUrl: this.data.form.picUrl,
-      name: this.data.form.name,
-      brief: this.data.form.brief,
-      counterPrice: this.data.form.counterPrice,
-      retailPrice: this.data.form.retailPrice,
-      specialPrice: this.data.form.specialPrice,
-      categoryName: this.data.form.categoryName,
-      scenes: this.data.form.scenes || [],
-      isSpecial: this.data.form.specialPrice && parseFloat(this.data.form.specialPrice) > 0
-    };
-    this.setData({ showPreview: true, previewData: previewData });
+  // ========== 组件事件处理 ==========
+
+  onGoodsFormChange(e) {
+    this.setData({ formData: e.detail.formData });
+    this.autoSaveDraft();
   },
 
-  hidePreview() {
-    this.setData({ showPreview: false });
-  },
-
-  // ========== 商品提交 ==========
-  validateForm() {
-    if (!this.data.form.name || !this.data.form.name.trim()) {
-      wx.showToast({ title: '请输入商品名称', icon: 'none' });
-      return false;
-    }
-    if (!this.data.form.retailPrice) {
-      wx.showToast({ title: '请输入零售价', icon: 'none' });
-      return false;
-    }
-    return true;
-  },
-
-  collectFormData() {
-    const form = this.data.form;
-    return {
-      name: form.name,
-      brief: form.brief || '',
-      detail: form.detail || '',
-      picUrl: form.picUrl || '',
-      gallery: form.gallery,
-      counterPrice: form.counterPrice ? parseFloat(form.counterPrice) : null,
-      retailPrice: form.retailPrice ? parseFloat(form.retailPrice) : null,
-      specialPrice: form.specialPrice ? parseFloat(form.specialPrice) : null,
-      categoryId: form.categoryId ? parseInt(form.categoryId) : null,
-      keywords: form.keywords || '',
-      scenes: form.scenes || [],
-      params: this.data.params.filter(function(p) {
-        return p.key && p.key.trim();
-      }),
-      skus: this.data.skuList.filter(function(s) {
-        return s.color || s.size;
-      }).map(function(s) {
-        return {
-          color: s.color,
-          size: s.size,
-          price: s.price ? parseFloat(s.price) : null,
-          stock: s.stock ? parseInt(s.stock) : 0
-        };
-      })
-    };
-  },
-
-  onSaveDraft() {
-    if (!this.validateForm()) return;
+  onGoodsFormSave(e) {
     let that = this;
-    const data = this.collectFormData();
+    const data = e.detail.formData;
 
     util.request(api.ManagerGoodsCreate, data, 'POST').then(function(res) {
       if (res.errno === 0) {
@@ -537,10 +189,9 @@ Page({
     });
   },
 
-  onPublish() {
-    if (!this.validateForm()) return;
+  onGoodsFormPublish(e) {
     let that = this;
-    const data = this.collectFormData();
+    const data = e.detail.formData;
 
     util.request(api.ManagerGoodsCreate, data, 'POST').then(function(res) {
       if (res.errno === 0) {
@@ -549,7 +200,7 @@ Page({
           if (res2.errno === 0) {
             wx.showToast({ title: '上架成功', icon: 'success' });
             that.clearDraft();
-            that.setData({ showPreview: false, activeSubTab: 'list', listTab: 'on_sale' });
+            that.setData({ activeSubTab: 'list', listTab: 'on_sale' });
             that.refreshGoodsList();
           } else {
             wx.showToast({ title: '保存成功但上架失败', icon: 'none' });
@@ -561,7 +212,24 @@ Page({
     });
   },
 
+  onGoodsFormPreview(e) {
+    // 预览数据已由组件保存到 storage，直接跳转
+    wx.navigateTo({
+      url: '/pages/goods_detail/goods_detail?preview=1&from=draft'
+    });
+  },
+
+  // 列表卡片点击跳转预览
+  onPreviewGoods(e) {
+    var id = e.currentTarget.dataset.id;
+    if (!id) return;
+    wx.navigateTo({
+      url: '/pages/goods_detail/goods_detail?id=' + id + '&preview=1'
+    });
+  },
+
   // ========== 商品列表 ==========
+
   onListTabChange(e) {
     const tab = e.currentTarget.dataset.tab;
     if (tab === this.data.listTab) return;

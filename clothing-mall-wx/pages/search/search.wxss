@@ -316,3 +316,24 @@ page {
   text-align: center;
   color: #999;
 }
+
+.tag-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.tag-scroll .b {
+  display: inline-flex;
+  padding: 0 31.25rpx 31.25rpx;
+}
+
+.tag-item {
+  display: inline-block;
+  height: 48rpx;
+  line-height: 48rpx;
+  padding: 0 15rpx;
+  border: 1px solid #999;
+  margin-right: 31.25rpx;
+  font-size: 24rpx;
+  color: #333;
+}

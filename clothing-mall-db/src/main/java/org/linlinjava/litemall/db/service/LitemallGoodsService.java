@@ -442,4 +442,13 @@ public class LitemallGoodsService {
         return goodsMapper.selectByExampleWithBLOBs(example);
     }
 
+    /**
+     * 搜索商品（支持场景筛选和综合排序）
+     */
+    public List<LitemallGoods> querySelectiveWithScene(Integer categoryId, Integer brandId, String keyword,
+            Boolean isHot, Boolean isNew, Integer sceneId, Integer offset, Integer limit, String sort, String order) {
+        PageHelper.startPage(offset, limit);
+        return goodsMapper.selectBySearchCondition(categoryId, brandId, keyword, isHot, isNew, sceneId, sort, order);
+    }
+
 }

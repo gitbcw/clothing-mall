@@ -211,6 +211,21 @@ Page({
     if (this.skuPicker) this.skuPicker.reset()
   },
 
+  // 立即抢购 - 打开尺码选择器
+  buyNow(e) {
+    const id = e.currentTarget.dataset.id
+    const goods = this.data.hotSales.find(item => item.id === id)
+      || this.data.activityGoodsTop.find(item => item.id === id)
+      || this.data.activityGoodsBottom.find(item => item.id === id)
+    if (!goods) return
+    this.setData({
+      showSkuPicker: true,
+      skuGoods: goods
+    })
+    this.skuPicker = this.selectComponent('.sku-picker') || this.selectComponent('sku-picker')
+    if (this.skuPicker) this.skuPicker.reset()
+  },
+
   closeSkuPicker() {
     this.setData({ showSkuPicker: false })
   },

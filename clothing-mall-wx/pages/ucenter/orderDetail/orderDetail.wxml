@@ -26,8 +26,8 @@
     </view>
     <!-- 到店自提 -->
     <view class="pickup-card" wx:if="{{orderInfo.deliveryType === 'pickup'}}">
-      <!-- 取货码票面 -->
-      <view class="pickup-ticket" wx:if="{{orderInfo.pickupCode}}">
+      <!-- 取货码票面（仅已付款订单显示） -->
+      <view class="pickup-ticket" wx:if="{{orderInfo.pickupCode && !handleOption.pay}}">
         <view class="pickup-ticket-top">
           <view class="pickup-badge">到店自提</view>
           <view class="pickup-ticket-label">取货码</view>

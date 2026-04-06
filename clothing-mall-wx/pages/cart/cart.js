@@ -245,6 +245,15 @@ Page({
     }
   },
 
+  // 跳转商品详情
+  goToDetail(e) {
+    const goodsId = e.currentTarget.dataset.goodsId
+    if (!goodsId) return
+    wx.navigateTo({
+      url: '/pages/goods_detail/goods_detail?id=' + goodsId
+    })
+  },
+
   // 返回
   goBack() {
     wx.navigateBack({

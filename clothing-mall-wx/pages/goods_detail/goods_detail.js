@@ -39,11 +39,22 @@ Page({
     // 尺码选择器
     showSkuPicker: false,
     enableSize: true,
+    selectedSize: '',
+    selectedQuantity: 1,
 
     // 分享
     canShare: true,
     openShare: false,
-    defaultImage: '/static/images/fallback-image.svg'
+    defaultImage: '/static/images/fallback-image.svg',
+
+    // 收货地址
+    checkedAddress: null,
+
+    // 服务弹窗
+    showServicePopup: false,
+
+    // 预览模式
+    isPreview: false
   },
 
   onShareAppMessage() {
@@ -53,7 +64,15 @@ Page({
   },
 
   onLoad(options) {
-    if (options.id) {
+    if (options.preview === '1') {
+      this.setData({ isPreview: true })
+      if (options.from === 'draft') {
+        this.loadDraftPreview()
+      } else if (options.id) {
+        this.setData({ id: parseInt(options.id) })
+        this.getGoodsInfo()
+      }
+    } else if (options.id) {
       this.setData({ id: parseInt(options.id) })
       this.getGoodsInfo()
     }
@@ -75,9 +94,56 @@ Page({
       }
     })
 
+    // 回显选中的收货地址
+    this.loadCheckedAddress()
+
     // 页面浏览埋点
     if (this.data.goods && this.data.goods.id) {
       tracker.trackPageView('商品详情-' + this.data.goods.name)
+    }
+  },
+
+  // 从 storage 加载上架表单预览数据
+  loadDraftPreview() {
+    try {
+      var data = wx.getStorageSync('previewGoodsData')
+      if (!data) {
+        util.showErrorToast('预览数据不存在')
+        setTimeout(function() { wx.navigateBack() }, 1500)
+        return
+      }
+      var gallery = [data.picUrl || this.data.defaultImage]
+      if (data.gallery && data.gallery.length > 0) {
+        gallery = data.gallery
+      }
+      this.setData({
+        goods: {
+          id: 0,
+          name: data.name || '',
+          brief: data.brief || '',
+          retailPrice: data.retailPrice || '0',
+          counterPrice: data.counterPrice || '',
+          specialPrice: data.specialPrice || '',
+          isSpecialPrice: !!(data.specialPrice && parseFloat(data.specialPrice) > 0),
+          picUrl: data.picUrl || '',
+          detail: data.detail || '',
+          categoryId: data.categoryId || ''
+        },
+        gallery: gallery,
+        attribute: (data.params || []).filter(function(p) { return p.key && p.key.trim() }).map(function(p) {
+          return { attribute: p.key, value: p.value }
+        }),
+        checkedSpecPrice: data.specialPrice && parseFloat(data.specialPrice) > 0 ? data.specialPrice : data.retailPrice || '0',
+        tmpPicUrl: data.picUrl || '',
+        brand: null,
+        issueList: [],
+        relatedGoods: [],
+        enableSize: true
+      })
+    } catch (e) {
+      console.error('加载预览数据失败:', e)
+      util.showErrorToast('预览数据加载失败')
+      setTimeout(function() { wx.navigateBack() }, 1500)
     }
   },
 
@@ -130,14 +196,22 @@ Page({
   },
 
   // 关闭尺码选择器
-  closeSkuPicker() {
-    this.setData({ showSkuPicker: false })
+  closeSkuPicker(e) {
+    let { size, quantity } = e.detail || {}
+    this.setData({
+      showSkuPicker: false,
+      selectedSize: size || '',
+      selectedQuantity: quantity || 1
+    })
   },
 
   // 加入购物车
   skuAddToCart(e) {
     let that = this
     let { size, quantity } = e.detail
+
+    // 保存选择状态
+    this.setData({ selectedSize: size, selectedQuantity: quantity })
 
     util.request(api.CartAdd, {
       goodsId: this.data.goods.id,
@@ -161,6 +235,9 @@ Page({
   skuBuyNow(e) {
     let that = this
     let { size, quantity } = e.detail
+
+    // 保存选择状态
+    this.setData({ selectedSize: size, selectedQuantity: quantity })
 
     util.request(api.CartFastAdd, {
       goodsId: this.data.goods.id,
@@ -481,6 +558,37 @@ Page({
   // 返回
   goBack() {
     wx.navigateBack()
+  },
+
+  // 打开服务弹窗
+  openServicePopup() {
+    this.setData({ showServicePopup: true })
+  },
+
+  // 关闭服务弹窗
+  closeServicePopup() {
+    this.setData({ showServicePopup: false })
+  },
+
+  // 加载收货地址（优先用户手动选择的，其次默认地址）
+  loadCheckedAddress() {
+    let that = this
+    let addressId = wx.getStorageSync('addressId')
+
+    util.request(api.AddressList).then(function(res) {
+      if (res.errno === 0 && res.data.list && res.data.list.length > 0) {
+        let list = res.data.list
+        let matched = addressId
+          ? list.find(function(addr) { return addr.id === addressId })
+          : null
+        if (!matched) {
+          matched = list.find(function(addr) { return addr.isDefault })
+        }
+        if (matched) {
+          that.setData({ checkedAddress: matched })
+        }
+      }
+    })
   },
 
   // 选择收货地址

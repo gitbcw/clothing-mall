@@ -1,28 +1,17 @@
 <view class="container">
   <custom-nav title="我的收藏" />
 
-  <!-- Tab Bar -->
-  <view class="tab-bar">
-    <view class="tab-item {{type == 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">
-      <text class="tab-text">商品</text>
-    </view>
-    <view class="tab-item {{type == 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">
-      <text class="tab-text">专题</text>
-    </view>
-    <view class="tab-indicator" style="left: {{type == 0 ? '25%' : '75%'}}"></view>
-  </view>
-
   <!-- Empty State -->
   <view class="empty-state" wx:if="{{collectList.length <= 0 && !loading}}">
     <view class="empty-circle">
       <view class="empty-plus"></view>
     </view>
-    <text class="empty-title">{{type == 0 ? '还没有收藏商品' : '还没有收藏专题'}}</text>
+    <text class="empty-title">还没有收藏商品</text>
     <text class="empty-desc">浏览到心仪的好物，点个收藏吧</text>
   </view>
 
   <!-- Goods Collect List -->
-  <view class="goods-list" wx:if="{{type == 0 && collectList.length > 0}}">
+  <view class="goods-list" wx:if="{{collectList.length > 0}}">
     <view class="list-hint">
       <text class="list-hint-text">长按可取消收藏</text>
     </view>
@@ -41,23 +30,6 @@
         <view class="goods-bottom">
           <text class="goods-price">¥{{item.retailPrice}}</text>
         </view>
-      </view>
-    </view>
-  </view>
-
-  <!-- Topic Collect List -->
-  <view class="topic-list" wx:if="{{type == 1 && collectList.length > 0}}">
-    <view class="topic-card"
-      wx:for="{{collectList}}"
-      wx:key="id"
-      data-index="{{index}}"
-      bindtap="openCollect"
-      bindlongpress="deleteCollect">
-      <image class="topic-img" src="{{item.picUrl}}" mode="aspectFill" lazy-load />
-      <view class="topic-info">
-        <text class="topic-title">{{item.title}}</text>
-        <text class="topic-subtitle" wx:if="{{item.subtitle}}">{{item.subtitle}}</text>
-        <text class="topic-price">{{item.price}}元起</text>
       </view>
     </view>
   </view>

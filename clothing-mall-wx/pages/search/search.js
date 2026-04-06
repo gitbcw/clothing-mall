@@ -9,6 +9,8 @@ Page({
     searchStatus: false,
     goodsList: [],
     helpKeyword: [],
+    localSuggestions: [],
+    suggestionList: [],
     historyKeyword: [],
     categoryFilter: false,
     currentSort: 'default',
@@ -32,7 +34,9 @@ Page({
   clearKeyword: function() {
     this.setData({
       keyword: '',
-      searchStatus: false
+      searchStatus: false,
+      localSuggestions: [],
+      suggestionList: []
     });
   },
   onLoad: function() {
@@ -49,7 +53,7 @@ Page({
       if (res.errno === 0) {
         that.setData({
           historyKeyword: res.data.historyKeywordList,
-          defaultKeyword: res.data.defaultKeyword,
+          defaultKeyword: res.data.defaultKeyword || {},
           hotKeyword: res.data.hotKeywordList,
           categoryList: res.data.categoryList || [],
           sceneList: res.data.sceneList || []
@@ -59,17 +63,74 @@ Page({
   },
 
   inputChange: function(e) {
+    var keyword = e.detail.value;
     this.setData({
-      keyword: e.detail.value,
+      keyword: keyword,
       searchStatus: false
     });
 
-    if (e.detail.value) {
+    if (keyword) {
+      this.buildLocalSuggestions(keyword);
       this.getHelpKeyword();
+    } else {
+      this.setData({
+        helpKeyword: [],
+        localSuggestions: [],
+        suggestionList: []
+      });
     }
   },
+
+  buildLocalSuggestions: function(keyword) {
+    var results = [];
+    var seen = {};
+
+    // 历史记录
+    (this.data.historyKeyword || []).forEach(function(item) {
+      if (item.keyword.indexOf(keyword) !== -1 && !seen[item.keyword]) {
+        seen[item.keyword] = true;
+        results.push({ type: 'history', text: item.keyword });
+      }
+    });
+
+    // 分类
+    (this.data.categoryList || []).forEach(function(item) {
+      if (item.name.indexOf(keyword) !== -1 && !seen[item.name]) {
+        seen[item.name] = true;
+        results.push({ type: 'category', text: item.name, id: item.id });
+      }
+    });
+
+    // 场景
+    (this.data.sceneList || []).forEach(function(item) {
+      if (item.name.indexOf(keyword) !== -1 && !seen[item.name]) {
+        seen[item.name] = true;
+        results.push({ type: 'scene', text: item.name, id: item.id });
+      }
+    });
+
+    this.setData({ localSuggestions: results });
+    this.mergeSuggestions();
+  },
+
+  mergeSuggestions: function() {
+    var local = this.data.localSuggestions || [];
+    var localTexts = {};
+    local.forEach(function(s) { localTexts[s.text] = true; });
+
+    var backend = (this.data.helpKeyword || []).map(function(k) {
+      return { type: 'keyword', text: k };
+    }).filter(function(s) {
+      return !localTexts[s.text];
+    });
+
+    this.setData({
+      suggestionList: local.concat(backend)
+    });
+  },
+
   getHelpKeyword: function() {
-    let that = this;
+    var that = this;
     util.request(api.SearchHelper, {
       keyword: that.data.keyword
     }).then(function(res) {
@@ -77,6 +138,7 @@ Page({
         that.setData({
           helpKeyword: res.data
         });
+        that.mergeSuggestions();
       }
     });
   },
@@ -87,6 +149,7 @@ Page({
     });
 
     if (this.data.keyword) {
+      this.buildLocalSuggestions(this.data.keyword);
       this.getHelpKeyword();
     }
   },
@@ -130,6 +193,24 @@ Page({
 
     this.getSearchResult(event.target.dataset.keyword);
 
+  },
+  onSuggestionTap: function(e) {
+    var item = e.currentTarget.dataset.item;
+    if (!item) return;
+
+    switch (item.type) {
+      case 'history':
+        this.getSearchResult(item.text);
+        break;
+      case 'category':
+        this.onCategoryTap({ currentTarget: { dataset: { id: item.id } } });
+        break;
+      case 'scene':
+        this.onSceneTap({ currentTarget: { dataset: { id: item.id } } });
+        break;
+      default:
+        this.getSearchResult(item.text);
+    }
   },
   getSearchResult(keyword) {
     if (keyword === '') {

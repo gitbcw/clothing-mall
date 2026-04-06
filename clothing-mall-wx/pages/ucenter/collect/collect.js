@@ -3,7 +3,6 @@ const api = require('../../../config/api.js');
 
 Page({
   data: {
-    type: 0,
     collectList: [],
     page: 1,
     limit: 10,
@@ -43,7 +42,7 @@ Page({
     }
 
     return util.request(api.CollectList, {
-      type: this.data.type,
+      type: 0,
       page: this.data.page,
       limit: this.data.limit
     }).then((res) => {
@@ -61,24 +60,7 @@ Page({
     });
   },
 
-  switchTab(e) {
-    const type = Number(e.currentTarget.dataset.index);
-    if (type === this.data.type) return;
-    this.setData({
-      collectList: [],
-      type,
-      page: 1,
-      totalPages: 1,
-      loading: false
-    });
-    this.getCollectList();
-  },
-
   openCollect(e) {
-    if (this.data.type === 1) {
-      wx.showToast({ title: '专题暂未开放', icon: 'none' });
-      return;
-    }
     const index = e.currentTarget.dataset.index;
     const item = this.data.collectList[index];
     if (!item) return;
@@ -99,7 +81,7 @@ Page({
       success: (res) => {
         if (res.confirm) {
           util.request(api.CollectAddOrDelete, {
-            type: this.data.type,
+            type: 0,
             valueId: item.valueId
           }, 'POST').then((res) => {
             if (res.errno === 0) {

@@ -46,8 +46,11 @@
         </view>
       </scroll-view>
     </view>
-    <view class="shelper-list" wx:if="{{keyword}}">
-      <view class="item" hover-class="navigator-hover" wx:for="{{helpKeyword}}" wx:key="id" bindtap="onKeywordTap" data-keyword="{{item}}">{{item}}</view>
+    <view class="suggestion-list" wx:if="{{keyword && suggestionList.length}}">
+      <view class="suggestion-item" hover-class="navigator-hover" wx:for="{{suggestionList}}" wx:key="text" bindtap="onSuggestionTap" data-item="{{item}}">
+        <text class="suggestion-tag suggestion-tag-{{item.type}}">{{item.type === 'history' ? '历史' : item.type === 'category' ? '分类' : item.type === 'scene' ? '场景' : '搜索'}}</text>
+        <text class="suggestion-text">{{item.text}}</text>
+      </view>
     </view>
   </view>
 

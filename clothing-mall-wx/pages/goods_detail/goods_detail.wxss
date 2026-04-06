@@ -630,6 +630,95 @@ page {
   padding: 0 6rpx;
 }
 
+/* 服务详情半屏弹窗 */
+.service-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 300;
+}
+
+.service-popup-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.service-popup-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #FFFFFF;
+  border-radius: 24rpx 24rpx 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.service-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 36rpx 30rpx 20rpx;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.service-popup-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333333;
+}
+
+.service-popup-body {
+  padding: 30rpx;
+}
+
+.service-popup-item {
+  margin-bottom: 30rpx;
+}
+
+.service-popup-item:last-child {
+  margin-bottom: 0;
+}
+
+.service-popup-item-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 10rpx;
+}
+
+.service-popup-item-desc {
+  font-size: 24rpx;
+  color: #999999;
+  line-height: 40rpx;
+}
+
+.service-popup-footer {
+  padding: 20rpx 30rpx 30rpx;
+}
+
+.service-popup-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  background-color: #FF8096;
+  color: #FFFFFF;
+  font-size: 30rpx;
+  border-radius: 44rpx;
+}
+
 /* SKU 选择器遮罩 */
 .sku-picker-mask {
   position: fixed;

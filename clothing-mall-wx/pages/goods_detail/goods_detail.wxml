@@ -57,19 +57,20 @@
     </view>
   </view>
 
-  <!-- 服务与选择区块 -->
-  <view class="service-section">
+  <!-- 服务与选择区块（预览模式隐藏） -->
+  <view class="service-section" wx:if="{{!isPreview}}">
     <!-- 配送 -->
     <view class="service-item" bindtap="selectAddress">
       <text class="label">配送</text>
       <view class="content">
         <view class="location-icon"></view>
-        <text class="value">请选择收货地址</text>
+        <text class="value" wx:if="{{checkedAddress}}">{{checkedAddress.name}} {{checkedAddress.tel}} {{checkedAddress.address}}</text>
+        <text class="value" wx:else>请选择收货地址</text>
       </view>
       <view class="arrow"></view>
     </view>
     <!-- 服务 -->
-    <view class="service-item">
+    <view class="service-item" bindtap="openServicePopup">
       <text class="label">服务</text>
       <view class="content">
         <view class="heart-icon"></view>
@@ -82,7 +83,8 @@
       <text class="label">选择</text>
       <view class="content">
         <view class="clothes-icon"></view>
-        <text class="value">{{checkedSpecText}}</text>
+        <text class="value" wx:if="{{selectedSize}}">已选：{{selectedSize}} x {{selectedQuantity}}</text>
+        <text class="value" wx:else>{{checkedSpecText}}</text>
       </view>
       <view class="arrow"></view>
     </view>
@@ -147,10 +149,10 @@
   </view>
 
   <!-- 底部安全区占位 -->
-  <view class="safe-area-placeholder"></view>
+  <view class="safe-area-placeholder" wx:if="{{!isPreview}}"></view>
 
-  <!-- 底部操作栏 -->
-  <view class="bottom-bar">
+  <!-- 底部操作栏（预览模式隐藏） -->
+  <view class="bottom-bar" wx:if="{{!isPreview}}">
     <view class="icon-group">
       <view class="icon-item" bindtap="contactService">
         <view class="b-icon icon-service"></view>
@@ -173,6 +175,29 @@
     </view>
   </view>
 
+  <!-- 服务详情弹窗 -->
+  <view class="service-popup" wx:if="{{showServicePopup}}">
+    <view class="service-popup-mask" bindtap="closeServicePopup"></view>
+    <view class="service-popup-container">
+      <view class="service-popup-header">
+        <text class="service-popup-title">服务说明</text>
+      </view>
+      <view class="service-popup-body">
+        <view class="service-popup-item">
+          <view class="service-popup-item-title">只换不退</view>
+          <view class="service-popup-item-desc">商品支持7天内换货服务，如有尺码不合适等问题可申请换货。</view>
+        </view>
+        <view class="service-popup-item">
+          <view class="service-popup-item-title">正品保障</view>
+          <view class="service-popup-item-desc">所有商品均为正品，支持专柜验货，假一赔十。</view>
+        </view>
+      </view>
+      <view class="service-popup-footer">
+        <view class="service-popup-btn" bindtap="closeServicePopup">我知道了</view>
+      </view>
+    </view>
+  </view>
+
   <!-- 尺码选择器 -->
   <sku-picker
     visible="{{showSkuPicker}}"
@@ -180,6 +205,8 @@
     goods-image="{{goods.picUrl}}"
     goods-price="{{goods.retailPrice}}"
     enable-size="{{enableSize}}"
+    init-size="{{selectedSize}}"
+    init-quantity="{{selectedQuantity}}"
     bind:close="closeSkuPicker"
     bind:addcart="skuAddToCart"
     bind:buynow="skuBuyNow"

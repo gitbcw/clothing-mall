@@ -111,7 +111,7 @@
         <view class="section-title-en" style="font-size: 24rpx; color: #FF8096; margin: 0; letter-spacing: 2rpx; display: block; font-weight: normal;">SELECTION LIST</view>
       </view>
       <scroll-view class="outfit-list-scroll" scroll-x enhanced show-scrollbar="{{false}}">
-        <view class="outfit-item-wrap" wx:for="{{matchRecommends}}" wx:key="id" bindtap="goToOutfit" data-id="{{item.id}}">
+        <view class="outfit-item-wrap" wx:for="{{matchRecommends}}" wx:key="id">
           <!-- 背景海报图 -->
           <image src="{{item.coverPic}}" mode="aspectFill" class="outfit-bg-img" binderror="onHomeImageError" data-source="matchRecommends" data-index="{{index}}" />
           <!-- 左侧商品浮窗 -->

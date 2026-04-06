@@ -26,6 +26,14 @@ Component({
     enableSize: {
       type: Boolean,
       value: true
+    },
+    initSize: {
+      type: String,
+      value: ''
+    },
+    initQuantity: {
+      type: Number,
+      value: 1
     }
   },
 
@@ -36,9 +44,23 @@ Component({
     sizes: ['S', 'M', 'L', 'XL']
   },
 
+  observers: {
+    'visible': function(visible) {
+      if (visible) {
+        this.setData({
+          selectedSize: this.properties.initSize || this.data.selectedSize || '',
+          quantity: this.properties.initQuantity || this.data.quantity || 1
+        });
+      }
+    }
+  },
+
   methods: {
     onClose() {
-      this.triggerEvent('close');
+      this.triggerEvent('close', {
+        size: this.data.selectedSize,
+        quantity: this.data.quantity
+      });
     },
 
     onSelectSize(e) {

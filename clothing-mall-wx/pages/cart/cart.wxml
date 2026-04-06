@@ -52,7 +52,7 @@
           </view>
 
           <!-- 商品信息 -->
-          <view class="goods-info">
+          <view class="goods-info" bindtap="goToDetail" data-goods-id="{{item.goodsId}}">
             <view class="img-wrap">
               <image class="goods-img" src="{{item.picUrl || defaultGoodsImage}}" mode="aspectFill" binderror="onCartImageError" data-item-index="{{index}}"></image>
             </view>

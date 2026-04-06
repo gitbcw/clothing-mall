@@ -875,9 +875,11 @@
   <!-- 搜索商品（支持场景筛选和综合排序） -->
   <select id="selectBySearchCondition" resultMap="BaseResultMap">
     select
-    <include refid="Base_Column_List" />
+    g.id, g.goods_sn, g.name, g.category_id, g.brand_id, g.gallery, g.keywords, g.brief, g.is_on_sale,
+    g.status, g.sort_order, g.pic_url, g.share_url, g.is_new, g.is_hot, g.is_special_price, g.special_price, g.is_presale, g.unit, g.counter_price, g.retail_price,
+    g.add_time, g.update_time, g.deleted
     from litemall_goods g
-    <if test="sceneId != null">
+    <if test="sceneId != null and sceneId != 0">
       inner join clothing_goods_scene cgs on g.id = cgs.goods_id and cgs.scene_id = #{sceneId}
     </if>
     where g.status = 'published' and g.deleted = 0

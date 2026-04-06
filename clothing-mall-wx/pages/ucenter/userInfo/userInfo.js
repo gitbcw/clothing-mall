@@ -7,6 +7,7 @@ Page({
     userInfo: {
       nickName: '',
       avatarUrl: '',
+      mobile: '',
       birthday: ''
     },
     today: ''
@@ -28,6 +29,7 @@ Page({
           userInfo: {
             nickName: res.data.nickname,
             avatarUrl: res.data.avatar,
+            mobile: res.data.mobile || '',
             birthday: res.data.birthday
           }
         });
@@ -70,7 +72,7 @@ Page({
   },
 
   saveProfile() {
-    const { nickName, avatarUrl, birthday } = this.data.userInfo;
+    const { nickName, avatarUrl, mobile, birthday } = this.data.userInfo;
     if (!nickName) {
       util.showErrorToast('请输入昵称');
       return;
@@ -79,6 +81,7 @@ Page({
     util.request(api.UserProfile, {
       nickname: nickName,
       avatar: avatarUrl,
+      mobile: mobile,
       birthday: birthday
     }, 'POST').then(res => {
       if (res.errno === 0) {

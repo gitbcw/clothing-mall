@@ -22,7 +22,7 @@ Page({
     this.getUserInfo();
   },
 
-  getUserInfo: function() {
+  getUserInfo: function () {
     util.request(api.UserInfo).then(res => {
       if (res.errno === 0) {
         this.setData({

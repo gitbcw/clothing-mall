@@ -7,8 +7,14 @@
     <view class="nav-right"></view>
   </view>
 
-  <scroll-view class="page-scroll" scroll-y="true" style="padding-top: {{statusBarHeight + navBarHeight}}px;">
-    <!-- Banner -->
+  <!-- 加载状态 -->
+  <view class="page-loading" wx:if="{{loading}}" style="padding-top: {{statusBarHeight + navBarHeight}}px;">
+    <view class="loading-spinner-lg"></view>
+    <view class="loading-text-lg">正在为您加载...</view>
+  </view>
+
+  <scroll-view class="page-scroll" scroll-y="true" style="padding-top: {{statusBarHeight + navBarHeight}}px;" wx:if="{{!loading}}">
+
     <swiper class="banner-swiper" indicator-dots="true" autoplay="true" circular="true" indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#ffffff">
       <swiper-item wx:for="{{banners}}" wx:key="id" bindtap="goToScene" data-scene-id="{{item.id}}">
         <view class="banner-slide">
@@ -17,7 +23,13 @@
           <view class="banner-watermark">{{item.name}}</view>
           <!-- 底部场景信息 -->
           <view class="banner-text-overlay">
-            <text class="banner-scene-name">{{item.name}}</text>
+            <view class="banner-info-block">
+              <text class="banner-scene-name">{{item.name}}</text>
+              <view class="banner-view-more">
+                <text class="banner-view-more-text">查看更多</text>
+                <view class="banner-view-more-line"></view>
+              </view>
+            </view>
           </view>
         </view>
       </swiper-item>
@@ -120,8 +132,8 @@
             <text class="outfit-brand-main">川着</text>
             <text class="outfit-brand-sub">川行此着</text>
           </view>
-          <!-- 左侧商品浮窗 -->
-          <view class="outfit-float-panel" wx:if="{{item.goods && item.goods.length > 0}}" catchtap="preventTap">
+          <!-- 商品浮窗 -->
+          <view class="outfit-float-panel float-pos--{{item.floatPosition || 'left'}}" wx:if="{{item.goods && item.goods.length > 0}}" catchtap="preventTap">
             <view class="outfit-float-title">Get同款</view>
             <scroll-view class="outfit-goods-scroll" scroll-y enhanced show-scrollbar="{{false}}">
               <view class="outfit-good-item" wx:for="{{item.goods}}" wx:key="id" wx:for-item="good" catchtap="goToDetail" data-id="{{good.id}}">

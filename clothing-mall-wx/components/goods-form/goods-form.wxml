@@ -42,19 +42,13 @@
       </view>
     </view>
     <view class="form-row">
-      <view class="form-item third">
-        <text class="form-label">专柜价</text>
+      <view class="form-item half">
+        <text class="form-label">一口价 <text class="required">*</text></text>
         <view class="input-wrapper">
-          <input class="form-input" type="digit" placeholder="专柜价" placeholder-style="font-size:28rpx;color:#999;" value="{{_form.counterPrice}}" bindinput="onCounterPriceInput" />
+          <input class="form-input" type="digit" placeholder="一口价" placeholder-style="font-size:28rpx;color:#999;" value="{{_form.retailPrice}}" bindinput="onRetailPriceInput" />
         </view>
       </view>
-      <view class="form-item third">
-        <text class="form-label">零售价 <text class="required">*</text></text>
-        <view class="input-wrapper">
-          <input class="form-input" type="digit" placeholder="零售价" placeholder-style="font-size:28rpx;color:#999;" value="{{_form.retailPrice}}" bindinput="onRetailPriceInput" />
-        </view>
-      </view>
-      <view class="form-item third">
+      <view class="form-item half">
         <text class="form-label">特价</text>
         <view class="input-wrapper">
           <input class="form-input" type="digit" placeholder="特价（可选）" placeholder-style="font-size:28rpx;color:#999;" value="{{_form.specialPrice}}" bindinput="onSpecialPriceInput" />

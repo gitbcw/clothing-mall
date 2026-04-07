@@ -79,8 +79,8 @@
     "downloadFile": 10000
   },
   "debug": false,
+  "lazyCodeLoading": "requiredComponents",
   "usingComponents": {
-    "goods-form": "/components/goods-form/goods-form",
     "van-cell": "./lib/vant-weapp/cell/index",
     "van-cell-group": "./lib/vant-weapp/cell-group/index",
     "van-picker": "./lib/vant-weapp/picker/index",

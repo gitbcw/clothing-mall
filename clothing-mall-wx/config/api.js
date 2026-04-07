@@ -7,7 +7,7 @@ var envVersion = 'trial';
 // 本地调试用 trial (HTTP)，上传体验版前改为 release (HTTPS)
 var WxApiRoot = apiRootMap[envVersion];
 // 是否为开发环境
-var isDev = envVersion === 'develop';
+var isDev = envVersion !== 'release';
 
 module.exports = {
   isDev: isDev,

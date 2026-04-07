@@ -99,7 +99,7 @@
           </template>
         </el-table-column>
         <el-table-column align="center" label="商品名称" prop="name" />
-        <el-table-column align="center" label="零售价" prop="retailPrice" width="100" />
+        <el-table-column align="center" label="一口价" prop="retailPrice" width="100" />
       </el-table>
       <el-pagination
         layout="total, prev, pager, next"

@@ -126,7 +126,8 @@
   margin-bottom: 0;
 }
 
-.form-item.third {
+.form-item.third,
+.form-item.half {
   flex: 1;
   min-width: 0;
 }

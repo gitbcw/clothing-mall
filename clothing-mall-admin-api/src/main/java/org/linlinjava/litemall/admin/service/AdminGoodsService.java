@@ -171,6 +171,12 @@ public class AdminGoodsService {
         }
         goods.setRetailPrice(retailPrice);
 
+        // counterPrice（专柜价/划线价）：按零售价自动上浮30%
+        BigDecimal counterPrice = goods.getCounterPrice();
+        if (counterPrice == null || counterPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            goods.setCounterPrice(retailPrice.multiply(new BigDecimal("1.3")).setScale(2, BigDecimal.ROUND_HALF_UP));
+        }
+
         // 场景标签：将名称数组转为 JSON 字符串存入 scene_tags 字段
         String[] sceneTags = goodsAllinone.getSceneTags();
         if (sceneTags != null && sceneTags.length > 0) {
@@ -279,6 +285,12 @@ public class AdminGoodsService {
             }
         }
         goods.setRetailPrice(retailPrice);
+
+        // counterPrice（专柜价/划线价）：按零售价自动上浮30%
+        BigDecimal counterPrice = goods.getCounterPrice();
+        if (counterPrice == null || counterPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            goods.setCounterPrice(retailPrice.multiply(new BigDecimal("1.3")).setScale(2, BigDecimal.ROUND_HALF_UP));
+        }
 
         // 商品基本信息表litemall_goods
         goodsService.add(goods);

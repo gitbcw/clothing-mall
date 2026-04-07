@@ -68,7 +68,6 @@ Component({
           name: val.name || '',
           brief: val.brief || '',
           detail: val.detail || '',
-          counterPrice: val.counterPrice || '',
           retailPrice: val.retailPrice || '',
           specialPrice: val.specialPrice || '',
           categoryId: val.categoryId || '',
@@ -291,11 +290,6 @@ Component({
       this._emitChange();
     },
 
-    onCounterPriceInput: function(e) {
-      this.setData({ '_form.counterPrice': e.detail.value });
-      this._emitChange();
-    },
-
     onRetailPriceInput: function(e) {
       this.setData({ '_form.retailPrice': e.detail.value });
       this._emitChange();
@@ -401,7 +395,7 @@ Component({
         return false;
       }
       if (this.data.mode === 'create' && !this.data._form.retailPrice) {
-        wx.showToast({ title: '请输入零售价', icon: 'none' });
+        wx.showToast({ title: '请输入一口价', icon: 'none' });
         return false;
       }
       return true;
@@ -418,7 +412,6 @@ Component({
         detail: form.detail || '',
         picUrl: form.picUrl || '',
         gallery: this.data._galleryList,
-        counterPrice: form.counterPrice ? parseFloat(form.counterPrice) : null,
         retailPrice: form.retailPrice ? parseFloat(form.retailPrice) : null,
         specialPrice: form.specialPrice ? parseFloat(form.specialPrice) : null,
         categoryId: form.categoryId || null,
@@ -456,7 +449,6 @@ Component({
           name: this.data._form.name,
           brief: this.data._form.brief,
           detail: this.data._form.detail,
-          counterPrice: this.data._form.counterPrice,
           retailPrice: this.data._form.retailPrice,
           specialPrice: this.data._form.specialPrice,
           categoryId: this.data._form.categoryId,
@@ -479,7 +471,6 @@ Component({
           name: data.name,
           brief: data.brief,
           detail: data.detail,
-          counterPrice: data.counterPrice,
           retailPrice: data.retailPrice,
           specialPrice: data.specialPrice,
           isSpecialPrice: data.specialPrice && parseFloat(data.specialPrice) > 0,

@@ -261,13 +261,9 @@ Page({
   goManager() {
     if (this.data.isManager) {
       if (this.data.userRole === 'guide') {
-        wx.reLaunch({
-          url: '/pages/manager/verify/verify'
-        })
+        wx.navigateTo({ url: '/pages/manager/verify/verify' })
       } else {
-        wx.reLaunch({
-          url: '/pages/manager/tabOrder/tabOrder'
-        })
+        wx.navigateTo({ url: '/pages/manager/tabOrder/tabOrder' })
       }
     }
   }

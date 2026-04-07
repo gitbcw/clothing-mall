@@ -14,13 +14,7 @@
         <el-form-item :label="$t('goods_edit.form.name')" prop="name">
           <el-input v-model="goods.name" style="width: 300px" />
         </el-form-item>
-        <el-form-item :label="$t('goods_edit.form.counter_price')" prop="counterPrice">
-          <el-input v-model="goods.counterPrice" placeholder="0.00" style="width: 300px">
-            <template slot="append">元</template>
-          </el-input>
-          <span class="form-tip">（小程序显示为划线原价，非实际售价）</span>
-        </el-form-item>
-        <el-form-item label="零售价" prop="retailPrice">
+        <el-form-item label="一口价" prop="retailPrice">
           <el-input v-model="goods.retailPrice" placeholder="0.00" style="width: 300px">
             <template slot="append">元</template>
           </el-input>

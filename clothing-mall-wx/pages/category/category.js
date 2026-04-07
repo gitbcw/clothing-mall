@@ -18,6 +18,7 @@ Page({
     page: 1,
     limit: 10,
     pages: 1,
+    loading: false,
 
     // 瀑布流
     leftGoodsList: [],
@@ -59,6 +60,7 @@ Page({
   // 获取分类信息
   getCategoryInfo() {
     let that = this
+    this.setData({ loading: true })
     util.request(api.GoodsCategory, {
       id: this.data.activeCategoryId
     }).then(function(res) {
@@ -131,7 +133,8 @@ Page({
         let goodsList = that.data.goodsList.concat(newList)
         that.setData({
           goodsList: goodsList,
-          pages: res.data.pages || 1
+          pages: res.data.pages || 1,
+          loading: false
         })
         // 更新瀑布流
         that.updateWaterfall()

@@ -34,7 +34,7 @@
           <text class="brand-sub">川行此着</text>
         </view>
         <!-- 悬浮商品栏 -->
-        <view class="outfit-float-panel" wx:if="{{goodsList.length > 0}}">
+        <view class="outfit-float-panel float-pos--{{form.floatPosition || 'left'}}" wx:if="{{goodsList.length > 0}}">
           <view class="outfit-float-title">Get同款</view>
           <scroll-view class="outfit-goods-scroll" scroll-y enhanced show-scrollbar="{{false}}">
             <view class="outfit-good-item" wx:for="{{goodsList}}" wx:key="id">
@@ -103,8 +103,28 @@
       <view class="field-divider"></view>
 
       <view class="field-group field-row">
+        <view class="field-label">商品栏位置</view>
+        <view class="color-picker">
+          <view class="color-option {{form.floatPosition === 'left' ? 'color-active' : ''}}" bindtap="onSelectFloatPosition" data-position="left">
+            <view class="pos-icon pos-icon--left"></view>
+            <text class="color-label">左侧</text>
+          </view>
+          <view class="color-option {{form.floatPosition === 'right' ? 'color-active' : ''}}" bindtap="onSelectFloatPosition" data-position="right">
+            <view class="pos-icon pos-icon--right"></view>
+            <text class="color-label">右侧</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="field-divider"></view>
+
+      <view class="field-group field-row">
         <view class="field-label">穿搭排序</view>
-        <input class="field-input field-input--small" type="number" value="{{form.sortOrder}}" bindinput="onInputSort" placeholder="0" />
+        <view class="stepper">
+          <view class="stepper-btn stepper-minus {{form.sortOrder <= 1 ? 'stepper-btn-disabled' : ''}}" bindtap="onSortMinus">-</view>
+          <input class="stepper-input" type="number" value="{{form.sortOrder}}" bindinput="onInputSort" />
+          <view class="stepper-btn stepper-plus" bindtap="onSortPlus">+</view>
+        </view>
       </view>
 
       <view class="field-divider"></view>
@@ -134,7 +154,7 @@
       </view>
 
       <view class="goods-list" wx:if="{{goodsList.length > 0}}">
-        <view class="goods-item" wx:for="{{goodsList}}" wx:key="id">
+        <view class="goods-item" wx:for="{{goodsList}}" wx:key="id" bindtap="onViewGoods" data-id="{{item.id}}">
           <image class="goods-item-img" src="{{img.url(item.picUrl)}}" mode="aspectFill" />
           <view class="goods-item-info">
             <text class="goods-item-name">{{item.name}}</text>

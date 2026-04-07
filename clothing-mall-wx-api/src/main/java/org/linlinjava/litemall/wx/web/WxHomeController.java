@@ -207,6 +207,9 @@ public class WxHomeController {
             outfitMap.put("id", outfit.getId());
             outfitMap.put("title", outfit.getTitle());
             outfitMap.put("coverPic", outfit.getCoverPic());
+            outfitMap.put("brandColor", outfit.getBrandColor());
+            outfitMap.put("brandPosition", outfit.getBrandPosition());
+            outfitMap.put("floatPosition", outfit.getFloatPosition());
             outfitMap.put("sortOrder", outfit.getSortOrder());
 
             // 解析 goodsIds JSON 并查询商品

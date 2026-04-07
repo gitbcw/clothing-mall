@@ -37,7 +37,8 @@ Page({
   },
 
   onAddScene: function() {
-    wx.navigateTo({ url: '/pages/manager/sceneEdit/sceneEdit' });
+    var count = this.data.sceneList.length;
+    wx.navigateTo({ url: '/pages/manager/sceneEdit/sceneEdit?count=' + count });
   },
 
   onSceneTap: function(e) {

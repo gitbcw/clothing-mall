@@ -7,8 +7,14 @@
     <view class="unshelved-btn" bindtap="goBack">返回</view>
   </view>
 
-  <!-- 正常商品内容（下架时隐藏） -->
-  <block wx:if="{{!isUnshelved}}">
+  <!-- 加载状态 -->
+  <view class="loading-state" wx:if="{{loading}}" style="margin-top: {{statusBarHeight + navBarHeight + 16}}px;">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">加载中...</view>
+  </view>
+
+  <!-- 正常商品内容（下架或隐藏） -->
+  <block wx:if="{{!isUnshelved && !loading}}">
   <!-- 沉浸式自定义导航栏 -->
   <view class="custom-nav" style="padding-top: {{statusBarHeight+16}}px; height: {{navBarHeight}}px;">
     <view class="back-btn" bindtap="goBack">

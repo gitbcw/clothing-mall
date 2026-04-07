@@ -124,7 +124,7 @@ Page({
           id: 0,
           name: data.name || '',
           brief: data.brief || '',
-          retailPrice: data.retailPrice || '0',
+          retailPrice: parseFloat(data.retailPrice) || 0,
           counterPrice: data.counterPrice || '',
           specialPrice: data.specialPrice || '',
           isSpecialPrice: !!(data.specialPrice && parseFloat(data.specialPrice) > 0),
@@ -162,7 +162,9 @@ Page({
         let info = res.data.info
         let fallback = info.picUrl || this.data.defaultImage
         let gallery = [fallback]
-        if (info.gallery) {
+        if (Array.isArray(info.gallery) && info.gallery.length > 0) {
+          gallery = info.gallery
+        } else if (typeof info.gallery === 'string' && info.gallery) {
           try { gallery = JSON.parse(info.gallery) } catch (e) { /* gallery 非法 JSON，使用兜底图 */ }
           if (!Array.isArray(gallery) || gallery.length === 0) gallery = [fallback]
         }

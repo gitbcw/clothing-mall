@@ -40,8 +40,14 @@
 
     <!-- 右侧商品瀑布流 -->
     <scroll-view class="goods-content" scroll-y="true" lower-threshold="100" bindscrolltolower="loadMore" scroll-top="{{scrollTop}}">
+      <!-- 加载状态 -->
+      <view class="loading-state" wx:if="{{loading}}">
+        <view class="loading-spinner"></view>
+        <view class="loading-text">加载中...</view>
+      </view>
+
       <!-- 空状态 -->
-      <view class="empty-state" wx:if="{{leftGoodsList.length === 0 && rightGoodsList.length === 0}}">
+      <view class="empty-state" wx:elif="{{leftGoodsList.length === 0 && rightGoodsList.length === 0}}">
         <view class="empty-text">暂无商品</view>
       </view>
 

@@ -106,7 +106,6 @@ Page({
             name: goods.name || '',
             brief: goods.brief || '',
             detail: goods.detail || '',
-            counterPrice: goods.counterPrice ? goods.counterPrice.toString() : '',
             retailPrice: goods.retailPrice ? goods.retailPrice.toString() : '',
             specialPrice: goods.specialPrice ? goods.specialPrice.toString() : '',
             categoryId: goods.categoryId || '',

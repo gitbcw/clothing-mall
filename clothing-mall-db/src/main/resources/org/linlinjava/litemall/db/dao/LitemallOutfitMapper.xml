@@ -10,6 +10,7 @@
     <result column="tags" jdbcType="VARCHAR" property="tags" />
     <result column="brand_color" jdbcType="VARCHAR" property="brandColor" />
     <result column="brand_position" jdbcType="VARCHAR" property="brandPosition" />
+    <result column="float_position" jdbcType="VARCHAR" property="floatPosition" />
     <result column="sort_order" jdbcType="INTEGER" property="sortOrder" />
     <result column="status" jdbcType="SMALLINT" property="status" />
     <result column="add_time" jdbcType="TIMESTAMP" property="addTime" />
@@ -75,7 +76,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, title, description, cover_pic, goods_ids, tags, brand_color, brand_position, sort_order, status, add_time, update_time, deleted
+    id, title, description, cover_pic, goods_ids, tags, brand_color, brand_position, float_position, sort_order, status, add_time, update_time, deleted
   </sql>
   <select id="selectByExample" parameterType="org.linlinjava.litemall.db.domain.LitemallOutfitExample" resultMap="BaseResultMap">
     select
@@ -199,11 +200,11 @@
     </selectKey>
     insert into litemall_outfit (title, description, cover_pic,
       goods_ids, tags, brand_color,
-      brand_position, sort_order, status,
+      brand_position, float_position, sort_order, status,
       add_time, update_time, deleted)
     values (#{title,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{coverPic,jdbcType=VARCHAR},
       #{goodsIds,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{brandColor,jdbcType=VARCHAR},
-      #{brandPosition,jdbcType=VARCHAR}, #{sortOrder,jdbcType=INTEGER}, #{status,jdbcType=SMALLINT},
+      #{brandPosition,jdbcType=VARCHAR}, #{floatPosition,jdbcType=VARCHAR}, #{sortOrder,jdbcType=INTEGER}, #{status,jdbcType=SMALLINT},
       #{addTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="org.linlinjava.litemall.db.domain.LitemallOutfit">
@@ -232,6 +233,9 @@
       </if>
       <if test="brandPosition != null">
         brand_position,
+      </if>
+      <if test="floatPosition != null">
+        float_position,
       </if>
       <if test="sortOrder != null">
         sort_order,
@@ -270,6 +274,9 @@
       </if>
       <if test="brandPosition != null">
         #{brandPosition,jdbcType=VARCHAR},
+      </if>
+      <if test="floatPosition != null">
+        #{floatPosition,jdbcType=VARCHAR},
       </if>
       <if test="sortOrder != null">
         #{sortOrder,jdbcType=INTEGER},
@@ -321,6 +328,9 @@
       <if test="record.brandPosition != null">
         brand_position = #{record.brandPosition,jdbcType=VARCHAR},
       </if>
+      <if test="record.floatPosition != null">
+        float_position = #{record.floatPosition,jdbcType=VARCHAR},
+      </if>
       <if test="record.sortOrder != null">
         sort_order = #{record.sortOrder,jdbcType=INTEGER},
       </if>
@@ -351,6 +361,7 @@
       tags = #{record.tags,jdbcType=VARCHAR},
       brand_color = #{record.brandColor,jdbcType=VARCHAR},
       brand_position = #{record.brandPosition,jdbcType=VARCHAR},
+      float_position = #{record.floatPosition,jdbcType=VARCHAR},
       sort_order = #{record.sortOrder,jdbcType=INTEGER},
       status = #{record.status,jdbcType=SMALLINT},
       add_time = #{record.addTime,jdbcType=TIMESTAMP},
@@ -384,6 +395,9 @@
       <if test="brandPosition != null">
         brand_position = #{brandPosition,jdbcType=VARCHAR},
       </if>
+      <if test="floatPosition != null">
+        float_position = #{floatPosition,jdbcType=VARCHAR},
+      </if>
       <if test="sortOrder != null">
         sort_order = #{sortOrder,jdbcType=INTEGER},
       </if>
@@ -411,6 +425,7 @@
       tags = #{tags,jdbcType=VARCHAR},
       brand_color = #{brandColor,jdbcType=VARCHAR},
       brand_position = #{brandPosition,jdbcType=VARCHAR},
+      float_position = #{floatPosition,jdbcType=VARCHAR},
       sort_order = #{sortOrder,jdbcType=INTEGER},
       status = #{status,jdbcType=SMALLINT},
       add_time = #{addTime,jdbcType=TIMESTAMP},

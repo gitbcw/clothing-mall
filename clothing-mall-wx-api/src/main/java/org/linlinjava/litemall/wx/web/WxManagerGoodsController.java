@@ -217,6 +217,7 @@ public class WxManagerGoodsController {
             }
         }
         if (body.containsKey("counterPrice")) {
+            // 前端不再传 counterPrice，此处保留兼容：如果传了空值则触发自动计算
             Object price = body.get("counterPrice");
             if (price != null) {
                 goods.setCounterPrice(new BigDecimal(price.toString()));
@@ -226,6 +227,13 @@ public class WxManagerGoodsController {
             Object price = body.get("retailPrice");
             if (price != null) {
                 goods.setRetailPrice(new BigDecimal(price.toString()));
+            }
+            // counterPrice（专柜价/划线价）：按零售价自动上浮30%
+            if (goods.getCounterPrice() == null || goods.getCounterPrice().compareTo(BigDecimal.ZERO) <= 0) {
+                BigDecimal rp = goods.getRetailPrice();
+                if (rp != null && rp.compareTo(BigDecimal.ZERO) > 0) {
+                    goods.setCounterPrice(rp.multiply(new BigDecimal("1.3")).setScale(2, BigDecimal.ROUND_HALF_UP));
+                }
             }
         }
         if (body.containsKey("picUrl")) {
@@ -408,7 +416,12 @@ public class WxManagerGoodsController {
 
         Object retailPriceObj = body.get("retailPrice");
         if (retailPriceObj != null) {
-            goods.setRetailPrice(new BigDecimal(retailPriceObj.toString()));
+            BigDecimal retailPrice = new BigDecimal(retailPriceObj.toString());
+            goods.setRetailPrice(retailPrice);
+            // counterPrice（专柜价/划线价）：按零售价自动上浮30%
+            if (goods.getCounterPrice() == null || goods.getCounterPrice().compareTo(BigDecimal.ZERO) <= 0) {
+                goods.setCounterPrice(retailPrice.multiply(new BigDecimal("1.3")).setScale(2, BigDecimal.ROUND_HALF_UP));
+            }
         }
 
         Object specialPriceObj = body.get("specialPrice");
@@ -488,6 +501,10 @@ public class WxManagerGoodsController {
 
             if (minPrice != null) {
                 goods.setRetailPrice(minPrice);
+                // SKU 最低价覆盖了零售价，同步更新 counterPrice
+                if (goods.getCounterPrice() == null || goods.getCounterPrice().compareTo(BigDecimal.ZERO) <= 0) {
+                    goods.setCounterPrice(minPrice.multiply(new BigDecimal("1.3")).setScale(2, BigDecimal.ROUND_HALF_UP));
+                }
                 goodsService.updateById(goods);
             }
         }

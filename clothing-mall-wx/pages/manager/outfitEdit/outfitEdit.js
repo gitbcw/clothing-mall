@@ -14,6 +14,7 @@ Page({
       tags: '',
       brandColor: 'white',
       brandPosition: 'top-right',
+      floatPosition: 'left',
       sortOrder: 0,
       status: 1
     },
@@ -34,6 +35,9 @@ Page({
     if (options.id) {
       this.setData({ isEdit: true, outfitId: parseInt(options.id) });
       this.loadOutfit(parseInt(options.id));
+    } else if (options.count !== undefined) {
+      var defaultSort = parseInt(options.count) + 1;
+      this.setData({ 'form.sortOrder': defaultSort });
     }
   },
 
@@ -48,6 +52,7 @@ Page({
           coverPic: outfit.coverPic || '',
           brandColor: outfit.brandColor || 'white',
           brandPosition: outfit.brandPosition || 'top-right',
+          floatPosition: outfit.floatPosition || 'left',
           sortOrder: outfit.sortOrder || 0,
           status: outfit.status !== undefined ? outfit.status : 1
         },
@@ -68,6 +73,18 @@ Page({
     this.setData({ 'form.sortOrder': parseInt(e.detail.value) || 0 });
   },
 
+  onSortMinus: function() {
+    var val = this.data.form.sortOrder;
+    if (val > 1) {
+      this.setData({ 'form.sortOrder': val - 1 });
+    }
+  },
+
+  onSortPlus: function() {
+    var val = this.data.form.sortOrder;
+    this.setData({ 'form.sortOrder': val + 1 });
+  },
+
   onToggleStatus: function() {
     this.setData({ 'form.status': this.data.form.status === 1 ? 0 : 1 });
   },
@@ -78,6 +95,10 @@ Page({
 
   onSelectPosition: function(e) {
     this.setData({ 'form.brandPosition': e.currentTarget.dataset.position });
+  },
+
+  onSelectFloatPosition: function(e) {
+    this.setData({ 'form.floatPosition': e.currentTarget.dataset.position });
   },
 
   onChooseCover: function() {
@@ -126,6 +147,13 @@ Page({
     this.setData({ goodsList: goodsList });
   },
 
+  onViewGoods: function(e) {
+    var goodsId = e.currentTarget.dataset.id;
+    wx.navigateTo({
+      url: '/pages/goods_detail/goods_detail?id=' + goodsId
+    });
+  },
+
   onSave: function() {
     var that = this;
     var form = this.data.form;
@@ -150,6 +178,7 @@ Page({
       goodsIds: JSON.stringify(goodsIds),
       brandColor: form.brandColor || 'white',
       brandPosition: form.brandPosition || 'top-right',
+      floatPosition: form.floatPosition || 'left',
       sortOrder: form.sortOrder || 0,
       status: form.status
     };

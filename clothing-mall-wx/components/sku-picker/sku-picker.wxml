@@ -15,22 +15,29 @@
         <view class="sku-price">￥{{goodsPrice}}</view>
         <view class="sku-selected" wx:if="{{enableSize && selectedSize}}">已选：{{selectedSize}}</view>
         <view class="sku-selected" wx:elif="{{enableSize}}">请选择尺码</view>
-        <view class="sku-selected" wx:else>请选择数量</view>
+        <view class="sku-selected" wx:else>已选：均码</view>
       </view>
     </view>
 
     <!-- 尺码选择 -->
-    <view class="sku-section" wx:if="{{enableSize}}">
+    <view class="sku-section">
       <view class="sku-section-title">尺码</view>
       <view class="sku-options">
-        <view
-          wx:for="{{sizes}}"
-          wx:key="*this"
-          class="sku-option size-option {{selectedSize === item ? 'selected' : ''}}"
-          bindtap="onSelectSize"
-          data-size="{{item}}">
-          {{item}}
-        </view>
+        <!-- enableSize=false 时只显示均码，默认选中不可取消 -->
+        <block wx:if="{{!enableSize}}">
+          <view class="sku-option size-option selected">均码</view>
+        </block>
+        <!-- enableSize=true 时正常显示尺码列表 -->
+        <block wx:else>
+          <view
+            wx:for="{{sizes}}"
+            wx:key="*this"
+            class="sku-option size-option {{selectedSize === item ? 'selected' : ''}}"
+            bindtap="onSelectSize"
+            data-size="{{item}}">
+            {{item}}
+          </view>
+        </block>
       </view>
     </view>
 

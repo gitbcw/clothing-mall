@@ -33,7 +33,10 @@ Page({
 
     // 尺码选择器
     showSkuPicker: false,
-    skuGoods: {}
+    skuGoods: {},
+
+    // 鏾屏加载
+    loading: true
   },
 
   onShareAppMessage() {
@@ -75,8 +78,9 @@ Page({
 
   onPageScroll() {},
 
-  // 加载数据
+  // 加载数数据
   loadData() {
+    this.setData({ loading: true })
     util.request(api.IndexUrl).then(res => {
       if (res.errno === 0) {
         const { hotGoodsList = [] } = res.data
@@ -110,9 +114,10 @@ Page({
 
         // 穿搭推荐（替换原来的搭配推荐数据源）
         const outfitList = res.data.outfitList || []
-        this.setData({ matchRecommends: outfitList })
+        this.setData({ matchRecommends: outfitList, loading: false })
       }
     }).catch(() => {
+        this.setData({ loading: false })
         wx.showToast({ title: '网络错误', icon: 'none' })
       })
 

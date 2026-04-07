@@ -47,10 +47,18 @@ Component({
   observers: {
     'visible': function(visible) {
       if (visible) {
-        this.setData({
-          selectedSize: this.properties.initSize || this.data.selectedSize || '',
-          quantity: this.properties.initQuantity || this.data.quantity || 1
-        });
+        // enableSize=false 时默认选中"均码"
+        if (!this.properties.enableSize) {
+          this.setData({
+            selectedSize: '均码',
+            quantity: this.properties.initQuantity || this.data.quantity || 1
+          });
+        } else {
+          this.setData({
+            selectedSize: this.properties.initSize || this.data.selectedSize || '',
+            quantity: this.properties.initQuantity || this.data.quantity || 1
+          });
+        }
       }
     }
   },
@@ -64,6 +72,8 @@ Component({
     },
 
     onSelectSize(e) {
+      // 均码不可取消
+      if (!this.properties.enableSize) return;
       const size = e.currentTarget.dataset.size;
       this.setData({
         selectedSize: this.data.selectedSize === size ? '' : size

@@ -52,7 +52,7 @@ public class StorageService {
         storageInfo.setSize((int) contentLength);
         storageInfo.setType(contentType);
         storageInfo.setKey(key);
-        storageInfo.setUrl(key);
+        storageInfo.setUrl(storage.generateUrl(key));
         litemallStorageService.add(storageInfo);
 
         return storageInfo;

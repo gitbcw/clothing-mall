@@ -37,7 +37,8 @@ Page({
   },
 
   onAddOutfit: function() {
-    wx.navigateTo({ url: '/pages/manager/outfitEdit/outfitEdit' });
+    var count = this.data.outfitList.length;
+    wx.navigateTo({ url: '/pages/manager/outfitEdit/outfitEdit?count=' + count });
   },
 
   onOutfitTap: function(e) {

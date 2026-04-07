@@ -18,6 +18,7 @@ public class LitemallOutfit {
     private String tags;
     private String brandColor;
     private String brandPosition;
+    private String floatPosition;
     private Integer sortOrder;
     private Short status;
     private LocalDateTime addTime;
@@ -91,6 +92,14 @@ public class LitemallOutfit {
         this.brandPosition = brandPosition;
     }
 
+    public String getFloatPosition() {
+        return floatPosition;
+    }
+
+    public void setFloatPosition(String floatPosition) {
+        this.floatPosition = floatPosition;
+    }
+
     public Integer getSortOrder() {
         return sortOrder;
     }
@@ -157,6 +166,7 @@ public class LitemallOutfit {
         sb.append(", tags=").append(tags);
         sb.append(", brandColor=").append(brandColor);
         sb.append(", brandPosition=").append(brandPosition);
+        sb.append(", floatPosition=").append(floatPosition);
         sb.append(", sortOrder=").append(sortOrder);
         sb.append(", status=").append(status);
         sb.append(", addTime=").append(addTime);
@@ -186,6 +196,7 @@ public class LitemallOutfit {
             && (this.getTags() == null ? other.getTags() == null : this.getTags().equals(other.getTags()))
             && (this.getBrandColor() == null ? other.getBrandColor() == null : this.getBrandColor().equals(other.getBrandColor()))
             && (this.getBrandPosition() == null ? other.getBrandPosition() == null : this.getBrandPosition().equals(other.getBrandPosition()))
+            && (this.getFloatPosition() == null ? other.getFloatPosition() == null : this.getFloatPosition().equals(other.getFloatPosition()))
             && (this.getSortOrder() == null ? other.getSortOrder() == null : this.getSortOrder().equals(other.getSortOrder()))
             && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
             && (this.getAddTime() == null ? other.getAddTime() == null : this.getAddTime().equals(other.getAddTime()))
@@ -205,6 +216,7 @@ public class LitemallOutfit {
         result = prime * result + ((getTags() == null) ? 0 : getTags().hashCode());
         result = prime * result + ((getBrandColor() == null) ? 0 : getBrandColor().hashCode());
         result = prime * result + ((getBrandPosition() == null) ? 0 : getBrandPosition().hashCode());
+        result = prime * result + ((getFloatPosition() == null) ? 0 : getFloatPosition().hashCode());
         result = prime * result + ((getSortOrder() == null) ? 0 : getSortOrder().hashCode());
         result = prime * result + ((getStatus() == null) ? 0 : getStatus().hashCode());
         result = prime * result + ((getAddTime() == null) ? 0 : getAddTime().hashCode());
@@ -247,6 +259,7 @@ public class LitemallOutfit {
         tags("tags", "tags", "VARCHAR", false),
         brandColor("brand_color", "brandColor", "VARCHAR", false),
         brandPosition("brand_position", "brandPosition", "VARCHAR", false),
+        floatPosition("float_position", "floatPosition", "VARCHAR", false),
         sortOrder("sort_order", "sortOrder", "INTEGER", false),
         status("status", "status", "SMALLINT", false),
         addTime("add_time", "addTime", "TIMESTAMP", false),

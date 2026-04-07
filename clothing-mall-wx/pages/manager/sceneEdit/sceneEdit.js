@@ -32,6 +32,9 @@ Page({
       this.setData({ isEdit: true, sceneId: parseInt(options.id) });
       this.loadScene(parseInt(options.id));
       this.loadSceneGoods(parseInt(options.id));
+    } else if (options.count !== undefined) {
+      var defaultSort = parseInt(options.count) + 1;
+      this.setData({ 'form.sortOrder': defaultSort });
     }
   },
 
@@ -81,6 +84,18 @@ Page({
     this.setData({ 'form.sortOrder': parseInt(e.detail.value) || 0 });
   },
 
+  onSortMinus: function() {
+    var val = this.data.form.sortOrder;
+    if (val > 1) {
+      this.setData({ 'form.sortOrder': val - 1 });
+    }
+  },
+
+  onSortPlus: function() {
+    var val = this.data.form.sortOrder;
+    this.setData({ 'form.sortOrder': val + 1 });
+  },
+
   onToggleEnabled: function() {
     this.setData({ 'form.enabled': !this.data.form.enabled });
   },
@@ -103,6 +118,13 @@ Page({
     var goodsList = this.data.goodsList;
     goodsList.splice(idx, 1);
     this.setData({ goodsList: goodsList });
+  },
+
+  onViewGoods: function(e) {
+    var goodsId = e.currentTarget.dataset.id;
+    wx.navigateTo({
+      url: '/pages/goods_detail/goods_detail?id=' + goodsId
+    });
   },
 
   onChoosePoster: function() {

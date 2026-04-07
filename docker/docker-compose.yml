@@ -48,6 +48,13 @@ services:
       # 快递物流查询（阿里云市场API）
       - EXPRESS_ENABLE=${EXPRESS_ENABLE:-false}
       - EXPRESS_APPCODE=${EXPRESS_APPCODE:-}
+      # 对象存储
+      - LITEMALL_STORAGE_ACTIVE=${STORAGE_ACTIVE:-local}
+      - LITEMALL_STORAGE_LOCAL_ADDRESS=http://47.107.151.70:8088/wx/storage/fetch/
+      - ALIYUN_OSS_ENDPOINT=${ALIYUN_OSS_ENDPOINT:-}
+      - ALIYUN_OSS_ACCESS_KEY_ID=${ALIYUN_OSS_ACCESS_KEY_ID:-}
+      - ALIYUN_OSS_ACCESS_KEY_SECRET=${ALIYUN_OSS_ACCESS_KEY_SECRET:-}
+      - ALIYUN_OSS_BUCKET_NAME=${ALIYUN_OSS_BUCKET_NAME:-}
     depends_on:
       mysql:
         condition: service_healthy

@@ -123,17 +123,17 @@ litemall:
   # 对象存储配置
   storage:
     # 当前工作的对象存储模式，分别是local、aliyun、tencent
-    active: local
+    active: ${LITEMALL_STORAGE_ACTIVE:local}
     # 本地对象存储配置信息
     local:
       storagePath: storage
-      address: http://47.107.151.70:8088/wx/storage/fetch/
+      address: ${LITEMALL_STORAGE_LOCAL_ADDRESS:http://47.107.151.70:8088/wx/storage/fetch/}
     # 阿里云对象存储配置信息
     aliyun:
-      endpoint: oss-cn-shenzhen.aliyuncs.com
-      accessKeyId: 111111
-      accessKeySecret: xxxxxx
-      bucketName: xxxxxx
+      endpoint: ${ALIYUN_OSS_ENDPOINT:oss-cn-shenzhen.aliyuncs.com}
+      accessKeyId: ${ALIYUN_OSS_ACCESS_KEY_ID:}
+      accessKeySecret: ${ALIYUN_OSS_ACCESS_KEY_SECRET:}
+      bucketName: ${ALIYUN_OSS_BUCKET_NAME:}
     # 腾讯对象存储配置信息
     # 请参考 https://cloud.tencent.com/document/product/436/6249
     tencent:

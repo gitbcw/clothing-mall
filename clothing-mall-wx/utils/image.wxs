@@ -1,4 +1,4 @@
-var BASE = 'http://47.107.151.70:8088/wx/storage/fetch/';
+var BASE = 'https://clothing-mall-2026.oss-cn-shenzhen.aliyuncs.com/';
 
 function url(key) {
   if (!key) return '';

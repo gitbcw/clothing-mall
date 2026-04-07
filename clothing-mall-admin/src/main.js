@@ -78,7 +78,7 @@ Vue.mixin({
     imageUrl(key) {
       if (!key) return ''
       if (key.startsWith('http') || key.startsWith('//')) return key
-      return 'http://47.107.151.70:8088/wx/storage/fetch/' + key
+      return 'https://clothing-mall-2026.oss-cn-shenzhen.aliyuncs.com/' + key
     }
   }
 })

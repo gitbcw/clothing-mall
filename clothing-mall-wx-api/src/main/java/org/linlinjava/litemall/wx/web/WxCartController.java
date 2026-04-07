@@ -408,6 +408,21 @@ public class WxCartController {
             checkedGoodsList = new ArrayList<>(1);
             checkedGoodsList.add(cart);
         }
+        // 检查购物车中是否有已下架商品
+        List<LitemallCart> unavailableCarts = new ArrayList<>();
+        for (LitemallCart cart : checkedGoodsList) {
+            LitemallGoods checkGoods = goodsService.findById(cart.getGoodsId());
+            if (checkGoods == null || !LitemallGoods.STATUS_PUBLISHED.equals(checkGoods.getStatus())) {
+                unavailableCarts.add(cart);
+            }
+        }
+        if (!unavailableCarts.isEmpty()) {
+            for (LitemallCart cart : unavailableCarts) {
+                cartService.deleteById(cart.getId());
+                checkedGoodsList.remove(cart);
+            }
+        }
+
         BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
         for (LitemallCart cart : checkedGoodsList) {
             checkedGoodsPrice = checkedGoodsPrice.add(cart.getPrice().multiply(new BigDecimal(cart.getNumber())));

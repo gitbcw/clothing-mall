@@ -230,9 +230,10 @@ public class WxOrderService {
         result.put("orderInfo", orderVo);
         result.put("orderGoods", orderGoodsList);
 
-        // 订单状态为已发货且物流信息不为空
-        // "YTO", "800669400640887922"
-        if (order.getOrderStatus().equals(OrderUtil.STATUS_SHIP)) {
+        // 只要订单有快递信息就返回物流轨迹（确认收货后仍可查看）
+        boolean hasShipped = order.getShipChannel() != null && order.getShipSn() != null;
+        boolean isShipped = order.getOrderStatus().equals(OrderUtil.STATUS_SHIP);
+        if (hasShipped) {
             ExpressInfo ei = null;
             // 先读快照（6小时内视为有效）
             LitemallOrderExpress snap = orderExpressService.getByOrderId(order.getId());
@@ -246,12 +247,13 @@ public class WxOrderService {
                     }
                 }
             }
-            String customerName = null;
-            String mobile = order.getMobile();
-            if (mobile != null && mobile.length() >= 4) {
-                customerName = mobile.substring(mobile.length() - 4);
-            }
-            if (ei == null) {
+            // 仅当前处于"已发货"状态时才实时查询API并刷新快照
+            if (ei == null && isShipped) {
+                String customerName = null;
+                String mobile = order.getMobile();
+                if (mobile != null && mobile.length() >= 4) {
+                    customerName = mobile.substring(mobile.length() - 4);
+                }
                 ei = expressService.getExpressInfo(order.getShipChannel(), order.getShipSn(), customerName);
                 // 写入/刷新快照
                 String vendorName = expressService.getVendorName(order.getShipChannel());
@@ -260,11 +262,7 @@ public class WxOrderService {
                 orderExpressService.snapshot(order.getId(), order.getShipChannel(), order.getShipSn(), customerName,
                         vendorName, state, tracesJson);
             }
-            if (ei == null) {
-                result.put("expressInfo", new ArrayList<>());
-            } else {
-                result.put("expressInfo", ei);
-            }
+            result.put("expressInfo", ei != null ? ei : new ArrayList<>());
         } else {
             result.put("expressInfo", new ArrayList<>());
         }

@@ -1,3 +1,4 @@
+<wxs src="../../../utils/image.wxs" module="img" />
 <view class="container">
   <custom-nav title="我的足迹" />
 
@@ -36,7 +37,7 @@
         data-iindex="{{iindex}}"
         bindtap="goDetail"
         bindlongpress="deleteItem">
-        <image class="goods-img" src="{{iitem.picUrl}}" mode="aspectFill" lazy-load />
+        <image class="goods-img" src="{{img.url(iitem.picUrl)}}" mode="aspectFill" lazy-load />
         <view class="goods-info">
           <view class="goods-top">
             <text class="goods-name">{{iitem.name}}</text>

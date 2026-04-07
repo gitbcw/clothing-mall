@@ -49,7 +49,7 @@
  * 按钮样式
  * ======================================== */
 .manager-btn-primary {
-  background: linear-gradient(135deg, #FF8096, #96745A);
+  background: #FF8096;
   color: #FFFFFF;
   border: none;
   border-radius: 34rpx;

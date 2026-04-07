@@ -40,7 +40,7 @@
               :before-upload="beforeUpload"
               accept="image/*"
             >
-              <img v-if="pushForm.coverUrl" :src="pushForm.coverUrl" class="cover-image">
+              <img v-if="pushForm.coverUrl" :src="imageUrl(pushForm.coverUrl)" class="cover-image">
               <i v-else class="el-icon-plus cover-uploader-icon" />
             </el-upload>
             <div v-if="pushForm.mediaId" class="upload-success">

@@ -8,11 +8,11 @@ Page({
     canIUseGetUserProfile: false,
     showBirthdayPopup: false,
     mobile: '',
-    hasLogin: false
+    hasLogin: false,
+    isDev: api.isDev,
+    loading: false
   },
   onLoad: function(options) {
-    // 页面初始化 options为页面跳转所带来的参数
-    // 页面渲染完成
     if (wx.getUserProfile) {
       this.setData({
         canIUseGetUserProfile: true
@@ -23,14 +23,26 @@ Page({
 
   },
   onShow: function() {
+    var that = this;
     // 页面显示，读取登录状态切换模式
-    this.setData({
-      hasLogin: app.globalData.hasLogin
-    });
+    if (app.globalData.hasLogin) {
+      this.setData({ hasLogin: true });
+    } else {
+      // 非开发环境下，先尝试静默登录
+      if (!api.isDev) {
+        this.setData({ loading: true });
+        app.silentLogin().then(function() {
+          that.setData({ hasLogin: true, loading: false });
+        }).catch(function() {
+          that.setData({ loading: false });
+        });
+      } else {
+        this.setData({ hasLogin: false });
+      }
+    }
   },
   onHide: function() {
     // 页面隐藏
-
   },
   onUnload: function() {
     // 页面关闭
@@ -53,10 +65,9 @@ Page({
 
     const that = this;
     util.request(api.AuthBindPhoneManual, { mobile: this.data.mobile }, 'POST').then(res => {
-      console.log('手动绑定手机号返回结果:', res);
       if (res.errno === 0) {
         util.showToast('绑定成功');
-        
+
         // 重新获取用户信息以更新 mobile
         util.request(api.UserInfo, {}, 'GET').then(infoRes => {
           if (infoRes.errno === 0) {
@@ -67,7 +78,7 @@ Page({
               birthday: infoRes.data.birthday
             });
           }
-          
+
           // 检查是否需要显示生日弹窗
           const userInfo = infoRes.data;
           if (userInfo && !userInfo.birthday) {
@@ -77,11 +88,9 @@ Page({
           }
         });
       } else {
-        console.error('手动绑定手机号失败，接口返回非0:', res);
         util.showErrorToast(res.errmsg || '绑定失败');
       }
     }).catch(err => {
-      console.error('手动绑定手机号请求抛出异常:', err);
       util.showErrorToast('绑定失败');
     });
   },
@@ -106,7 +115,7 @@ Page({
     util.request(api.AuthBindPhone, data, 'POST').then(res => {
       if (res.errno === 0) {
         util.showToast('绑定成功');
-        
+
         // 重新获取用户信息以更新 mobile
         util.request(api.UserInfo, {}, 'GET').then(infoRes => {
           if (infoRes.errno === 0) {
@@ -117,7 +126,7 @@ Page({
               birthday: infoRes.data.birthday
             });
           }
-          
+
           // 检查是否需要显示生日弹窗
           const userInfo = infoRes.data;
           if (userInfo && !userInfo.birthday) {
@@ -133,6 +142,10 @@ Page({
       util.showErrorToast('绑定失败');
     });
   },
+
+  /**
+   * 测试登录（仅开发环境可用）
+   */
   testLogin: function() {
     var that = this;
     wx.showLoading({ title: '登录中...' });
@@ -156,9 +169,9 @@ Page({
               birthday: infoRes.data.birthday
             });
           }
-          wx.navigateBack({ delta: 1 });
+          that.setData({ hasLogin: true });
         }).catch(function() {
-          wx.navigateBack({ delta: 1 });
+          that.setData({ hasLogin: true });
         });
       } else {
         util.showErrorToast(res.errmsg || '登录失败');

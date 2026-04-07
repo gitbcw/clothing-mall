@@ -24,7 +24,7 @@
 
       <el-table-column align="center" :label="$t('user_feedback.table.pic_urls')" prop="picUrls">
         <template slot-scope="scope">
-          <el-image v-for="item in scope.row.picUrls" :key="item" :src="item" :preview-src-list="scope.row.picUrls" :lazy="true" style="width: 40px; height: 40px; margin-right: 5px;" />
+          <el-image v-for="item in scope.row.picUrls" :key="item" :src="imageUrl(item)" :preview-src-list="scope.row.picUrls.map(imageUrl)" :lazy="true" style="width: 40px; height: 40px; margin-right: 5px;" />
         </template>
       </el-table-column>
 

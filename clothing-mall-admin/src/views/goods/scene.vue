@@ -10,7 +10,7 @@
       <el-table-column align="center" label="ID" prop="id" width="80" />
       <el-table-column align="center" label="海报图" width="100">
         <template slot-scope="scope">
-          <el-image v-if="scope.row.posterUrl" :src="scope.row.posterUrl" style="width: 60px; height: 40px;" fit="cover" :preview-src-list="[scope.row.posterUrl]" />
+          <el-image v-if="scope.row.posterUrl" :src="imageUrl(scope.row.posterUrl)" style="width: 60px; height: 40px;" fit="cover" :preview-src-list="[imageUrl(scope.row.posterUrl)]" />
           <span v-else style="color: #ccc;">-</span>
         </template>
       </el-table-column>
@@ -56,7 +56,7 @@
             class="avatar-uploader"
             accept=".jpg,.jpeg,.png,.gif"
           >
-            <img v-if="dataForm.posterUrl" :src="dataForm.posterUrl" class="avatar">
+            <img v-if="dataForm.posterUrl" :src="imageUrl(dataForm.posterUrl)" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
           </el-upload>
         </el-form-item>
@@ -87,7 +87,7 @@
           </div>
           <div v-loading="goodsLoading" class="panel-body">
             <div v-for="item in availableGoods" :key="item.id" class="goods-item" @click="addGoods(item)">
-              <el-image v-if="item.picUrl" :src="item.picUrl" style="width: 40px; height: 40px; flex-shrink: 0;" fit="cover" />
+              <el-image v-if="item.picUrl" :src="imageUrl(item.picUrl)" style="width: 40px; height: 40px; flex-shrink: 0;" fit="cover" />
               <div class="goods-info">
                 <span class="goods-name">{{ item.name }}</span>
                 <span class="goods-price">¥{{ item.retailPrice }}</span>
@@ -104,7 +104,7 @@
           </div>
           <div class="panel-body">
             <div v-for="item in boundGoods" :key="'bound-' + item.id" class="goods-item bound">
-              <el-image v-if="item.picUrl" :src="item.picUrl" style="width: 40px; height: 40px; flex-shrink: 0;" fit="cover" />
+              <el-image v-if="item.picUrl" :src="imageUrl(item.picUrl)" style="width: 40px; height: 40px; flex-shrink: 0;" fit="cover" />
               <div class="goods-info">
                 <span class="goods-name">{{ item.name }}</span>
                 <span class="goods-price">¥{{ item.retailPrice }}</span>

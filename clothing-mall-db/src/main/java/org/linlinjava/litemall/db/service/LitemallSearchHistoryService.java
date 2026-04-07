@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class LitemallSearchHistoryService {
@@ -53,5 +54,10 @@ public class LitemallSearchHistoryService {
 
         PageHelper.startPage(page, size);
         return searchHistoryMapper.selectByExample(example);
+    }
+
+    public List<Map<String, Object>> queryHotKeywords(int limit) {
+        LocalDateTime since = LocalDateTime.now().minusDays(30);
+        return searchHistoryMapper.selectHotKeywords(since, limit);
     }
 }

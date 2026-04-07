@@ -72,6 +72,17 @@ Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
 })
 
+// 全局图片 URL 拼接方法
+Vue.mixin({
+  methods: {
+    imageUrl(key) {
+      if (!key) return ''
+      if (key.startsWith('http') || key.startsWith('//')) return key
+      return 'http://47.107.151.70:8088/wx/storage/fetch/' + key
+    }
+  }
+})
+
 Vue.config.productionTip = false
 
 new Vue({

@@ -729,3 +729,43 @@ page {
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 200;
 }
+
+/* 下架提示 */
+.unshelved-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 60rpx;
+}
+
+.unshelved-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background-color: #E8E8E8;
+  color: #999;
+  font-size: 64rpx;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32rpx;
+}
+
+.unshelved-text {
+  font-size: 32rpx;
+  color: #999;
+  margin-bottom: 48rpx;
+}
+
+.unshelved-btn {
+  width: 240rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  background-color: #333;
+  color: #fff;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+}

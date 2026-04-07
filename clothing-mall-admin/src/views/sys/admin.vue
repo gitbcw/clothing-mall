@@ -17,7 +17,7 @@
 
       <el-table-column align="center" :label="$t('sys_admin.table.avatar')" prop="avatar">
         <template slot-scope="scope">
-          <img v-if="scope.row.avatar" :src="scope.row.avatar" width="40">
+          <img v-if="scope.row.avatar" :src="imageUrl(scope.row.avatar)" width="40">
         </template>
       </el-table-column>
 
@@ -55,7 +55,7 @@
             class="avatar-uploader"
             accept=".jpg,.jpeg,.png,.gif"
           >
-            <img v-if="dataForm.avatar" :src="dataForm.avatar" class="avatar">
+            <img v-if="dataForm.avatar" :src="imageUrl(dataForm.avatar)" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
           </el-upload>
         </el-form-item>

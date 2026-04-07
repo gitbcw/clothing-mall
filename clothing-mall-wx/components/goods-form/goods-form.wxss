@@ -20,13 +20,15 @@
   align-items: center;
 }
 
-.ai-hint {
+/* 吊牌识别按钮 */
+.tag-recognize-btn {
   font-size: 24rpx;
   font-weight: normal;
   color: #FF8096;
   background: rgba(255, 128, 150, 0.1);
-  padding: 4rpx 12rpx;
-  border-radius: 16rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 24rpx;
+  border: 1rpx solid rgba(255, 128, 150, 0.3);
 }
 
 /* 图片上传 */
@@ -44,34 +46,6 @@
   align-items: center;
   justify-content: center;
   position: relative;
-}
-
-.ai-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.ai-loading {
-  color: #fff;
-  font-size: 26rpx;
-}
-
-.ai-badge {
-  position: absolute;
-  top: 8rpx;
-  right: 8rpx;
-  background: rgba(255, 128, 150, 0.9);
-  color: #fff;
-  font-size: 20rpx;
-  padding: 4rpx 10rpx;
-  border-radius: 8rpx;
 }
 
 .preview-image {
@@ -354,10 +328,9 @@
   font-size: 26rpx;
 }
 
-/* 底部操作栏 */
+/* 底部操作栏 - 基础样式 */
 .action-bar {
   position: fixed;
-  bottom: calc(100rpx + env(safe-area-inset-bottom));
   left: 0;
   right: 0;
   background: #fff;
@@ -366,6 +339,17 @@
   gap: 20rpx;
   box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
   z-index: 100;
+}
+
+/* 有 tab bar 时（tabShelf）- 留出 tab bar 空间 */
+.action-bar--with-tabbar {
+  bottom: calc(100rpx + env(safe-area-inset-bottom));
+}
+
+/* 无 tab bar 时（goodsEdit）- 贴底 */
+.action-bar--bottom {
+  bottom: 0;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
 }
 
 .action-btn {
@@ -383,7 +367,7 @@
 
 .action-btn.btn-publish {
   color: #fff;
-  background: linear-gradient(135deg, #FF8096, #FF6B85);
+  background: #FF8096;
 }
 
 .action-btn.btn-unpublish {

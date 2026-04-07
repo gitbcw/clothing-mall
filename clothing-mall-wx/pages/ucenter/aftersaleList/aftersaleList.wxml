@@ -1,3 +1,4 @@
+<wxs src="../../../utils/image.wxs" module="img" />
 <view class="container">
   <custom-nav title="我的售后" />
   <view class="aftersales-switch">
@@ -27,7 +28,7 @@
       </view>
       <view class="goods" wx:for="{{item.goodsList}}" wx:key="id" wx:for-item="gitem">
         <view class="img">
-          <image src="{{gitem.picUrl}}"></image>
+          <image src="{{img.url(gitem.picUrl)}}"></image>
         </view>
         <view class="info">
           <text class="name">{{gitem.goodsName}}</text>

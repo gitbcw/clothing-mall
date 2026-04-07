@@ -47,13 +47,12 @@ public class StorageService {
         String key = generateKey(fileName);
         storage.store(inputStream, contentLength, contentType, key);
 
-        String url = generateUrl(key);
         LitemallStorage storageInfo = new LitemallStorage();
         storageInfo.setName(fileName);
         storageInfo.setSize((int) contentLength);
         storageInfo.setType(contentType);
         storageInfo.setKey(key);
-        storageInfo.setUrl(url);
+        storageInfo.setUrl(key);
         litemallStorageService.add(storageInfo);
 
         return storageInfo;
@@ -91,7 +90,7 @@ public class StorageService {
         storage.delete(keyName);
     }
 
-    private String generateUrl(String keyName) {
+    public String generateUrl(String keyName) {
         return storage.generateUrl(keyName);
     }
 }

@@ -105,6 +105,48 @@ public class HttpUtil {
     }
 
     /**
+     * 发送带自定义 Header 的 GET 请求
+     *
+     * @param url     请求 URL（含查询参数）
+     * @param headers 自定义请求头
+     * @return 响应结果
+     */
+    public static String getWithHeaders(String url, Map<String, String> headers) {
+        BufferedReader in = null;
+        StringBuilder result = new StringBuilder();
+        try {
+            URL realUrl = new URL(url);
+            HttpURLConnection conn = (HttpURLConnection) realUrl.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("accept", "*/*");
+            conn.setRequestProperty("connection", "Keep-Alive");
+            if (headers != null) {
+                for (Map.Entry<String, String> entry : headers.entrySet()) {
+                    conn.setRequestProperty(entry.getKey(), entry.getValue());
+                }
+            }
+            conn.connect();
+
+            in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            String line;
+            while ((line = in.readLine()) != null) {
+                result.append(line);
+            }
+        } catch (Exception e) {
+            logger.error("HTTP GET 请求失败: " + url, e);
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException ex) {
+                logger.error(ex.getMessage(), ex);
+            }
+        }
+        return result.toString();
+    }
+
+    /**
      * 向指定 URL 发送POST方法的请求
      *
      * @param url    发送请求的 URL

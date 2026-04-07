@@ -35,7 +35,7 @@
               <template slot-scope="props">
                 <div v-for="item in props.row.goodsVoList" :key="item.id" class="order-goods">
                   <div class="picture">
-                    <img :src="item.picUrl" width="40">
+                    <img :src="imageUrl(item.picUrl)" width="40">
                   </div>
                   <div class="name">
                     {{ $t('mall_order.text.expand_goods_name', { goods_name: item.goodsName }) }}
@@ -61,7 +61,7 @@
 
             <el-table-column align="center" :label="$t('mall_order.table.avatar')" width="80">
               <template slot-scope="scope">
-                <el-avatar :src="scope.row.avatar" />
+                <el-avatar :src="imageUrl(scope.row.avatar)" />
               </template>
             </el-table-column>
 
@@ -169,7 +169,7 @@
               <el-table-column align="center" :label="$t('mall_order.table.detail_goods_number')" prop="number" />
               <el-table-column align="center" :label="$t('mall_order.table.detail_goods_pic_url')" prop="picUrl">
                 <template slot-scope="scope">
-                  <img :src="scope.row.picUrl" width="40">
+                  <img :src="imageUrl(scope.row.picUrl)" width="40">
                 </template>
               </el-table-column>
             </el-table>

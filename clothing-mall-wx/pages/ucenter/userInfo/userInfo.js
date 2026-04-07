@@ -71,6 +71,29 @@ Page({
     });
   },
 
+  onGetPhoneNumber(e) {
+    if (e.detail.errMsg !== 'getPhoneNumber:ok') {
+      if (e.detail.errMsg.indexOf('user deny') !== -1) {
+        util.showErrorToast('已取消授权');
+      }
+      return;
+    }
+
+    util.request(api.AuthBindPhone, {
+      encryptedData: e.detail.encryptedData,
+      iv: e.detail.iv
+    }, 'POST').then(res => {
+      if (res.errno === 0) {
+        wx.showToast({ title: '绑定成功', icon: 'success' });
+        this.setData({
+          'userInfo.mobile': res.data.mobile || ''
+        });
+      } else {
+        util.showErrorToast(res.errmsg || '绑定失败');
+      }
+    });
+  },
+
   saveProfile() {
     const { nickName, avatarUrl, mobile, birthday } = this.data.userInfo;
     if (!nickName) {

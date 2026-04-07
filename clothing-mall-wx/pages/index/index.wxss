@@ -763,3 +763,58 @@ page {
   color: #ff8096;
   font-weight: 500;
 }
+
+/* 穿搭品牌水印（线框） */
+.outfit-brand-watermark {
+  position: absolute;
+  top: 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx 28rpx;
+  border-radius: 12rpx;
+  pointer-events: none;
+}
+
+.outfit-brand-pos--top-left {
+  left: 32rpx;
+}
+
+.outfit-brand-pos--top-right {
+  right: 32rpx;
+}
+
+.outfit-brand-main {
+  font-size: 56rpx;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: 6rpx;
+}
+
+.outfit-brand-sub {
+  font-size: 28rpx;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 4rpx;
+  margin-top: 4rpx;
+}
+
+/* 白色 */
+.outfit-brand--white {
+  border: 2rpx solid rgba(255, 255, 255, 0.4);
+}
+
+.outfit-brand--white .outfit-brand-main,
+.outfit-brand--white .outfit-brand-sub {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* 咖啡色 */
+.outfit-brand--coffee {
+  border: 2rpx solid rgba(107, 66, 38, 0.4);
+}
+
+.outfit-brand--coffee .outfit-brand-main,
+.outfit-brand--coffee .outfit-brand-sub {
+  color: rgba(107, 66, 38, 0.88);
+}

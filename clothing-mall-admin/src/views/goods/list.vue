@@ -117,8 +117,8 @@
         <template slot-scope="scope">
           <el-image
             v-if="scope.row.picUrl"
-            :src="thumbnail(scope.row.picUrl)"
-            :preview-src-list="toPreview(scope.row, scope.row.picUrl)"
+            :src="thumbnail(imageUrl(scope.row.picUrl))"
+            :preview-src-list="toPreview(scope.row, imageUrl(scope.row.picUrl))"
             class="goods-thumb"
             fit="cover"
           />

@@ -1,3 +1,4 @@
+<wxs src="../../utils/image.wxs" module="img" />
 <view class="order-card" bindtap="onOrderTap" data-id="{{order.id}}">
   <!-- 订单头部 -->
   <view class="order-header">
@@ -16,7 +17,7 @@
       bindtap="onGoodsTap"
       data-id="{{item.goodsId}}"
     >
-      <image class="goods-image" src="{{item.picUrl || defaultGoodsImage}}" mode="aspectFill" binderror="onGoodsImageError" data-goods-index="{{index}}" />
+      <image class="goods-image" src="{{img.url(item.picUrl) || defaultGoodsImage}}" mode="aspectFill" binderror="onGoodsImageError" data-goods-index="{{index}}" />
       <view class="goods-info">
         <view class="goods-name">{{item.goodsName}}</view>
         <view class="goods-spec" wx:if="{{item.specifications}}">{{item.specifications}}</view>

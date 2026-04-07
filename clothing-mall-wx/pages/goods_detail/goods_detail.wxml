@@ -1,4 +1,14 @@
+<wxs src="../../utils/image.wxs" module="img" />
 <view class="container">
+  <!-- 商品已下架提示 -->
+  <view class="unshelved-notice" wx:if="{{isUnshelved}}" style="margin-top: {{statusBarHeight + navBarHeight + 16}}px;">
+    <view class="unshelved-icon">!</view>
+    <text class="unshelved-text">该商品已下架</text>
+    <view class="unshelved-btn" bindtap="goBack">返回</view>
+  </view>
+
+  <!-- 正常商品内容（下架时隐藏） -->
+  <block wx:if="{{!isUnshelved}}">
   <!-- 沉浸式自定义导航栏 -->
   <view class="custom-nav" style="padding-top: {{statusBarHeight+16}}px; height: {{navBarHeight}}px;">
     <view class="back-btn" bindtap="goBack">
@@ -13,7 +23,7 @@
     <swiper class="goods-swiper" bindchange="onSwiperChange" autoplay="{{true}}" interval="3000" circular="{{true}}">
       <block wx:for="{{gallery}}" wx:key="*this">
         <swiper-item>
-          <image src="{{item || defaultImage}}" mode="aspectFill" class="swiper-image" binderror="onGoodsDetailImageError" data-source="gallery" data-index="{{index}}"></image>
+          <image src="{{img.url(item) || defaultImage}}" mode="aspectFill" class="swiper-image" binderror="onGoodsDetailImageError" data-source="gallery" data-index="{{index}}"></image>
         </swiper-item>
       </block>
     </swiper>
@@ -139,7 +149,7 @@
     </view>
     <view class="related-list">
       <view class="related-item" wx:for="{{relatedGoods}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
-        <image class="related-img" src="{{item.picUrl || defaultImage}}" mode="aspectFill" binderror="onGoodsDetailImageError" data-source="relatedGoods" data-index="{{index}}"></image>
+        <image class="related-img" src="{{img.url(item.picUrl) || defaultImage}}" mode="aspectFill" binderror="onGoodsDetailImageError" data-source="relatedGoods" data-index="{{index}}"></image>
         <view class="related-info">
           <view class="related-title">{{item.name}}</view>
           <view class="related-price">￥{{item.retailPrice}}</view>
@@ -211,4 +221,5 @@
     bind:addcart="skuAddToCart"
     bind:buynow="skuBuyNow"
   />
+  </block>
 </view>

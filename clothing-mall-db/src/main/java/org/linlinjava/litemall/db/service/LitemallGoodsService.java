@@ -13,7 +13,9 @@ import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class LitemallGoodsService {
@@ -449,6 +451,20 @@ public class LitemallGoodsService {
             Boolean isHot, Boolean isNew, Integer sceneId, Integer offset, Integer limit, String sort, String order) {
         PageHelper.startPage(offset, limit);
         return goodsMapper.selectBySearchCondition(categoryId, brandId, keyword, isHot, isNew, sceneId, sort, order);
+    }
+
+    public List<String> searchKeywordSuggestions(String keyword, int limit) {
+        List<String> rawList = goodsMapper.selectDistinctKeywords(keyword, limit);
+        Set<String> result = new LinkedHashSet<>();
+        for (String keywords : rawList) {
+            for (String kw : keywords.split(",")) {
+                String trimmed = kw.trim();
+                if (!trimmed.isEmpty()) {
+                    result.add(trimmed);
+                }
+            }
+        }
+        return new ArrayList<>(result).subList(0, Math.min(result.size(), limit));
     }
 
 }

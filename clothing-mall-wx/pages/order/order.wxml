@@ -1,3 +1,4 @@
+<wxs src="../../utils/image.wxs" module="img" />
 <view class="container">
   <!-- 自定义导航栏与 Tabs (吸顶) -->
   <view class="header-wrap" style="padding-top: {{statusBarHeight}}px;">
@@ -41,7 +42,7 @@
 
         <!-- 商品信息区 -->
         <view class="goods-info" wx:for="{{item.goodsList}}" wx:for-item="goods" wx:for-index="goodsIndex" wx:key="id">
-          <image class="goods-img" src="{{goods.picUrl || defaultImage}}" mode="aspectFill" binderror="onOrderImageError" data-order-index="{{orderIndex}}" data-goods-index="{{goodsIndex}}"></image>
+          <image class="goods-img" src="{{img.url(goods.picUrl) || defaultImage}}" mode="aspectFill" binderror="onOrderImageError" data-order-index="{{orderIndex}}" data-goods-index="{{goodsIndex}}"></image>
 
           <view class="goods-detail">
             <!-- 标题 -->

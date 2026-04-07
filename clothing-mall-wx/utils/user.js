@@ -6,22 +6,6 @@ const api = require('../config/api.js');
 
 
 /**
- * Promise封装wx.checkSession
- */
-function checkSession() {
-  return new Promise(function(resolve, reject) {
-    wx.checkSession({
-      success: function() {
-        resolve(true);
-      },
-      fail: function() {
-        reject(false);
-      }
-    })
-  });
-}
-
-/**
  * Promise封装wx.login
  */
 function login() {

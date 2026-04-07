@@ -23,7 +23,7 @@
       <el-table-column align="center" label="ID" prop="id" width="80" />
       <el-table-column align="center" label="头像" width="70">
         <template slot-scope="scope">
-          <el-avatar :src="scope.row.avatar" size="small" />
+          <el-avatar :src="imageUrl(scope.row.avatar)" size="small" />
         </template>
       </el-table-column>
       <el-table-column align="center" label="姓名" prop="name" />
@@ -73,7 +73,7 @@
             class="avatar-uploader"
             accept=".jpg,.jpeg,.png,.gif"
           >
-            <img v-if="dataForm.avatar" :src="dataForm.avatar" class="avatar">
+            <img v-if="dataForm.avatar" :src="imageUrl(dataForm.avatar)" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
           </el-upload>
         </el-form-item>

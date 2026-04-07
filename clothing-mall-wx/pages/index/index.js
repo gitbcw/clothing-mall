@@ -85,7 +85,7 @@ Page({
         this.setData({
           hotSales,
           hotSalesScroll: [...hotSales, ...hotSales],
-          hotScrollDuration: Math.max(hotSales.length * 3, 40)
+          hotScrollDuration: Math.max(hotSales.length * 6, 80)
         })
 
         // 活动位数据

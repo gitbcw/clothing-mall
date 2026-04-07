@@ -1,3 +1,4 @@
+<wxs src="../../../utils/image.wxs" module="img" />
 <view class="container">
   <custom-nav title="订单详情" />
 
@@ -93,7 +94,7 @@
     <view class="goods-list">
       <view class="goods-item" wx:for="{{orderGoods}}" wx:key="id">
         <view class="goods-item-img">
-          <image src="{{item.picUrl || defaultImage}}" mode="aspectFill" binderror="onGoodsImageError" data-index="{{index}}"></image>
+          <image src="{{img.url(item.picUrl) || defaultImage}}" mode="aspectFill" binderror="onGoodsImageError" data-index="{{index}}"></image>
         </view>
         <view class="goods-item-info">
           <view class="goods-item-row">

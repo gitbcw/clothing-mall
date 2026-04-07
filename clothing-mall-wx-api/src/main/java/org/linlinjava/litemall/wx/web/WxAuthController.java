@@ -17,7 +17,6 @@ import org.linlinjava.litemall.db.service.CouponAssignService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.dto.UserInfo;
-import org.linlinjava.litemall.wx.dto.UserToken;
 import org.linlinjava.litemall.wx.dto.WxLoginInfo;
 import org.linlinjava.litemall.wx.service.CaptchaCodeManager;
 import org.linlinjava.litemall.wx.service.UserTokenManager;
@@ -143,7 +142,9 @@ public class WxAuthController {
             user.setPassword(openId);
             user.setWeixinOpenid(openId);
             user.setAvatar(userInfo.getAvatarUrl());
-            user.setNickname(userInfo.getNickName());
+            // 用 openid 后6位生成默认昵称，避免所有新用户都叫"微信用户"
+            String suffix = openId.length() >= 6 ? openId.substring(openId.length() - 6) : openId;
+            user.setNickname("用户" + suffix);
             user.setGender(userInfo.getGender());
             user.setUserLevel((byte) 0);
             user.setStatus((byte) 0);

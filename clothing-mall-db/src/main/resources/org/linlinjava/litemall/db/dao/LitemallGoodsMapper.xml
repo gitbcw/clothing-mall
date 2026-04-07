@@ -919,4 +919,15 @@
       </otherwise>
     </choose>
   </select>
+
+  <select id="selectDistinctKeywords" resultType="java.lang.String">
+    SELECT DISTINCT keywords
+    FROM litemall_goods
+    WHERE deleted = 0
+      AND status = 'published'
+      AND keywords IS NOT NULL
+      AND keywords != ''
+      AND keywords LIKE concat('%', #{keyword}, '%')
+    LIMIT #{limit}
+  </select>
 </mapper>

@@ -1,3 +1,4 @@
+<wxs src="../../../utils/image.wxs" module="img" />
 <view class="container">
   <custom-nav title="我的收藏" />
 
@@ -21,7 +22,7 @@
       data-index="{{index}}"
       bindtap="openCollect"
       bindlongpress="deleteCollect">
-      <image class="goods-img" src="{{item.picUrl}}" mode="aspectFill" lazy-load />
+      <image class="goods-img" src="{{img.url(item.picUrl)}}" mode="aspectFill" lazy-load />
       <view class="goods-info">
         <view class="goods-top">
           <text class="goods-name">{{item.name}}</text>

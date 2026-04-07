@@ -1,3 +1,4 @@
+<wxs src="../../utils/image.wxs" module="img" />
 <view class="container">
   <!-- 自定义导航栏 -->
   <view class="custom-nav" style="padding-top: {{statusBarHeight + 16}}px; height: {{navBarHeight}}px;">
@@ -11,7 +12,7 @@
     <swiper class="banner-swiper" indicator-dots="true" autoplay="true" circular="true" indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#ffffff">
       <swiper-item wx:for="{{banners}}" wx:key="id" bindtap="goToScene" data-scene-id="{{item.id}}">
         <view class="banner-slide">
-          <image src="{{item.posterUrl}}" mode="aspectFill" class="banner-image" binderror="onHomeImageError" data-source="banner" data-index="{{index}}" />
+          <image src="{{img.url(item.posterUrl)}}" mode="aspectFill" class="banner-image" binderror="onHomeImageError" data-source="banner" data-index="{{index}}" />
           <!-- 艺术水印 -->
           <view class="banner-watermark">{{item.name}}</view>
           <!-- 底部场景信息 -->
@@ -31,7 +32,7 @@
 
       <scroll-view class="activity-scroll" scroll-x enhanced show-scrollbar="{{false}}">
         <view class="activity-item" wx:for="{{activityGoodsTop}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
-          <image src="{{item.picUrl}}" mode="aspectFill" class="activity-img" binderror="onHomeImageError" data-source="activityGoodsTop" data-index="{{index}}" />
+          <image src="{{img.url(item.picUrl)}}" mode="aspectFill" class="activity-img" binderror="onHomeImageError" data-source="activityGoodsTop" data-index="{{index}}" />
           <view class="activity-info">
             <text class="activity-name">{{item.name}}</text>
             <view class="activity-price-wrap" wx:if="{{item.specialPrice}}">
@@ -54,7 +55,7 @@
 
       <scroll-view class="activity-scroll-sub" scroll-x enhanced show-scrollbar="{{false}}">
         <view class="activity-item-sub" wx:for="{{activityGoodsBottom}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
-          <image src="{{item.picUrl}}" mode="aspectFill" class="activity-img-sub" binderror="onHomeImageError" data-source="activityGoodsBottom" data-index="{{index}}" />
+          <image src="{{img.url(item.picUrl)}}" mode="aspectFill" class="activity-img-sub" binderror="onHomeImageError" data-source="activityGoodsBottom" data-index="{{index}}" />
           <view class="activity-info">
             <text class="activity-name">{{item.name}}</text>
             <view class="activity-price-wrap" wx:if="{{item.specialPrice}}">
@@ -89,7 +90,7 @@
       <view class="hot-scroll-wrapper" bindtouchstart="pauseHotScroll" bindtouchend="resumeHotScroll">
         <view class="hot-scroll-inner" style="animation-duration: {{hotScrollDuration}}s; animation-play-state: {{hotScrollPaused ? 'paused' : 'running'}}">
           <view class="hot-item" wx:for="{{hotSalesScroll}}" wx:key="{{item.id}}_{{index}}" bindtap="goToDetail" data-id="{{item.id}}">
-            <image class="hot-img" src="{{item.picUrl || defaultImage}}" mode="aspectFill" binderror="onHomeImageError" data-source="hotSales" data-index="{{index % hotSales.length}}"></image>
+            <image class="hot-img" src="{{img.url(item.picUrl) || defaultImage}}" mode="aspectFill" binderror="onHomeImageError" data-source="hotSales" data-index="{{index % hotSales.length}}"></image>
             <view class="hot-info">
               <view class="hot-title">{{item.name}}</view>
               <view class="hot-price-wrap">
@@ -113,13 +114,18 @@
       <scroll-view class="outfit-list-scroll" scroll-x enhanced show-scrollbar="{{false}}">
         <view class="outfit-item-wrap" wx:for="{{matchRecommends}}" wx:key="id">
           <!-- 背景海报图 -->
-          <image src="{{item.coverPic}}" mode="aspectFill" class="outfit-bg-img" binderror="onHomeImageError" data-source="matchRecommends" data-index="{{index}}" />
+          <image src="{{img.url(item.coverPic)}}" mode="aspectFill" class="outfit-bg-img" binderror="onHomeImageError" data-source="matchRecommends" data-index="{{index}}" />
+          <!-- 品牌水印（磨砂卡片） -->
+          <view class="outfit-brand-watermark outfit-brand--{{item.brandColor || 'white'}} outfit-brand-pos--{{item.brandPosition || 'top-right'}}">
+            <text class="outfit-brand-main">川着</text>
+            <text class="outfit-brand-sub">川行此着</text>
+          </view>
           <!-- 左侧商品浮窗 -->
           <view class="outfit-float-panel" wx:if="{{item.goods && item.goods.length > 0}}" catchtap="preventTap">
             <view class="outfit-float-title">Get同款</view>
             <scroll-view class="outfit-goods-scroll" scroll-y enhanced show-scrollbar="{{false}}">
               <view class="outfit-good-item" wx:for="{{item.goods}}" wx:key="id" wx:for-item="good" catchtap="goToDetail" data-id="{{good.id}}">
-                <image src="{{good.picUrl}}" mode="aspectFill" class="outfit-good-img" />
+                <image src="{{img.url(good.picUrl)}}" mode="aspectFill" class="outfit-good-img" />
                 <view class="outfit-good-price">¥{{good.retailPrice}}</view>
               </view>
             </scroll-view>
@@ -137,7 +143,7 @@
       </view>
       <view class="grid-list">
         <view class="grid-item" wx:for="{{accessories}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
-          <image class="grid-img other" src="{{item.picUrl || defaultImage}}" mode="aspectFill" binderror="onHomeImageError" data-source="accessories" data-index="{{index}}"></image>
+          <image class="grid-img other" src="{{img.url(item.picUrl) || defaultImage}}" mode="aspectFill" binderror="onHomeImageError" data-source="accessories" data-index="{{index}}"></image>
           <view class="grid-info">
             <view class="grid-title">{{item.name}}</view>
             <view class="grid-bottom">

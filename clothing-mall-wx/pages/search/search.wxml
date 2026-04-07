@@ -1,3 +1,4 @@
+<wxs src="../../utils/image.wxs" module="img" />
 <scroll-view class="container" style="height: 100%;">
   <view style="height: {{statusBarHeight}}px;"></view>
   <view class="search-header" style="padding-top: {{statusBarHeight}}px;">
@@ -23,7 +24,7 @@
         <text class="title">热门搜索</text>
       </view>
       <view class="b">
-        <view class="item {{item.is_hot === 1 ? 'active' : ''}}" hover-class="navigator-hover" bindtap="onKeywordTap" data-keyword="{{item.keyword}}" wx:for="{{hotKeyword}}" wx:key="id">{{item.keyword}}</view>
+        <view class="item active" hover-class="navigator-hover" bindtap="onKeywordTap" data-keyword="{{item.keyword}}" wx:for="{{hotKeyword}}" wx:key="keyword">{{item.keyword}}</view>
       </view>
     </view>
     <view class="search-keywords search-category" wx:if="{{!keyword && categoryList.length}}">
@@ -73,7 +74,7 @@
     <view class="cate-item">
       <view class="b">
         <navigator class="item {{(iindex + 1) % 2 == 0 ? 'item-b' : ''}}" url="/pages/goods_detail/goods_detail?id={{iitem.id}}" wx:for="{{goodsList}}" wx:key="id" wx:for-item="iitem" wx:for-index="iindex">
-          <image class="img" src="{{iitem.picUrl}}" background-size="cover"></image>
+          <image class="img" src="{{img.url(iitem.picUrl)}}" background-size="cover"></image>
           <text class="name">{{iitem.name}}</text>
           <text class="price">￥{{iitem.retailPrice}}</text>
         </navigator>

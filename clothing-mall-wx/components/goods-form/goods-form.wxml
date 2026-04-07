@@ -1,42 +1,40 @@
+<wxs src="../../utils/image.wxs" module="img" />
 <view class="goods-form">
   <!-- 商品图片 -->
   <view class="section">
     <view class="section-title">
       <text>商品图片</text>
-      <text class="ai-hint" wx:if="{{aiRecognized}}">AI 识别置信度 {{aiConfidence}}%</text>
     </view>
     <view class="image-upload">
       <view class="main-image" bindtap="chooseMainImage">
-        <image wx:if="{{_form.picUrl}}" src="{{_form.picUrl}}" mode="aspectFill" class="preview-image"></image>
+        <image wx:if="{{_form.picUrl}}" src="{{img.url(_form.picUrl)}}" mode="aspectFill" class="preview-image"></image>
         <view wx:else class="upload-placeholder">
           <text class="upload-icon">+</text>
           <text class="upload-text">主图</text>
-        </view>
-        <!-- AI 识别中遮罩 -->
-        <view class="ai-overlay" wx:if="{{aiRecognizing}}">
-          <text class="ai-loading">AI 识别中...</text>
-        </view>
-        <!-- AI 识别标签 -->
-        <view class="ai-badge" wx:if="{{aiRecognized && !aiRecognizing}}">
-          <text>AI {{aiConfidence}}%</text>
         </view>
       </view>
     </view>
     <view class="gallery-images">
       <view class="gallery-item" wx:for="{{_galleryList}}" wx:key="index">
-        <image src="{{item}}" mode="aspectFill" class="gallery-image"></image>
+        <image src="{{img.url(item)}}" mode="aspectFill" class="gallery-image"></image>
         <view class="gallery-delete" catchtap="removeGallery" data-index="{{index}}">×</view>
       </view>
       <view class="gallery-add" bindtap="chooseGalleryImage" wx:if="{{_galleryList.length < 9}}">
         <text class="upload-icon">+</text>
-        <text class="upload-text">详情图</text>
+        <text class="upload-text">轮播图</text>
       </view>
     </view>
   </view>
 
   <!-- 基本信息 -->
   <view class="section">
-    <view class="section-title">基本信息</view>
+    <view class="section-title">
+      <text>基本信息</text>
+      <view class="tag-recognize-btn" bindtap="recognizeTag">
+        <text wx:if="{{!tagRecognizing}}">吊牌识别</text>
+        <text wx:else>识别中...</text>
+      </view>
+    </view>
     <view class="form-item">
       <text class="form-label">商品名称 <text class="required">*</text></text>
       <view class="input-wrapper">
@@ -105,7 +103,8 @@
         id="editor"
         class="editor-content"
         placeholder="请输入商品详细介绍"
-        onStatusChange="onEditorStatusChange"
+        bindready="onEditorReady"
+        bindstatuschange="onEditorStatusChange"
       />
     </view>
   </view>
@@ -139,7 +138,7 @@
   </view>
 
   <!-- 底部操作栏 -->
-  <view class="action-bar">
+  <view class="action-bar {{showTabBar ? 'action-bar--with-tabbar' : 'action-bar--bottom'}}">
     <!-- create 模式 -->
     <block wx:if="{{mode === 'create'}}">
       <view class="action-btn btn-preview" bindtap="onPreview">预览</view>
@@ -156,11 +155,11 @@
   </view>
 
   <!-- 分类选择器 -->
-  <van-popup show="{{showCategoryPicker}}" position="bottom" round bind:close="onCategoryClose">
+  <van-popup show="{{showCategoryPicker}}" position="bottom" round bind:close="onCategoryClose" custom-style="z-index: 2000">
     <view class="picker-header">
       <text class="picker-cancel" bindtap="onCategoryClose">取消</text>
       <text class="picker-title">选择分类</text>
-      <text class="picker-confirm"></text>
+      <text class="picker-confirm" bindtap="onCategoryConfirm">确定</text>
     </view>
     <van-picker columns="{{categoryList}}" value-key="name" bind:change="onCategoryChange" />
   </van-popup>

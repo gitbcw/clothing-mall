@@ -38,6 +38,11 @@ public class QCodeService {
             return "";
 
         try {
+            // 如果 picUrl 是 key（非完整 URL），拼接为完整 URL 以供下载
+            if (goodPicUrl != null && !goodPicUrl.startsWith("http")) {
+                goodPicUrl = storageService.generateUrl(goodPicUrl);
+            }
+
             // 创建该商品的二维码
             File file = wxMaService.getQrcodeService().createWxaCodeUnlimit("goods," + goodId, "pages/index/index");
             FileInputStream inputStream = new FileInputStream(file);

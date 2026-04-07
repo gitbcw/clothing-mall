@@ -1,4 +1,9 @@
 litemall:
+  # JWT 配置
+  jwt:
+    secret: ${JWT_SECRET:clothingMall2026SecureJwtSecretKey!@#}
+    expire-hours: ${JWT_EXPIRE_HOURS:2}
+
   # 开发者应该设置成自己的wx相关信息
   wx:
     app-id: wx1809b86df93c5107
@@ -55,13 +60,10 @@ litemall:
         accessKeyId: xxx
         accessKeySecret: xxx
 
-  # 快鸟物流查询配置
+  # 快递物流查询配置（阿里云市场API）
   express:
-    enable: ${KDN_ENABLE:false}
-    appId: ${KDN_APP_ID:}
-    appKey: ${KDN_APP_KEY:}
-    requestType: ${KDN_REQUEST_TYPE:8002}
-    callbackUrl: ${KDN_CALLBACK_URL:}
+    enable: ${EXPRESS_ENABLE:false}
+    appcode: ${EXPRESS_APPCODE:}
     vendors:
     - code: "ZTO"
       name: "中通快递"
@@ -119,19 +121,11 @@ litemall:
       secretKey: xxxxxx
       bucketName: litemall
 
-  # 百度OCR文字识别配置
-  # 免费额度：500次/天，约15000次/月
-  # 申请地址：https://console.bce.baidu.com/ai/#/ai/ocr/app/list
-  ocr:
-    enabled: false
-    api-key: d6adXCnmEoURuO0Lx9keO9LL
-    secret-key: TplRPeZIlxaDehEXvEcEPeagMvpbfWyM
-
-  # AI 服装识别配置（MiniMax M2.7）
-  # 文档地址：https://platform.minimax.io/docs/api-reference/text-chat
+  # 吊牌识别配置（火山引擎 doubao）
   ai:
-    enabled: false
-    api-key: ${MINIMAX_API_KEY:}
-    endpoint: https://api.minimax.io/v1/chat/completions
-    model: MiniMax-Text-01
-    timeout: 30000
+    tag:
+      enabled: false
+      api-key: ${DOUBAO_API_KEY:}
+      endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+      model: ep-20260406233437-xddjl
+      timeout: 30000

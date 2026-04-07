@@ -77,6 +77,9 @@ public class WxCollectController {
             if (type == (byte)0){
             	//查询商品信息
                 LitemallGoods goods = goodsService.findById(collect.getValueId());
+                if (goods == null || !LitemallGoods.STATUS_PUBLISHED.equals(goods.getStatus())) {
+                    continue;
+                }
                 c.put("name", goods.getName());
                 c.put("brief", goods.getBrief());
                 c.put("picUrl", goods.getPicUrl());
@@ -84,6 +87,9 @@ public class WxCollectController {
             } else {
             	//查询专题信息
             	LitemallTopic topic = topicService.findById(collect.getValueId());
+	            if (topic == null) {
+	                continue;
+	            }
 	            c.put("title", topic.getTitle());
 	            c.put("subtitle", topic.getSubtitle());
 	            c.put("price", topic.getPrice());

@@ -3,6 +3,8 @@ package org.linlinjava.litemall.db.domain;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class LitemallOutfit {
     public static final Boolean IS_DELETED = Deleted.IS_DELETED.value();
@@ -14,11 +16,16 @@ public class LitemallOutfit {
     private String coverPic;
     private String goodsIds;
     private String tags;
+    private String brandColor;
+    private String brandPosition;
     private Integer sortOrder;
     private Short status;
     private LocalDateTime addTime;
     private LocalDateTime updateTime;
     private Boolean deleted;
+
+    /** 非持久化字段：关联商品摘要列表，由 Controller 层填充 */
+    private List<Map<String, Object>> goodsList;
 
     public Integer getId() {
         return id;
@@ -68,6 +75,22 @@ public class LitemallOutfit {
         this.tags = tags;
     }
 
+    public String getBrandColor() {
+        return brandColor;
+    }
+
+    public void setBrandColor(String brandColor) {
+        this.brandColor = brandColor;
+    }
+
+    public String getBrandPosition() {
+        return brandPosition;
+    }
+
+    public void setBrandPosition(String brandPosition) {
+        this.brandPosition = brandPosition;
+    }
+
     public Integer getSortOrder() {
         return sortOrder;
     }
@@ -108,6 +131,14 @@ public class LitemallOutfit {
         this.deleted = deleted;
     }
 
+    public List<Map<String, Object>> getGoodsList() {
+        return goodsList;
+    }
+
+    public void setGoodsList(List<Map<String, Object>> goodsList) {
+        this.goodsList = goodsList;
+    }
+
     public void andLogicalDeleted(boolean deleted) {
         setDeleted(deleted ? Deleted.IS_DELETED.value() : Deleted.NOT_DELETED.value());
     }
@@ -124,6 +155,8 @@ public class LitemallOutfit {
         sb.append(", coverPic=").append(coverPic);
         sb.append(", goodsIds=").append(goodsIds);
         sb.append(", tags=").append(tags);
+        sb.append(", brandColor=").append(brandColor);
+        sb.append(", brandPosition=").append(brandPosition);
         sb.append(", sortOrder=").append(sortOrder);
         sb.append(", status=").append(status);
         sb.append(", addTime=").append(addTime);
@@ -151,6 +184,8 @@ public class LitemallOutfit {
             && (this.getCoverPic() == null ? other.getCoverPic() == null : this.getCoverPic().equals(other.getCoverPic()))
             && (this.getGoodsIds() == null ? other.getGoodsIds() == null : this.getGoodsIds().equals(other.getGoodsIds()))
             && (this.getTags() == null ? other.getTags() == null : this.getTags().equals(other.getTags()))
+            && (this.getBrandColor() == null ? other.getBrandColor() == null : this.getBrandColor().equals(other.getBrandColor()))
+            && (this.getBrandPosition() == null ? other.getBrandPosition() == null : this.getBrandPosition().equals(other.getBrandPosition()))
             && (this.getSortOrder() == null ? other.getSortOrder() == null : this.getSortOrder().equals(other.getSortOrder()))
             && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
             && (this.getAddTime() == null ? other.getAddTime() == null : this.getAddTime().equals(other.getAddTime()))
@@ -168,6 +203,8 @@ public class LitemallOutfit {
         result = prime * result + ((getCoverPic() == null) ? 0 : getCoverPic().hashCode());
         result = prime * result + ((getGoodsIds() == null) ? 0 : getGoodsIds().hashCode());
         result = prime * result + ((getTags() == null) ? 0 : getTags().hashCode());
+        result = prime * result + ((getBrandColor() == null) ? 0 : getBrandColor().hashCode());
+        result = prime * result + ((getBrandPosition() == null) ? 0 : getBrandPosition().hashCode());
         result = prime * result + ((getSortOrder() == null) ? 0 : getSortOrder().hashCode());
         result = prime * result + ((getStatus() == null) ? 0 : getStatus().hashCode());
         result = prime * result + ((getAddTime() == null) ? 0 : getAddTime().hashCode());
@@ -208,6 +245,8 @@ public class LitemallOutfit {
         coverPic("cover_pic", "coverPic", "VARCHAR", false),
         goodsIds("goods_ids", "goodsIds", "VARCHAR", false),
         tags("tags", "tags", "VARCHAR", false),
+        brandColor("brand_color", "brandColor", "VARCHAR", false),
+        brandPosition("brand_position", "brandPosition", "VARCHAR", false),
         sortOrder("sort_order", "sortOrder", "INTEGER", false),
         status("status", "status", "SMALLINT", false),
         addTime("add_time", "addTime", "TIMESTAMP", false),

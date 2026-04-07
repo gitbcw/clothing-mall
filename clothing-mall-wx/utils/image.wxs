@@ -1,0 +1,9 @@
+var BASE = 'http://47.107.151.70:8088/wx/storage/fetch/';
+
+function url(key) {
+  if (!key) return '';
+  if (key.indexOf('/') !== -1) return key;
+  return BASE + key;
+}
+
+module.exports = { url: url };

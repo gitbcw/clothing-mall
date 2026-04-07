@@ -29,7 +29,17 @@
     "pages/search/search",
     "pages/payResult/payResult",
     "pages/manager/orderDetail/orderDetail",
-    "pages/manager/goodsEdit/goodsEdit"
+    "pages/manager/goodsEdit/goodsEdit",
+    "pages/manager/tabSettings/tabSettings",
+    "pages/manager/sceneManage/sceneManage",
+    "pages/manager/sceneEdit/sceneEdit",
+    "pages/manager/outfitManage/outfitManage",
+    "pages/manager/outfitEdit/outfitEdit",
+    "pages/manager/goodsPicker/goodsPicker",
+    "pages/manager/issueManage/issueManage",
+    "pages/manager/issueEdit/issueEdit",
+    "pages/manager/pushSend/pushSend",
+    "pages/manager/verify/verify"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -70,6 +80,7 @@
   },
   "debug": false,
   "usingComponents": {
+    "goods-form": "/components/goods-form/goods-form",
     "van-cell": "./lib/vant-weapp/cell/index",
     "van-cell-group": "./lib/vant-weapp/cell-group/index",
     "van-picker": "./lib/vant-weapp/picker/index",

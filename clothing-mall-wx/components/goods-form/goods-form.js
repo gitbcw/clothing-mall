@@ -27,6 +27,10 @@ Component({
       type: Array,
       value: []
     },
+    showTabBar: {
+      type: Boolean,
+      value: false
+    },
     categoryList: {
       type: Array,
       value: []
@@ -47,9 +51,7 @@ Component({
     _scenes: [],
     _sceneMap: {},
     _params: [],
-    aiRecognizing: false,
-    aiConfidence: null,
-    aiRecognized: false,
+    tagRecognizing: false,
     showCategoryPicker: false,
     editorCtx: null,
     formats: {}
@@ -173,80 +175,67 @@ Component({
         success: function(res) {
           var tempPath = res.tempFilePaths[0];
           that.setData({ '_form.picUrl': tempPath });
-          // create 模式启用 AI 识别
-          if (that.data.mode === 'create') {
-            that.setData({ aiRecognizing: true });
-          }
           that.uploadImage(tempPath, function(url) {
             if (url) {
               that.setData({ '_form.picUrl': url });
               that._emitChange();
-              if (that.data.mode === 'create') {
-                that.recognizeImage(url);
-              }
-            } else {
-              that.setData({ aiRecognizing: false });
             }
           });
         }
       });
     },
 
-    recognizeImage: function(imageUrl) {
+    recognizeTag: function() {
+      if (this.data.tagRecognizing) return;
+
       var that = this;
-      util.request(api.AiRecognizeByUrl, { imageUrl: imageUrl }, 'POST').then(function(res) {
-        if (res.errno === 0 && res.data) {
-          var aiData = res.data;
-          var updates = {};
-          if (aiData.name && !that.data._form.name) {
-            updates['_form.name'] = aiData.name;
-          }
-          if (aiData.brief && !that.data._form.brief) {
-            updates['_form.brief'] = aiData.brief;
-          }
-          if (aiData.confidence) {
-            updates.aiConfidence = aiData.confidence;
-            updates.aiRecognized = true;
-          }
-          if (aiData.category && that.data.categoryList.length > 0) {
-            var matchedCategory = that.data.categoryList.find(function(c) {
-              return c.name === aiData.category || c.name.indexOf(aiData.category) > -1;
-            });
-            if (matchedCategory) {
-              updates['_form.categoryId'] = matchedCategory.id;
-              updates['_form.categoryName'] = matchedCategory.name;
+      wx.chooseImage({
+        count: 1,
+        sizeType: ['compressed'],
+        sourceType: ['album', 'camera'],
+        success: function(res) {
+          var tempPath = res.tempFilePaths[0];
+          that.setData({ tagRecognizing: true });
+
+          wx.uploadFile({
+            url: api.AiRecognizeTag,
+            filePath: tempPath,
+            name: 'file',
+            header: {
+              'X-Litemall-Token': wx.getStorageSync('token')
+            },
+            success: function(uploadRes) {
+              that.setData({ tagRecognizing: false });
+              try {
+                var data = JSON.parse(uploadRes.data);
+                if (data.errno === 0 && data.data) {
+                  var updates = {};
+                  if (data.data.name && !that.data._form.name) {
+                    updates['_form.name'] = data.data.name;
+                  }
+                  if (data.data.price && !that.data._form.retailPrice) {
+                    updates['_form.retailPrice'] = data.data.price;
+                  }
+                  if (Object.keys(updates).length > 0) {
+                    that.setData(updates);
+                    that._emitChange();
+                    wx.showToast({ title: '吊牌识别成功', icon: 'success' });
+                  } else {
+                    wx.showToast({ title: '已手动填写，未覆盖', icon: 'none' });
+                  }
+                } else {
+                  wx.showToast({ title: data.errmsg || '识别失败', icon: 'none' });
+                }
+              } catch (e) {
+                wx.showToast({ title: '识别结果解析失败', icon: 'none' });
+              }
+            },
+            fail: function() {
+              that.setData({ tagRecognizing: false });
+              wx.showToast({ title: '识别请求失败', icon: 'none' });
             }
-          }
-          if (aiData.style && that.data.presetScenes.indexOf(aiData.style) === -1) {
-            var scenes = (that.data._scenes || []).slice();
-            if (scenes.indexOf(aiData.style) === -1) {
-              scenes.push(aiData.style);
-              updates._scenes = scenes;
-              updates._sceneMap = that._buildSceneMap(scenes);
-            }
-          }
-          if (aiData.material || aiData.color || aiData.pattern) {
-            var params = that.data._params.slice();
-            if (aiData.material) params.push({ key: '面料', value: aiData.material });
-            if (aiData.color) params.push({ key: '颜色', value: aiData.color });
-            if (aiData.pattern) params.push({ key: '图案', value: aiData.pattern });
-            updates._params = params;
-          }
-          updates.aiRecognizing = false;
-          that.setData(updates);
-          that._emitChange();
-          if (aiData.isMock) {
-            wx.showToast({ title: 'AI Mock 识别完成', icon: 'none' });
-          } else {
-            wx.showToast({ title: 'AI 识别完成', icon: 'success' });
-          }
-        } else {
-          that.setData({ aiRecognizing: false });
-          wx.showToast({ title: 'AI 识别失败', icon: 'none' });
+          });
         }
-      }).catch(function() {
-        that.setData({ aiRecognizing: false });
-        wx.showToast({ title: 'AI 识别失败', icon: 'none' });
       });
     },
 
@@ -325,20 +314,31 @@ Component({
     // ========== 分类选择 ==========
 
     onShowCategoryPicker: function() {
-      this.setData({ showCategoryPicker: true });
+      this.setData({
+        showCategoryPicker: true,
+        _pendingCategoryIndex: null
+      });
     },
 
     onCategoryChange: function(e) {
-      var index = e.detail.index;
-      var category = this.data.categoryList[index];
-      if (category) {
-        this.setData({
-          '_form.categoryId': category.id,
-          '_form.categoryName': category.name,
-          showCategoryPicker: false
-        });
-        this._emitChange();
+      this.setData({ _pendingCategoryIndex: e.detail.index });
+    },
+
+    onCategoryConfirm: function() {
+      var index = this.data._pendingCategoryIndex;
+      if (index != null) {
+        var category = this.data.categoryList[index];
+        if (category) {
+          this.setData({
+            '_form.categoryId': category.id,
+            '_form.categoryName': category.name,
+            showCategoryPicker: false
+          });
+          this._emitChange();
+          return;
+        }
       }
+      this.setData({ showCategoryPicker: false });
     },
 
     onCategoryClose: function() {

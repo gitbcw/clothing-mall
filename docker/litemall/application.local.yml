@@ -83,12 +83,10 @@ litemall:
         accessKeyId: xxx
         accessKeySecret: xxx
 
-  # 快鸟物流查询配置
+  # 快递物流查询配置（阿里云市场API）
   express:
-    enable: ${KDN_ENABLE:false}
-    appId: ${KDN_APP_ID:}
-    appKey: ${KDN_APP_KEY:}
-    requestType: ${KDN_REQUEST_TYPE:8002}
+    enable: ${EXPRESS_ENABLE:false}
+    appcode: ${EXPRESS_APPCODE:}
     vendors:
       - code: "ZTO"
         name: "中通快递"
@@ -126,10 +124,11 @@ litemall:
 swagger:
   production: false
 
-  # AI 服装识别配置（MiniMax M2.7）
+  # 吊牌识别配置（火山引擎 doubao）
   ai:
-    enabled: ${AI_ENABLED:false}
-    api-key: ${MINIMAX_API_KEY:}
-    endpoint: https://api.minimax.io/v1/chat/completions
-    model: MiniMax-Text-01
-    timeout: 30000
+    tag:
+      enabled: ${AI_TAG_ENABLED:false}
+      api-key: ${DOUBAO_API_KEY:}
+      endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+      model: ep-20260406233437-xddjl
+      timeout: 30000

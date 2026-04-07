@@ -9,9 +9,7 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "litemall.express")
 public class ExpressProperties {
     private boolean enable;
-    private String appId;
-    private String appKey;
-    private String requestType = "1002";
+    private String appcode;
     private List<Map<String, String>> vendors = new ArrayList<>();
 
     public boolean isEnable() {
@@ -30,27 +28,11 @@ public class ExpressProperties {
         this.vendors = vendors;
     }
 
-    public String getAppKey() {
-        return appKey;
+    public String getAppcode() {
+        return appcode;
     }
 
-    public void setAppKey(String appKey) {
-        this.appKey = appKey;
-    }
-
-    public String getAppId() {
-        return appId;
-    }
-
-    public void setAppId(String appId) {
-        this.appId = appId;
-    }
-
-    public String getRequestType() {
-        return requestType;
-    }
-
-    public void setRequestType(String requestType) {
-        this.requestType = requestType;
+    public void setAppcode(String appcode) {
+        this.appcode = appcode;
     }
 }

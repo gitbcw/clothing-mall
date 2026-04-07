@@ -1,3 +1,4 @@
+<wxs src="../../../utils/image.wxs" module="img" />
 <view class="container">
   <custom-nav title="售后详情" />
   <van-cell-group title="退款明细">
@@ -20,7 +21,7 @@
     <view class="goods">
       <view class="item" wx:for="{{orderGoods}}" wx:key="id">
         <view class="img">
-          <image src="{{item.picUrl}}"></image>
+          <image src="{{img.url(item.picUrl)}}"></image>
         </view>
         <view class="info">
           <view class="t">

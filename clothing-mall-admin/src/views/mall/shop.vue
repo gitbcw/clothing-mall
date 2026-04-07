@@ -61,7 +61,7 @@
             class="avatar-uploader"
             accept=".jpg,.jpeg,.png,.gif"
           >
-            <img v-if="dataForm.imageUrl" :src="dataForm.imageUrl" class="avatar">
+            <img v-if="dataForm.imageUrl" :src="imageUrl(dataForm.imageUrl)" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
           </el-upload>
         </el-form-item>

@@ -1,10 +1,11 @@
+<wxs src="../../utils/image.wxs" module="img" />
 <view class="container">
   <!-- 顶部背景与个人信息 -->
   <view class="header-section">
     <image class="bg-img" src="{{headerBgImage}}" mode="aspectFill" binderror="onHeaderBgError"></image>
     <view class="user-info" bindtap="goLogin">
       <view class="avatar-wrap">
-        <image class="avatar" src="{{avatarLoadError ? avatarDefaultImage : (userInfo.avatarUrl || avatarDefaultImage)}}" mode="aspectFill" binderror="onAvatarError"></image>
+        <image class="avatar" src="{{avatarLoadError ? avatarDefaultImage : (img.url(userInfo.avatarUrl) || avatarDefaultImage)}}" mode="aspectFill" binderror="onAvatarError"></image>
       </view>
       <view class="info-text">
         <view class="nickname">{{userInfo.nickName || '点击登录'}}</view>

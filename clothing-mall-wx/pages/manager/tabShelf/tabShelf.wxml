@@ -1,3 +1,4 @@
+<wxs src="../../../utils/image.wxs" module="img" />
 <view class="container">
   <!-- 自定义导航栏 -->
   <view class="custom-nav" style="padding-top: {{statusBarHeight+16}}px; height: {{navBarHeight}}px;">
@@ -26,6 +27,7 @@
       features="{{formFeatures}}"
       preset-scenes="{{presetScenes}}"
       category-list="{{categoryList}}"
+      show-tab-bar
       bind:change="onGoodsFormChange"
       bind:save="onGoodsFormSave"
       bind:publish="onGoodsFormPublish"
@@ -92,7 +94,7 @@
             <text class="checkbox-mark" wx:if="{{selectedMap[item.id]}}">✓</text>
           </view>
         </view>
-        <image class="goods-image" src="{{item.picUrl || defaultImage}}" mode="aspectFill" binderror="onGoodsImageError" data-index="{{index}}" bindtap="onPreviewGoods" data-id="{{item.id}}"></image>
+        <image class="goods-image" src="{{img.url(item.picUrl) || defaultImage}}" mode="aspectFill" binderror="onGoodsImageError" data-index="{{index}}" bindtap="onPreviewGoods" data-id="{{item.id}}"></image>
         <view class="goods-info" bindtap="onPreviewGoods" data-id="{{item.id}}">
           <text class="goods-name">{{item.name}}</text>
           <view class="goods-tags">

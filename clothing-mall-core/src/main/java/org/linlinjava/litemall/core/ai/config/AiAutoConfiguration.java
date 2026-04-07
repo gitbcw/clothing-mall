@@ -1,15 +1,14 @@
 package org.linlinjava.litemall.core.ai.config;
 
-import org.linlinjava.litemall.core.ai.AiRecognitionProperties;
+import org.linlinjava.litemall.core.ai.TagRecognitionProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * AI 识别自动配置
- * 注意：AiRecognitionService 已通过 @Service 注解自动注册，无需在此创建 Bean
+ * AI 吊牌识别自动配置
  */
 @Configuration
-@EnableConfigurationProperties(AiRecognitionProperties.class)
+@EnableConfigurationProperties({TagRecognitionProperties.class})
 public class AiAutoConfiguration {
-    // AiRecognitionService 通过 @Service 注解自动注册
+    // TagRecognitionService 通过 @Service 注解自动注册
 }

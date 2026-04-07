@@ -1,3 +1,4 @@
+<wxs src="../../../utils/image.wxs" module="img" />
 <view class="container" wx:if="{{!loading}}">
   <!-- 订单状态 -->
   <view class="status-section">
@@ -40,7 +41,7 @@
   <!-- 商品列表 -->
   <view class="goods-section">
     <view class="goods-item" wx:for="{{goodsList}}" wx:key="id">
-      <image class="goods-image" src="{{item.picUrl}}" mode="aspectFill"></image>
+      <image class="goods-image" src="{{img.url(item.picUrl)}}" mode="aspectFill"></image>
       <view class="goods-info">
         <text class="goods-name">{{item.goodsName}}</text>
         <text class="goods-spec" wx:if="{{item.specifications}}">{{item.specifications}}</text>

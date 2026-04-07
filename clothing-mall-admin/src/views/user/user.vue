@@ -18,7 +18,7 @@
 
       <el-table-column align="center" :label="$t('user_user.table.avatar')" width="80">
         <template slot-scope="scope">
-          <el-avatar :src="scope.row.avatar" />
+          <el-avatar :src="imageUrl(scope.row.avatar)" />
         </template>
       </el-table-column>
 

@@ -217,7 +217,7 @@ public class WxHomeController {
                     List<Integer> goodsIds = mapper.readValue(goodsIdsJson, new TypeReference<List<Integer>>() {});
                     for (Integer goodsId : goodsIds) {
                         LitemallGoods goods = goodsService.findById(goodsId);
-                        if (goods != null) {
+                        if (goods != null && LitemallGoods.STATUS_PUBLISHED.equals(goods.getStatus())) {
                             Map<String, Object> goodsMap = new HashMap<>();
                             goodsMap.put("id", goods.getId());
                             goodsMap.put("name", goods.getName());

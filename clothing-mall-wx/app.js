@@ -46,8 +46,8 @@ App({
     if (this.globalData.loginPromise) return this.globalData.loginPromise;
 
     this.globalData.loginPromise = user.loginByWeixin({
-      nickName: '微信用户',
-      avatarUrl: 'https://yanxuan.nosdn.127.net/80841d7fa3073e0ae27bf487339f.jpg',
+      nickName: '',
+      avatarUrl: '',
       gender: 0
     }).then(res => {
       console.log('静默登录成功', res);

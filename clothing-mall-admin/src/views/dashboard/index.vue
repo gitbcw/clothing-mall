@@ -196,7 +196,7 @@
                   {{ index + 1 }}
                 </div>
                 <div class="rank-info">
-                  <img :src="item.picUrl" class="rank-img">
+                  <img :src="imageUrl(item.picUrl)" class="rank-img">
                   <div class="rank-text">
                     <div class="rank-name">{{ item.name }}</div>
                     <el-progress
@@ -228,7 +228,7 @@
                   {{ index + 1 }}
                 </div>
                 <div class="rank-info">
-                  <img :src="item.picUrl" class="rank-img">
+                  <img :src="imageUrl(item.picUrl)" class="rank-img">
                   <div class="rank-text">
                     <div class="rank-name">{{ item.name }}</div>
                     <el-progress
@@ -296,7 +296,7 @@
                   {{ index + 1 }}
                 </div>
                 <div class="rank-info">
-                  <img :src="item.picUrl" class="rank-img">
+                  <img :src="imageUrl(item.picUrl)" class="rank-img">
                   <div class="rank-text">
                     <div class="rank-name">{{ item.name }}</div>
                     <el-progress

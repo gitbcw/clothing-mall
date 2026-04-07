@@ -1,13 +1,16 @@
 var apiRootMap = {
   develop: 'http://127.0.0.1:8088/wx/',
   trial: 'http://47.107.151.70:8088/wx/',
-  release: 'http://www.transmute.cn/wx/'
+  release: 'http://47.107.151.70:8088/wx/'
 };
 var envVersion = 'trial';
 // 本地调试用 trial (HTTP)，上传体验版前改为 release (HTTPS)
 var WxApiRoot = apiRootMap[envVersion];
+// 是否为开发环境
+var isDev = envVersion === 'develop';
 
 module.exports = {
+  isDev: isDev,
   IndexUrl: WxApiRoot + 'home/index', //首页数据接口
   AboutUrl: WxApiRoot + 'home/about', //介绍信息
 
@@ -113,9 +116,8 @@ module.exports = {
   // 文件上传
   StorageUpload: WxApiRoot + 'storage/upload',
 
-  // AI 识别相关接口
-  AiRecognizeByUrl: WxApiRoot + 'ai/recognizeByUrl', // 通过 URL 识别服装
-  AiRecognize: WxApiRoot + 'ai/recognize', // 上传图片识别服装
+  // 吊牌识别相关接口
+  AiRecognizeTag: WxApiRoot + 'ai/recognizeTag', // 吊牌识别
   AiStatus: WxApiRoot + 'ai/status', // AI 服务状态
 
   // 管理端订单接口
@@ -143,4 +145,36 @@ module.exports = {
   ManagerGoodsUnpublishAll: WxApiRoot + 'manager/goods/unpublishAll', // 一键下架全部商品
   ManagerGoodsCreate: WxApiRoot + 'manager/goods/create', // 快速创建商品草稿
   ManagerGoodsCategory: WxApiRoot + 'manager/goods/category', // 商品分类列表
+
+  // 管理端场景管理接口
+  ManagerSceneList: WxApiRoot + 'manager/scene/list', // 场景列表
+  ManagerSceneRead: WxApiRoot + 'manager/scene/read', // 场景详情
+  ManagerSceneCreate: WxApiRoot + 'manager/scene/create', // 创建场景
+  ManagerSceneUpdate: WxApiRoot + 'manager/scene/update', // 更新场景
+  ManagerSceneDelete: WxApiRoot + 'manager/scene/delete', // 删除场景
+  ManagerSceneEnable: WxApiRoot + 'manager/scene/enable', // 启用/禁用场景
+  ManagerSceneGoods: WxApiRoot + 'manager/scene/goods', // 场景关联商品ID列表
+  ManagerSceneGoodsUpdate: WxApiRoot + 'manager/scene/goods/update', // 更新场景关联商品
+
+  // 管理端穿搭推荐接口
+  ManagerOutfitList: WxApiRoot + 'manager/outfit/list', // 穿搭列表
+  ManagerOutfitRead: WxApiRoot + 'manager/outfit/read', // 穿搭详情
+  ManagerOutfitCreate: WxApiRoot + 'manager/outfit/create', // 创建穿搭
+  ManagerOutfitUpdate: WxApiRoot + 'manager/outfit/update', // 更新穿搭
+  ManagerOutfitDelete: WxApiRoot + 'manager/outfit/delete', // 删除穿搭
+  ManagerOutfitStatus: WxApiRoot + 'manager/outfit/status', // 启用/禁用穿搭
+
+  // 管理端常见问题接口
+  ManagerIssueList: WxApiRoot + 'manager/issue/list', // 问题列表
+  ManagerIssueCreate: WxApiRoot + 'manager/issue/create', // 创建问题
+  ManagerIssueUpdate: WxApiRoot + 'manager/issue/update', // 更新问题
+  ManagerIssueDelete: WxApiRoot + 'manager/issue/delete', // 删除问题
+
+  // 管理端企微推送接口
+  ManagerWeWorkTags: WxApiRoot + 'manager/wework/tags', // 企微标签列表
+  ManagerWeWorkPages: WxApiRoot + 'manager/wework/pages', // 可跳转页面列表
+  ManagerWeWorkUploadMedia: WxApiRoot + 'manager/wework/uploadMedia', // 上传素材到企微
+  ManagerWeWorkSendCard: WxApiRoot + 'manager/wework/sendCard', // 发送小程序卡片
+  ManagerWeWorkSendMessage: WxApiRoot + 'manager/wework/sendMessage', // 发送消息
+  ManagerWeWorkPushGroups: WxApiRoot + 'manager/wework/pushGroups', // 推送分组列表
 };

@@ -70,7 +70,7 @@
             class="avatar-uploader"
             accept=".jpg,.jpeg,.png,.gif"
           >
-            <img v-if="dataForm.iconUrl" :src="dataForm.iconUrl" class="avatar">
+            <img v-if="dataForm.iconUrl" :src="imageUrl(dataForm.iconUrl)" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
           </el-upload>
         </el-form-item>
@@ -83,7 +83,7 @@
             class="avatar-uploader"
             accept=".jpg,.jpeg,.png,.gif"
           >
-            <img v-if="dataForm.picUrl" :src="dataForm.picUrl" class="avatar">
+            <img v-if="dataForm.picUrl" :src="imageUrl(dataForm.picUrl)" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
           </el-upload>
         </el-form-item>

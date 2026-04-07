@@ -93,7 +93,7 @@
         <el-table-column align="center" label="ID" prop="id" width="80" />
         <el-table-column align="center" label="商品图" width="80">
           <template slot-scope="scope">
-            <el-image v-if="scope.row.picUrl" :src="scope.row.picUrl" style="width: 40px; height: 40px;" fit="cover" />
+            <el-image v-if="scope.row.picUrl" :src="imageUrl(scope.row.picUrl)" style="width: 40px; height: 40px;" fit="cover" />
           </template>
         </el-table-column>
         <el-table-column align="center" label="商品名称" prop="name" />

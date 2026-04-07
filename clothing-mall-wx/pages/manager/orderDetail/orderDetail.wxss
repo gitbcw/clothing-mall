@@ -7,7 +7,7 @@
 }
 
 .status-section {
-  background: linear-gradient(135deg, #FF8096 0%, #96745A 100%);
+  background: #FF8096;
   padding: 60rpx 40rpx;
   text-align: center;
 }

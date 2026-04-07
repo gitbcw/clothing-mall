@@ -23,7 +23,7 @@
 
       <el-table-column align="center" property="url" :label="$t('sys_os.table.url')">
         <template slot-scope="scope">
-          <img :src="scope.row.url" width="40">
+          <img :src="imageUrl(scope.row.url)" width="40">
         </template>
       </el-table-column>
 

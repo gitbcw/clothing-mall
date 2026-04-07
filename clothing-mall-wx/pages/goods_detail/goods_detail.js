@@ -54,7 +54,10 @@ Page({
     showServicePopup: false,
 
     // 预览模式
-    isPreview: false
+    isPreview: false,
+
+    // 商品已下架
+    isUnshelved: false
   },
 
   onShareAppMessage() {
@@ -151,6 +154,10 @@ Page({
   getGoodsInfo() {
     let that = this
     util.request(api.GoodsDetail, { id: this.data.id }).then(function(res) {
+      if (res.errno === 710) {
+        that.setData({ isUnshelved: true })
+        return
+      }
       if (res.errno === 0 && res.data && res.data.info) {
         let info = res.data.info
         let fallback = info.picUrl || this.data.defaultImage

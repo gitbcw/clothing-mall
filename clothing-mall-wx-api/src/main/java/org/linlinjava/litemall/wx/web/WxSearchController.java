@@ -5,11 +5,10 @@ import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.ClothingScene;
 import org.linlinjava.litemall.db.domain.LitemallCategory;
-import org.linlinjava.litemall.db.domain.LitemallKeyword;
 import org.linlinjava.litemall.db.domain.LitemallSearchHistory;
 import org.linlinjava.litemall.db.service.ClothingSceneService;
 import org.linlinjava.litemall.db.service.LitemallCategoryService;
-import org.linlinjava.litemall.db.service.LitemallKeywordService;
+import org.linlinjava.litemall.db.service.LitemallGoodsService;
 import org.linlinjava.litemall.db.service.LitemallSearchHistoryService;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +33,13 @@ public class WxSearchController {
     private final Log logger = LogFactory.getLog(WxSearchController.class);
 
     @Autowired
-    private LitemallKeywordService keywordsService;
-    @Autowired
     private LitemallSearchHistoryService searchHistoryService;
     @Autowired
     private LitemallCategoryService categoryService;
     @Autowired
     private ClothingSceneService sceneService;
+    @Autowired
+    private LitemallGoodsService goodsService;
 
     /**
      * 搜索页面信息
@@ -53,14 +52,19 @@ public class WxSearchController {
      */
     @GetMapping("index")
     public Object index(@LoginUser Integer userId) {
-        //取出输入框默认的关键词
-        LitemallKeyword defaultKeyword = keywordsService.queryDefault();
-        //取出热闹关键词
-        List<LitemallKeyword> hotKeywordList = keywordsService.queryHots();
+        // 取出热门关键词（基于搜索历史频次自动生成）
+        List<Map<String, Object>> hotKeywordList = searchHistoryService.queryHotKeywords(10);
+
+        // 默认关键词：取热门第1条，无数据时用固定文案
+        Map<String, String> defaultKeyword = new HashMap<>();
+        if (!hotKeywordList.isEmpty()) {
+            defaultKeyword.put("keyword", (String) hotKeywordList.get(0).get("keyword"));
+        } else {
+            defaultKeyword.put("keyword", "搜索商品");
+        }
 
         List<LitemallSearchHistory> historyList = null;
         if (userId != null) {
-            //取出用户历史关键字
             historyList = searchHistoryService.queryByUid(userId);
         } else {
             historyList = new ArrayList<>(0);
@@ -94,13 +98,8 @@ public class WxSearchController {
     public Object helper(@NotEmpty String keyword,
                          @RequestParam(defaultValue = "1") Integer page,
                          @RequestParam(defaultValue = "10") Integer limit) {
-        List<LitemallKeyword> keywordsList = keywordsService.queryByKeyword(keyword, page, limit);
-        String[] keys = new String[keywordsList.size()];
-        int index = 0;
-        for (LitemallKeyword key : keywordsList) {
-            keys[index++] = key.getKeyword();
-        }
-        return ResponseUtil.ok(keys);
+        List<String> suggestions = goodsService.searchKeywordSuggestions(keyword, limit);
+        return ResponseUtil.ok(suggestions);
     }
 
     /**

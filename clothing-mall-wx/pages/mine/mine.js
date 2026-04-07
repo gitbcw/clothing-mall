@@ -260,9 +260,15 @@ Page({
   // 跳转管理后台
   goManager() {
     if (this.data.isManager) {
-      wx.reLaunch({
-        url: '/pages/manager/tabOrder/tabOrder'
-      })
+      if (this.data.userRole === 'guide') {
+        wx.reLaunch({
+          url: '/pages/manager/verify/verify'
+        })
+      } else {
+        wx.reLaunch({
+          url: '/pages/manager/tabOrder/tabOrder'
+        })
+      }
     }
   }
 })

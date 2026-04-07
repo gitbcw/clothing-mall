@@ -45,6 +45,9 @@ services:
     environment:
       - TZ=Asia/Shanghai
       - JAVA_OPTS=-Xmx512m -Xms256m
+      # 快递物流查询（阿里云市场API）
+      - EXPRESS_ENABLE=${EXPRESS_ENABLE:-false}
+      - EXPRESS_APPCODE=${EXPRESS_APPCODE:-}
     depends_on:
       mysql:
         condition: service_healthy

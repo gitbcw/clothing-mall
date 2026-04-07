@@ -150,7 +150,7 @@ public class WxManagerGoodsController {
      * @return 商品详情 + SKU 列表
      */
     @GetMapping("detail")
-    public Object detail(@LoginUser Integer userId, @NotNull Integer goodsId) {
+    public Object detail(@LoginUser Integer userId, @RequestParam("id") @NotNull Integer goodsId) {
         Object error = checkManager(userId);
         if (error != null) {
             return error;

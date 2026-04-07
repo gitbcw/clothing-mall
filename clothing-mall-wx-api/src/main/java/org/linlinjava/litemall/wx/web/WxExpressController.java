@@ -40,7 +40,12 @@ public class WxExpressController {
             return ResponseUtil.fail(700, "订单尚未发货");
         }
 
-        ExpressInfo expressInfo = expressService.getExpressInfo(order.getShipChannel(), order.getShipSn());
+        String customerName = null;
+        String mobile = order.getMobile();
+        if (mobile != null && mobile.length() >= 4) {
+            customerName = mobile.substring(mobile.length() - 4);
+        }
+        ExpressInfo expressInfo = expressService.getExpressInfo(order.getShipChannel(), order.getShipSn(), customerName);
         if (expressInfo == null) {
             return ResponseUtil.fail(701, "物流信息查询失败，请稍后重试");
         }

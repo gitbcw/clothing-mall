@@ -14,7 +14,7 @@
           <el-table-column align="center" label="管理员名称" prop="username" />
           <el-table-column align="center" label="管理员头像" prop="avatar">
             <template slot-scope="scope">
-              <img v-if="scope.row.avatar" :src="scope.row.avatar" width="40">
+              <img v-if="scope.row.avatar" :src="imageUrl(scope.row.avatar)" width="40">
             </template>
           </el-table-column>
           <el-table-column align="center" label="管理员角色" prop="roleIds">
@@ -76,7 +76,7 @@
             class="avatar-uploader"
             accept=".jpg,.jpeg,.png,.gif"
           >
-            <img v-if="adminForm.avatar" :src="adminForm.avatar" class="avatar">
+            <img v-if="adminForm.avatar" :src="imageUrl(adminForm.avatar)" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
           </el-upload>
         </el-form-item>

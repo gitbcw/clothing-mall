@@ -19,7 +19,7 @@
 
       <el-table-column align="center" property="picUrl" :label="$t('mall_brand.table.pic_url')">
         <template slot-scope="scope">
-          <el-image :src="thumbnail(scope.row.picUrl)" :preview-src-list="toPreview(scope.row, scope.row.picUrl)" style="width: 40px; height: 40px" />
+          <el-image :src="thumbnail(imageUrl(scope.row.picUrl))" :preview-src-list="toPreview(scope.row, imageUrl(scope.row.picUrl))" style="width: 40px; height: 40px" />
         </template>
       </el-table-column>
 
@@ -55,7 +55,7 @@
             class="avatar-uploader"
             accept=".jpg,.jpeg,.png,.gif"
           >
-            <img v-if="dataForm.picUrl" :src="dataForm.picUrl" class="avatar">
+            <img v-if="dataForm.picUrl" :src="imageUrl(dataForm.picUrl)" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
           </el-upload>
         </el-form-item>

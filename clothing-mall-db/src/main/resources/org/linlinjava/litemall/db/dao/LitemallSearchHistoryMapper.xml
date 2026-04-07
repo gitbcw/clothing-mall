@@ -424,4 +424,14 @@
     update litemall_search_history set deleted = 1
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <select id="selectHotKeywords" resultType="java.util.Map">
+    SELECT keyword, COUNT(*) as cnt
+    FROM litemall_search_history
+    WHERE deleted = 0
+      AND add_time &gt;= #{since}
+    GROUP BY keyword
+    ORDER BY cnt DESC
+    LIMIT #{limit}
+  </select>
 </mapper>

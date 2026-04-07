@@ -77,6 +77,9 @@ services:
       LITEMALL_WX_APP_ID: ${WX_APP_ID}
       LITEMALL_WX_APP_SECRET: ${WX_APP_SECRET}
       LITEMALL_WX_NOTIFY_URL: ${WX_NOTIFY_URL:-http://localhost:8088/wx/order/pay-notify}
+      # 快递物流查询（阿里云市场API）
+      EXPRESS_ENABLE: ${EXPRESS_ENABLE:-false}
+      EXPRESS_APPCODE: ${EXPRESS_APPCODE:-}
     depends_on:
       mysql:
         condition: service_healthy

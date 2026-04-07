@@ -1,3 +1,4 @@
+<wxs src="../../../utils/image.wxs" module="img" />
 <view class="container">
   <!-- 自定义导航栏 -->
   <view class="custom-nav" style="padding-top: {{statusBarHeight+16}}px; height: {{navBarHeight}}px;">
@@ -33,7 +34,7 @@
       </view>
       <view class="order-content">
         <view class="goods-item" wx:for="{{item.goodsList}}" wx:for-item="goods" wx:key="id">
-          <image class="goods-image" src="{{goods.picUrl}}" mode="aspectFill"></image>
+          <image class="goods-image" src="{{img.url(goods.picUrl)}}" mode="aspectFill"></image>
           <view class="goods-info">
             <text class="goods-name">{{goods.goodsName}}</text>
             <text class="goods-spec" wx:if="{{goods.specifications}}">{{goods.specifications}}</text>
@@ -79,7 +80,7 @@
       </view>
       <view class="order-content">
         <view class="goods-item" wx:for="{{item.goodsList}}" wx:for-item="goods" wx:key="id">
-          <image class="goods-image" src="{{goods.picUrl}}" mode="aspectFill"></image>
+          <image class="goods-image" src="{{img.url(goods.picUrl)}}" mode="aspectFill"></image>
           <view class="goods-info">
             <text class="goods-name">{{goods.goodsName}}</text>
             <text class="goods-spec" wx:if="{{goods.specifications}}">{{goods.specifications}}</text>

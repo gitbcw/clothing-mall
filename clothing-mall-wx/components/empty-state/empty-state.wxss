@@ -24,6 +24,6 @@
   padding: 16rpx 48rpx;
   font-size: 28rpx;
   color: #fff;
-  background: linear-gradient(135deg, #FF8096 0%, #96745A 100%);
+  background: #FF8096;
   border-radius: 40rpx;
 }

@@ -195,4 +195,6 @@ public interface LitemallGoodsMapper {
         @Param("sort") String sort,
         @Param("order") String order
     );
+
+    List<String> selectDistinctKeywords(@Param("keyword") String keyword, @Param("limit") int limit);
 }

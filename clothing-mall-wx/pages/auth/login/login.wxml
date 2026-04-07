@@ -1,7 +1,15 @@
 <view class="container">
   <custom-nav title="绑定手机号" />
-  <!-- 未登录模式：测试登录 -->
-  <view wx:if="{{!hasLogin}}" class="login-box">
+
+  <!-- 加载中：静默登录 -->
+  <view wx:if="{{loading}}" class="login-box">
+    <view class="loading-section">
+      <view class="loading-text">正在登录...</view>
+    </view>
+  </view>
+
+  <!-- 未登录模式（仅开发环境可见测试登录） -->
+  <view wx:elif="{{!hasLogin && isDev}}" class="login-box">
     <view class="test-login-section">
       <view class="test-login-tip">当前为测试环境，请使用测试账号登录</view>
       <button class="test-login-btn" bindtap="testLogin">一键登录（测试）</button>
@@ -10,7 +18,7 @@
   </view>
 
   <!-- 已登录模式：绑定手机号 -->
-  <view wx:else class="login-box">
+  <view wx:elif="{{hasLogin}}" class="login-box">
     <!-- 手动输入手机号绑定 -->
     <view class="form-group">
       <view class="form-item">

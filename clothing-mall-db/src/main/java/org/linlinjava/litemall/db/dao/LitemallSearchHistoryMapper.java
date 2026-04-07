@@ -1,6 +1,8 @@
 package org.linlinjava.litemall.db.dao;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 import org.linlinjava.litemall.db.domain.LitemallSearchHistory;
 import org.linlinjava.litemall.db.domain.LitemallSearchHistoryExample;
@@ -149,4 +151,6 @@ public interface LitemallSearchHistoryMapper {
      * @mbg.generated
      */
     int logicalDeleteByPrimaryKey(Integer id);
+
+    List<Map<String, Object>> selectHotKeywords(@Param("since") LocalDateTime since, @Param("limit") int limit);
 }

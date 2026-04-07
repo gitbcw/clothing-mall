@@ -13,7 +13,8 @@
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" :element-loading-text="$t('app.message.list_loading')" border fit highlight-current-row>
 
-      <el-table-column align="center" :label="$t('mall_brand.table.id')" prop="id" />
+      <!-- 隐藏品牌ID列 -->
+      <!-- <el-table-column align="center" :label="$t('mall_brand.table.id')" prop="id" /> -->
 
       <el-table-column align="center" :label="$t('mall_brand.table.name')" prop="name" />
 

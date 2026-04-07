@@ -4,7 +4,6 @@
     <div class="filter-container">
       <el-tabs v-model="activeTab" style="margin-bottom: -12px;" @tab-click="handleTabChange">
         <el-tab-pane label="全部" name="" />
-        <el-tab-pane label="测试组" name="test" />
         <el-tab-pane label="活跃组" name="active" />
         <el-tab-pane label="潜水组" name="dormant" />
         <el-tab-pane label="打捞组" name="salvage" />
@@ -16,7 +15,8 @@
 
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" element-loading-text="正在查询中。。。" border fit highlight-current-row>
-      <el-table-column align="center" label="ID" prop="id" width="80" />
+      <!-- 隐藏分组ID列 -->
+      <!-- <el-table-column align="center" label="ID" prop="id" width="80" /> -->
       <el-table-column align="center" label="分组名称" prop="name" />
       <el-table-column align="center" label="类型" prop="type" width="100">
         <template slot-scope="scope">
@@ -50,7 +50,6 @@
         </el-form-item>
         <el-form-item label="类型" prop="type">
           <el-select v-model="dataForm.type" placeholder="请选择类型" style="width: 100%;">
-            <el-option label="测试组" value="test" />
             <el-option label="活跃组" value="active" />
             <el-option label="潜水组" value="dormant" />
             <el-option label="打捞组" value="salvage" />
@@ -196,7 +195,6 @@ export default {
     },
     getTypeName(type) {
       const typeMap = {
-        test: '测试组',
         active: '活跃组',
         dormant: '潜水组',
         salvage: '打捞组'
@@ -205,7 +203,6 @@ export default {
     },
     getTypeTagType(type) {
       const tagTypeMap = {
-        test: 'info',
         active: 'success',
         dormant: 'warning',
         salvage: 'danger'

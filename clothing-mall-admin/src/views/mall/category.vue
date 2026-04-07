@@ -9,7 +9,8 @@
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" :element-loading-text="$t('app.message.list_loading')" border fit highlight-current-row row-key="id">
 
-      <el-table-column align="center" :label="$t('mall_category.table.id')" prop="id" />
+      <!-- 隐藏分类ID列 -->
+      <!-- <el-table-column align="center" :label="$t('mall_category.table.id')" prop="id" /> -->
 
       <el-table-column align="center" :label="$t('mall_category.table.name')" prop="name" />
 
@@ -144,7 +145,7 @@ export default {
         id: undefined,
         name: '',
         keywords: '',
-        level: 'L2',
+        level: 'L1',
         pid: 0,
         desc: '',
         iconUrl: '',
@@ -196,7 +197,7 @@ export default {
         id: undefined,
         name: '',
         keywords: '',
-        level: 'L2',
+        level: 'L1',
         pid: 0,
         desc: '',
         iconUrl: '',

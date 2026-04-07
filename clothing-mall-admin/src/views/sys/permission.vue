@@ -10,7 +10,8 @@
         </div>
 
         <el-table v-loading="adminLoading" :data="adminList" element-loading-text="正在查询中。。。" border fit highlight-current-row>
-          <el-table-column align="center" label="管理员ID" prop="id" sortable />
+          <!-- 隐藏管理员ID列 -->
+          <!-- <el-table-column align="center" label="管理员ID" prop="id" sortable /> -->
           <el-table-column align="center" label="管理员名称" prop="username" />
           <el-table-column align="center" label="管理员头像" prop="avatar">
             <template slot-scope="scope">

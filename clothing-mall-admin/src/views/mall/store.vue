@@ -9,7 +9,8 @@
 
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" element-loading-text="正在查询中。。。" border fit highlight-current-row>
-      <el-table-column align="center" label="ID" prop="id" width="80" />
+      <!-- 隐藏门店ID列 -->
+      <!-- <el-table-column align="center" label="ID" prop="id" width="80" /> -->
       <el-table-column align="center" label="门店名称" prop="name" />
       <el-table-column align="center" label="地址" prop="address" min-width="200" />
       <el-table-column align="center" label="电话" prop="phone" width="120" />

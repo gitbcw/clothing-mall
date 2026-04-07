@@ -12,7 +12,8 @@
 
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" :element-loading-text="$t('app.message.list_loading')" border fit highlight-current-row>
-      <el-table-column align="center" width="100px" :label="$t('user_user.table.id')" prop="id" sortable />
+      <!-- 隐藏用户ID列 -->
+      <!-- <el-table-column align="center" width="100px" :label="$t('user_user.table.id')" prop="id" sortable /> -->
 
       <el-table-column align="center" :label="$t('user_user.table.nickname')" prop="nickname" />
 

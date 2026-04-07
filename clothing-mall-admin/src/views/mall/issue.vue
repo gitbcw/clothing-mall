@@ -11,7 +11,8 @@
 
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" :element-loading-text="$t('app.message.list_loading')" border fit highlight-current-row>
-      <el-table-column align="center" width="100px" :label="$t('mall_issue.table.id')" prop="id" sortable />
+      <!-- 隐藏问题ID列 -->
+      <!-- <el-table-column align="center" width="100px" :label="$t('mall_issue.table.id')" prop="id" sortable /> -->
 
       <el-table-column align="center" min-width="200px" :label="$t('mall_issue.table.question')" prop="question" />
 

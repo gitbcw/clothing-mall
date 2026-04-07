@@ -11,7 +11,8 @@
 
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" :element-loading-text="$t('app.message.list_loading')" border fit highlight-current-row>
-      <el-table-column align="center" :label="$t('sys_admin.table.id')" prop="id" sortable />
+      <!-- 隐藏管理员ID列 -->
+      <!-- <el-table-column align="center" :label="$t('sys_admin.table.id')" prop="id" sortable /> -->
 
       <el-table-column align="center" :label="$t('sys_admin.table.username')" prop="username" />
 

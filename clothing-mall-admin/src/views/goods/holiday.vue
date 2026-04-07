@@ -17,7 +17,8 @@
 
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="filteredList" element-loading-text="正在查询中。。。" border fit highlight-current-row class="holiday-table">
-      <el-table-column align="center" label="ID" prop="id" width="70" />
+      <!-- 隐藏节日ID列 -->
+      <!-- <el-table-column align="center" label="ID" prop="id" width="70" /> -->
       <el-table-column align="center" label="节日名称" prop="name" min-width="140">
         <template slot-scope="scope">
           <span class="holiday-name">{{ scope.row.name }}</span>
@@ -90,7 +91,8 @@
       </div>
       <el-table v-loading="goodsLoading" :data="goodsList" border max-height="400" @selection-change="handleGoodsSelectionChange">
         <el-table-column type="selection" width="55" :reserve-selection="true" />
-        <el-table-column align="center" label="ID" prop="id" width="80" />
+        <!-- 隐藏商品ID列 -->
+        <!-- <el-table-column align="center" label="ID" prop="id" width="80" /> -->
         <el-table-column align="center" label="商品图" width="80">
           <template slot-scope="scope">
             <el-image v-if="scope.row.picUrl" :src="imageUrl(scope.row.picUrl)" style="width: 40px; height: 40px;" fit="cover" />

@@ -21,7 +21,8 @@
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" element-loading-text="正在加载..." border fit highlight-current-row>
 
-      <el-table-column align="center" label="ID" prop="id" width="80" />
+      <!-- 隐藏供应商ID列 -->
+      <!-- <el-table-column align="center" label="ID" prop="id" width="80" /> -->
 
       <el-table-column align="center" label="供应商名称" prop="name" min-width="150" />
 

@@ -20,7 +20,8 @@
 
     <!-- 导购列表 -->
     <el-table v-loading="listLoading" :data="list" border fit highlight-current-row>
-      <el-table-column align="center" label="ID" prop="id" width="80" />
+      <!-- 隐藏导购ID列 -->
+      <!-- <el-table-column align="center" label="ID" prop="id" width="80" /> -->
       <el-table-column align="center" label="头像" width="70">
         <template slot-scope="scope">
           <el-avatar :src="imageUrl(scope.row.avatar)" size="small" />

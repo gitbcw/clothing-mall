@@ -12,7 +12,8 @@
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" :element-loading-text="$t('app.message.list_loading')" border fit highlight-current-row>
 
-      <el-table-column align="center" :label="$t('user_feedback.table.id')" prop="id" />
+      <!-- 隐藏反馈ID列 -->
+      <!-- <el-table-column align="center" :label="$t('user_feedback.table.id')" prop="id" /> -->
 
       <el-table-column align="center" :label="$t('user_feedback.table.username')" prop="username" />
 

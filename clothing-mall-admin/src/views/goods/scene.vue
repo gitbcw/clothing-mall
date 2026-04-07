@@ -7,7 +7,8 @@
 
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" element-loading-text="正在查询中。。。" border fit highlight-current-row>
-      <el-table-column align="center" label="ID" prop="id" width="80" />
+      <!-- 隐藏场景ID列 -->
+      <!-- <el-table-column align="center" label="ID" prop="id" width="80" /> -->
       <el-table-column align="center" label="海报图" width="100">
         <template slot-scope="scope">
           <el-image v-if="scope.row.posterUrl" :src="imageUrl(scope.row.posterUrl)" style="width: 60px; height: 40px;" fit="cover" :preview-src-list="[imageUrl(scope.row.posterUrl)]" />

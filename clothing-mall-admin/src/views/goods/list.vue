@@ -105,7 +105,8 @@
       </el-table-column>
       <el-table-column type="selection" width="45" align="center" />
 
-      <el-table-column align="center" :label="$t('goods_list.table.id')" prop="id" width="70" />
+      <!-- 隐藏商品ID列 -->
+      <!-- <el-table-column align="center" :label="$t('goods_list.table.id')" prop="id" width="70" /> -->
 
       <el-table-column :label="$t('goods_list.table.name')" prop="name" min-width="160" show-overflow-tooltip>
         <template slot-scope="scope">

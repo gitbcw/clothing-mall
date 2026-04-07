@@ -13,7 +13,8 @@
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" :element-loading-text="$t('app.message.list_loading')" border fit highlight-current-row>
 
-      <el-table-column align="center" width="150px" :label="$t('mall_keyword.table.id')" prop="id" sortable />
+      <!-- 隐藏关键词ID列 -->
+      <!-- <el-table-column align="center" width="150px" :label="$t('mall_keyword.table.id')" prop="id" sortable /> -->
 
       <el-table-column align="center" min-width="100px" :label="$t('mall_keyword.table.keyword')" prop="keyword" />
 

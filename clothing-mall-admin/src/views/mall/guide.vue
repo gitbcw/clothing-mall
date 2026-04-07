@@ -10,7 +10,8 @@
 
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" element-loading-text="正在查询中。。。" border fit highlight-current-row>
-      <el-table-column align="center" label="ID" prop="id" width="80" />
+      <!-- 隐藏导购ID列 -->
+      <!-- <el-table-column align="center" label="ID" prop="id" width="80" /> -->
       <el-table-column align="center" label="头像" prop="avatar" width="80">
         <template slot-scope="scope">
           <el-avatar :src="imageUrl(scope.row.avatar)" />

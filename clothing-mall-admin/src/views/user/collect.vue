@@ -11,9 +11,11 @@
 
     <!-- 查询结果 -->
     <el-table v-loading="listLoading" :data="list" :element-loading-text="$t('app.message.list_loading')" border fit highlight-current-row>
-      <el-table-column align="center" width="100px" :label="$t('user_collect.table.id')" prop="id" sortable />
+      <!-- 隐藏收藏ID列 -->
+      <!-- <el-table-column align="center" width="100px" :label="$t('user_collect.table.id')" prop="id" sortable /> -->
 
-      <el-table-column align="center" min-width="100px" :label="$t('user_collect.table.user_id')" prop="userId" />
+      <!-- 隐藏用户ID列 -->
+      <!-- <el-table-column align="center" min-width="100px" :label="$t('user_collect.table.user_id')" prop="userId" /> -->
 
       <el-table-column align="center" min-width="100px" :label="$t('user_collect.table.value_id')" prop="valueId" />
 

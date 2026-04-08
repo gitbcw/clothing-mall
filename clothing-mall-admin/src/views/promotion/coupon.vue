@@ -32,7 +32,10 @@
       </el-table-column>
 
       <el-table-column align="center" :label="$t('promotion_coupon.table.discount')" prop="discount">
-        <template slot-scope="scope">{{ $t('promotion_coupon.text.coupon_discount', { discount: scope.row.discount }) }}</template>
+        <template slot-scope="scope">
+          <span v-if="scope.row.discountType === 1">{{ ((100 - scope.row.discount) / 10) }}折</span>
+          <span v-else>{{ scope.row.discount }}元</span>
+        </template>
       </el-table-column>
 
       <el-table-column align="center" :label="$t('promotion_coupon.table.limit')" prop="limit">
@@ -84,9 +87,19 @@
           </el-input>
         </el-form-item>
         <el-form-item :label="$t('promotion_coupon.form.discount')" prop="discount">
+          <el-radio-group v-model="dataForm.discountType" style="margin-bottom: 10px;">
+            <el-radio-button :label="0">固定金额</el-radio-button>
+            <el-radio-button :label="1">百分比折扣</el-radio-button>
+          </el-radio-group>
           <el-input v-model="dataForm.discount">
-            <template slot="append">元</template>
+            <template slot="append">{{ dataForm.discountType === 1 ? '% (减X%)' : '元' }}</template>
           </el-input>
+        </el-form-item>
+        <el-form-item v-if="dataForm.discountType === 1" label="商品件数限制">
+          <el-radio-group v-model="dataForm.itemLimit">
+            <el-radio-button :label="0">全部商品</el-radio-button>
+            <el-radio-button :label="1">仅最高价单品</el-radio-button>
+          </el-radio-group>
         </el-form-item>
         <el-form-item :label="$t('promotion_coupon.form.limit')" prop="limit">
           <el-input v-model="dataForm.limit">
@@ -262,6 +275,14 @@ const defaultTypeOptions = [
   {
     label: '兑换码',
     value: 2
+  },
+  {
+    label: '新人专享',
+    value: 3
+  },
+  {
+    label: '生日专属',
+    value: 4
   }
 ]
 
@@ -343,7 +364,9 @@ export default {
         timeType: 0,
         days: 0,
         startTime: null,
-        endTime: null
+        endTime: null,
+        discountType: 0,
+        itemLimit: 0
       },
       dialogFormVisible: false,
       dialogStatus: '',

@@ -303,6 +303,21 @@ Page({
     })
   },
 
+  previewGalleryImage(e) {
+    const index = e.currentTarget.dataset.index
+    const urls = this.data.gallery.map(item => {
+      var url = item
+      if (typeof item === 'string' && item.indexOf('http') !== 0) {
+        url = 'https://clothing-mall-2026.oss-cn-shenzhen.aliyuncs.com/' + item
+      }
+      return url
+    })
+    wx.previewImage({
+      current: urls[index],
+      urls: urls
+    })
+  },
+
   goToDetail(e) {
     const id = e.currentTarget.dataset.id
     if (!id) {

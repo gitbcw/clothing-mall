@@ -43,7 +43,7 @@ public class WxConfig {
         payConfig.setNotifyUrl(properties.getNotifyUrl());
         payConfig.setKeyPath(properties.getKeyPath());
         payConfig.setTradeType("JSAPI");
-        payConfig.setSignType("MD5");
+        payConfig.setSignType(properties.getSignType());
         return payConfig;
     }
 

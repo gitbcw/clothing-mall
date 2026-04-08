@@ -6,7 +6,7 @@
   <view class="delivery-section" wx:if="{{orderInfo.orderSn}}">
     <!-- 快递配送 - 收货地址 -->
     <view class="delivery-card" wx:if="{{orderInfo.deliveryType !== 'pickup'}}">
-      <view class="shipping-label">
+      <view class="shipping-label {{orderInfo.expNo ? 'shipping-label-clickable' : ''}}" bindtap="{{orderInfo.expNo ? 'goLogistics' : ''}}">
         <view class="shipping-label-bar"></view>
         <view class="shipping-label-body">
           <view class="shipping-label-header">
@@ -20,6 +20,20 @@
                 <text class="shipping-mobile">{{orderInfo.mobile}}</text>
               </view>
               <view class="shipping-addr-text">{{orderInfo.address}}</view>
+            </view>
+          </view>
+          <!-- 物流状态摘要（已发货时显示） -->
+          <view class="logistics-summary" wx:if="{{orderInfo.expNo && latestTrace}}">
+            <view class="logistics-summary-divider"></view>
+            <view class="logistics-summary-row">
+              <view class="logistics-summary-left">
+                <view class="logistics-status-dot"></view>
+                <text class="logistics-summary-text">{{latestTrace}}</text>
+              </view>
+              <view class="logistics-summary-arrow">
+                <text class="logistics-summary-link">查看物流</text>
+                <van-icon name="arrow" size="12px" color="#FF8096" />
+              </view>
             </view>
           </view>
         </view>

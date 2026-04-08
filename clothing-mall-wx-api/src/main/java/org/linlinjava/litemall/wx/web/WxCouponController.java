@@ -100,6 +100,9 @@ public class WxCouponController {
             couponVo.setTag(coupon.getTag());
             couponVo.setMin(coupon.getMin());
             couponVo.setDiscount(coupon.getDiscount());
+            couponVo.setDiscountType(coupon.getDiscountType());
+            couponVo.setItemLimit(coupon.getItemLimit());
+            couponVo.setType(coupon.getType());
             couponVo.setStartTime(couponUser.getStartTime());
             couponVo.setEndTime(couponUser.getEndTime());
 

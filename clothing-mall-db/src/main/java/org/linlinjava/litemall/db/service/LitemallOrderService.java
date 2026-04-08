@@ -104,8 +104,27 @@ public class LitemallOrderService {
         return orderSn;
     }
 
+    /**
+     * 统计用户指定状态的订单数量
+     */
+    public int countByUserIdAndOrderStatus(Integer userId, List<Short> orderStatus) {
+        LitemallOrderExample example = new LitemallOrderExample();
+        LitemallOrderExample.Criteria criteria = example.or();
+        criteria.andUserIdEqualTo(userId);
+        if (orderStatus != null) {
+            criteria.andOrderStatusIn(orderStatus);
+        }
+        criteria.andDeletedEqualTo(false);
+        return (int) litemallOrderMapper.countByExample(example);
+    }
+
     public List<LitemallOrder> queryByOrderStatus(Integer userId, List<Short> orderStatus, Integer page, Integer limit,
             String sort, String order) {
+        return queryByOrderStatus(userId, orderStatus, null, page, limit, sort, order);
+    }
+
+    public List<LitemallOrder> queryByOrderStatus(Integer userId, List<Short> orderStatus, LocalDateTime minUpdateTime,
+            Integer page, Integer limit, String sort, String order) {
         LitemallOrderExample example = new LitemallOrderExample();
         example.setOrderByClause(LitemallOrder.Column.addTime.desc());
         LitemallOrderExample.Criteria criteria = example.or();
@@ -120,6 +139,10 @@ public class LitemallOrderService {
             cancelledStatus.add((short) 102); // 用户取消
             cancelledStatus.add((short) 103); // 系统超时取消
             criteria.andOrderStatusNotIn(cancelledStatus);
+        }
+        // 时间过滤：仅返回 update_time >= minUpdateTime 的订单
+        if (minUpdateTime != null) {
+            criteria.andUpdateTimeGreaterThanOrEqualTo(minUpdateTime);
         }
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
             example.setOrderByClause(sort + " " + order);

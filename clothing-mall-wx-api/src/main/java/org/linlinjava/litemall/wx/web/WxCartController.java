@@ -441,8 +441,9 @@ public class WxCartController {
             }
 
             tmpCouponLength++;
-            if(tmpCouponPrice.compareTo(coupon.getDiscount()) == -1){
-                tmpCouponPrice = coupon.getDiscount();
+            BigDecimal couponDiscount = couponVerifyService.calculateDiscount(coupon, checkedGoodsList);
+            if(tmpCouponPrice.compareTo(couponDiscount) == -1){
+                tmpCouponPrice = couponDiscount;
                 tmpCouponId = coupon.getId();
                 tmpUserCouponId = couponUser.getId();
             }
@@ -472,7 +473,7 @@ public class WxCartController {
                 userCouponId = tmpUserCouponId;
             }
             else {
-                couponPrice = coupon.getDiscount();
+                couponPrice = couponVerifyService.calculateDiscount(coupon, checkedGoodsList);
             }
         }
 

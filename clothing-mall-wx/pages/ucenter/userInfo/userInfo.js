@@ -108,11 +108,6 @@ Page({
       birthday: birthday
     }, 'POST').then(res => {
       if (res.errno === 0) {
-        wx.showToast({
-          title: '保存成功',
-          icon: 'success'
-        });
-
         // 更新本地缓存
         const localUserInfo = wx.getStorageSync('userInfo') || {};
         wx.setStorageSync('userInfo', {
@@ -121,11 +116,35 @@ Page({
           avatarUrl: avatarUrl
         });
 
-        setTimeout(() => {
-          wx.navigateBack({
-            delta: 1
+        // 如果获得了生日优惠券，弹出提示
+        if (res.data && res.data.coupon) {
+          const coupon = res.data.coupon;
+          let discountText = '';
+          if (coupon.discountType === 1) {
+            discountText = ((100 - coupon.discount) / 10) + '折';
+          } else {
+            discountText = '¥' + coupon.discount;
+          }
+          wx.showModal({
+            title: '生日专属优惠券',
+            content: '您已获得' + discountText + '优惠券「' + coupon.name + '」，仅限生日当天使用',
+            confirmText: '去使用',
+            cancelText: '我知道了',
+            showCancel: true,
+            success: (modalRes) => {
+              if (modalRes.confirm) {
+                wx.switchTab({ url: '/pages/index/index' });
+              } else {
+                wx.navigateBack({ delta: 1 });
+              }
+            }
           });
-        }, 1500);
+        } else {
+          wx.showToast({ title: '保存成功', icon: 'success' });
+          setTimeout(() => {
+            wx.navigateBack({ delta: 1 });
+          }, 1500);
+        }
       } else {
         util.showErrorToast(res.errmsg || '保存失败');
       }

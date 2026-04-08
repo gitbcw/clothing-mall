@@ -55,6 +55,9 @@ services:
       - ALIYUN_OSS_ACCESS_KEY_ID=${ALIYUN_OSS_ACCESS_KEY_ID:-}
       - ALIYUN_OSS_ACCESS_KEY_SECRET=${ALIYUN_OSS_ACCESS_KEY_SECRET:-}
       - ALIYUN_OSS_BUCKET_NAME=${ALIYUN_OSS_BUCKET_NAME:-}
+      # AI 识别（火山引擎 doubao）
+      - AI_TAG_ENABLED=${AI_TAG_ENABLED:-false}
+      - DOUBAO_API_KEY=${DOUBAO_API_KEY:-}
     depends_on:
       mysql:
         condition: service_healthy

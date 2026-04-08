@@ -181,6 +181,8 @@ Component({
               that._emitChange();
               // 自动触发主图 AI 识别（使用本地临时文件，避免重复下载）
               that.recognizeImage(tempPath);
+            } else {
+              wx.showToast({ title: '主图上传失败，请重试', icon: 'none' });
             }
           });
         }
@@ -192,18 +194,17 @@ Component({
 
       var that = this;
       that.setData({ imageRecognizing: true });
-      wx.showLoading({ title: 'AI 识别中...' });
 
       wx.uploadFile({
         url: api.AiRecognizeImage,
         filePath: localFilePath,
         name: 'file',
+        timeout: 60000,
         header: {
           'X-Litemall-Token': wx.getStorageSync('token')
         },
         success: function(uploadRes) {
           that.setData({ imageRecognizing: false });
-          wx.hideLoading();
           try {
             var data = JSON.parse(uploadRes.data);
             if (data.errno === 0 && data.data) {
@@ -215,10 +216,10 @@ Component({
             wx.showToast({ title: '识别结果解析失败', icon: 'none' });
           }
         },
-        fail: function() {
+        fail: function(err) {
           that.setData({ imageRecognizing: false });
-          wx.hideLoading();
-          wx.showToast({ title: '识别请求失败', icon: 'none' });
+          console.error('recognizeImage uploadFile fail:', JSON.stringify(err));
+          wx.showToast({ title: '识别请求失败: ' + (err.errMsg || ''), icon: 'none', duration: 3000 });
         }
       });
     },

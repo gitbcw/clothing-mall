@@ -29,7 +29,7 @@
     <swiper class="goods-swiper" bindchange="onSwiperChange" autoplay="{{true}}" interval="3000" circular="{{true}}">
       <block wx:for="{{gallery}}" wx:key="*this">
         <swiper-item>
-          <image src="{{img.url(item) || defaultImage}}" mode="aspectFill" class="swiper-image" binderror="onGoodsDetailImageError" data-source="gallery" data-index="{{index}}"></image>
+          <image src="{{img.url(item) || defaultImage}}" mode="aspectFill" class="swiper-image" bindtap="previewGalleryImage" data-index="{{index}}" binderror="onGoodsDetailImageError" data-source="gallery"></image>
         </swiper-item>
       </block>
     </swiper>
@@ -128,7 +128,10 @@
     </view>
 
     <view class="detail-content">
-      <rich-text nodes="{{goods.detail}}"></rich-text>
+      <block wx:for="{{gallery}}" wx:key="*this">
+        <image src="{{img.url(item)}}" mode="widthFix" class="detail-image" bindtap="previewGalleryImage" data-index="{{index}}" binderror="onImageError" data-src="{{item}}"></image>
+      </block>
+      <rich-text nodes="{{goods.detail}}" wx:if="{{goods.detail}}"></rich-text>
     </view>
   </view>
 

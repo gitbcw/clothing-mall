@@ -7,9 +7,10 @@
 
     <view class="item" wx:for="{{couponList}}" wx:for-index="index" wx:for-item="item" wx:key="id" bindtap="selectCoupon" data-id="{{item.id}}" data-cid="{{item.cid}}">
       <view class="tag">{{item.tag}}</view>
+      <view class="birthday-badge" wx:if="{{item.isBirthday}}">仅限生日当天</view>
       <view class="content">
         <view class="left">
-          <view class="discount">{{item.discount}}元</view>
+          <view class="discount">{{item.discountText}}<text wx:if="{{item.discountType !== 1}}">元</text></view>
           <view class="min"> 满{{item.min}}元使用</view>
         </view>
         <view class="right">

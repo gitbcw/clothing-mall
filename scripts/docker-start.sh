@@ -303,21 +303,27 @@ deploy_prod() {
     log_info "开始部署到生产服务器..."
 
     # 1. 本地打包
-    log_info "步骤 1/4: 本地打包..."
+    log_info "步骤 1/5: 本地打包..."
     pack_jar
     pack_admin
 
-    # 2. 上传 JAR 文件
-    log_info "步骤 2/4: 上传 JAR 文件到服务器..."
+    # 2. 同步配置文件（docker-compose.yml + .env + application.yml）
+    log_info "步骤 2/5: 同步配置文件到服务器..."
+    scp "$DOCKER_DIR/docker-compose.yml" "$PROD_SERVER:$PROD_REMOTE_DIR/"
+    scp "$DOCKER_DIR/.env" "$PROD_SERVER:$PROD_REMOTE_DIR/"
+    scp "$DOCKER_DIR/litemall/application.yml" "$PROD_SERVER:$PROD_REMOTE_DIR/litemall/"
+
+    # 3. 上传 JAR 文件
+    log_info "步骤 3/5: 上传 JAR 文件到服务器..."
     scp "$DOCKER_DIR/litemall/litemall.jar" "$PROD_SERVER:$PROD_REMOTE_DIR/litemall/"
 
-    # 3. 上传前端文件
-    log_info "步骤 3/4: 上传前端文件到服务器..."
+    # 4. 上传前端文件
+    log_info "步骤 4/5: 上传前端文件到服务器..."
     ssh "$PROD_SERVER" "rm -rf $PROD_REMOTE_DIR/admin-dist"
     scp -r "$DOCKER_DIR/admin-dist" "$PROD_SERVER:$PROD_REMOTE_DIR/"
 
-    # 4. 远程重建并重启
-    log_info "步骤 4/4: 远程重建并重启服务..."
+    # 5. 远程重建并重启
+    log_info "步骤 5/5: 远程重建并重启服务..."
     ssh "$PROD_SERVER" << 'EOF'
 cd /home/admin/clothing-mall/docker
 echo "重建 App 镜像..."

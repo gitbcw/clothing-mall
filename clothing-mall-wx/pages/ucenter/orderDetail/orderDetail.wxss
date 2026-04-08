@@ -53,6 +53,14 @@ page {
   border-radius: 6rpx;
 }
 
+.shipping-label-clickable {
+  /* 可点击卡片 - 去除默认 hover 效果外的额外样式 */
+}
+
+.shipping-label-clickable:active {
+  opacity: 0.85;
+}
+
 .shipping-addr-row {
   display: flex;
   align-items: flex-start;
@@ -91,6 +99,61 @@ page {
   font-size: 26rpx;
   color: #888;
   line-height: 40rpx;
+}
+
+/* 物流状态摘要 */
+.logistics-summary {
+  margin-top: 20rpx;
+}
+
+.logistics-summary-divider {
+  height: 1rpx;
+  background: rgba(0, 0, 0, 0.06);
+  margin-bottom: 20rpx;
+}
+
+.logistics-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logistics-summary-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  margin-right: 16rpx;
+  overflow: hidden;
+}
+
+.logistics-status-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #FF8096;
+  flex-shrink: 0;
+  margin-right: 12rpx;
+  box-shadow: 0 0 8rpx rgba(255, 128, 150, 0.4);
+}
+
+.logistics-summary-text {
+  font-size: 26rpx;
+  color: #555;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logistics-summary-arrow {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.logistics-summary-link {
+  font-size: 24rpx;
+  color: #FF8096;
+  margin-right: 4rpx;
 }
 
 /* ================================================================

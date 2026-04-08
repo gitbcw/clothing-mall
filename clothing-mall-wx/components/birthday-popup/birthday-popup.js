@@ -63,12 +63,12 @@ Component({
 
       this.setData({ loading: true });
 
-      util.request(api.UserUpdate, {
+      util.request(api.UserProfile, {
         birthday: this.data.birthday
       }, 'POST').then(res => {
         this.setData({ loading: false });
         if (res.errno === 0) {
-          this.triggerEvent('submit', { birthday: this.data.birthday });
+          this.triggerEvent('submit', { birthday: this.data.birthday, coupon: res.data && res.data.coupon || null });
         } else {
           util.showErrorToast(res.errmsg || '保存失败');
         }

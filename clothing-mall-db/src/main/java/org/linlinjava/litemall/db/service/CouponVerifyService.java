@@ -3,11 +3,14 @@ package org.linlinjava.litemall.db.service;
 import org.linlinjava.litemall.db.domain.LitemallCart;
 import org.linlinjava.litemall.db.domain.LitemallCoupon;
 import org.linlinjava.litemall.db.domain.LitemallCouponUser;
+import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.util.CouponConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -20,6 +23,8 @@ public class CouponVerifyService {
     private LitemallCouponService couponService;
     @Autowired
     private LitemallGoodsService goodsService;
+    @Autowired
+    private LitemallUserService userService;
 
     /**
      * 检测优惠券是否适合
@@ -63,6 +68,21 @@ public class CouponVerifyService {
         }
         else {
             return null;
+        }
+
+        // 生日券：校验当天是否为用户生日（月日匹配）
+        if (CouponConstant.TYPE_BIRTHDAY.equals(coupon.getType())) {
+            LitemallUser user = userService.findById(userId);
+            if (user == null || user.getBirthday() == null) {
+                return null;
+            }
+            LocalDate today = LocalDate.now();
+            LocalDate birthday = user.getBirthday();
+            // 生日当天起连续7天可用
+            LocalDate thisYearBirthday = birthday.withYear(today.getYear());
+            if (today.isBefore(thisYearBirthday) || today.isAfter(thisYearBirthday.plusDays(6))) {
+                return null;
+            }
         }
 
         // 检测商品是否符合
@@ -111,6 +131,48 @@ public class CouponVerifyService {
         }
 
         return coupon;
+    }
+
+    /**
+     * 计算优惠券实际抵扣金额
+     * 支持固定金额折扣和百分比折扣（可限定仅最高价单品）
+     *
+     * @param coupon   优惠券
+     * @param cartList 购物车商品列表
+     * @return 实际抵扣金额
+     */
+    public BigDecimal calculateDiscount(LitemallCoupon coupon, List<LitemallCart> cartList) {
+        Short discountType = coupon.getDiscountType();
+        // 兼容旧数据：discountType 为 null 时按固定金额处理
+        if (discountType == null || CouponConstant.DISCOUNT_TYPE_FLAT.equals(discountType)) {
+            return coupon.getDiscount();
+        }
+
+        // 百分比折扣
+        if (CouponConstant.DISCOUNT_TYPE_PERCENT.equals(discountType)) {
+            Short itemLimit = coupon.getItemLimit();
+            BigDecimal percent = coupon.getDiscount(); // 如 30 表示减30%，即打7折
+
+            if (CouponConstant.ITEM_LIMIT_BEST.equals(itemLimit)) {
+                // 仅对最高价单品生效：找到最高单价，折扣 = 单价 × (percent / 100)
+                BigDecimal maxPrice = BigDecimal.ZERO;
+                for (LitemallCart cart : cartList) {
+                    if (cart.getPrice().compareTo(maxPrice) > 0) {
+                        maxPrice = cart.getPrice();
+                    }
+                }
+                return maxPrice.multiply(percent).divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
+            } else {
+                // 全部商品：折扣 = 商品总价 × (percent / 100)
+                BigDecimal total = BigDecimal.ZERO;
+                for (LitemallCart cart : cartList) {
+                    total = total.add(cart.getPrice().multiply(new BigDecimal(cart.getNumber())));
+                }
+                return total.multiply(percent).divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
+            }
+        }
+
+        return coupon.getDiscount();
     }
 
 }

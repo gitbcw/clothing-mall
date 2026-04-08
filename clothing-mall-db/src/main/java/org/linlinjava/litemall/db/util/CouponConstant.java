@@ -17,4 +17,10 @@ public class CouponConstant {
 
     public static final Short TIME_TYPE_DAYS = 0;
     public static final Short TIME_TYPE_TIME = 1;
+
+    public static final Short DISCOUNT_TYPE_FLAT = 0;      // 固定金额折扣
+    public static final Short DISCOUNT_TYPE_PERCENT = 1;    // 百分比折扣（如30表示打7折）
+
+    public static final Short ITEM_LIMIT_ALL = 0;           // 全部商品
+    public static final Short ITEM_LIMIT_BEST = 1;          // 仅最高价单品
 }

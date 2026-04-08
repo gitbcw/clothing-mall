@@ -11,6 +11,9 @@ public class CouponVo {
     private String tag;
     private BigDecimal min;
     private BigDecimal discount;
+    private Short discountType;
+    private Short itemLimit;
+    private Short type;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private boolean available;
@@ -93,5 +96,29 @@ public class CouponVo {
 
     public void setAvailable(boolean available) {
         this.available = available;
+    }
+
+    public Short getDiscountType() {
+        return discountType;
+    }
+
+    public void setDiscountType(Short discountType) {
+        this.discountType = discountType;
+    }
+
+    public Short getItemLimit() {
+        return itemLimit;
+    }
+
+    public void setItemLimit(Short itemLimit) {
+        this.itemLimit = itemLimit;
+    }
+
+    public Short getType() {
+        return type;
+    }
+
+    public void setType(Short type) {
+        this.type = type;
     }
 }

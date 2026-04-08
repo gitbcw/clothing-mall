@@ -118,7 +118,15 @@ Page({
         let list = [];
         for (var i = 0; i < res.data.list.length; i++) {
           if (res.data.list[i].available) {
-            list.push(res.data.list[i]);
+            var item = res.data.list[i];
+            // 计算折扣显示文本
+            if (item.discountType === 1) {
+              item.discountText = ((100 - Number(item.discount)) / 10) + '折';
+            } else {
+              item.discountText = item.discount;
+            }
+            item.isBirthday = item.type === 4;
+            list.push(item);
           }
         }
         that.setData({

@@ -163,10 +163,10 @@ public class OrderUtil {
             status.add((short) 301);
             status.add((short) 501);
         } else if (showType.equals(4)) {
-            // 待评价订单
+            // 已完成订单（用户确认收货、系统自动确认收货、已核销）
             status.add((short) 401);
-            // 系统超时自动取消，此时应该不支持评价
-            // status.add((short)402);
+            status.add((short) 402);
+            status.add((short) 502);
         } else {
             return null;
         }

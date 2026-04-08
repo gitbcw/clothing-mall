@@ -9,6 +9,10 @@ import org.linlinjava.litemall.db.domain.LitemallOrderExample;
 import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.LitemallOrderService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
+import org.linlinjava.litemall.db.service.CouponAssignService;
+import org.linlinjava.litemall.db.domain.LitemallCoupon;
+import org.linlinjava.litemall.db.service.LitemallCouponService;
+import org.linlinjava.litemall.core.system.SystemConfig;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +41,12 @@ public class WxUserController {
 
     @Autowired
     private LitemallOrderMapper orderMapper;
+
+    @Autowired
+    private CouponAssignService couponAssignService;
+
+    @Autowired
+    private LitemallCouponService couponService;
 
     /**
      * 用户首页数据（订单统计）
@@ -115,6 +125,10 @@ public class WxUserController {
             return ResponseUtil.badArgumentValue();
         }
 
+        // 记录生日是否首次填写
+        boolean birthdayFirstFill = false;
+        java.time.LocalDate oldBirthday = user.getBirthday();
+
         if (body.containsKey("nickname")) {
             user.setNickname((String) body.get("nickname"));
         }
@@ -125,6 +139,10 @@ public class WxUserController {
             String birthdayStr = (String) body.get("birthday");
             if (birthdayStr != null && !birthdayStr.isEmpty()) {
                 user.setBirthday(java.time.LocalDate.parse(birthdayStr));
+                // 生日从 null 变为有值，标记为首次填写
+                if (oldBirthday == null) {
+                    birthdayFirstFill = true;
+                }
             }
         }
 
@@ -132,7 +150,30 @@ public class WxUserController {
             return ResponseUtil.updatedDataFailed();
         }
 
-        return ResponseUtil.ok();
+        // 首次填写生日，自动发放生日优惠券
+        Map<String, Object> couponInfo = null;
+        if (birthdayFirstFill && SystemConfig.isBirthdayCouponEnabled()) {
+            Integer couponId = SystemConfig.getBirthdayCouponId();
+            Integer days = SystemConfig.getBirthdayCouponDays();
+            if (couponId != null) {
+                couponAssignService.assignForBirthday(userId, couponId, days);
+                LitemallCoupon coupon = couponService.findById(couponId);
+                if (coupon != null) {
+                    couponInfo = new HashMap<>();
+                    couponInfo.put("name", coupon.getName());
+                    couponInfo.put("discount", coupon.getDiscount());
+                    couponInfo.put("discountType", coupon.getDiscountType());
+                    couponInfo.put("desc", coupon.getDesc());
+                    couponInfo.put("tag", coupon.getTag());
+                }
+            }
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        if (couponInfo != null) {
+            data.put("coupon", couponInfo);
+        }
+        return ResponseUtil.ok(data);
     }
 
     /**

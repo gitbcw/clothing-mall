@@ -28,6 +28,7 @@ Page({
     scrollLeft: 0,
     scrollTop: 0,
     scrollHeight: 0,
+    scrollViewHeight: 0,
 
     // 尺码选择器
     showSkuPicker: false,
@@ -41,7 +42,8 @@ Page({
     this.setData({
       statusBarHeight,
       navBarHeight: isIOS ? 44 : 48,
-      scrollHeight: windowHeight
+      scrollHeight: windowHeight,
+      scrollViewHeight: windowHeight - statusBarHeight - (isIOS ? 44 : 48) - 52
     })
 
     if (options.id) {
@@ -159,16 +161,65 @@ Page({
     this.setData({ leftGoodsList, rightGoodsList })
   },
 
-  // 触底加载更多 / 自动跳转下一分类
-  loadMore() {
-    let pageNum = this.data.page + 1
-    if (pageNum <= this.data.pages) {
-      this.setData({ page: pageNum })
-      this.getGoodsList()
-    } else {
-      // 已是最后一页，尝试跳转下一个分类
-      this.switchToNextCategory()
+  // 记录滚动位置
+  onGoodsScroll(e) {
+    this._scrollTop = e.detail.scrollTop
+    this._scrollHeight = e.detail.scrollHeight
+  },
+
+  // 触摸开始
+  onTouchStart(e) {
+    this._touchStartY = e.touches[0].clientY
+  },
+
+  // 触摸结束，判断滑动方向 + 边界
+  onTouchEnd(e) {
+    if (this.data.loading) return
+
+    const deltaY = e.changedTouches[0].clientY - this._touchStartY
+    if (Math.abs(deltaY) < 50) return
+
+    const scrollTop = this._scrollTop || 0
+    const scrollHeight = this._scrollHeight || 0
+    const viewHeight = this.data.scrollViewHeight
+    const atTop = scrollTop <= 100
+    const atBottom = scrollTop + viewHeight >= scrollHeight - 100
+
+    if (deltaY < 0 && atBottom) {
+      // 上滑到底：有下一页就加载，没有就跳下一个分类
+      if (this.data.page < this.data.pages) {
+        this.setData({ page: this.data.page + 1 })
+        this.getGoodsList()
+      } else {
+        this.switchToNextCategory()
+      }
+    } else if (deltaY > 0 && atTop) {
+      // 下拉到顶：跳上一个分类
+      this.switchToPrevCategory()
     }
+  },
+
+  // 切换到上一个分类
+  switchToPrevCategory() {
+    const navList = this.data.navList
+    const currentId = this.data.activeCategoryId
+    let currentIndex = navList.findIndex(item => item.id === currentId)
+
+    if (currentIndex <= 0) {
+      wx.showToast({ title: '已经是第一个了', icon: 'none' })
+      return
+    }
+
+    const prevCategory = navList[currentIndex - 1]
+    this.setData({
+      activeCategoryId: prevCategory.id,
+      page: 1,
+      goodsList: [],
+      leftGoodsList: [],
+      rightGoodsList: []
+    })
+
+    this.getCategoryInfo()
   },
 
   // 自动切换到下一个分类

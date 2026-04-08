@@ -187,9 +187,32 @@ Page({
    */
   onBirthdaySubmit: function(e) {
     this.setData({ showBirthdayPopup: false });
-    wx.navigateBack({
-      delta: 1
-    });
+    // 如果获得了生日优惠券，弹出提示
+    var coupon = e.detail && e.detail.coupon;
+    if (coupon) {
+      var discountText = '';
+      if (coupon.discountType === 1) {
+        discountText = ((100 - Number(coupon.discount)) / 10) + '折';
+      } else {
+        discountText = '¥' + coupon.discount;
+      }
+      wx.showModal({
+        title: '生日专属优惠券',
+        content: '您已获得' + discountText + '优惠券「' + coupon.name + '」，仅限生日当天使用',
+        confirmText: '去使用',
+        cancelText: '我知道了',
+        showCancel: true,
+        success: function(modalRes) {
+          if (modalRes.confirm) {
+            wx.switchTab({ url: '/pages/index/index' });
+          } else {
+            wx.navigateBack({ delta: 1 });
+          }
+        }
+      });
+    } else {
+      wx.navigateBack({ delta: 1 });
+    }
   },
 
   /**

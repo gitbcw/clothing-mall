@@ -19,6 +19,8 @@ public class WxProperties {
 
     private String keyPath;
 
+    private String signType = "HMAC-SHA256";
+
     private String token;
 
     private String aesKey;
@@ -85,5 +87,13 @@ public class WxProperties {
 
     public void setKeyPath(String keyPath) {
         this.keyPath = keyPath;
+    }
+
+    public String getSignType() {
+        return signType;
+    }
+
+    public void setSignType(String signType) {
+        this.signType = signType;
     }
 }

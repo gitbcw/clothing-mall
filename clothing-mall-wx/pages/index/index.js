@@ -245,6 +245,8 @@ Page({
       if (res.errno === 0) {
         wx.showToast({ title: '已加入购物车' })
         this.setData({ showSkuPicker: false })
+        // 立即刷新悬浮购物车角标
+        if (app.globalData.onCartChange) app.globalData.onCartChange()
       } else {
         wx.showToast({ title: res.errmsg || '添加失败', icon: 'none' })
       }

@@ -10,7 +10,8 @@ Page({
     flag: false,
     handleOption: {},
     pickupStore: null,
-    defaultImage: '/static/images/fallback-image.svg'
+    defaultImage: '/static/images/fallback-image.svg',
+    latestTrace: ''
   },
   onLoad: function(options) {
     // 页面初始化 options为页面跳转所带来的参数
@@ -31,6 +32,11 @@ Page({
       flag: !that.data.flag
     })
   },
+  goLogistics: function() {
+    wx.navigateTo({
+      url: '/pages/ucenter/logistics/logistics?orderId=' + this.data.orderId
+    });
+  },
   getOrderDetail: function() {
     wx.showLoading({
       title: '加载中',
@@ -49,12 +55,19 @@ Page({
         const orderInfo = res.data.orderInfo;
         const expressInfo = res.data.expressInfo || {};
 
+        // 提取最新一条物流轨迹摘要
+        var latestTrace = '';
+        if (expressInfo.Traces && expressInfo.Traces.length > 0) {
+          latestTrace = expressInfo.Traces[0].AcceptStation || '';
+        }
+
         // 如果是自提订单，获取门店信息
         if (orderInfo.deliveryType === 'pickup' && orderInfo.pickupStoreId) {
           that.getPickupStore(orderInfo.pickupStoreId);
         }
         that.setData({
           orderInfo: res.data.orderInfo,
+          latestTrace: latestTrace,
           orderGoods: res.data.orderGoods.map(function(goods) {
             // 格式化规格显示：优先 size，否则将 specifications 数组拼接
             var specStr = '';

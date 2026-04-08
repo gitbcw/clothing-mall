@@ -134,7 +134,17 @@ public class WxOrderService {
         }
 
         List<Short> orderStatus = OrderUtil.orderStatus(showType);
-        List<LitemallOrder> orderList = orderService.queryByOrderStatus(userId, orderStatus, page, limit, sort, order);
+
+        // 已完成订单阶梯展示规则：≤10件展示全部，>10件仅展示30天内
+        LocalDateTime minUpdateTime = null;
+        if (showType != null && showType.equals(4)) {
+            int completedCount = orderService.countByUserIdAndOrderStatus(userId, orderStatus);
+            if (completedCount > 10) {
+                minUpdateTime = LocalDateTime.now().minusDays(30);
+            }
+        }
+
+        List<LitemallOrder> orderList = orderService.queryByOrderStatus(userId, orderStatus, minUpdateTime, page, limit, sort, order);
 
         List<Map<String, Object>> orderVoList = new ArrayList<>(orderList.size());
         for (LitemallOrder o : orderList) {
@@ -372,7 +382,7 @@ public class WxOrderService {
             if (coupon == null) {
                 return ResponseUtil.badArgumentValue();
             }
-            couponPrice = coupon.getDiscount();
+            couponPrice = couponVerifyService.calculateDiscount(coupon, checkedGoodsList);
         }
 
         // 新人首单立减

@@ -12,6 +12,11 @@ Component({
   lifetimes: {
     attached: function() {
       this.refreshCount();
+      // 注册全局回调，供页面加购后直接调用
+      app.globalData.onCartChange = this.refreshCount.bind(this);
+    },
+    detached: function() {
+      app.globalData.onCartChange = null;
     }
   },
 

@@ -12,6 +12,9 @@
           <text class="upload-icon">+</text>
           <text class="upload-text">主图</text>
         </view>
+        <view wx:if="{{imageRecognizing}}" class="image-recognizing-overlay">
+          <text class="recognizing-text">AI 识别中...</text>
+        </view>
       </view>
     </view>
     <view class="gallery-images">

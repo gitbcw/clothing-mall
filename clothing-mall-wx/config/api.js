@@ -116,8 +116,9 @@ module.exports = {
   // 文件上传
   StorageUpload: WxApiRoot + 'storage/upload',
 
-  // 吊牌识别相关接口
+  // AI 识别相关接口
   AiRecognizeTag: WxApiRoot + 'ai/recognizeTag', // 吊牌识别
+  AiRecognizeImage: WxApiRoot + 'ai/recognizeImage', // 主图识别
   AiStatus: WxApiRoot + 'ai/status', // AI 服务状态
 
   // 管理端订单接口

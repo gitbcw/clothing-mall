@@ -52,6 +52,7 @@ Component({
     _sceneMap: {},
     _params: [],
     tagRecognizing: false,
+    imageRecognizing: false,
     showCategoryPicker: false,
     editorCtx: null,
     formats: {}
@@ -178,10 +179,150 @@ Component({
             if (url) {
               that.setData({ '_form.picUrl': url });
               that._emitChange();
+              // 自动触发主图 AI 识别
+              that.recognizeImage(url);
             }
           });
         }
       });
+    },
+
+    recognizeImage: function(imageUrl) {
+      if (this.data.imageRecognizing) return;
+
+      var that = this;
+      // 先下载图片到临时文件（如果 imageUrl 是远程 URL）
+      wx.downloadFile({
+        url: imageUrl.indexOf('http') === 0 ? imageUrl : that.data._form.picUrl,
+        success: function(downloadRes) {
+          if (downloadRes.statusCode !== 200) return;
+
+          that.setData({ imageRecognizing: true });
+          wx.showLoading({ title: 'AI 识别中...' });
+
+          wx.uploadFile({
+            url: api.AiRecognizeImage,
+            filePath: downloadRes.tempFilePath,
+            name: 'file',
+            header: {
+              'X-Litemall-Token': wx.getStorageSync('token')
+            },
+            success: function(uploadRes) {
+              that.setData({ imageRecognizing: false });
+              wx.hideLoading();
+              try {
+                var data = JSON.parse(uploadRes.data);
+                if (data.errno === 0 && data.data) {
+                  that._applyImageRecognition(data.data);
+                } else {
+                  wx.showToast({ title: data.errmsg || '识别失败', icon: 'none' });
+                }
+              } catch (e) {
+                wx.showToast({ title: '识别结果解析失败', icon: 'none' });
+              }
+            },
+            fail: function() {
+              that.setData({ imageRecognizing: false });
+              wx.hideLoading();
+              wx.showToast({ title: '识别请求失败', icon: 'none' });
+            }
+          });
+        },
+        fail: function() {
+          // 下载失败，直接用本地路径尝试
+          that.setData({ imageRecognizing: true });
+          wx.showLoading({ title: 'AI 识别中...' });
+
+          wx.uploadFile({
+            url: api.AiRecognizeImage,
+            filePath: imageUrl,
+            name: 'file',
+            header: {
+              'X-Litemall-Token': wx.getStorageSync('token')
+            },
+            success: function(uploadRes) {
+              that.setData({ imageRecognizing: false });
+              wx.hideLoading();
+              try {
+                var respData = JSON.parse(uploadRes.data);
+                if (respData.errno === 0 && respData.data) {
+                  that._applyImageRecognition(respData.data);
+                }
+              } catch (e) { /* ignore */ }
+            },
+            fail: function() {
+              that.setData({ imageRecognizing: false });
+              wx.hideLoading();
+            }
+          });
+        }
+      });
+    },
+
+    /**
+     * 应用主图识别结果到表单（仅填充空字段）
+     */
+    _applyImageRecognition: function(result) {
+      var updates = {};
+      var hasUpdate = false;
+
+      // 名称（仅空时填充）
+      if (result.name && !this.data._form.name) {
+        updates['_form.name'] = result.name;
+        hasUpdate = true;
+      }
+
+      // 价格（仅空时填充）
+      if (result.price && !this.data._form.retailPrice) {
+        updates['_form.retailPrice'] = result.price;
+        hasUpdate = true;
+      }
+
+      // 简介（仅空时填充）
+      if (result.brief && !this.data._form.brief) {
+        updates['_form.brief'] = result.brief;
+        hasUpdate = true;
+      }
+
+      // 分类（仅空时填充，需匹配 categoryList）
+      if (result.category && !this.data._form.categoryId) {
+        var categoryList = this.data.categoryList || [];
+        for (var i = 0; i < categoryList.length; i++) {
+          if (categoryList[i].name === result.category) {
+            updates['_form.categoryId'] = categoryList[i].id;
+            updates['_form.categoryName'] = categoryList[i].name;
+            hasUpdate = true;
+            break;
+          }
+        }
+      }
+
+      // 场景（追加不重复的场景）
+      if (result.scenes && result.scenes.length > 0) {
+        var currentScenes = (this.data._scenes || []).slice();
+        var sceneMap = this.data._sceneMap || {};
+        var changed = false;
+        for (var j = 0; j < result.scenes.length; j++) {
+          if (!sceneMap[result.scenes[j]]) {
+            currentScenes.push(result.scenes[j]);
+            sceneMap[result.scenes[j]] = true;
+            changed = true;
+          }
+        }
+        if (changed) {
+          updates['_scenes'] = currentScenes;
+          updates['_sceneMap'] = sceneMap;
+          hasUpdate = true;
+        }
+      }
+
+      if (hasUpdate) {
+        this.setData(updates);
+        this._emitChange();
+        wx.showToast({ title: 'AI 识别成功', icon: 'success' });
+      } else {
+        wx.showToast({ title: '已手动填写，未覆盖', icon: 'none' });
+      }
     },
 
     recognizeTag: function() {
@@ -209,10 +350,11 @@ Component({
                 var data = JSON.parse(uploadRes.data);
                 if (data.errno === 0 && data.data) {
                   var updates = {};
-                  if (data.data.name && !that.data._form.name) {
+                  // 吊牌识别总是覆盖（吊牌信息更准确）
+                  if (data.data.name) {
                     updates['_form.name'] = data.data.name;
                   }
-                  if (data.data.price && !that.data._form.retailPrice) {
+                  if (data.data.price) {
                     updates['_form.retailPrice'] = data.data.price;
                   }
                   if (Object.keys(updates).length > 0) {
@@ -220,7 +362,7 @@ Component({
                     that._emitChange();
                     wx.showToast({ title: '吊牌识别成功', icon: 'success' });
                   } else {
-                    wx.showToast({ title: '已手动填写，未覆盖', icon: 'none' });
+                    wx.showToast({ title: '未识别到有效信息', icon: 'none' });
                   }
                 } else {
                   wx.showToast({ title: data.errmsg || '识别失败', icon: 'none' });

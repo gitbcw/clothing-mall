@@ -45,6 +45,8 @@ litemall:
     # 商户证书文件路径
     # 请参考“商户证书”一节 https://pay.weixin.qq.com/wiki/doc/api/wxa/wxa_api.php?chapter=4_3
     key-path: xxxxx
+    # 支付签名类型，可选 MD5 或 HMAC-SHA256（推荐）
+    sign-type: HMAC-SHA256
 
   #通知相关配置
   notify:
@@ -147,10 +149,6 @@ litemall:
       accessKey: 111111
       secretKey: xxxxxx
       bucketName: litemall
-
-swagger:
-  production: true
-
   # 吊牌识别配置（火山引擎 doubao）
   ai:
     tag:
@@ -159,3 +157,6 @@ swagger:
       endpoint: https://ark.cn-beijing.volces.com/api/v3/chat/completions
       model: ep-20260406233437-xddjl
       timeout: 30000
+
+swagger:
+  production: true

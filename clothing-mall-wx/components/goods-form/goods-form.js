@@ -179,82 +179,46 @@ Component({
             if (url) {
               that.setData({ '_form.picUrl': url });
               that._emitChange();
-              // 自动触发主图 AI 识别
-              that.recognizeImage(url);
+              // 自动触发主图 AI 识别（使用本地临时文件，避免重复下载）
+              that.recognizeImage(tempPath);
             }
           });
         }
       });
     },
 
-    recognizeImage: function(imageUrl) {
+    recognizeImage: function(localFilePath) {
       if (this.data.imageRecognizing) return;
 
       var that = this;
-      // 先下载图片到临时文件（如果 imageUrl 是远程 URL）
-      wx.downloadFile({
-        url: imageUrl.indexOf('http') === 0 ? imageUrl : that.data._form.picUrl,
-        success: function(downloadRes) {
-          if (downloadRes.statusCode !== 200) return;
+      that.setData({ imageRecognizing: true });
+      wx.showLoading({ title: 'AI 识别中...' });
 
-          that.setData({ imageRecognizing: true });
-          wx.showLoading({ title: 'AI 识别中...' });
-
-          wx.uploadFile({
-            url: api.AiRecognizeImage,
-            filePath: downloadRes.tempFilePath,
-            name: 'file',
-            header: {
-              'X-Litemall-Token': wx.getStorageSync('token')
-            },
-            success: function(uploadRes) {
-              that.setData({ imageRecognizing: false });
-              wx.hideLoading();
-              try {
-                var data = JSON.parse(uploadRes.data);
-                if (data.errno === 0 && data.data) {
-                  that._applyImageRecognition(data.data);
-                } else {
-                  wx.showToast({ title: data.errmsg || '识别失败', icon: 'none' });
-                }
-              } catch (e) {
-                wx.showToast({ title: '识别结果解析失败', icon: 'none' });
-              }
-            },
-            fail: function() {
-              that.setData({ imageRecognizing: false });
-              wx.hideLoading();
-              wx.showToast({ title: '识别请求失败', icon: 'none' });
+      wx.uploadFile({
+        url: api.AiRecognizeImage,
+        filePath: localFilePath,
+        name: 'file',
+        header: {
+          'X-Litemall-Token': wx.getStorageSync('token')
+        },
+        success: function(uploadRes) {
+          that.setData({ imageRecognizing: false });
+          wx.hideLoading();
+          try {
+            var data = JSON.parse(uploadRes.data);
+            if (data.errno === 0 && data.data) {
+              that._applyImageRecognition(data.data);
+            } else {
+              wx.showToast({ title: data.errmsg || '识别失败', icon: 'none' });
             }
-          });
+          } catch (e) {
+            wx.showToast({ title: '识别结果解析失败', icon: 'none' });
+          }
         },
         fail: function() {
-          // 下载失败，直接用本地路径尝试
-          that.setData({ imageRecognizing: true });
-          wx.showLoading({ title: 'AI 识别中...' });
-
-          wx.uploadFile({
-            url: api.AiRecognizeImage,
-            filePath: imageUrl,
-            name: 'file',
-            header: {
-              'X-Litemall-Token': wx.getStorageSync('token')
-            },
-            success: function(uploadRes) {
-              that.setData({ imageRecognizing: false });
-              wx.hideLoading();
-              try {
-                var respData = JSON.parse(uploadRes.data);
-                if (respData.errno === 0 && respData.data) {
-                  that._applyImageRecognition(respData.data);
-                }
-              } catch (e) { /* ignore */ }
-            },
-            fail: function() {
-              that.setData({ imageRecognizing: false });
-              wx.hideLoading();
-            }
-          });
+          that.setData({ imageRecognizing: false });
+          wx.hideLoading();
+          wx.showToast({ title: '识别请求失败', icon: 'none' });
         }
       });
     },
@@ -284,28 +248,55 @@ Component({
         hasUpdate = true;
       }
 
-      // 分类（仅空时填充，需匹配 categoryList）
+      // 分类（仅空时填充，需匹配 categoryList，支持模糊匹配）
       if (result.category && !this.data._form.categoryId) {
         var categoryList = this.data.categoryList || [];
+        var matched = false;
+        // 精确匹配
         for (var i = 0; i < categoryList.length; i++) {
           if (categoryList[i].name === result.category) {
             updates['_form.categoryId'] = categoryList[i].id;
             updates['_form.categoryName'] = categoryList[i].name;
             hasUpdate = true;
+            matched = true;
             break;
+          }
+        }
+        // 模糊匹配：AI 返回的名称包含分类名，或分类名包含 AI 返回的名称
+        if (!matched) {
+          for (var i = 0; i < categoryList.length; i++) {
+            var catName = categoryList[i].name;
+            if (catName.indexOf(result.category) > -1 || result.category.indexOf(catName) > -1) {
+              updates['_form.categoryId'] = categoryList[i].id;
+              updates['_form.categoryName'] = categoryList[i].name;
+              hasUpdate = true;
+              break;
+            }
           }
         }
       }
 
-      // 场景（追加不重复的场景）
+      // 场景（追加不重复的场景，仅匹配 presetScenes）
       if (result.scenes && result.scenes.length > 0) {
         var currentScenes = (this.data._scenes || []).slice();
         var sceneMap = this.data._sceneMap || {};
+        var presetScenes = this.data.presetScenes || [];
         var changed = false;
         for (var j = 0; j < result.scenes.length; j++) {
-          if (!sceneMap[result.scenes[j]]) {
-            currentScenes.push(result.scenes[j]);
-            sceneMap[result.scenes[j]] = true;
+          var sceneName = result.scenes[j];
+          // 匹配 presetScenes 中的场景（精确或包含）
+          var matchedScene = null;
+          for (var k = 0; k < presetScenes.length; k++) {
+            if (presetScenes[k] === sceneName ||
+                presetScenes[k].indexOf(sceneName) > -1 ||
+                sceneName.indexOf(presetScenes[k]) > -1) {
+              matchedScene = presetScenes[k];
+              break;
+            }
+          }
+          if (matchedScene && !sceneMap[matchedScene]) {
+            currentScenes.push(matchedScene);
+            sceneMap[matchedScene] = true;
             changed = true;
           }
         }

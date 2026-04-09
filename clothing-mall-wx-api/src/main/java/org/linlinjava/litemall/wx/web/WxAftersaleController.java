@@ -17,7 +17,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -206,15 +205,12 @@ public class WxAftersaleController {
     private Object validate(LitemallAftersale aftersale) {
         Short type = aftersale.getType();
         if (type == null) {
-            return ResponseUtil.badArgument();
+            return ResponseUtil.fail(401, "请选择换货类型");
         }
-        BigDecimal amount = aftersale.getAmount();
-        if (amount == null) {
-            return ResponseUtil.badArgument();
-        }
+        // amount 字段保留用于记录换货差价（线下处理），换货不需要金额验证
         String reason = aftersale.getReason();
         if (StringUtils.isEmpty(reason)) {
-            return ResponseUtil.badArgument();
+            return ResponseUtil.fail(401, "请输入换货原因");
         }
         return null;
     }

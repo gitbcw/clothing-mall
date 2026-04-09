@@ -11,7 +11,11 @@ Page({
     handleOption: {},
     pickupStore: null,
     defaultImage: '/static/images/fallback-image.svg',
-    latestTrace: ''
+    latestTrace: '',
+    aftersaleStatusText: '',
+    aftersaleStatusColor: '#FF8096',
+    aftersaleStatus: 0,
+    aftersaleStatusColumns: ['可申请', '已申请，待审核', '审核通过，待补发', '换货已发货', '审核不通过，已拒绝', '已取消', '换货完成']
   },
   onLoad: function(options) {
     // 页面初始化 options为页面跳转所带来的参数
@@ -82,6 +86,24 @@ Page({
           handleOption: res.data.orderInfo.handleOption,
           expressInfo: expressInfo
         });
+        // 设置售后状态文字和颜色
+        var aftersaleStatus = res.data.orderInfo.aftersaleStatus;
+        if (aftersaleStatus > 0) {
+          var columns = that.data.aftersaleStatusColumns;
+          var statusColorMap = {
+            1: '#FF8096',  // 已申请，待审核 - 品牌粉
+            2: '#FF9F43',  // 审核通过，待补发 - 橙色
+            3: '#54A9FF',  // 换货已发货 - 蓝色
+            4: '#FF5252',  // 审核不通过，已拒绝 - 红色
+            5: '#999999',  // 已取消 - 灰色
+            6: '#52C41A'  // 换货完成 - 绿色
+          };
+          that.setData({
+            aftersaleStatus: aftersaleStatus,
+            aftersaleStatusText: columns[aftersaleStatus] || '处理中',
+            aftersaleStatusColor: statusColorMap[aftersaleStatus] || '#FF8096'
+          });
+        }
       }
 
       wx.hideLoading();
@@ -233,6 +255,10 @@ Page({
     else{
       util.redirect('/pages/ucenter/aftersaleDetail/aftersaleDetail?id=' + this.data.orderId);
     }
+  },
+  // "查看售后详情"点击效果
+  goAftersaleDetail: function () {
+    util.redirect('/pages/ucenter/aftersaleDetail/aftersaleDetail?id=' + this.data.orderId);
   },
   // "联系客服"点击效果 - 企业微信客服
   contactService: function() {

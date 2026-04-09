@@ -117,7 +117,7 @@ page {
 .date-line {
   flex: 1;
   height: 1rpx;
-  background: #e8e8e8;
+  background: #f0f0f0;
   margin-left: 16rpx;
 }
 

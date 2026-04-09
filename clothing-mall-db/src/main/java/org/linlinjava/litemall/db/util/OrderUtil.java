@@ -2,6 +2,7 @@ package org.linlinjava.litemall.db.util;
 
 import org.linlinjava.litemall.db.domain.LitemallOrder;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -132,6 +133,7 @@ public class OrderUtil {
         } else if (status == 502) {
             handleOption.setDelete(true);
             handleOption.setRebuy(true);
+            handleOption.setAftersale(true);
         } else if (status == 503) {
             handleOption.setDelete(true);
             handleOption.setRefund(true);
@@ -214,6 +216,29 @@ public class OrderUtil {
 
     public static boolean isAutoConfirmStatus(LitemallOrder litemallOrder) {
         return OrderUtil.STATUS_AUTO_CONFIRM == litemallOrder.getOrderStatus().shortValue();
+    }
+
+    /**
+     * 判断订单是否在售后申请时限内（已完成状态且 7 天内）
+     *
+     * @param order 订单对象
+     * @return true 表示可申请售后
+     */
+    public static boolean isAftersaleAllowed(LitemallOrder order) {
+        short status = order.getOrderStatus().shortValue();
+        boolean isCompletedStatus = (status == STATUS_CONFIRM
+                                  || status == STATUS_AUTO_CONFIRM
+                                  || status == STATUS_VERIFIED);
+        if (!isCompletedStatus) {
+            return false;
+        }
+        // 7 天时限判断，以 updateTime 为准，fallback 到 addTime
+        LocalDateTime updateTime = order.getUpdateTime();
+        if (updateTime == null) {
+            updateTime = order.getAddTime();
+        }
+        LocalDateTime deadline = updateTime.plusDays(7);
+        return LocalDateTime.now().isBefore(deadline);
     }
 
 }

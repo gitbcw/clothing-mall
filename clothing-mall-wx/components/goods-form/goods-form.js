@@ -442,9 +442,23 @@ Component({
     // ========== 分类选择 ==========
 
     onShowCategoryPicker: function() {
+      var categoryId = this.data._form.categoryId;
+      var categoryList = this.data.categoryList || [];
+      var pendingIndex = null;
+
+      // 找到当前选中分类对应的索引
+      if (categoryId) {
+        for (var i = 0; i < categoryList.length; i++) {
+          if (categoryList[i].id === categoryId) {
+            pendingIndex = i;
+            break;
+          }
+        }
+      }
+
       this.setData({
         showCategoryPicker: true,
-        _pendingCategoryIndex: null
+        _pendingCategoryIndex: pendingIndex
       });
     },
 

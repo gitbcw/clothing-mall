@@ -1,5 +1,6 @@
 package org.linlinjava.litemall.core.notify.config;
 
+import cn.binarywang.wx.miniapp.api.WxMaService;
 import com.github.qcloudsms.SmsSingleSender;
 import org.linlinjava.litemall.core.notify.AliyunSmsSender;
 import org.linlinjava.litemall.core.notify.NotifyService;
@@ -23,7 +24,7 @@ public class NotifyAutoConfiguration {
     }
 
     @Bean
-    public NotifyService notifyService() {
+    public NotifyService notifyService(WxMaService wxMaService) {
         NotifyService notifyService = new NotifyService();
 
         NotifyProperties.Mail mailConfig = properties.getMail();
@@ -43,6 +44,12 @@ public class NotifyAutoConfiguration {
             }
 
             notifyService.setSmsTemplate(smsConfig.getTemplate());
+        }
+
+        NotifyProperties.Wx wxConfig = properties.getWx();
+        if (wxConfig != null && wxConfig.isEnable()) {
+            notifyService.setWxMaService(wxMaService);
+            notifyService.setWxTemplate(wxConfig.getTemplate());
         }
 
         return notifyService;

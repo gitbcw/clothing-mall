@@ -227,6 +227,20 @@ public class AdminOrderService {
         // "您的订单已经发货，快递公司 {1}，快递单 {2} ，请注意查收"
         notifyService.notifySmsTemplate(order.getMobile(), NotifyType.SHIP, new String[] { shipChannel, shipSn });
 
+        // 微信订阅消息通知发货
+        try {
+            LitemallUser user = userService.findById(order.getUserId());
+            if (user != null && user.getWeixinOpenid() != null) {
+                Map<String, String> wxData = new HashMap<>();
+                wxData.put("character_string1", order.getOrderSn());
+                wxData.put("thing3", shipChannel);
+                wxData.put("character_string4", shipSn);
+                notifyService.notifyWxSubscribeMsg(user.getWeixinOpenid(), NotifyType.SHIP, wxData);
+            }
+        } catch (Exception e) {
+            logger.warn("微信订阅消息发货通知失败: " + e.getMessage());
+        }
+
         // 企微推送发货通知（需要用户绑定企微外部联系人ID后才可用）
         // TODO: 后续可在用户表中添加 we_work_external_user_id 字段后启用
         // try {

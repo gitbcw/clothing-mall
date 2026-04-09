@@ -1,5 +1,9 @@
 package org.linlinjava.litemall.core.notify;
 
+import cn.binarywang.wx.miniapp.api.WxMaService;
+import cn.binarywang.wx.miniapp.bean.WxMaSubscribeMessage;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.scheduling.annotation.Async;
@@ -12,6 +16,7 @@ import java.util.Map;
  * 商城通知服务类
  */
 public class NotifyService {
+    private final Log logger = LogFactory.getLog(NotifyService.class);
     private MailSender mailSender;
     private String sendFrom;
     private String sendTo;
@@ -19,6 +24,7 @@ public class NotifyService {
     private SmsSender smsSender;
     private List<Map<String, String>> smsTemplate = new ArrayList<>();
 
+    private WxMaService wxMaService;
     private List<Map<String, String>> wxTemplate = new ArrayList<>();
 
     public boolean isMailEnable() {
@@ -27,6 +33,10 @@ public class NotifyService {
 
     public boolean isSmsEnable() {
         return smsSender != null;
+    }
+
+    public boolean isWxEnable() {
+        return wxMaService != null;
     }
 
     /**
@@ -99,6 +109,42 @@ public class NotifyService {
         mailSender.send(message);
     }
 
+    /**
+     * 微信小程序订阅消息通知（异步）
+     *
+     * @param openId     接收用户的 openId
+     * @param notifyType 通知类别，通过枚举值在配置中获取对应的模板ID
+     * @param dataMap    模板数据，key 为模板字段标识（如 character_string1），value 为对应值
+     */
+    @Async
+    public void notifyWxSubscribeMsg(String openId, NotifyType notifyType, Map<String, String> dataMap) {
+        if (wxMaService == null) {
+            return;
+        }
+
+        String templateId = getTemplateId(notifyType, wxTemplate);
+        if (templateId == null) {
+            logger.warn("微信订阅消息模板未配置: " + notifyType.getType());
+            return;
+        }
+
+        try {
+            WxMaSubscribeMessage message = new WxMaSubscribeMessage();
+            message.setToUser(openId);
+            message.setTemplateId(templateId);
+
+            for (Map.Entry<String, String> entry : dataMap.entrySet()) {
+                message.addData(new WxMaSubscribeMessage.MsgData(entry.getKey(), entry.getValue()));
+            }
+
+            wxMaService.getMsgService().sendSubscribeMsg(message);
+            logger.info("微信订阅消息发送成功: openId=" + openId + ", type=" + notifyType.getType());
+        } catch (Exception e) {
+            logger.warn("微信订阅消息发送失败: openId=" + openId + ", type=" + notifyType.getType()
+                    + ", error=" + e.getMessage());
+        }
+    }
+
     private String getTemplateId(NotifyType notifyType, List<Map<String, String>> values) {
         for (Map<String, String> item : values) {
             String notifyTypeStr = notifyType.getType();
@@ -131,5 +177,9 @@ public class NotifyService {
 
     public void setWxTemplate(List<Map<String, String>> wxTemplate) {
         this.wxTemplate = wxTemplate;
+    }
+
+    public void setWxMaService(WxMaService wxMaService) {
+        this.wxMaService = wxMaService;
     }
 }

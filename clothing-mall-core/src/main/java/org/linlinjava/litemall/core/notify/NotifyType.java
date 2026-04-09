@@ -7,7 +7,8 @@ public enum NotifyType {
     CAPTCHA("captcha"),
     OPS_PAY_SUCCEED("opsPaySucceed"),
     AFTERSALE_RECEPT("aftersaleRecept"),
-    AFTERSALE_SHIP("aftersaleShip");
+    AFTERSALE_SHIP("aftersaleShip"),
+    AUTO_CONFIRM("autoConfirm");
 
     private String type;
 

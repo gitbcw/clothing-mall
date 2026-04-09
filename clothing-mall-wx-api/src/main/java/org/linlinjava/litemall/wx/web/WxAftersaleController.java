@@ -134,8 +134,8 @@ public class WxAftersaleController {
         }
 
         // 订单必须完成才能进入售后流程。
-        if(!OrderUtil.isConfirmStatus(order) && !OrderUtil.isAutoConfirmStatus(order)){
-            return ResponseUtil.fail(WxResponseCode.AFTERSALE_UNALLOWED, "不能申请售后");
+        if(!OrderUtil.isAftersaleAllowed(order)){
+            return ResponseUtil.fail(WxResponseCode.AFTERSALE_UNALLOWED, "超过售后申请时限或订单状态不支持售后");
         }
         // 换货不需要金额验证，amount 字段保留用于记录换货差价（线下处理）
         Short afterStatus = order.getAftersaleStatus();
@@ -186,8 +186,8 @@ public class WxAftersaleController {
         }
 
         // 订单必须完成才能进入售后流程。
-        if(!OrderUtil.isConfirmStatus(order) && !OrderUtil.isAutoConfirmStatus(order)){
-            return ResponseUtil.fail(WxResponseCode.AFTERSALE_UNALLOWED, "不支持售后");
+        if(!OrderUtil.isAftersaleAllowed(order)){
+            return ResponseUtil.fail(WxResponseCode.AFTERSALE_UNALLOWED, "超过售后申请时限或订单状态不支持售后");
         }
         Short afterStatus = order.getAftersaleStatus();
         if(!afterStatus.equals(AftersaleConstant.STATUS_REQUEST)){

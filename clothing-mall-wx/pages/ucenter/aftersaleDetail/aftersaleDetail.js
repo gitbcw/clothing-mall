@@ -7,8 +7,8 @@ Page({
     order: {},
     orderGoods: [],
     aftersale: {},
-    statusColumns: ['未申请', '已申请，待审核', '审核通过，待退款', '退款成功', '审核不通过，已拒绝'],
-    typeColumns: ['未收货退款', '不退货退款', '退货退款'],
+    statusColumns: ['可申请', '已申请，待审核', '审核通过，待补发', '换货已发货', '审核不通过，已拒绝', '已取消', '换货完成'],
+    typeColumns: ['同款换货', '换其他商品', '商品有瑕疵', '其他原因'],
     fileList: []
   },
   onLoad: function (options) {

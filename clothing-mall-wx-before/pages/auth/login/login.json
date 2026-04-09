@@ -1,8 +1,0 @@
-{
-  "navigationStyle": "custom",
-  "navigationBarTitleText": "登录",
-  "backgroundColor": "#f4f4f4",
-  "usingComponents": {
-    "birthday-popup": "/components/birthday-popup/birthday-popup"
-  }
-}
